@@ -57,6 +57,10 @@ A checklist for moving a team without a hard stop. It uses only what Veqsio does
 
 After the projects are imported, run **Import service desks** on the same page. It creates the desk for each imported project and brings request types with their forms, groups, queues, organizations and customers. SLA goals, automation rules and portal branding are not exposed by the Jira API: recreate them in Veqsio (Service desk → SLAs and Automation) and compare a few requests side by side during the pilot.
 
+## Large Jira backups
+
+Administration, Migration, Jira backup uploads the file in chunks of 32 MB and resumes after a network error, so the size of the file is limited by disk space, not by a single request: the default maximum is **8 GB** (`MIGRATION_MAX_BYTES`). This matters behind a proxy: Cloudflare accepts at most 100 MB per request on the Free and Pro plans, and a reverse proxy usually has its own limit (nginx `client_max_body_size`, Caddy `request_body max_size`). Chunks stay far below those limits. Individual attachments are a different case: an attachment is one request, so its size is bounded by the same proxy limit (100 MB by default, `STORAGE_MAX_FILE_SIZE`). In Veqsio Cloud the data volume grows automatically while a big import runs.
+
 ## What is not migrated
 
 Permission and notification schemes when the import runs from a backup file or without an administrator token (from Jira Cloud or Data Center with an administrator's token they are copied; people are matched by account id or login, project roles by name), automation rules, dashboards and gadgets, apps/plugins and their data, SSO configuration, and anything the preview lists as unsupported. Attachments larger than the configured limit are reported. Record these in your discovery list and rebuild them by hand.

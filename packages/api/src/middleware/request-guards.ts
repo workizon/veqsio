@@ -183,7 +183,9 @@ export function csrfGuard() {
     const hasBody = c.req.raw.body !== null && c.req.header('content-length') !== '0';
     // multipart is only legitimate where files are uploaded
     const multipartOk = ct.startsWith('multipart/form-data') && UPLOAD_PATH.test(c.req.path);
-    if (hasBody && ct !== '' && !ct.includes('json') && !multipartOk) {
+    // a chunk of a large migration backup is raw bytes: octet-stream is not a content type a cross-site form can send, so it stays safe
+    const chunkOk = ct === 'application/octet-stream' && /^\/rest\/api\/2\/migration\/upload\/[0-9a-f-]{36}$/.test(c.req.path);
+    if (hasBody && ct !== '' && !ct.includes('json') && !multipartOk && !chunkOk) {
       return c.json({ errorMessages: ['Unsupported content type'] }, 415);
     }
     return next();

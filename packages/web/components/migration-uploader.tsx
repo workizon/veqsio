@@ -13,7 +13,7 @@ export function MigrationUploader({ onUpload, isUploading }: MigrationUploaderPr
   const [dragActive, setDragActive] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
-  const MAX_SIZE = 2 * 1024 * 1024 * 1024 // 2GB
+  const MAX_SIZE = 8 * 1024 * 1024 * 1024 // 8GB (uploaded in chunks; the server limit is MIGRATION_MAX_BYTES)
 
   const validateFile = (file: File): boolean => {
     if (!file.name.endsWith('.xml')) {
@@ -21,7 +21,7 @@ export function MigrationUploader({ onUpload, isUploading }: MigrationUploaderPr
       return false
     }
     if (file.size > MAX_SIZE) {
-      toast('File exceeds 2GB limit', 'error')
+      toast('File exceeds 8GB limit', 'error')
       return false
     }
     return true
@@ -93,7 +93,7 @@ export function MigrationUploader({ onUpload, isUploading }: MigrationUploaderPr
               {isUploading ? 'Uploading...' : 'Drag & drop your Jira XML backup'}
             </p>
             <p className="text-xs text-[var(--text-tertiary)] mt-1">
-              or click to browse. Max 2GB (.xml)
+              or click to browse. Max 8GB (.xml)
             </p>
           </div>
         </div>

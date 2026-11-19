@@ -140,21 +140,37 @@ export default function MigrationPage() {
   const [conflicts, setConflicts] = useState<ConflictItem[]>([])
   const [resolutions, setResolutions] = useState<Record<string, string>>({})
   const [sessionId, setSessionId] = useState<number | null>(null)
+  const [uploadPct, setUploadPct] = useState(0)
 
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
-      const formData = new FormData()
-      formData.append('file', file)
-      const res = await fetch(`${API_BASE}/rest/api/2/migration/upload`, {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      })
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data.errorMessages?.[0] || 'Upload failed')
+      // chunked and resumable: one request cannot carry a big backup through the proxies in front of a cloud workspace (100 MB through Cloudflare on the Free and Pro plans)
+      const fail = async (res: Response, fallback: string) => { const d = await res.json().catch(() => ({})); throw new Error(d.errorMessages?.[0] || fallback) }
+      const init = await fetch(`${API_BASE}/rest/api/2/migration/upload/init`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ filename: file.name, size: file.size }) })
+      if (!init.ok) await fail(init, 'Upload failed')
+      const { uploadId, chunkSize } = await init.json() as { uploadId: string; chunkSize: number }
+      let offset = 0
+      while (offset < file.size) {
+        const end = Math.min(offset + chunkSize, file.size)
+        let attempt = 0, sent = false
+        while (!sent) { // a chunk is retried with growing pauses; the server refuses a wrong offset and tells us where it is, so a retry can never duplicate data
+          try {
+            const res = await fetch(`${API_BASE}/rest/api/2/migration/upload/${uploadId}?offset=${offset}`, { method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/octet-stream' }, body: file.slice(offset, end) })
+            if (res.ok) { sent = true; break }
+            if (res.status === 409) { const d = await res.json().catch(() => ({})); if (Number.isInteger(d.received)) { offset = d.received; break } }
+            if (res.status < 500 && res.status !== 408 && res.status !== 429) await fail(res, 'Upload failed')
+            throw new Error(`HTTP ${res.status}`)
+          } catch (e) {
+            if (++attempt > 5) throw new Error(`Upload interrupted at ${Math.round(offset / 1048576)} MB: ${(e as Error).message}`)
+            await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt))
+          }
+        }
+        if (sent) offset = end
+        setUploadPct(Math.round((offset / file.size) * 100))
       }
-      return res.json()
+      const done = await fetch(`${API_BASE}/rest/api/2/migration/upload/${uploadId}/complete`, { method: 'POST', credentials: 'include' })
+      if (!done.ok) await fail(done, 'Upload failed')
+      return done.json()
     },
     onSuccess: (data) => {
       setBackupPath(data.path)
@@ -397,7 +413,7 @@ export default function MigrationPage() {
             {uploadMutation.isPending && (
               <div className="flex items-center justify-center gap-2 text-sm text-[var(--text-secondary)]">
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Uploading backup...</span>
+                <span>Uploading backup... {uploadPct}%</span>
               </div>
             )}
 

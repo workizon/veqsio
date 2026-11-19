@@ -16,5 +16,8 @@ export function passwordResetTemplate(data: {
     <p style="margin-top:16px">If the button does not work, copy and paste this link into your browser:<br/>${url}</p>
     <p>If you did not request a password reset, you can safely ignore this email.</p>
   `;
-  return baseTemplate('Reset your Veqsio password', content);
+  return baseTemplate('Reset your Veqsio password', content, {
+    html: 'You received this e-mail because a password reset was requested for your Veqsio account.',
+    text: 'You received this e-mail because a password reset was requested for your Veqsio account.',
+  });
 }

@@ -19,6 +19,7 @@ import {
   type MigrationOptions,
 } from '../migration/engine';
 import type { AppContext } from '../auth/middleware';
+import { ChunkUploads, CHUNK_MAX_BYTES, UploadError } from '../migration/chunk-upload';
 
 const app = new Hono<AppContext>();
 const UPLOAD_DIR = process.env.MIGRATION_UPLOAD_DIR || '/tmp/veqsio-migrations';
@@ -70,6 +71,38 @@ app.post('/rest/api/2/migration/upload', requireAuth, requireGlobalPermission('S
   } catch (err: any) {
     return c.json({ errorMessages: [err.message || 'Upload failed'] }, 500);
   }
+});
+
+// (the parameter is not called :id or :xxxId on purpose: numericIdGuard answers 404 to non-integer values of those)
+// Large backups: resumable upload in chunks (init, PUT chunks at an offset, complete). The one-request endpoint above holds the whole file in memory and a single
+// request is capped by the proxies in front of the server (100 MB through Cloudflare on the Free and Pro plans), so the web UI uses these.
+const MAX_BACKUP_BYTES = Number(process.env.MIGRATION_MAX_BYTES) || 8 * 1024 * 1024 * 1024; // 8 GB
+const chunked = new ChunkUploads(UPLOAD_DIR, MAX_BACKUP_BYTES);
+const uploadFailure = (c: any, err: any) => {
+  if (err instanceof UploadError) return c.json({ errorMessages: [err.message], ...(err.received !== undefined ? { received: err.received } : {}) }, err.status);
+  return c.json({ errorMessages: [err?.message || 'Upload failed'] }, 500);
+};
+app.post('/rest/api/2/migration/upload/init', requireAuth, requireGlobalPermission('SYSTEM_ADMIN'), async (c) => {
+  try {
+    const b = await c.req.json().catch(() => ({})) as { filename?: string; size?: number };
+    return c.json(await chunked.init(String(c.get('user')!.id), String(b.filename || 'backup.xml'), Number(b.size)));
+  } catch (err) { return uploadFailure(c, err); }
+});
+app.get('/rest/api/2/migration/upload/:upload', requireAuth, requireGlobalPermission('SYSTEM_ADMIN'), async (c) => {
+  try { return c.json(await chunked.status(c.req.param('upload'), String(c.get('user')!.id))); } catch (err) { return uploadFailure(c, err); }
+});
+app.put('/rest/api/2/migration/upload/:upload', requireAuth, requireGlobalPermission('SYSTEM_ADMIN'), async (c) => {
+  try {
+    if (Number(c.req.header('content-length') || 0) > CHUNK_MAX_BYTES) return c.json({ errorMessages: [`A chunk may be at most ${CHUNK_MAX_BYTES / 1024 / 1024} MB`] }, 413);
+    const chunk = new Uint8Array(await c.req.arrayBuffer());
+    return c.json(await chunked.append(c.req.param('upload'), String(c.get('user')!.id), Number(c.req.query('offset')), chunk));
+  } catch (err) { return uploadFailure(c, err); }
+});
+app.post('/rest/api/2/migration/upload/:upload/complete', requireAuth, requireGlobalPermission('SYSTEM_ADMIN'), async (c) => {
+  try {
+    const r = await chunked.complete(c.req.param('upload'), String(c.get('user')!.id), `${randomUUID()}.xml`);
+    return c.json({ success: true, filename: r.filename, size: r.size, path: r.path });
+  } catch (err) { return uploadFailure(c, err); }
 });
 
 // POST /rest/api/2/migration/analyze
@@ -170,7 +203,7 @@ app.post('/rest/api/2/migration/run', requireAuth, requireGlobalPermission('SYST
 // GET /rest/api/2/migration/:id/status
 app.get('/rest/api/2/migration/:id/status', requireAuth, requireGlobalPermission('SYSTEM_ADMIN'), async (c) => {
   try {
-    const id = parseInt(c.req.param('id'), 10);
+    const id = parseInt(c.req.param('upload'), 10);
     if (Number.isNaN(id)) {
       return c.json({ errorMessages: ['Invalid session ID'] }, 400);
     }
@@ -200,7 +233,7 @@ app.get('/rest/api/2/migration/:id/status', requireAuth, requireGlobalPermission
 // POST /rest/api/2/migration/:id/pause
 app.post('/rest/api/2/migration/:id/pause', requireAuth, requireGlobalPermission('SYSTEM_ADMIN'), async (c) => {
   try {
-    const id = parseInt(c.req.param('id'), 10);
+    const id = parseInt(c.req.param('upload'), 10);
     if (Number.isNaN(id)) {
       return c.json({ errorMessages: ['Invalid session ID'] }, 400);
     }
@@ -215,7 +248,7 @@ app.post('/rest/api/2/migration/:id/pause', requireAuth, requireGlobalPermission
 // POST /rest/api/2/migration/:id/resume
 app.post('/rest/api/2/migration/:id/resume', requireAuth, requireGlobalPermission('SYSTEM_ADMIN'), async (c) => {
   try {
-    const id = parseInt(c.req.param('id'), 10);
+    const id = parseInt(c.req.param('upload'), 10);
     if (Number.isNaN(id)) {
       return c.json({ errorMessages: ['Invalid session ID'] }, 400);
     }
@@ -256,7 +289,7 @@ app.post('/rest/api/2/migration/:id/resume', requireAuth, requireGlobalPermissio
 // GET /rest/api/2/migration/:id/logs
 app.get('/rest/api/2/migration/:id/logs', requireAuth, requireGlobalPermission('SYSTEM_ADMIN'), async (c) => {
   try {
-    const id = parseInt(c.req.param('id'), 10);
+    const id = parseInt(c.req.param('upload'), 10);
     if (Number.isNaN(id)) {
       return c.json({ errorMessages: ['Invalid session ID'] }, 400);
     }
