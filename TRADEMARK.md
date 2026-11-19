@@ -30,4 +30,4 @@ remove the text "based on Veqsio" in your documentation.
 Only the project and its licensed partners may offer services under the Veqsio name. If you would like to become a
 hosting or support partner, see [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md).
 
-This policy may change. Questions: [CONTACT ADDRESS TO BE ADDED BY THE PROJECT OWNER].
+This policy may change. Questions: legal@veqsio.com.

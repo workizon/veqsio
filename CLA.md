@@ -70,9 +70,9 @@ distributed under other terms.
 
 ## 8. General
 
-This agreement is governed by the law of [JURISDICTION]. It continues for as long as the licences in sections 2 and 3
+This agreement is governed by the law of England and Wales. It continues for as long as the licences in sections 2 and 3
 are in force. If a provision is unenforceable, the rest stays valid. You can contact the Project Steward at
-[CONTACT ADDRESS].
+legal@veqsio.com.
 
 ## 9. Corporate contributors
 

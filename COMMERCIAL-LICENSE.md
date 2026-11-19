@@ -25,4 +25,4 @@ everything you stored stays readable and exportable.
 
 ## Contact
 
-Commercial enquiries: https://veqsio.com
+Commercial enquiries: https://veqsio.com or legal@veqsio.com
