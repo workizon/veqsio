@@ -1,0 +1,19 @@
+# One-shot tools image: applies database migrations, seeds the first administrator and (optionally) demo data.
+# Build from the repository root:  docker build -f deploy/Dockerfile.tools .
+FROM oven/bun:1-alpine
+WORKDIR /app
+COPY package.json bun.lock ./
+COPY packages/api/package.json ./packages/api/
+COPY packages/db/package.json ./packages/db/
+COPY packages/shared/package.json ./packages/shared/
+COPY packages/sdk/package.json ./packages/sdk/
+COPY packages/client/package.json ./packages/client/
+COPY packages/mcp/package.json ./packages/mcp/
+COPY packages/web/package.json ./packages/web/
+# Workspaces include the bundled modules; the lockfile check fails without their manifests
+COPY modules ./modules
+COPY ee ./ee
+RUN bun install --frozen-lockfile
+COPY packages/db ./packages/db
+WORKDIR /app/packages/db
+CMD ["bun", "migrate.ts"]

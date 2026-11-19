@@ -1,0 +1,14 @@
+Veqsio
+Copyright (C) 2026 The Veqsio Authors, maintained by Workizon Ltd (https://workizon.ltd)
+
+This product is free software licensed under the GNU Affero General Public License, version 3 only
+(AGPL-3.0-only); see the file LICENSE. Everything in this repository is covered by the AGPL.
+
+Paid modules (for example Timesheets, Plans, ITSM, Assets) are not part of this repository. They are distributed
+separately to licence holders under the Veqsio Enterprise License.
+
+The names "Veqsio" and the Veqsio logo are trademarks of the project and are not licensed under the AGPL;
+see TRADEMARK.md.
+
+"The Veqsio Authors" means the copyright holders of the code in this repository, including everyone who has
+contributed under the Contributor License Agreement (CLA.md).

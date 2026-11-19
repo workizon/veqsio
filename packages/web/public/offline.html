@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Offline</title>
+<style>body{margin:0;min-height:100vh;font-family:system-ui,sans-serif;background:#0A1322;color:#e5e7eb;padding:24px}main{max-width:40rem;margin:0 auto}h1{font-size:1.4rem;margin:0 0 .5rem}h2{font-size:1.05rem;margin:1.6rem 0 .5rem}p{color:#9ca3af;line-height:1.5}button{margin-top:1rem;padding:.6rem 1.2rem;border:0;border-radius:8px;background:#155EEF;color:#fff;font-size:1rem;cursor:pointer}button.link{background:none;padding:0;color:#7ea6ff;font-size:inherit;margin:0;text-align:left}ul{list-style:none;padding:0;margin:0}li{border-top:1px solid #1f2b44;padding:.6rem 0}li small{display:block;color:#9ca3af}dl{display:grid;grid-template-columns:max-content 1fr;gap:.25rem 1rem;color:#9ca3af}dd{margin:0;color:#e5e7eb}pre{white-space:pre-wrap;word-break:break-word;background:#0f1b30;border-radius:8px;padding:12px;color:#e5e7eb;font-family:inherit}</style></head>
+<body><main>
+<div id="top"><h1>You are offline</h1><p>The app needs a connection to load your work. Your changes are never stored on this device. Reconnect and try again.</p><button onclick="location.reload()">Try again</button></div>
+<section id="saved" hidden><h2>Issues saved on this device for reading</h2><p id="note">Read only. Saved when you opened them, so they may be out of date.</p><ul id="list"></ul><div id="detail" hidden></div></section>
+</main>
+<script>
+// Offline reading: the list comes from IndexedDB (lib/offline-cache.ts), and everything is put on the page as text, never as markup.
+(function () {
+  if (!window.indexedDB) return;
+  var req = indexedDB.open('veqsio-offline', 1);
+  req.onupgradeneeded = function () { req.result.createObjectStore('issues', { keyPath: 'key' }); };
+  req.onerror = function () {};
+  req.onsuccess = function () {
+    var db = req.result;
+    if (!db.objectStoreNames.contains('issues')) return;
+    var all = db.transaction('issues').objectStore('issues').getAll();
+    all.onsuccess = function () {
+      var rows = (all.result || []).sort(function (a, b) { return b.savedAt - a.savedAt; });
+      if (!rows.length) return;
+      document.getElementById('saved').hidden = false;
+      var list = document.getElementById('list');
+      rows.forEach(function (r) {
+        var li = document.createElement('li');
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'link';
+        b.textContent = r.key + '  ' + r.summary;
+        b.onclick = function () { show(r); };
+        var s = document.createElement('small'); s.textContent = [r.status, r.project, 'saved ' + new Date(r.savedAt).toLocaleString()].filter(Boolean).join(' · ');
+        li.appendChild(b); li.appendChild(s); list.appendChild(li);
+      });
+    };
+  };
+  function show(r) {
+    var d = document.getElementById('detail'); d.textContent = ''; d.hidden = false;
+    document.getElementById('list').hidden = true; document.getElementById('note').hidden = true;
+    var back = document.createElement('button'); back.type = 'button'; back.className = 'link'; back.textContent = '← Saved issues';
+    back.onclick = function () { d.hidden = true; document.getElementById('list').hidden = false; document.getElementById('note').hidden = false; };
+    var h = document.createElement('h2'); h.textContent = r.key + '  ' + r.summary;
+    var dl = document.createElement('dl');
+    [['Project', r.project], ['Type', r.type], ['Status', r.status], ['Priority', r.priority], ['Assignee', r.assignee], ['Reporter', r.reporter], ['Updated', r.updated]].forEach(function (p) {
+      if (!p[1]) return; var dt = document.createElement('dt'); dt.textContent = p[0]; var dd = document.createElement('dd'); dd.textContent = p[1]; dl.appendChild(dt); dl.appendChild(dd);
+    });
+    var pre = document.createElement('pre'); pre.textContent = r.description || '(no description)';
+    d.appendChild(back); d.appendChild(h); d.appendChild(dl); d.appendChild(pre);
+  }
+})();
+</script>
+</body></html>

@@ -1,0 +1,1 @@
+ALTER TABLE "sd_automation_rules" ADD COLUMN "conditions" jsonb DEFAULT '{}'::jsonb NOT NULL;

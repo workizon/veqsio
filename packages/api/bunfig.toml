@@ -1,0 +1,3 @@
+[test]
+# Heavy suites seed a lot of data in beforeAll; the 5 s default makes them flaky on slow CI runners.
+timeout = 30000

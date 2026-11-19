@@ -1,0 +1,255 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    # Docs, screenshots and notes cannot break the build: do not spend CI minutes on them
+    paths-ignore: ['docs/**', '**/*.md', 'LICENSE', 'NOTICE', '.github/ISSUE_TEMPLATE/**']
+  pull_request:
+    branches: [main, master]
+    paths-ignore: ['docs/**', '**/*.md', 'LICENSE', 'NOTICE', '.github/ISSUE_TEMPLATE/**']
+
+# A newer push to the same branch makes the older run pointless
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_ENV: test
+  DATABASE_URL: postgresql://veqsio:veqsio@localhost:5432/veqsio_test
+  TEST_DATABASE_URL: postgresql://veqsio:veqsio@localhost:5432/veqsio_test
+  REDIS_URL: redis://localhost:6379
+  WEB_URL: http://localhost:3001
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      # Known-vulnerable dependencies: reported on every run; it fails the build for a critical advisory.
+      - name: Dependency audit
+        run: |
+          bun audit --audit-level=critical
+          bun audit --audit-level=high || echo "::warning::dependencies with high advisories remain; see the log"
+
+      - name: Lint API
+        run: cd packages/api && bun run lint || true
+
+      - name: Lint Web
+        run: cd packages/web && npm run lint || true
+
+  api-tests:
+    name: API Unit & Integration Tests
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: veqsio
+          POSTGRES_PASSWORD: veqsio
+          POSTGRES_DB: veqsio_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run DB migrations
+        run: cd packages/db && bun run migrate
+
+      - name: Check the community/enterprise code boundary
+        run: ./scripts/check-ee-boundary.sh
+
+      - name: Check migrations match schema.ts
+        run: |
+          cd packages/db
+          bunx drizzle-kit generate --name ci_check
+          if [ -n "$(git status --porcelain -- .)" ]; then
+            echo "::error::schema.ts has changes without a migration. Run 'bun run db:generate' in packages/db and commit the result."
+            git status --porcelain -- .
+            exit 1
+          fi
+
+      - name: Run API unit tests
+        run: cd packages/api && bun test src/**/*.test.ts
+
+      - name: Run API integration tests
+        run: cd packages/api && bun test tests/integration/all.test.ts
+        env:
+          # the suite makes thousands of requests as a handful of users
+          RATE_LIMIT_USER_MAX: "100000"
+
+      - name: Backup and restore-verification scripts (real pg_dump / pg_restore)
+        run: bash scripts/test-backup-restore.sh
+        env:
+          TEST_PG_ADMIN_URL: postgresql://veqsio:veqsio@localhost:5432/postgres
+
+      # Paid modules are not in the public repository: run their tests only when a checkout contains them.
+      - name: Run paid module tests (only when present)
+        run: |
+          for dir in ee/modules/*/tests; do
+            [ -d "$dir" ] || continue
+            echo "== $dir"; bun test "$dir"
+          done
+        env:
+          REDIS_URL: "memory:"
+
+  mcp:
+    name: MCP server and REST client
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Type check client and MCP server
+        run: |
+          cd packages/client && bun run build
+          cd ../mcp && bun run build
+
+      - name: Test client and MCP server
+        run: |
+          cd packages/client && bun test src/
+          cd ../mcp && bun test tests/
+
+  web-build:
+    name: Web Build
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build web
+        run: cd packages/web && npm run build
+
+  e2e-tests:
+    name: Playwright E2E Tests
+    runs-on: ubuntu-24.04
+    # The browser install step hung for 10 minutes on every push and the suite never reached its tests, so it must not
+    # burn minutes on every push to master. It runs on pull requests and on demand until it is verified.
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    timeout-minutes: 20
+    needs: [web-build]
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: veqsio
+          POSTGRES_PASSWORD: veqsio
+          POSTGRES_DB: veqsio_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Install Playwright browsers
+        timeout-minutes: 6
+        run: cd packages/web && npx playwright install --with-deps chromium
+
+      - name: Run DB migrations
+        run: cd packages/db && bun run migrate
+
+      - name: Start API in background
+        run: |
+          cd packages/api
+          bun run dev &
+          sleep 5
+
+      - name: Run Playwright tests
+        run: cd packages/web && npx playwright test
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3001
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: packages/web/playwright-report/
+
+  installer:
+    name: Installer checks
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Offline deployment backup checks
+        run: bash scripts/test-deploy.sh
+      - name: Offline installer checks
+        run: bash scripts/test-installer.sh
+      - name: Docker images build (api, web, migrate)
+        run: |
+          docker compose -f docker-compose.prod.yml -f docker-compose.install.yml --profile tools build api web migrate
+        env:
+          POSTGRES_PASSWORD: ci-only

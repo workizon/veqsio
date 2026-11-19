@@ -1,0 +1,53 @@
+{
+  "name": "@veqsio/api",
+  "version": "1.0.0",
+  "license": "AGPL-3.0-only",
+  "module": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "start": "bun dist/index.js",
+    "lint": "eslint src/",
+    "test": "bun test src/**/*.test.ts tests/integration/all.test.ts",
+    "test:unit": "bun test src/**/*.test.ts",
+    "test:integration": "bun test tests/integration/**/*.test.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.500.0",
+    "@aws-sdk/s3-request-presigner": "^3.500.0",
+    "@hono/zod-validator": "^0.2.0",
+    "@node-saml/node-saml": "^5.2.0",
+    "@opentelemetry/api": "^1.10.0",
+    "@opentelemetry/core": "^3.1.1",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.301.2",
+    "@opentelemetry/resources": "^3.1.1",
+    "@opentelemetry/sdk-trace-base": "^2.12.0",
+    "@opentelemetry/semantic-conventions": "^1.45.0",
+    "@veqsio/sdk": "workspace:*",
+    "bcryptjs": "^2.4.3",
+    "drizzle-orm": "0.45.2",
+    "fast-xml-parser": "^5.12.1",
+    "hono": "^4.12.21",
+    "imapflow": "2.11.0",
+    "ioredis": "^5.4.0",
+    "ldapts": "^9.2.0",
+    "mailparser": "^3.14.5",
+    "nodemailer": "^10.6.0",
+    "papaparse": "^5.5.3",
+    "postgres": "3.4.5",
+    "sharp": "^0.35.0",
+    "web-push": "^4.0.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/bun": "latest",
+    "@types/mailparser": "^3.9.0",
+    "@types/nodemailer": "^6.4.0",
+    "@types/papaparse": "^5.5.2",
+    "@types/web-push": "^3.6.4",
+    "typescript": "^5.5.0",
+    "xml-crypto": "6.4.0"
+  }
+}

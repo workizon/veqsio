@@ -1,0 +1,78 @@
+{
+  "viewer": { "name": "Alice Admin", "email": "alice@corp.example" },
+  "teamPages": [
+    { "nodes": [{ "id": "team-eng", "key": "ENG", "name": "Engineering", "description": "Product engineering" }], "pageInfo": { "hasNextPage": true, "endCursor": "t1" } },
+    { "nodes": [{ "id": "team-dsg", "key": "DSG", "name": "Design", "description": null }], "pageInfo": { "hasNextPage": false, "endCursor": null } }
+  ],
+  "states": {
+    "team-eng": [
+      { "name": "Backlog", "type": "backlog", "position": 0 },
+      { "name": "Todo", "type": "unstarted", "position": 1 },
+      { "name": "In Progress", "type": "started", "position": 2 },
+      { "name": "Done", "type": "completed", "position": 3 },
+      { "name": "Canceled", "type": "canceled", "position": 4 }
+    ],
+    "team-dsg": [{ "name": "Todo", "type": "unstarted", "position": 0 }]
+  },
+  "cycles": {
+    "team-eng": [
+      { "id": "cyc-1", "number": 1, "name": null, "description": "First cycle", "startsAt": "2020-01-06T00:00:00.000Z", "endsAt": "2020-01-20T00:00:00.000Z", "completedAt": "2020-01-20T00:00:00.000Z" },
+      { "id": "cyc-2", "number": 2, "name": "Cycle 2", "description": null, "startsAt": "2020-01-20T00:00:00.000Z", "endsAt": "2099-01-01T00:00:00.000Z", "completedAt": null }
+    ],
+    "team-dsg": []
+  },
+  "projects": { "team-eng": [{ "name": "Platform" }], "team-dsg": [] },
+  "issuePages": {
+    "team-eng": [
+      { "nodes": [
+        {
+          "id": "iss-1", "identifier": "ENG-1", "title": "Login fails for SSO users", "description": "Steps to reproduce\n\n1. Sign in",
+          "priority": 1, "estimate": 5, "url": "https://linear.app/corp/issue/ENG-1",
+          "createdAt": "2020-01-07T10:00:00.000Z", "updatedAt": "2020-01-10T10:00:00.000Z", "completedAt": "2020-01-10T09:00:00.000Z", "canceledAt": null, "startedAt": "2020-01-08T10:00:00.000Z", "dueDate": "2020-01-15",
+          "state": { "name": "Done", "type": "completed" },
+          "assignee": { "id": "u-alice", "name": "alice", "displayName": "Alice A", "email": "alice@corp.example" },
+          "creator": { "id": "u-bob", "name": "bob", "displayName": "Bob B", "email": "bob@corp.example" },
+          "labels": { "nodes": [{ "name": "Bug" }, { "name": "customer facing" }] },
+          "parent": null, "cycle": { "id": "cyc-1" }, "project": { "name": "Platform" },
+          "attachments": { "nodes": [{ "id": "att-1" }] },
+          "comments": { "nodes": [
+            { "id": "cm-1", "body": "Looking into it", "createdAt": "2020-01-08T11:00:00.000Z", "updatedAt": "2020-01-08T11:00:00.000Z", "user": { "id": "u-alice", "name": "alice", "displayName": "Alice A", "email": "alice@corp.example" } },
+            { "id": "cm-2", "body": "Fixed in 1.2", "createdAt": "2020-01-10T09:30:00.000Z", "updatedAt": "2020-01-10T09:30:00.000Z", "user": { "id": "u-bob", "name": "bob", "displayName": "Bob B", "email": "bob@corp.example" } }
+          ], "pageInfo": { "hasNextPage": true, "endCursor": "cm-page-2" } },
+          "relations": { "nodes": [{ "type": "blocks", "relatedIssue": { "id": "iss-3" } }, { "type": "related", "relatedIssue": { "id": "iss-2" } }] }
+        },
+        {
+          "id": "iss-2", "identifier": "ENG-2", "title": "Add regression test", "description": null,
+          "priority": 3, "estimate": null, "url": "https://linear.app/corp/issue/ENG-2",
+          "createdAt": "2020-01-08T10:00:00.000Z", "updatedAt": "2020-01-09T10:00:00.000Z", "completedAt": null, "canceledAt": null, "startedAt": null, "dueDate": null,
+          "state": { "name": "In Progress", "type": "started" },
+          "assignee": { "id": "u-zed", "name": "zed", "displayName": "Zed Z", "email": "zed@corp.example" },
+          "creator": { "id": "u-alice", "name": "alice", "displayName": "Alice A", "email": "alice@corp.example" },
+          "labels": { "nodes": [] }, "parent": { "id": "iss-1" }, "cycle": { "id": "cyc-2" }, "project": null,
+          "attachments": { "nodes": [] },
+          "comments": { "nodes": [], "pageInfo": { "hasNextPage": false, "endCursor": null } },
+          "relations": { "nodes": [] }
+        }
+      ], "pageInfo": { "hasNextPage": true, "endCursor": "i1" } },
+      { "nodes": [
+        {
+          "id": "iss-3", "identifier": "ENG-3", "title": "Drop legacy endpoint", "description": "No longer needed",
+          "priority": 0, "estimate": 2, "url": null,
+          "createdAt": "2020-01-09T10:00:00.000Z", "updatedAt": "2020-01-11T10:00:00.000Z", "completedAt": null, "canceledAt": "2020-01-11T10:00:00.000Z", "startedAt": null, "dueDate": null,
+          "state": { "name": "Canceled", "type": "canceled" },
+          "assignee": null, "creator": null,
+          "labels": { "nodes": [{ "name": "tech-debt" }] }, "parent": null, "cycle": null, "project": { "name": "Platform" },
+          "attachments": { "nodes": [] },
+          "comments": { "nodes": [], "pageInfo": { "hasNextPage": false, "endCursor": null } },
+          "relations": { "nodes": [] }
+        }
+      ], "pageInfo": { "hasNextPage": false, "endCursor": null } }
+    ],
+    "team-dsg": [{ "nodes": [], "pageInfo": { "hasNextPage": false, "endCursor": null } }]
+  },
+  "moreComments": {
+    "iss-1": { "nodes": [
+      { "id": "cm-3", "body": "Released", "createdAt": "2020-01-11T09:30:00.000Z", "updatedAt": "2020-01-11T09:30:00.000Z", "user": { "id": "u-alice", "name": "alice", "displayName": "Alice A", "email": "alice@corp.example" } }
+    ], "pageInfo": { "hasNextPage": false, "endCursor": null } }
+  }
+}

@@ -1,0 +1,1 @@
+ALTER TABLE "custom_field_contexts" ADD COLUMN "default_value" text;

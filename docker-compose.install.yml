@@ -1,0 +1,68 @@
+# Overlay used by install.sh together with docker-compose.prod.yml (COMPOSE_FILE in .env).
+#
+#  - Postgres, Redis, Prometheus and Grafana are NOT published on the host.
+#  - nginx (internal router for web + API + WebSocket) is not published either; Caddy is the only public entry
+#    point and gets a Let's Encrypt certificate automatically when VEQSIO_DOMAIN is set.
+#  - `migrate` is a one-shot tools container (profile "tools"): `docker compose run --rm migrate`.
+#
+# Requires Docker Compose v2.24+ (the `!reset` tag).
+services:
+  # Nothing but Caddy listens on a public port. Databases and internal tools are reachable only inside the
+  # Docker network (use `docker compose exec` for maintenance).
+  postgres:
+    ports: !reset []
+
+  redis:
+    ports: !reset []
+
+  nginx:
+    ports: !reset []
+
+  prometheus:
+    ports: !reset []
+
+  grafana:
+    ports: !reset []
+
+  migrate:
+    profiles: ["tools"]
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.tools
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-veqsio}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-veqsio}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - veqsio-network
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: veqsio-caddy
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+      - "${HTTPS_PORT:-443}:443/udp"
+    volumes:
+      - ./.install/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      nginx:
+        condition: service_started
+    networks:
+      - veqsio-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+volumes:
+  caddy_data:
+  caddy_config:

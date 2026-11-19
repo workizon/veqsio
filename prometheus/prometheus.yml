@@ -1,0 +1,23 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# Alert rules: see alerts.example.yml (mount it and uncomment).
+# rule_files:
+#   - /etc/prometheus/alerts.example.yml
+
+scrape_configs:
+  # /metrics is disabled until METRICS_TOKEN is set on the API (docs/observability.md). Then put the same value in a file,
+  # mount it into the Prometheus container and uncomment `authorization`. Without the token the target simply shows as down.
+  - job_name: 'veqsio-api'
+    metrics_path: /metrics
+    scrape_interval: 15s
+    # authorization:
+    #   type: Bearer
+    #   credentials_file: /etc/prometheus/metrics_token
+    static_configs:
+      - targets: ['api:3000']        # multi-node: list every api/worker node (docker-compose.ha.yml: api1, api2, worker)
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

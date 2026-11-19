@@ -1,0 +1,3 @@
+ALTER TABLE "service_requests" ADD COLUMN "csat_handled_at" timestamp with time zone;--> statement-breakpoint
+ALTER TABLE "service_requests" ADD COLUMN "csat_handled_by" integer;--> statement-breakpoint
+ALTER TABLE "service_requests" ADD CONSTRAINT "service_requests_csat_handled_by_users_id_fk" FOREIGN KEY ("csat_handled_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;

@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "projects": [
+    {
+      "id": "web",
+      "key": "WEBSITE",
+      "name": "Website",
+      "description": "Public website",
+      "lead": "lead@corp.example",
+      "statuses": ["Backlog", { "name": "In Progress", "category": "in_progress" }, { "name": "Shipped", "category": "done" }],
+      "sprints": [
+        { "id": "s1", "name": "Sprint 1", "state": "closed", "startDate": "2022-01-03", "endDate": "2022-01-14", "completeDate": "2022-01-14" },
+        { "id": "s2", "name": "Sprint 2", "state": "active", "startDate": "2022-01-17" }
+      ],
+      "issues": [
+        {
+          "id": "1", "title": "Set up hosting", "description": "Pick a provider", "type": "Task", "status": "Shipped", "priority": "High",
+          "assignee": "dev@corp.example", "reporter": { "email": "lead@corp.example", "name": "Lena Lead" },
+          "createdAt": "2022-01-03T08:00:00Z", "updatedAt": "2022-01-10T08:00:00Z", "resolvedAt": "2022-01-10T08:00:00Z", "dueDate": "2022-01-12",
+          "labels": ["infra", "ops"], "components": ["Platform"], "storyPoints": 3, "timeEstimate": "1d", "timeSpent": 7200, "sprint": "s1",
+          "comments": [
+            { "id": "c1", "author": "lead@corp.example", "body": "Use the EU region", "createdAt": "2022-01-04T08:00:00Z" },
+            { "author": "Someone Without Email", "body": "Agreed", "createdAt": "2022-01-05T08:00:00Z" }
+          ],
+          "links": [{ "type": "blocks", "target": "2" }],
+          "customerId": "ACME-1"
+        },
+        { "id": "2", "title": "Write launch post", "status": "In Progress", "priority": "Medium", "parent": "1", "sprint": "s2", "assignee": "nobody@corp.example", "dueDate": "not a date" },
+        { "id": "3", "title": "Backlog idea", "status": "Backlog", "parent": "999" },
+        { "id": "4" },
+        { "id": "3", "title": "Duplicate id" }
+      ]
+    }
+  ]
+}

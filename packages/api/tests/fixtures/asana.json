@@ -1,0 +1,73 @@
+{
+  "me": { "gid": "u1", "name": "Alice Admin", "email": "alice@corp.example", "workspaces": [{ "gid": "ws1", "name": "Corp" }] },
+  "projectPages": [
+    { "data": [{ "gid": "p1", "name": "Website Redesign" }], "next_page": { "offset": "o1", "uri": "https://app.asana.com/api/1.0/projects?workspace=ws1&archived=false&opt_fields=name&limit=100&offset=o1" } },
+    { "data": [{ "gid": "p2", "name": "Marketing" }], "next_page": null }
+  ],
+  "taskCounts": { "p1": 4, "p2": 0 },
+  "projectDetail": {
+    "p1": { "gid": "p1", "name": "Website Redesign", "notes": "Redesign the marketing site", "owner": { "gid": "u1", "name": "Alice Admin", "email": "alice@corp.example" } },
+    "p2": { "gid": "p2", "name": "Marketing", "notes": "", "owner": null }
+  },
+  "sections": {
+    "p1": [{ "gid": "s0", "name": "Untitled section" }, { "gid": "s1", "name": "In progress" }, { "gid": "s2", "name": "Complete" }],
+    "p2": []
+  },
+  "taskPages": {
+    "p1": [
+      { "data": [
+        {
+          "gid": "t1", "name": "Design homepage", "notes": "Hero section and navigation", "completed": false, "completed_at": null,
+          "created_at": "2021-03-01T09:00:00.000Z", "modified_at": "2021-03-05T09:00:00.000Z", "due_on": "2021-03-20", "due_at": null, "start_on": "2021-03-02",
+          "resource_subtype": "default_task", "num_subtasks": 1, "permalink_url": "https://app.asana.com/0/p1/t1",
+          "estimated_minutes": 120, "actual_time_minutes": 30,
+          "assignee": { "gid": "u2", "name": "Bob B", "email": "bob@corp.example" },
+          "created_by": { "gid": "u1", "name": "Alice Admin", "email": "alice@corp.example" },
+          "memberships": [{ "project": { "gid": "p1" }, "section": { "name": "In progress" } }],
+          "tags": [{ "name": "design" }, { "name": "q1 goal" }],
+          "custom_fields": [
+            { "name": "Priority", "type": "enum", "display_value": "High", "number_value": null, "enum_value": { "name": "High" } },
+            { "name": "Story points", "type": "number", "display_value": "8", "number_value": 8, "enum_value": null },
+            { "name": "Budget", "type": "number", "display_value": "1000", "number_value": 1000, "enum_value": null },
+            { "name": "Empty field", "type": "text", "display_value": null, "number_value": null, "enum_value": null }
+          ]
+        }
+      ], "next_page": { "offset": "t-o1", "uri": "https://app.asana.com/api/1.0/tasks?project=p1&completed_since=1970-01-01T00%3A00%3A00.000Z&limit=100&offset=t-o1" } },
+      { "data": [
+        {
+          "gid": "t2", "name": "Write copy", "notes": null, "completed": true, "completed_at": "2021-03-10T09:00:00.000Z",
+          "created_at": "2021-03-01T10:00:00.000Z", "modified_at": "2021-03-10T09:00:00.000Z", "due_on": null, "due_at": null, "start_on": null,
+          "resource_subtype": "default_task", "num_subtasks": 0, "permalink_url": null,
+          "assignee": null, "created_by": { "gid": "u3", "name": "Carol C" },
+          "memberships": [{ "project": { "gid": "p1" }, "section": { "name": "Untitled section" } }],
+          "tags": [], "custom_fields": []
+        },
+        {
+          "gid": "t3", "name": "Launch", "notes": "Go live", "completed": false, "completed_at": null,
+          "created_at": "2021-03-01T11:00:00.000Z", "modified_at": "2021-03-01T11:00:00.000Z", "due_on": "2021-04-01", "due_at": null, "start_on": null,
+          "resource_subtype": "milestone", "num_subtasks": 0, "permalink_url": null,
+          "assignee": null, "created_by": { "gid": "u1", "name": "Alice Admin", "email": "alice@corp.example" },
+          "memberships": [{ "project": { "gid": "p1" }, "section": { "name": "Untitled section" } }],
+          "tags": [], "custom_fields": []
+        }
+      ], "next_page": null }
+    ],
+    "p2": [{ "data": [], "next_page": null }]
+  },
+  "subtasks": {
+    "t1": [{
+      "gid": "t1a", "name": "Pick colours", "notes": "", "completed": true, "completed_at": "2021-03-04T09:00:00.000Z",
+      "created_at": "2021-03-02T09:00:00.000Z", "modified_at": "2021-03-04T09:00:00.000Z", "due_on": null, "due_at": null, "start_on": null,
+      "resource_subtype": "default_task", "num_subtasks": 0, "permalink_url": null,
+      "assignee": { "gid": "u2", "name": "Bob B", "email": "bob@corp.example" }, "created_by": null,
+      "memberships": [], "tags": [], "custom_fields": []
+    }]
+  },
+  "stories": {
+    "t1": [
+      { "gid": "st1", "resource_subtype": "comment_added", "text": "Mockups are in Figma", "created_at": "2021-03-03T09:00:00.000Z", "created_by": { "gid": "u2", "name": "Bob B", "email": "bob@corp.example" } },
+      { "gid": "st2", "resource_subtype": "assigned", "text": "Alice assigned to Bob", "created_at": "2021-03-01T09:30:00.000Z", "created_by": { "gid": "u1", "name": "Alice Admin" } }
+    ],
+    "t2": [{ "gid": "st3", "resource_subtype": "comment_added", "text": "Approved by legal", "created_at": "2021-03-09T09:00:00.000Z", "created_by": { "gid": "u3", "name": "Carol C" } }]
+  }
+}

@@ -1,0 +1,1 @@
+ALTER TABLE "intake_settings" ADD COLUMN "notify_lead" boolean DEFAULT true NOT NULL;

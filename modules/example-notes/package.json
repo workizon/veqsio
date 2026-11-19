@@ -1,0 +1,22 @@
+{
+  "name": "@veqsio-modules/example-notes",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reference module: exercises every Veqsio extension point. Copy it to start a new module.",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "exports": {
+    "./manifest": "./veqsio.module.json",
+    "./server": "./src/server.ts",
+    "./web": "./src/web.tsx"
+  },
+  "dependencies": {
+    "@veqsio/sdk": "workspace:*",
+    "drizzle-orm": "0.45.2",
+    "hono": "^4.12.21",
+    "zod": "^3.23.0"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  }
+}

@@ -1,0 +1,1 @@
+ALTER TABLE "permission_entries" ADD COLUMN "project_lead" boolean DEFAULT false;

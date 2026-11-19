@@ -1,0 +1,50 @@
+{
+  "user": { "user": { "id": 1, "username": "Alice Admin", "email": "alice@corp.example" } },
+  "teams": { "teams": [{ "id": "9001", "name": "Corp" }] },
+  "spaces": { "9001": { "spaces": [{ "id": "s1", "name": "Product Development", "statuses": [
+    { "status": "to do", "type": "open", "orderindex": 0 },
+    { "status": "in review", "type": "custom", "orderindex": 1 },
+    { "status": "complete", "type": "closed", "orderindex": 2 }
+  ] }] } },
+  "folders": { "s1": { "folders": [{ "id": "f1", "name": "Sprint Board", "lists": [{ "id": "l1", "name": "Backlog", "task_count": 3 }] }] } },
+  "looseLists": { "s1": { "lists": [{ "id": "l2", "name": "Ideas", "task_count": 0 }] } },
+  "taskPages": {
+    "l1": [
+      { "last_page": false, "tasks": [
+        {
+          "id": "c1", "custom_id": null, "name": "Implement billing", "text_content": "plain text", "markdown_description": "**Billing** details",
+          "status": { "status": "in review", "type": "custom" },
+          "date_created": "1609459200000", "date_updated": "1609545600000", "date_closed": null, "date_done": null, "due_date": "1612137600000", "start_date": "1609718400000",
+          "creator": { "id": 2, "username": "Bob B", "email": "bob@corp.example" },
+          "assignees": [{ "id": 3, "username": "Carol C", "email": "carol@corp.example" }, { "id": 4, "username": "Dan D", "email": "dan@corp.example" }],
+          "tags": [{ "name": "finance" }], "parent": null, "priority": { "id": "2", "priority": "high" },
+          "time_estimate": 7200000, "time_spent": 1800000, "points": 3,
+          "url": "https://app.clickup.com/t/c1",
+          "checklists": [{ "id": "ck1" }], "attachments": [], "custom_fields": [{ "name": "Cost", "value": "12" }, { "name": "Unset", "value": null }],
+          "dependencies": [{ "task_id": "c3", "depends_on": "c1", "type": 1 }, { "task_id": "c1", "depends_on": "c0-outside", "type": 0 }],
+          "linked_tasks": [{ "task_id": "c1", "link_id": "c2" }]
+        }
+      ] },
+      { "last_page": true, "tasks": [
+        {
+          "id": "c2", "custom_id": "PD-2", "name": "Invoice template", "text_content": "", "markdown_description": null,
+          "status": { "status": "complete", "type": "closed" },
+          "date_created": "1609459200000", "date_updated": "1609632000000", "date_closed": "1609632000000", "date_done": "1609632000000", "due_date": null, "start_date": null,
+          "creator": { "id": 2, "username": "Bob B", "email": "bob@corp.example" },
+          "assignees": [], "tags": [], "parent": "c1", "priority": null, "time_estimate": null, "time_spent": null, "points": null,
+          "url": null, "checklists": [], "attachments": [{ "id": "a1" }], "custom_fields": [],
+          "dependencies": [], "linked_tasks": [{ "task_id": "c1", "link_id": "c2" }]
+        },
+        {
+          "id": "c3", "custom_id": null, "name": "Go live", "text_content": "Ship it", "markdown_description": null,
+          "status": { "status": "to do", "type": "open" },
+          "date_created": "1609459200000", "date_updated": "1609459200000", "date_closed": null, "date_done": null, "due_date": null, "start_date": null,
+          "creator": null, "assignees": [], "tags": [], "parent": null, "priority": { "id": "4", "priority": "low" }, "time_estimate": null, "time_spent": null, "points": null,
+          "url": null, "checklists": [], "attachments": [], "custom_fields": [],
+          "dependencies": [{ "task_id": "c3", "depends_on": "c1", "type": 0 }], "linked_tasks": []
+        }
+      ] }
+    ],
+    "l2": [{ "last_page": true, "tasks": [] }]
+  }
+}

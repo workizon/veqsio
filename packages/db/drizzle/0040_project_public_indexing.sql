@@ -1,0 +1,1 @@
+ALTER TABLE "projects" ADD COLUMN "public_indexing" varchar(10) DEFAULT 'inherit' NOT NULL;

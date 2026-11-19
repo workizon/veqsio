@@ -1,0 +1,31 @@
+{
+  "name": "@veqsio/mcp",
+  "version": "1.0.0",
+  "description": "Model Context Protocol server for Veqsio: lets AI assistants work with an instance through its public REST API and a personal access token",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "main": "src/index.ts",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
+  "bin": {
+    "veqsio-mcp": "src/bin.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit -p .",
+    "start": "bun src/bin.ts",
+    "test": "bun test tests/"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "@veqsio/client": "workspace:*",
+    "hono": "^4.12.21",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.5.0"
+  }
+}

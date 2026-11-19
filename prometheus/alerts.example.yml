@@ -1,0 +1,70 @@
+# Example alert rules for Veqsio (docs/observability.md). Not loaded by default: add
+#   rule_files: ['/etc/prometheus/alerts.example.yml']
+# to prometheus.yml and mount this file. Thresholds are starting points; tune them to your traffic and job intervals.
+groups:
+  - name: veqsio
+    rules:
+      - alert: VeqsioDatabaseDown
+        expr: veqsio_db_up == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations: { summary: "{{ $labels.instance }} cannot reach PostgreSQL" }
+
+      - alert: VeqsioRedisDown
+        expr: veqsio_redis_up == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations: { summary: "{{ $labels.instance }} cannot reach Redis (sessions, rate limits and real-time fan-out are affected)" }
+
+      - alert: VeqsioSchemaOutdated
+        expr: veqsio_schema_migrations_applied < veqsio_schema_migrations_expected
+        for: 5m
+        labels: { severity: critical }
+        annotations: { summary: "{{ $labels.instance }} runs a build that expects more migrations than the database has" }
+
+      - alert: VeqsioJobStalled
+        # No node completed the job for 10 minutes. The slowest job interval is 5 minutes (digests, approvals).
+        expr: time() - max by (job) (veqsio_job_last_success_timestamp_seconds) > 600
+        for: 5m
+        labels: { severity: warning }
+        annotations: { summary: "Background job {{ $labels.job }} has not succeeded on any node for 10 minutes" }
+
+      - alert: VeqsioJobFailing
+        expr: sum by (job) (increase(veqsio_job_runs_total{result="failure"}[15m])) > 3
+        labels: { severity: warning }
+        annotations: { summary: "Background job {{ $labels.job }} failed repeatedly" }
+
+      - alert: VeqsioEmailBacklog
+        expr: max(veqsio_queue_depth{queue="email",state="pending"}) > 200
+        for: 15m
+        labels: { severity: warning }
+        annotations: { summary: "More than 200 e-mails are waiting; check SMTP settings and the email-queue job" }
+
+      - alert: VeqsioDeliveryFailures
+        expr: max by (kind) (veqsio_delivery_failures_24h) > 25
+        for: 30m
+        labels: { severity: warning }
+        annotations: { summary: "Many failed {{ $labels.kind }} deliveries in the last 24 hours" }
+
+      - alert: VeqsioHighErrorRate
+        expr: sum(rate(veqsio_http_requests_total{status_class="5xx"}[5m])) / sum(rate(veqsio_http_requests_total[5m])) > 0.02
+        for: 10m
+        labels: { severity: critical }
+        annotations: { summary: "More than 2% of requests fail with 5xx" }
+
+      - alert: VeqsioSlowRequests
+        expr: histogram_quantile(0.95, sum by (le) (rate(veqsio_http_request_duration_seconds_bucket[5m]))) > 1.5
+        for: 10m
+        labels: { severity: warning }
+        annotations: { summary: "95th percentile request latency above 1.5 s" }
+
+      - alert: VeqsioDbConnectionsNearLimit
+        expr: sum(veqsio_db_connections) / max(veqsio_db_server_max_connections) > 0.8
+        for: 10m
+        labels: { severity: warning }
+        annotations: { summary: "PostgreSQL connections above 80% of max_connections (sum of all pools plus other clients)" }
+
+      - alert: VeqsioLicenceExpiring
+        expr: veqsio_licence_expires_timestamp_seconds - time() < 14 * 86400
+        labels: { severity: info }
+        annotations: { summary: "The licence expires in less than 14 days" }

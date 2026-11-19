@@ -1,0 +1,621 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Brand: a single deep cobalt accent */
+    --brand-50: #EEF3FF;
+    --brand-100: #DCE6FF;
+    --brand-200: #BCCFFF;
+    --brand-300: #8FAEFF;
+    --brand-400: #5F89FA;
+    --brand-500: #3D6AF0;
+    --brand-600: #2D54D8;
+    --brand-700: #2444B0;
+    --brand-800: #1E3A8A;
+    --brand-900: #172B66;
+
+    /* Surface: cool, slightly tinted neutrals (page is surface-1, cards are surface-0) */
+    --surface-0: #FFFFFF;
+    --surface-1: #F8F9FB;
+    --surface-2: #F1F3F7;
+    --surface-3: #E6E9EF;
+    --surface-4: #D6DAE3;
+
+    /* Text: ink instead of pure black */
+    --text-primary: #101828;
+    --text-secondary: #475467;
+    --text-tertiary: #667085;
+    --button-primary: #2D54D8;
+    --button-primary-hover: #2444B0;
+    --text-inverse: #FFFFFF;
+
+    /* Semantic */
+    --success: #16A06A;
+    --warning: #F79009;
+    --error: #D92D20;
+    --info: #2D54D8;
+
+    /* Status */
+    --status-todo: #667085;
+    --status-inprogress: #2D54D8;
+    --status-done: #16A06A;
+
+    /* Shadows: soft and layered */
+    --shadow-sm: 0 1px 2px rgba(16,24,40,0.05);
+    --shadow-md: 0 1px 2px rgba(16,24,40,0.04), 0 6px 16px -4px rgba(16,24,40,0.08);
+    --shadow-lg: 0 2px 4px rgba(16,24,40,0.04), 0 12px 28px -6px rgba(16,24,40,0.12);
+    --shadow-xl: 0 4px 8px rgba(16,24,40,0.06), 0 28px 56px -12px rgba(16,24,40,0.22);
+
+    /* Label chips (generated from lib/label-colors.ts; tests keep them in sync) */
+    --label-gray-bg: #EEF0F3;
+    --label-gray-fg: #3F4654;
+    --label-gray-dot: #6B7385;
+    --label-red-bg: #FDE8E6;
+    --label-red-fg: #A3261B;
+    --label-red-dot: #D92D20;
+    --label-orange-bg: #FEEBD9;
+    --label-orange-fg: #9A4A07;
+    --label-orange-dot: #C25800;
+    --label-amber-bg: #FEF3C7;
+    --label-amber-fg: #7A5700;
+    --label-amber-dot: #9C6F00;
+    --label-lime-bg: #ECF7D0;
+    --label-lime-fg: #476808;
+    --label-lime-dot: #578508;
+    --label-green-bg: #DDF5E8;
+    --label-green-fg: #14693F;
+    --label-green-dot: #11805A;
+    --label-teal-bg: #D5F5F0;
+    --label-teal-fg: #0F6B62;
+    --label-teal-dot: #0D8176;
+    --label-cyan-bg: #D6F1FA;
+    --label-cyan-fg: #0B6178;
+    --label-cyan-dot: #0A7F9E;
+    --label-blue-bg: #E0E9FF;
+    --label-blue-fg: #2444B0;
+    --label-blue-dot: #3D6AF0;
+    --label-indigo-bg: #E8E7FF;
+    --label-indigo-fg: #3F3BA8;
+    --label-indigo-dot: #5B57E0;
+    --label-violet-bg: #F0E5FF;
+    --label-violet-fg: #6527B5;
+    --label-violet-dot: #8B46E0;
+    --label-pink-bg: #FCE4F1;
+    --label-pink-fg: #A21E63;
+    --label-pink-dot: #DB3F90;
+
+    /* Transitions */
+    --transition-fast: 100ms ease;
+    --transition-base: 150ms ease;
+    --transition-slow: 250ms ease;
+  }
+
+  .dark {
+    /* Brand Dark: one vivid azure accent on neutral graphite (no blue tint in the surfaces) */
+    --brand-50: #14202F;
+    --brand-100: #172840;
+    --brand-200: #1C3354;
+    --brand-300: #234273;
+    --brand-400: #2F6FD0;
+    --brand-500: #3D8BFD;
+    --brand-600: #5A9EFF;
+    --brand-700: #85B8FF;
+    --brand-800: #AECFFF;
+    --brand-900: #D6E7FF;
+
+    /* Surface Dark: neutral charcoal. surface-1 is the page, surface-0 the cards and panels */
+    --surface-0: #1B1C1E;
+    --surface-1: #131415;
+    --surface-2: #242527;
+    --surface-3: #2E2F32;
+    --surface-4: #3C3D41;
+
+    /* Text Dark */
+    --text-primary: #ECEDEF;
+    --text-secondary: #A3A6AB;
+    --text-tertiary: #94989F;
+    --button-primary: #2D54D8;
+    --button-primary-hover: #2444B0;
+    --text-inverse: #131415;
+
+    /* Semantic Dark */
+    --success: #3FB27F;
+    --warning: #E8A33D;
+    --error: #F06A64;
+    --info: #5A9EFF;
+
+    /* Status Dark */
+    --status-todo: #A3A6AB;
+    --status-inprogress: #5A9EFF;
+    --status-done: #3FB27F;
+
+    /* Shadows Dark: pure black, no tint */
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.45);
+    --shadow-md: 0 6px 16px -4px rgba(0,0,0,0.6);
+    --shadow-lg: 0 12px 28px -6px rgba(0,0,0,0.7);
+    --shadow-xl: 0 28px 56px -12px rgba(0,0,0,0.8);
+
+    /* Label chips dark */
+    --label-gray-bg: #2B303B;
+    --label-gray-fg: #C9CFDA;
+    --label-gray-dot: #8F98AB;
+    --label-red-bg: #4A1D1A;
+    --label-red-fg: #FFB4AC;
+    --label-red-dot: #F97066;
+    --label-orange-bg: #4A2A0C;
+    --label-orange-fg: #FFC796;
+    --label-orange-dot: #F79B3E;
+    --label-amber-bg: #46380A;
+    --label-amber-fg: #F8DB7C;
+    --label-amber-dot: #EAB308;
+    --label-lime-bg: #2E3F0E;
+    --label-lime-fg: #C9E68A;
+    --label-lime-dot: #9CCB3B;
+    --label-green-bg: #123E2A;
+    --label-green-fg: #8FE3B6;
+    --label-green-dot: #3CC98A;
+    --label-teal-bg: #0F3D39;
+    --label-teal-fg: #85E3D8;
+    --label-teal-dot: #2FC4B6;
+    --label-cyan-bg: #0E3B49;
+    --label-cyan-fg: #8ADBF0;
+    --label-cyan-dot: #34B7DA;
+    --label-blue-bg: #1B2E6B;
+    --label-blue-fg: #AFC6FF;
+    --label-blue-dot: #6C8FFA;
+    --label-indigo-bg: #2A2870;
+    --label-indigo-fg: #C3C0FF;
+    --label-indigo-dot: #8A86F5;
+    --label-violet-bg: #3A2170;
+    --label-violet-fg: #DDC2FF;
+    --label-violet-dot: #B27EF5;
+    --label-pink-bg: #4B1634;
+    --label-pink-fg: #FFB3D8;
+    --label-pink-dot: #F26FB0;
+
+    /* Transitions */
+    --transition-fast: 100ms ease;
+    --transition-base: 150ms ease;
+    --transition-slow: 250ms ease;
+  }
+
+
+  fieldset { min-width: 0; }
+
+  ::selection { background: var(--brand-200); color: var(--text-primary); }
+
+  /* Quiet, thin scrollbars */
+  * { scrollbar-width: thin; scrollbar-color: var(--surface-4) transparent; }
+  *::-webkit-scrollbar { width: 10px; height: 10px; }
+  *::-webkit-scrollbar-thumb { background: var(--surface-4); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+  *::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); background-clip: content-box; }
+
+  input[type='checkbox'], input[type='radio'] { accent-color: var(--brand-600); width: 15px; height: 15px; cursor: pointer; }
+  input[type='checkbox'] { border-radius: 4px; }
+
+  a:focus-visible, button:focus-visible, summary:focus-visible, [role='menuitem']:focus-visible {
+    outline: 2px solid var(--brand-400);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-geist-sans), 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
+    letter-spacing: -0.003em;
+    color: var(--text-primary);
+    background-color: var(--surface-1);
+    transition: background-color var(--transition-base), color var(--transition-base);
+  }
+}
+
+@layer components {
+  .veqsio-card {
+    background: var(--surface-0);
+    border: 1px solid var(--surface-3);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-base), transform var(--transition-fast), background-color var(--transition-base), border-color var(--transition-base);
+  }
+
+  a.veqsio-card:hover, button.veqsio-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--surface-4);
+  }
+
+  .veqsio-btn-primary {
+    background: var(--button-primary);
+    color: #FFFFFF;
+    border-radius: 8px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 1px 2px rgba(16,24,40,0.12);
+    padding: 6px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background var(--transition-base), box-shadow var(--transition-base);
+  }
+
+  .veqsio-btn-primary:hover {
+    background: var(--button-primary-hover);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 4px 12px -2px rgba(45, 84, 216, 0.38);
+  }
+
+  .veqsio-btn-primary:focus-visible,
+  .veqsio-btn-secondary:focus-visible,
+  .veqsio-btn-ghost:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--brand-200);
+  }
+
+  .veqsio-btn-secondary {
+    background: var(--surface-0);
+    color: var(--text-primary);
+    border: 1px solid var(--surface-4);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    padding: 6px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background var(--transition-base), border-color var(--transition-base);
+  }
+
+  .veqsio-btn-secondary:hover {
+    background: var(--surface-2);
+    border-color: var(--surface-4);
+  }
+
+  .veqsio-btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background var(--transition-base), color var(--transition-base);
+  }
+
+  .veqsio-btn-ghost:hover {
+    background: var(--surface-2);
+    color: var(--text-primary);
+  }
+
+  .veqsio-input {
+    background: var(--surface-0);
+    border: 1px solid var(--surface-4);
+    border-radius: 8px;
+    padding: 6px 10px;
+    min-height: 34px;
+    font-size: 14px;
+    color: var(--text-primary);
+    transition: border-color var(--transition-base), box-shadow var(--transition-base), background-color var(--transition-base);
+  }
+
+  .veqsio-input:focus {
+    outline: none;
+    border-color: var(--brand-500);
+    box-shadow: 0 0 0 4px var(--brand-100);
+  }
+
+  .veqsio-input::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  .veqsio-table-header {
+    background: var(--surface-1);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--surface-3);
+    transition: background-color var(--transition-base);
+  }
+
+  .veqsio-table-row {
+    background: var(--surface-0);
+    border-bottom: 1px solid var(--surface-3);
+    padding: 12px 16px;
+    transition: background var(--transition-fast);
+  }
+
+  .veqsio-table-row:hover {
+    background: var(--surface-1);
+  }
+
+  /* The padding above sits on the <tr>, where it has no effect: give the cells a default so text never touches the edge. */
+  .veqsio-table-header :where(th, td) { padding: 10px 16px; }
+  .veqsio-table-row > :where(td, th) { padding: 12px 16px; }
+
+  .veqsio-sidebar {
+    background: var(--surface-1);
+    border-right: 1px solid var(--surface-3);
+    transition: background-color var(--transition-base), border-color var(--transition-base);
+  }
+
+  .veqsio-header {
+    background: color-mix(in srgb, var(--surface-0) 86%, transparent);
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    border-bottom: 1px solid var(--surface-3);
+    transition: background-color var(--transition-base), border-color var(--transition-base);
+  }
+
+  .veqsio-modal-overlay {
+    background: rgba(12, 17, 28, 0.55);
+    backdrop-filter: blur(4px);
+  }
+
+  .veqsio-modal-panel {
+    background: var(--surface-0);
+    border: 1px solid var(--surface-3);
+    border-radius: 16px;
+    box-shadow: var(--shadow-xl);
+  }
+
+  .veqsio-badge {
+    display: inline-flex;
+    white-space: nowrap;
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    transition: background-color var(--transition-base);
+  }
+
+  .veqsio-badge-status-backlog {
+    background: rgba(137, 147, 165, 0.14);
+    color: #5E6C84;
+  }
+
+  .veqsio-badge-status-cancelled {
+    background: rgba(180, 35, 24, 0.10);
+    color: #B42318;
+    text-decoration: line-through;
+  }
+
+  .veqsio-badge-status-todo {
+    background: rgba(102, 112, 133, 0.12);
+    color: #4B5568; /* AA on the tinted grey (the token alone gave 4.3:1) */
+  }
+
+  .veqsio-badge-status-inprogress {
+    background: rgba(45, 84, 216, 0.10);
+    color: var(--status-inprogress);
+  }
+
+  .veqsio-badge-status-done {
+    background: rgba(22, 160, 106, 0.12);
+    color: var(--status-done);
+  }
+
+
+  select.veqsio-input {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 32px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238791A3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    cursor: pointer;
+    text-overflow: ellipsis;
+  }
+
+  .veqsio-btn-primary:disabled, .veqsio-btn-secondary:disabled, .veqsio-btn-ghost:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .veqsio-btn-primary, .veqsio-btn-secondary, .veqsio-btn-ghost {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+    line-height: 20px;
+  }
+
+  .veqsio-input:hover:not(:focus):not(:disabled) { border-color: var(--text-tertiary); }
+  .veqsio-input:disabled { background: var(--surface-2); color: var(--text-tertiary); cursor: not-allowed; }
+
+  .veqsio-table-row:last-child { border-bottom: 0; }
+
+  /* Coloured label chips. Text is always shown, colour is secondary information. */
+  .label-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    max-width: 100%;
+    padding: 1px 8px 1px 6px;
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 500;
+    background: var(--lc-bg);
+    color: var(--lc-fg);
+    white-space: nowrap;
+  }
+  .label-chip .label-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    flex: none;
+    background: var(--lc-dot);
+  }
+  .label-chip--gray { --lc-bg: var(--label-gray-bg); --lc-fg: var(--label-gray-fg); --lc-dot: var(--label-gray-dot); }
+  .label-chip--red { --lc-bg: var(--label-red-bg); --lc-fg: var(--label-red-fg); --lc-dot: var(--label-red-dot); }
+  .label-chip--orange { --lc-bg: var(--label-orange-bg); --lc-fg: var(--label-orange-fg); --lc-dot: var(--label-orange-dot); }
+  .label-chip--amber { --lc-bg: var(--label-amber-bg); --lc-fg: var(--label-amber-fg); --lc-dot: var(--label-amber-dot); }
+  .label-chip--lime { --lc-bg: var(--label-lime-bg); --lc-fg: var(--label-lime-fg); --lc-dot: var(--label-lime-dot); }
+  .label-chip--green { --lc-bg: var(--label-green-bg); --lc-fg: var(--label-green-fg); --lc-dot: var(--label-green-dot); }
+  .label-chip--teal { --lc-bg: var(--label-teal-bg); --lc-fg: var(--label-teal-fg); --lc-dot: var(--label-teal-dot); }
+  .label-chip--cyan { --lc-bg: var(--label-cyan-bg); --lc-fg: var(--label-cyan-fg); --lc-dot: var(--label-cyan-dot); }
+  .label-chip--blue { --lc-bg: var(--label-blue-bg); --lc-fg: var(--label-blue-fg); --lc-dot: var(--label-blue-dot); }
+  .label-chip--indigo { --lc-bg: var(--label-indigo-bg); --lc-fg: var(--label-indigo-fg); --lc-dot: var(--label-indigo-dot); }
+  .label-chip--violet { --lc-bg: var(--label-violet-bg); --lc-fg: var(--label-violet-fg); --lc-dot: var(--label-violet-dot); }
+  .label-chip--pink { --lc-bg: var(--label-pink-bg); --lc-fg: var(--label-pink-fg); --lc-dot: var(--label-pink-dot); }
+  .label-chip--custom { --lc-bg: var(--lcx-bg); --lc-fg: var(--lcx-fg); --lc-dot: var(--lcx-dot); }
+  .dark .label-chip--custom { --lc-bg: var(--lcx-bg-d); --lc-fg: var(--lcx-fg-d); --lc-dot: var(--lcx-dot-d); }
+
+  /* Dark mode overrides */
+  .dark .veqsio-badge-status-todo {
+    background: rgba(163, 166, 171, 0.16);
+    color: var(--status-todo);
+  }
+
+  .dark .veqsio-badge-status-inprogress {
+    background: rgba(90, 158, 255, 0.16);
+  }
+
+  .dark .veqsio-badge-status-done {
+    background: rgba(63, 178, 127, 0.16);
+  }
+
+  .dark .veqsio-input:focus {
+    box-shadow: 0 0 0 4px rgba(61, 139, 253, 0.22);
+  }
+
+  .dark .veqsio-btn-primary {
+    background: var(--button-primary);
+    color: #FFFFFF;
+  }
+
+  .dark .veqsio-btn-primary:hover {
+    background: var(--button-primary-hover);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 4px 14px -2px rgba(59, 130, 246, 0.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Rich text (rendered Markdown / Jira wiki). Output of lib/rich-text is sanitized; these only style it. */
+.rich-text { color: var(--text-primary); line-height: 1.6; overflow-wrap: anywhere; font-size: 0.9375rem; }
+.rich-text > :first-child { margin-top: 0; }
+.rich-text > :last-child { margin-bottom: 0; }
+.rich-text p, .rich-text ul, .rich-text ol, .rich-text blockquote, .rich-text pre, .rich-text .rt-table-wrap { margin: 0.5rem 0; }
+.rich-text h1, .rich-text h2, .rich-text h3, .rich-text h4 { font-weight: 600; margin: 1rem 0 0.5rem; line-height: 1.3; }
+.rich-text h1 { font-size: 1.5rem; }
+.rich-text h2 { font-size: 1.25rem; }
+.rich-text h3 { font-size: 1.1rem; }
+.rich-text ul { list-style: disc; padding-left: 1.5rem; }
+.rich-text ol { list-style: decimal; padding-left: 1.5rem; }
+.rich-text li.rt-task { list-style: none; margin-left: -1.25rem; }
+.rich-text li.rt-task input { margin-right: 0.4rem; }
+.rich-text blockquote { border-left: 3px solid var(--surface-4); padding-left: 0.75rem; color: var(--text-secondary); }
+.rich-text a { color: var(--brand-500); text-decoration: underline; }
+.rich-text code { background: var(--surface-2); padding: 0.1rem 0.3rem; border-radius: 4px; font-size: 0.85em; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.rich-text pre { background: var(--surface-2); border: 1px solid var(--surface-3); border-radius: 8px; padding: 0.75rem; overflow-x: auto; }
+.rich-text pre code { background: none; padding: 0; }
+.rich-text img { max-width: 100%; height: auto; border-radius: 4px; }
+.rich-text hr { border: 0; border-top: 1px solid var(--surface-4); margin: 1rem 0; }
+.rich-text .rt-issue-key { font-weight: 500; text-decoration: none; }
+.rich-text .rt-issue-key:hover { text-decoration: underline; }
+.pages-body h1, .pages-body h2, .pages-body h3, .pages-body h4 { scroll-margin-top: 5rem; }
+.rich-text .rt-mention { background: var(--surface-2); color: var(--brand-500); border-radius: 4px; padding: 0 0.25rem; font-weight: 500; }
+.rich-text .rt-table-wrap { overflow-x: auto; max-width: 100%; }
+.rich-text table { border-collapse: collapse; min-width: 50%; font-size: 0.875rem; }
+.rich-text th, .rich-text td { border: 1px solid var(--surface-4); padding: 0.375rem 0.625rem; text-align: left; vertical-align: top; }
+.rich-text th { background: var(--surface-2); font-weight: 600; }
+
+/* Command palette, shortcut overlay and keyboard focus rows. Colours come from the theme variables only. */
+@keyframes veqsio-pop-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes veqsio-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.veqsio-pop-in { animation: veqsio-pop-in 140ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.veqsio-fade-in { animation: veqsio-fade-in 120ms ease-out both; }
+.veqsio-hl { color: var(--brand-600); font-weight: 600; background: transparent; }
+.veqsio-kbd {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 22px; padding: 1px 6px;
+  border-radius: 6px; border: 1px solid var(--surface-4); border-bottom-width: 2px; background: var(--surface-1);
+  color: var(--text-secondary); font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 11px; line-height: 16px;
+}
+.veqsio-option[aria-selected='true'] { background: var(--brand-50); }
+.veqsio-option[aria-selected='true'] .veqsio-option-icon { color: var(--brand-600); }
+.veqsio-row-focus { box-shadow: inset 3px 0 0 var(--brand-500); background: var(--brand-50); }
+.veqsio-list:focus-visible { outline: 2px solid var(--brand-400); outline-offset: 2px; }
+.veqsio-list:not(:focus-within) .veqsio-row-focus { box-shadow: inset 3px 0 0 var(--surface-4); background: var(--surface-1); }
+@media (prefers-reduced-motion: reduce) {
+  .veqsio-pop-in, .veqsio-fade-in { animation: none; }
+}
+
+/* Issue page: a notch smaller, closer to Jira's density (title 18px, text 13px, controls 13px). Scoped to the issue view. */
+.issue-compact h1.text-heading-1 { font-size: 18px; }
+.issue-compact .text-heading-2 { font-size: 14px; }
+.issue-compact .text-heading-3 { font-size: 13px; }
+.issue-compact .text-body { font-size: 13px; }
+.issue-compact .text-body-sm { font-size: 12.5px; }
+.issue-compact .text-sm { font-size: 13px; }
+.issue-compact .rich-text { font-size: 13px; line-height: 1.55; }
+.issue-compact .veqsio-input { font-size: 13px; }
+.issue-compact .rich-text h1 { font-size: 17px; }
+.issue-compact .rich-text h2 { font-size: 15px; }
+.issue-compact .rich-text h3, .issue-compact .rich-text h4 { font-size: 14px; }
+
+/* Dark theme: the pale status boxes and chips (info, warning, error, success) were written with light-theme colours only.
+   Give them the same hue as a translucent tint with light text, so they are readable and not glaring. */
+.dark .bg-red-50, .dark .bg-red-100 { background-color: rgb(239 68 68 / 0.16); }
+.dark .bg-amber-50, .dark .bg-amber-100, .dark .bg-yellow-50, .dark .bg-yellow-100 { background-color: rgb(245 158 11 / 0.16); }
+.dark .bg-green-50, .dark .bg-green-100 { background-color: rgb(34 197 94 / 0.16); }
+.dark .bg-blue-50, .dark .bg-blue-100 { background-color: rgb(59 130 246 / 0.18); }
+.dark .text-red-800, .dark .text-red-900, .dark .text-red-700 { color: #fca5a5; }
+.dark .text-amber-800, .dark .text-amber-900, .dark .text-amber-700, .dark .text-yellow-800, .dark .text-yellow-900 { color: #fcd34d; }
+.dark .text-green-800, .dark .text-green-900, .dark .text-green-700 { color: #86efac; }
+.dark .text-blue-800, .dark .text-blue-900, .dark .text-blue-700 { color: #93c5fd; }
+.dark .border-red-300, .dark .border-red-200 { border-color: rgb(239 68 68 / 0.45); }
+.dark .border-amber-300, .dark .border-amber-200, .dark .border-yellow-300 { border-color: rgb(245 158 11 / 0.45); }
+.dark .border-green-200, .dark .border-green-300 { border-color: rgb(34 197 94 / 0.45); }
+/* text inside a pale box that sets no colour of its own */
+.dark .bg-amber-50, .dark .bg-red-50, .dark .bg-green-50, .dark .bg-yellow-50 { color: var(--text-primary); }
+
+/* Touch screens: small icon buttons, checkboxes and list links get a comfortable hit area (about 40 px, the finger rather than the mouse) */
+@media (pointer: coarse) {
+  button:has(> svg:only-child),
+  a:has(> svg:only-child),
+  .veqsio-btn-ghost {
+    min-width: 40px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  input[type='checkbox'],
+  input[type='radio'] {
+    width: 20px;
+    height: 20px;
+  }
+  a.block.rounded-md,
+  button.group.w-full {
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+  }
+  button.absolute:has(> svg:only-child) {
+    min-width: 36px;
+    min-height: 36px;
+  }
+}
+.rich-text img { cursor: zoom-in; }

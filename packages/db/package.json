@@ -1,0 +1,27 @@
+{
+  "name": "@veqsio/db",
+  "version": "1.0.0",
+  "license": "AGPL-3.0-only",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "migrate": "bun migrate.ts",
+    "seed": "bun seed.ts",
+    "seed:demo": "bun seed-demo.ts",
+    "generate": "drizzle-kit generate",
+    "db:generate": "drizzle-kit generate && bun gen-schema-version.ts",
+    "migrate:baseline": "bun migrate.ts --baseline",
+    "push": "drizzle-kit push",
+    "studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "drizzle-orm": "^0.45.2",
+    "postgres": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "@types/bun": "latest",
+    "drizzle-kit": "^0.31.10"
+  }
+}
