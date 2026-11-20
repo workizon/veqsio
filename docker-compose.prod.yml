@@ -95,6 +95,7 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-info}
       VEQSIO_ROLE: ${VEQSIO_ROLE:-all}
       VEQSIO_LICENSE_KEY: ${VEQSIO_LICENSE_KEY:-}
+      VEQSIO_TELEMETRY: ${VEQSIO_TELEMETRY:-}
       VEQSIO_LICENSE_PUBLIC_KEYS: ${VEQSIO_LICENSE_PUBLIC_KEYS:-}
     depends_on:
       postgres:

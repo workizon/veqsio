@@ -31,6 +31,9 @@ COPY --from=builder /app/packages/web/.next/standalone /app
 COPY --from=builder /app/packages/web/.next/static /app/packages/web/.next/static
 # Icons, service worker and the offline page
 COPY --from=builder /app/packages/web/public /app/packages/web/public
+# Licence texts travel with the image: the AGPL, the notices of the third-party packages (MIT/Apache/BSD require them in binary distributions) and, when present, the Enterprise licence in /app/ee.
+COPY LICENSE NOTICE THIRD-PARTY-NOTICES.md /licenses/
+COPY licenses/ /licenses/
 WORKDIR /app/packages/web
 EXPOSE 3000
 HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \

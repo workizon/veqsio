@@ -51,10 +51,10 @@ export function PriorityBadge({ priority, iconOnly = false, className = '' }: Pr
   return (
     <span
       className={`inline-flex items-center gap-1.5 text-[12px] leading-5 text-[var(--text-secondary)] whitespace-nowrap ${className}`}
-      title={tr('Priority: {name}', { name: priority })}
+      title={tr('Priority: {name}', { name: tr(priority) })}
     >
       <PriorityIcon priority={priority} />
-      {iconOnly ? <span className="sr-only">{priority}</span> : <span>{priority}</span>}
+      {iconOnly ? <span className="sr-only">{tr(priority)}</span> : <span>{tr(priority)}</span>}
     </span>
   )
 }

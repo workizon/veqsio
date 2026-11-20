@@ -1,7 +1,7 @@
 'use client'
 
 
-import { getIntlLocale } from '@/lib/i18n'
+import { getIntlLocale, relativeIntl } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
@@ -61,10 +61,10 @@ function greeting(now = new Date()): string {
 
 function timeAgo(iso: string): string {
   const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000)
-  if (s < 60) return 'just now'
-  if (s < 3600) return `${Math.floor(s / 60)}m ago`
-  if (s < 86400) return `${Math.floor(s / 3600)}h ago`
-  return `${Math.floor(s / 86400)}d ago`
+  if (s < 60) return relativeIntl(0, 'second') ?? 'just now'
+  if (s < 3600) return relativeIntl(-Math.floor(s / 60), 'minute', 'short') ?? `${Math.floor(s / 60)}m ago`
+  if (s < 86400) return relativeIntl(-Math.floor(s / 3600), 'hour', 'short') ?? `${Math.floor(s / 3600)}h ago`
+  return relativeIntl(-Math.floor(s / 86400), 'day', 'short') ?? `${Math.floor(s / 86400)}d ago`
 }
 
 function StatTile({ label, value, loading, icon: Icon, tone, href }: {

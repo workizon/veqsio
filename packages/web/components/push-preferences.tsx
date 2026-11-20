@@ -71,7 +71,7 @@ export function PushPreferences() {
         <h3 className="text-sm font-semibold mb-1" aria-hidden="true">{tr('Notify me when')}</h3>
         <div className="divide-y divide-[var(--surface-3)]">
           {prefs.kinds.map((k) => (
-            <Switch key={k.key} label={k.label} checked={prefs.events[k.key] !== false} onChange={(v) => void save({ events: { [k.key]: v } })} />
+            <Switch key={k.key} label={tr(k.label)} checked={prefs.events[k.key] !== false} onChange={(v) => void save({ events: { [k.key]: v } })} />
           ))}
         </div>
       </fieldset>

@@ -174,8 +174,8 @@ export default function ProfilePage() {
                 {activity.map((item) => (
                   <div key={item.id} className="veqsio-card">
                     <p className="text-body-sm text-[var(--text-primary)]">
-                      <span className="font-medium">{item.user}</span>{' '}
-                      {item.action}{' '}
+                      <span className="font-medium">{tr(item.user)}</span>{' '}
+                      {tr(item.action)}{' '}
                       <Link href={`/issues/${item.issueKey}`} className="text-[var(--brand-500)] hover:underline">
                         {item.issueKey}
                       </Link>

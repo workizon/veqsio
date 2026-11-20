@@ -36,6 +36,9 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages ./packages
 COPY --from=builder /app/modules ./modules
 COPY --from=builder /app/ee ./ee
+# Licence texts travel with the image: the AGPL, the notices of the third-party packages (MIT/Apache/BSD require them in binary distributions) and, when present, the Enterprise licence in /app/ee.
+COPY LICENSE NOTICE THIRD-PARTY-NOTICES.md /licenses/
+COPY licenses/ /licenses/
 ENV VEQSIO_MODULE_DIRS=/app/modules,/app/ee/modules
 EXPOSE 3000
 HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \

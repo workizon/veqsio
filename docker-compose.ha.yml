@@ -41,6 +41,7 @@ x-api-env: &api-env
   SMTP_PASS: ${SMTP_PASS:-}
   SMTP_FROM: ${SMTP_FROM:-}
   VEQSIO_LICENSE_KEY: ${VEQSIO_LICENSE_KEY:-}
+  VEQSIO_TELEMETRY: ${VEQSIO_TELEMETRY:-}
 
 x-api: &api
   build:

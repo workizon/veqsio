@@ -20,17 +20,17 @@ function Field({ def, value, onChange }: { def: SettingDef; value: Draft[string]
     <div className="space-y-1">
       {def.type === 'bool' ? (
         <label htmlFor={id} className="flex items-center gap-2 text-body font-medium">
-          <input id={id} type="checkbox" checked={value as boolean} onChange={(e) => onChange(e.target.checked)} /> {def.label}
+          <input id={id} type="checkbox" checked={value as boolean} onChange={(e) => onChange(e.target.checked)} /> {tr(def.label)}
         </label>
       ) : (
-        <label htmlFor={id} className="block text-body font-medium">{def.label}
+        <label htmlFor={id} className="block text-body font-medium">{tr(def.label)}
           {def.type === 'int' && <input id={id} type="number" className={input} min={def.min} max={def.max} value={value as number} onChange={(e) => onChange(Number(e.target.value))} />}
           {def.type === 'text' && <textarea id={id} className={input} rows={2} maxLength={def.maxLength} value={value as string} onChange={(e) => onChange(e.target.value)} />}
           {def.type === 'enum' && <select id={id} className={input} value={value as string} onChange={(e) => onChange(e.target.value)}>{def.options!.map((o) => <option key={o} value={o}>{o}</option>)}</select>}
           {def.type === 'list' && <input id={id} className={input} value={(value as string[]).join(', ')} onChange={(e) => onChange(e.target.value.split(',').map((s) => s.trim()).filter(Boolean))} placeholder={tr('exe, bat, js')} />}
         </label>
       )}
-      <p className="text-body-sm text-[var(--text-secondary)]">{def.description}</p>
+      <p className="text-body-sm text-[var(--text-secondary)]">{tr(def.description)}</p>
     </div>
   )
 }
@@ -97,7 +97,7 @@ export default function InstanceSettingsPage() {
         <PageHeader title={tr('Instance settings')} description={<>{tr('Security, attachments and the announcement banner. Changes apply within a few seconds. General settings such as the site name are under')} <a className="text-[var(--brand-500)] hover:underline" href="/admin/system">{tr('System')}</a>{tr('; features and modules under')} <a className="text-[var(--brand-500)] hover:underline" href="/admin/features">{tr('Features and modules')}</a>.</>} />
         {settings.isLoading ? <Spinner /> : groups.map((g) => (
           <section key={g} aria-labelledby={`g-${g}`} className="space-y-4 rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)] p-5">
-            <h2 id={`g-${g}`} className="text-heading-3">{g}</h2>
+            <h2 id={`g-${g}`} className="text-heading-3">{tr(g)}</h2>
             {(settings.data ?? []).filter((s) => s.group === g).map((s) => <Field key={s.key} def={s} value={draft[s.key] ?? s.value} onChange={(v) => setDraft((d) => ({ ...d, [s.key]: v }))} />)}
           </section>
         ))}

@@ -43,7 +43,8 @@ repository** (see [License](#license)); the rest is in this repository under the
 - **Plans (Enterprise module):** Advanced-Roadmaps-like planning: cross-project plans (projects, boards, filters) with sharing and per-viewer permission trimming, a configurable hierarchy above the epic with roll-ups, a timeline with sprints, releases and dependency warnings, team capacity versus load, what-if scenarios that can be applied to the real issues with per-issue results, and Auto-schedule (earliest-deadline-first that respects Blocks dependencies and per-person capacity, saved as a scenario you review before applying).
 - **ITSM (Enterprise module):** incident, problem and change management on the service desk: impact x urgency priority matrix, acknowledge (MTTA), major incidents with stakeholder e-mail and the `incident.major` event, one incident timeline, postmortems, known errors with workarounds, scored change risk assessment, CAB and ECAB approvals on the approvals engine, a change calendar with conflict detection and maintenance windows, mandatory post-implementation review, MTTA/MTTR/volume/breach reports.
 - **Automation:** rules with triggers, conditions and actions, execution history.
-- **Notifications:** email (SMTP) with notification schemes, outgoing webhooks (HMAC-signed, retries, delivery log), in-app updates.
+- **Notifications:** email (SMTP) with notification schemes, outgoing webhooks (HMAC-signed, retries, delivery log), browser push, and an in-app notification inbox (the bell in the header: assignments, @mentions, comments, updates and sprint events, with an unread counter).
+- **Interface languages:** English, Deutsch, Español, Français, Português (Brasil), Русский, 简体中文 and 日本語; dates and numbers follow the chosen language.
 - **Real time:** live refresh of boards and issues, presence ("also viewing") and typing indicators over authorized WebSocket channels.
 - **Git integrations:** link GitHub, GitLab, Gitea (self-hosted too) and Bitbucket Cloud repositories to a project; signed webhooks put branches, commits, pull requests and build status on the issue by issue key, smart commits (`PROJ-1 #comment ... #done`), create a branch from an issue, release notes per version (`docs/git-integrations.md`).
 - **Feature and module switches:** Administration → Features and modules turns Service Desk, Dashboards, Automation, Approvals, Roadmap, Time tracking, Git integrations, Integrations, Intake, Wiki / Pages, Status updates, Views and Comment reactions on or off for the whole instance (menus hide, API answers 404, data is kept), and enables/disables the installed modules.
@@ -150,7 +151,11 @@ curl -fsSL https://raw.githubusercontent.com/workizon/veqsio/main/install.sh \
 
 The installer detects the OS, installs git, Docker and the Compose plugin if they are missing, downloads Veqsio to `/opt/veqsio`, generates all secrets, builds the images, applies the database migrations, creates the first administrator (random password, printed once) and starts PostgreSQL, Redis, the API, the web app and Caddy. Only Caddy listens on a public port; databases are never exposed.
 
-Run it again to **upgrade** (the database is dumped to `/opt/veqsio/backups` first; existing secrets are kept). Useful options: `--dir`, `--ref <branch|tag>`, `--http-port`, `--https-port`, `--admin-email`, `--admin-password`, `--license-key` (Enterprise licence), `--demo-data` (sample data for a demo or trial; on a terminal the installer also asks, default no), `--swap` (adds swap on small servers), `--dry-run`. `./install.sh --help` lists everything. If you cloned the repository, run `sudo ./install.sh` from the checkout. The raw URL above works once the repository is public; for a private repository clone it and run the script locally.
+Run it again to **upgrade** (the database is dumped to `/opt/veqsio/backups` first; existing secrets are kept). Useful options: `--dir`, `--ref <branch|tag>`, `--http-port`, `--https-port`, `--admin-email`, `--admin-password`, `--license-key` (Enterprise licence), `--demo-data` (sample data for a demo or trial; on a terminal the installer also asks, default no), `--swap` (adds swap on small servers), `--no-telemetry` (see below), `--update-source`, `--dry-run`. `./install.sh --help` lists everything. If you cloned the repository, run `sudo ./install.sh` from the checkout. The raw URL above works once the repository is public; for a private repository clone it and run the script locally.
+
+**Usage statistics.** Once a day a self-hosted Veqsio sends the project an anonymous count: a random id, the version, the edition, how it is deployed and a rough range of users. No names, e-mail addresses, host names or content. It is on by default, the installer prints this at the end, and you can switch it off with `--no-telemetry`, `VEQSIO_TELEMETRY=off` in `.env`, or under Administration, Instance settings, Updates. Exactly what is sent: [`docs/telemetry.md`](docs/telemetry.md). Veqsio Cloud and the public demo never send it.
+
+**Redis became Valkey.** The Compose files use Valkey 8 (BSD-licensed, protocol-compatible) with a new `valkey_data` volume; people sign in once more after upgrading from 1.2.0 or earlier.
 
 After the first sign-in: change the administrator password, configure the mail server (Admin > System), and read [docs/deployment.md](docs/deployment.md) for backups, monitoring and object storage. The installer script itself is covered by offline checks (`scripts/test-installer.sh`).
 
@@ -268,6 +273,10 @@ Veqsio is developed and maintained by **[Workizon Ltd](https://workizon.ltd)**, 
 - The name and logo are trademarks: see [TRADEMARK.md](TRADEMARK.md). Contributors sign the [CLA](CLA.md) once.
 
 Which features are free and which need a licence: [docs/editions-and-switches.md](docs/editions-and-switches.md).
+
+## Veqsio for Open Source
+
+Open-source projects get every paid feature, including the Enterprise modules, free for the project's own work (up to 50 users, renewed yearly). Conditions and how to apply: [`docs/open-source-program.md`](docs/open-source-program.md) and https://veqsio.com/docs/open-source-program.
 
 ## Contributing
 

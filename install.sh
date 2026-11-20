@@ -39,6 +39,7 @@ SWAP=0
 LICENSE_KEY=""
 DEMO_DATA=0
 DEMO_FLAG=0   # 1 when --demo-data was given (then the question is not asked)
+NO_TELEMETRY=0
 DRY=0
 SKIP_FETCH=0
 FORCE_FETCH=0
@@ -69,6 +70,8 @@ Usage: install.sh [options]
   --demo-data          fill a NEW installation with demo users, projects and issues (for a public demo; never use on
                        a real instance). Demo users share the password demo12345.
   --swap               create a 2 GB swap file if the server has < 2 GB RAM and no swap
+  --no-telemetry       do not send the anonymous daily usage count (version, edition, rough size; see docs/telemetry.md). Can also be switched off later
+                       in Administration > Instance settings > Updates, or with VEQSIO_TELEMETRY=off in .env
   --update-source      always fetch the latest sources (default when started from a checkout: use it as is)
   --dry-run            print what would be done; only writes .env and the Caddyfile into --dir
   -h, --help           this help
@@ -91,6 +94,7 @@ while [ $# -gt 0 ]; do
     --license-key) LICENSE_KEY="${2:-}"; shift 2 ;;
     --demo-data) DEMO_DATA=1; DEMO_FLAG=1; shift ;;
     --swap) SWAP=1; shift ;;
+    --no-telemetry) NO_TELEMETRY=1; shift ;;
     --update-source) FORCE_FETCH=1; shift ;;
     --dry-run) DRY=1; shift ;;
     -h|--help) usage; exit 0 ;;
@@ -309,6 +313,7 @@ write_config() {
   [ -z "$HTTPS_PORT" ] || ENVV[HTTPS_PORT]="$HTTPS_PORT"
   [ -z "$ADMIN_EMAIL" ] || ENVV[ADMIN_EMAIL]="$ADMIN_EMAIL"
   [ -z "$LICENSE_KEY" ] || ENVV[VEQSIO_LICENSE_KEY]="$LICENSE_KEY"
+  [ "$NO_TELEMETRY" -eq 0 ] || ENVV[VEQSIO_TELEMETRY]="off"
 
   envdefault HTTP_PORT 80
   envdefault HTTPS_PORT 443
@@ -349,7 +354,7 @@ write_config() {
   local order=(VEQSIO_DOMAIN VEQSIO_SSL_EMAIL HTTP_PORT HTTPS_PORT WEB_URL BASE_URL NEXT_PUBLIC_API_URL OIDC_REDIRECT_BASE_URL
     POSTGRES_USER POSTGRES_DB POSTGRES_PASSWORD SECRETS_ENCRYPTION_KEY STORAGE_TYPE
     PAT_DEFAULT_EXPIRY_DAYS PAT_MAX_EXPIRY_DAYS SMTP_HOST SMTP_PORT SMTP_USER SMTP_PASS SMTP_FROM SMTP_TLS
-    VEQSIO_LICENSE_KEY GRAFANA_ADMIN_USER GRAFANA_ADMIN_PASSWORD ADMIN_EMAIL COMPOSE_FILE COMPOSE_PROJECT_NAME)
+    VEQSIO_LICENSE_KEY VEQSIO_TELEMETRY GRAFANA_ADMIN_USER GRAFANA_ADMIN_PASSWORD ADMIN_EMAIL COMPOSE_FILE COMPOSE_PROJECT_NAME)
   local tmp="$DIR/.env.tmp" k
   umask 077
   {
@@ -532,6 +537,13 @@ summary() {
   echo " Logs:      cd $DIR && docker compose logs -f"
   echo " Upgrade:   sudo bash $DIR/install.sh --update-source     (database is backed up first)"
   echo " Backups:   $DIR/backups"
+  if [ "$(envget VEQSIO_TELEMETRY)" = "off" ]; then
+    echo " Usage statistics: off (VEQSIO_TELEMETRY=off)."
+  else
+    echo " Usage statistics: once a day this server sends the project an anonymous count (random id, version, edition, rough number of users; no names,"
+    echo "            addresses, host names or data). Details: docs/telemetry.md. Switch it off: re-run with --no-telemetry, or set VEQSIO_TELEMETRY=off in"
+    echo "            $DIR/.env, or untick it in Administration > Instance settings > Updates."
+  fi
   if [ -z "$(envget VEQSIO_DOMAIN)" ]; then
     echo
     echo " Served over plain HTTP. For HTTPS point a DNS name at this server and run:"

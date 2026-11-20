@@ -6,7 +6,7 @@ by `scripts/gen-third-party-notices.ts`; it lists everything installed for the b
 
 ## Notices that need more than a list entry
 
-- **Geist and Geist Mono** (fonts, Copyright (c) Vercel, in collaboration with basement.studio), SIL Open Font License 1.1, https://github.com/vercel/geist-font .
+- **Geist and Geist Mono** (fonts, Copyright (c) Vercel, in collaboration with basement.studio), SIL Open Font License 1.1, https://github.com/vercel/geist-font . The full licence text is in licenses/GEIST-OFL-1.1.txt (and in /licenses of the Docker images).
   The fonts are bundled at build time by `next/font`.
 - **sharp-libvips** (`@img/sharp-libvips-*`, used by Next.js image optimisation), LGPL-3.0-or-later. It is a separate shared library that is loaded dynamically
   and not modified. Source: https://github.com/lovell/sharp-libvips and https://github.com/libvips/libvips .

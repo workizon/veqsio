@@ -1,3 +1,4 @@
+import { relativeIntl } from '@/lib/i18n'
 /**
  * Pure helpers for the issue view (Jira-style layout). No React, no fetch: everything here is unit tested
  * in tests/issue-view.test.ts.
@@ -172,18 +173,19 @@ export function relativeTime(date: string | Date | null | undefined, now: Date =
   const diff = Math.round((now.getTime() - t) / 1000)
   const abs = Math.abs(diff)
   const suffix = (v: string) => (diff >= 0 ? `${v} ago` : `in ${v}`)
-  if (abs < 45) return 'just now'
-  if (abs < 90) return suffix('1 minute')
+  const sign = diff >= 0 ? -1 : 1 // Intl: negative = past
+  if (abs < 45) return relativeIntl(0, 'second') ?? 'just now'
+  if (abs < 90) return relativeIntl(sign, 'minute') ?? suffix('1 minute')
   const minutes = Math.round(abs / 60)
-  if (minutes < 45) return suffix(`${minutes} minutes`)
+  if (minutes < 45) return relativeIntl(sign * minutes, 'minute') ?? suffix(`${minutes} minutes`)
   const hours = Math.round(abs / 3600)
-  if (hours < 22) return suffix(hours === 1 ? '1 hour' : `${hours} hours`)
+  if (hours < 22) return relativeIntl(sign * hours, 'hour') ?? suffix(hours === 1 ? '1 hour' : `${hours} hours`)
   const days = Math.round(abs / 86400)
-  if (days < 26) return suffix(days === 1 ? '1 day' : `${days} days`)
+  if (days < 26) return relativeIntl(sign * days, 'day') ?? suffix(days === 1 ? '1 day' : `${days} days`)
   const months = Math.round(abs / (86400 * 30))
-  if (months < 11) return suffix(months <= 1 ? '1 month' : `${months} months`)
+  if (months < 11) return relativeIntl(sign * Math.max(1, months), 'month') ?? suffix(months <= 1 ? '1 month' : `${months} months`)
   const years = Math.round(abs / (86400 * 365))
-  return suffix(years <= 1 ? '1 year' : `${years} years`)
+  return relativeIntl(sign * Math.max(1, years), 'year') ?? suffix(years <= 1 ? '1 year' : `${years} years`)
 }
 
 /* ------------------------------------------------------------------ */

@@ -1,3 +1,4 @@
+import { relativeIntl } from '@/lib/i18n'
 /**
  * Autosaved drafts in localStorage. Pure helpers: every function takes the storage (so tests can pass a fake)
  * and a clock, and swallows storage errors because storage may be unavailable (private windows, blocked site
@@ -200,13 +201,13 @@ export function createDebouncer<A extends unknown[]>(
 /** Short human text for the restore bar, for example "Draft from 5 minutes ago". */
 export function describeDraftAge(savedAt: number, now: number = Date.now()): string {
   const s = Math.max(0, Math.round((now - savedAt) / 1000))
-  if (s < 60) return 'just now'
+  if (s < 60) return relativeIntl(0, 'second') ?? 'just now'
   const m = Math.round(s / 60)
-  if (m < 60) return `${m} minute${m === 1 ? '' : 's'} ago`
+  if (m < 60) return relativeIntl(-m, 'minute') ?? `${m} minute${m === 1 ? '' : 's'} ago`
   const h = Math.round(m / 60)
-  if (h < 24) return `${h} hour${h === 1 ? '' : 's'} ago`
+  if (h < 24) return relativeIntl(-h, 'hour') ?? `${h} hour${h === 1 ? '' : 's'} ago`
   const d = Math.round(h / 24)
-  return `${d} day${d === 1 ? '' : 's'} ago`
+  return relativeIntl(-d, 'day') ?? `${d} day${d === 1 ? '' : 's'} ago`
 }
 
 /** Description-field draft: one per user and issue (an edit of the description in the issue view). */

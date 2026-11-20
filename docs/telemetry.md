@@ -25,7 +25,7 @@ You can see the exact content for your instance at any time, as an administrator
 
 ## When nothing is sent
 
-- It is switched off: **Administration, Instance settings, Updates, "Share anonymous usage statistics"**, or the environment variable `VEQSIO_TELEMETRY=off` (which wins over the setting).
+- It is switched off: **Administration, Instance settings, Updates, "Share anonymous usage statistics"**, or the environment variable `VEQSIO_TELEMETRY=off` (which wins over the setting; it is passed to the containers by the Compose files). The installer writes it for you with `--no-telemetry`, and it prints this information at the end of every installation.
 - This is a managed Veqsio Cloud workspace, the public demo, or a non-production run (`NODE_ENV` is not `production`).
 - The first report is sent only ten minutes or more after the first start, so there is time to switch it off before anything leaves the server.
 - The server has no internet access: the report simply fails quietly and the instance works as always.

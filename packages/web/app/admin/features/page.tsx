@@ -41,10 +41,10 @@ export default function FeaturesPage() {
               {(features.data ?? []).map((f) => (
                 <li key={f.id} className="flex items-center gap-4 p-4">
                   <div className="flex-1 min-w-0">
-                    <div className="text-body font-medium text-[var(--text-primary)]">{f.name}</div>
-                    <div className="text-body-sm text-[var(--text-secondary)]">{f.description}{f.note ? ` ${f.note}` : ''}</div>
+                    <div className="text-body font-medium text-[var(--text-primary)]">{tr(f.name)}</div>
+                    <div className="text-body-sm text-[var(--text-secondary)]">{tr(f.description)}{f.note ? ` ${tr(f.note)}` : ''}</div>
                   </div>
-                  <Switch checked={f.enabled} label={tr('{name} enabled', { name: f.name })} disabled={toggleFeature.isPending} onChange={(enabled) => toggleFeature.mutate({ id: f.id, enabled }, { onError: fail })} />
+                  <Switch checked={f.enabled} label={tr('{name} enabled', { name: tr(f.name) })} disabled={toggleFeature.isPending} onChange={(enabled) => toggleFeature.mutate({ id: f.id, enabled }, { onError: fail })} />
                 </li>
               ))}
             </ul>
@@ -58,8 +58,8 @@ export default function FeaturesPage() {
               {(modules.data ?? []).map((m) => (
                 <li key={m.id} className="flex items-center gap-4 p-4">
                   <div className="flex-1 min-w-0">
-                    <div className="text-body font-medium text-[var(--text-primary)]">{m.name} <span className="text-caption text-[var(--text-tertiary)]">v{m.version} · {m.edition}</span></div>
-                    <div className="text-body-sm text-[var(--text-secondary)]">{m.description}{!m.licensed ? ' ' + tr('Needs a licence: it stays inactive until one that includes it is installed.') : ''}</div>
+                    <div className="text-body font-medium text-[var(--text-primary)]">{tr(m.name)} <span className="text-caption text-[var(--text-tertiary)]">v{m.version} · {m.edition}</span></div>
+                    <div className="text-body-sm text-[var(--text-secondary)]">{m.description ? tr(m.description) : null}{!m.licensed ? ' ' + tr('Needs a licence: it stays inactive until one that includes it is installed.') : ''}</div>
                   </div>
                   <Switch checked={m.enabled} label={tr('{name} enabled', { name: m.name })} disabled={toggleModule.isPending} onChange={(enabled) => toggleModule.mutate({ id: m.id, enabled }, { onError: fail })} />
                 </li>

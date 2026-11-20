@@ -1,7 +1,7 @@
 'use client'
 
 
-import { getIntlLocale } from '@/lib/i18n'
+import { getIntlLocale, relativeIntl } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { Fragment, useState, useEffect, useMemo, useRef } from 'react'
 import { useMultiSort } from '@/lib/table-sort'
@@ -64,12 +64,12 @@ function timeAgo(dateStr: string): string {
   const now = new Date()
   const diffMs = now.getTime() - d.getTime()
   const diffMins = Math.floor(diffMs / 60000)
-  if (diffMins < 1) return 'just now'
-  if (diffMins < 60) return `${diffMins}m ago`
+  if (diffMins < 1) return relativeIntl(0, 'second') ?? 'just now'
+  if (diffMins < 60) return relativeIntl(-diffMins, 'minute', 'short') ?? `${diffMins}m ago`
   const diffHours = Math.floor(diffMins / 60)
-  if (diffHours < 24) return `${diffHours}h ago`
+  if (diffHours < 24) return relativeIntl(-diffHours, 'hour', 'short') ?? `${diffHours}h ago`
   const diffDays = Math.floor(diffHours / 24)
-  if (diffDays < 30) return `${diffDays}d ago`
+  if (diffDays < 30) return relativeIntl(-diffDays, 'day', 'short') ?? `${diffDays}d ago`
   return d.toLocaleDateString(getIntlLocale())
 }
 

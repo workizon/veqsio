@@ -1,4 +1,5 @@
 /** Pure helpers for project status updates (On track / At risk / Off track). */
+import { relativeIntl } from '@/lib/i18n'
 import { trNow } from './tr'
 
 export type UpdateState = 'on_track' | 'at_risk' | 'off_track'
@@ -35,11 +36,11 @@ export function whenLabel(iso: string, now = Date.now()): string {
   const t = Date.parse(iso)
   if (Number.isNaN(t)) return ''
   const mins = Math.floor((now - t) / 60_000)
-  if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins} min ago`
+  if (mins < 1) return relativeIntl(0, 'second') ?? 'just now'
+  if (mins < 60) return relativeIntl(-mins, 'minute', 'short') ?? `${mins} min ago`
   const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours} h ago`
+  if (hours < 24) return relativeIntl(-hours, 'hour', 'short') ?? `${hours} h ago`
   const days = Math.floor(hours / 24)
-  if (days < 14) return `${days} day${days === 1 ? '' : 's'} ago`
+  if (days < 14) return relativeIntl(-days, 'day') ?? `${days} day${days === 1 ? '' : 's'} ago`
   return new Date(t).toISOString().slice(0, 10)
 }

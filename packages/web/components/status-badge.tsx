@@ -1,11 +1,14 @@
 'use client'
 
+import { useI18n } from '@/hooks/use-i18n'
+
 interface StatusBadgeProps {
   status: string
   category?: 'backlog' | 'to_do' | 'in_progress' | 'done' | 'cancelled'
 }
 
 export function StatusBadge({ status, category }: StatusBadgeProps) {
+  const { tr } = useI18n()
   const categoryMap: Record<string, 'backlog' | 'to_do' | 'in_progress' | 'done' | 'cancelled'> = {
     'Backlog': 'backlog',
     'Cancelled': 'cancelled',
@@ -32,7 +35,7 @@ export function StatusBadge({ status, category }: StatusBadgeProps) {
   return (
     <span className={`veqsio-badge ${variants[cat]} inline-flex items-center gap-1.5 whitespace-nowrap`}>
       <span className="w-1.5 h-1.5 rounded-full bg-current opacity-80 shrink-0" aria-hidden="true" />
-      {status}
+      {tr(status)}
     </span>
   )
 }

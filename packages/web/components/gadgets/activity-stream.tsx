@@ -62,8 +62,8 @@ export function ActivityStreamGadget({ config }: ActivityStreamGadgetProps) {
             </div>
             <div className="flex-1 min-w-0 pb-4">
               <p className="text-body-sm text-[var(--text-primary)]">
-                <span className="font-medium">{item.user}</span>{' '}
-                <span className="text-[var(--text-secondary)]">{item.action}</span>{' '}
+                <span className="font-medium">{tr(item.user)}</span>{' '}
+                <span className="text-[var(--text-secondary)]">{tr(item.action)}</span>{' '}
                 <Link href={`/issues/${item.issueKey}`} className="font-medium text-[var(--brand-600)] hover:underline">{item.issueKey}</Link>
               </p>
               <p className="text-caption text-[var(--text-secondary)] truncate">

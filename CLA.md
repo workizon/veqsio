@@ -7,7 +7,7 @@ placeholders in [BRACKETS] and decide whether you need the corporate variant (se
 # Veqsio Contributor License Agreement (CLA)
 
 Thank you for contributing to Veqsio. This agreement is between **you** and **Workizon Ltd** (the "Project
-Steward"). It explains the rights you give for your contributions so the project can keep distributing them under the
+Steward"), a company registered in England and Wales, company number 16628558, 128 City Road, London, EC1V 2NX, United Kingdom. It explains the rights you give for your contributions so the project can keep distributing them under the
 AGPL-3.0 and also under other licences, including the commercial and Enterprise licences described in
 [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md). **You keep the copyright in your contributions.** This is a licence,
 not an assignment.
@@ -71,8 +71,15 @@ distributed under other terms.
 ## 8. General
 
 This agreement is governed by the law of England and Wales. It continues for as long as the licences in sections 2 and 3
-are in force. If a provision is unenforceable, the rest stays valid. You can contact the Project Steward at
+are in force. If a provision is unenforceable, the rest stays valid. The courts of England and Wales have exclusive
+jurisdiction, without affecting any mandatory rights you may have as a consumer. You can contact the Project Steward at
 legal@veqsio.com.
+
+## Your personal data
+
+To keep proof of your agreement the Project Steward stores your GitHub user name, the date and the version of this agreement you signed (the CLA bot
+keeps them in a file in the repository). The legal basis is our legitimate interest in being able to show that we may distribute your
+Contribution. We keep the record for as long as we distribute the Contribution; ask legal@veqsio.com to see it or to raise a concern.
 
 ## 9. Corporate contributors
 

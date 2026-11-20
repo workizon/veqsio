@@ -70,3 +70,14 @@ export const intlLocale = (locale: LocaleId): string => ({ en: 'en-US', de: 'de-
 let activeIntl = 'en-US'
 export const setActiveLocale = (locale: LocaleId): void => { activeIntl = intlLocale(locale) }
 export const getIntlLocale = (): string => activeIntl
+
+/** Time units that `relativeIntl` accepts. */
+export type RelUnit = 'second' | 'minute' | 'hour' | 'day' | 'month' | 'year'
+/**
+ * "5 minutes ago" / "in 2 days" in the interface language, with the plural forms of that language (Intl does it, no dictionary entries).
+ * `value` is negative for the past. Returns null for English so callers keep their own English wording (and tests stay stable).
+ */
+export function relativeIntl(value: number, unit: RelUnit, style: 'long' | 'short' = 'long'): string | null {
+  if (activeIntl.toLowerCase().startsWith('en')) return null
+  try { return new Intl.RelativeTimeFormat(activeIntl, { numeric: 'auto', style }).format(value, unit) } catch { return null }
+}

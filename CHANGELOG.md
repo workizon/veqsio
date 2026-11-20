@@ -4,6 +4,24 @@ All notable changes to Veqsio (community edition). The format follows [Keep a Ch
 version numbers follow [Semantic Versioning](https://semver.org/). Every `## [x.y.z]` section is published as the notes of the GitHub
 release `vx.y.z` (see `scripts/release.sh`). The enterprise edition (`veqsio-ee`) uses the same version numbers.
 
+## [1.3.0] - 2026-11-20
+
+### Added
+- Veqsio for Open Source: open-source projects get a free licence with every paid feature (see `docs/open-source-program.md`).
+- Interface language for dates, numbers and relative times ("5 minutes ago", "in 2 days") follows the chosen language with the correct plural forms, and the page language (`<html lang>`) is set on every page.
+- About 700 more interface texts are translated into German, Spanish, Russian, French, Portuguese, Chinese and Japanese: messages built in code, board and service desk screens, confirmations, tooltips, the Administration overview, the names and descriptions of settings and features, standard status and priority names, and the weekday names in the calendar.
+- `THIRD-PARTY-NOTICES.md` and a `licenses/` folder; the Docker images contain `/licenses` (the licence, `NOTICE`, the third-party notices and the licence of the Geist font).
+- Installer: `--no-telemetry`, and it prints what the anonymous usage statistics contain and how to switch them off.
+
+### Changed
+- Anonymous usage statistics stay on by default (a daily count with a random id, the version, the edition and a rough size, nothing else; see `docs/telemetry.md`), and this is now stated openly in the installer, the documentation and on the web site.
+- `LICENSE` is the verbatim text of the GNU AGPL-3.0 from gnu.org (three links used `http://`).
+- Documentation brought up to date: README and the site docs (installer options, usage statistics, the notification bell, the Valkey upgrade note, tested platforms).
+
+### Fixed
+- `VEQSIO_TELEMETRY=off` in `.env` did not reach the API container of the Docker Compose installation (the variable was not in the Compose file), so the documented off-switch only worked through the setting.
+- The calendar showed English weekday names, and English was shown for relative times and for the greeting on the dashboard in every other language.
+
 ## [1.2.3] - 2026-11-20
 
 ### Fixed
