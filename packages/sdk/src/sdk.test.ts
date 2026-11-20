@@ -9,7 +9,7 @@ import {
 
 const base = {
   id: 'demo-app', name: 'Demo', version: '1.0.0', vendor: 'Acme', description: 'A demo',
-  license: 'AGPL-3.0-or-later', engines: { veqsio: '>=1.0.0 <2.0.0' },
+  license: 'AGPL-3.0-only', engines: { veqsio: '>=1.0.0 <2.0.0' },
 }
 
 describe('semver', () => {

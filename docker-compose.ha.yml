@@ -84,7 +84,7 @@ services:
     networks: [veqsio-ha]
 
   redis:
-    image: redis:7-alpine
+    image: valkey/valkey:8-alpine
     restart: unless-stopped
     command: redis-server --appendonly yes
     volumes:

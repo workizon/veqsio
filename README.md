@@ -168,7 +168,7 @@ On each one the install, a re-run (secrets kept, database backed up first), a re
 
 ## Stack
 
-Bun + Hono API, Next.js 15 web app, Drizzle ORM, PostgreSQL 15+, Redis 7+.
+Bun + Hono API, Next.js 15 web app, Drizzle ORM, PostgreSQL 15+, Valkey 8 (or another Redis-compatible server).
 
 ```
 packages/

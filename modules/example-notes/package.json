@@ -3,7 +3,7 @@
   "version": "1.1.1",
   "private": true,
   "description": "Reference module: exercises every Veqsio extension point. Copy it to start a new module.",
-  "license": "AGPL-3.0-or-later",
+  "license": "AGPL-3.0-only",
   "type": "module",
   "exports": {
     "./manifest": "./veqsio.module.json",

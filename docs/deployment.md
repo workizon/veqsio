@@ -5,7 +5,7 @@
 This guide covers deploying Veqsio (Jira clone) using Docker Compose in production. The stack includes:
 
 - **PostgreSQL 15** - primary database
-- **Redis 7** - sessions, caching, rate limiting
+- **Valkey 8** (Redis-compatible; BSD-licensed) - sessions, caching, rate limiting
 - **API** (Hono/Bun) - REST API backend
 - **Web** (Next.js 15) - frontend application
 - **Nginx** - reverse proxy, SSL termination
