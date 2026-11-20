@@ -4,6 +4,12 @@ All notable changes to Veqsio (community edition). The format follows [Keep a Ch
 version numbers follow [Semantic Versioning](https://semver.org/). Every `## [x.y.z]` section is published as the notes of the GitHub
 release `vx.y.z` (see `scripts/release.sh`). The enterprise edition (`veqsio-ee`) uses the same version numbers.
 
+## [1.2.3] - 2026-11-20
+
+### Fixed
+- About 600 interface texts (messages built in code, board and service desk screens, confirmations, tooltips) were passed through the translation function but had no
+  translation and showed in English. They are now translated into German, Spanish, Russian, French, Portuguese, Chinese and Japanese.
+
 ## [1.2.2] - 2026-11-20
 
 ### Fixed
