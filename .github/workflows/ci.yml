@@ -251,3 +251,4 @@ jobs:
           docker compose -f docker-compose.prod.yml -f docker-compose.install.yml --profile tools build api web migrate
         env:
           POSTGRES_PASSWORD: ci-only
+          GRAFANA_ADMIN_PASSWORD: ci-only
