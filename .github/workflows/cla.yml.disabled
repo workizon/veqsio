@@ -1,3 +1,6 @@
+# DISABLED on purpose: GitHub only runs *.yml and *.yaml files. CLA.md has not been reviewed by a lawyer yet, so external pull requests are not accepted.
+# To switch the bot on after the review: rename this file back to cla.yml, create the `cla-signatures` branch, and add the secret CLA_PAT if `main` is protected.
+
 name: CLA
 
 # Asks every new contributor to sign CLA.md once. Signatures are stored on a separate branch.

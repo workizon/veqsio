@@ -2,6 +2,8 @@
 
 Thanks for helping! A few ground rules keep the project healthy.
 
+> **Pull requests from outside Workizon are not accepted yet.** The Contributor License Agreement below is still being finalised and the CLA bot is switched off. Please do not open a pull request for now; write to us by e-mail instead (see [veqsio.com/sla](https://veqsio.com/sla)). This page will be updated when contributions open.
+
 ## Workflow
 
 1. Open an issue (or comment on an existing one) before starting large changes.

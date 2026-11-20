@@ -271,7 +271,7 @@ Which features are free and which need a licence: [docs/editions-and-switches.md
 
 ## Contributing
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Security: see [`SECURITY.md`](SECURITY.md) (report vulnerabilities privately) and [`docs/security.md`](docs/security.md) for the security model.
+**External pull requests are not accepted yet** while the Contributor License Agreement is being finalised. Questions, bug reports and support go by e-mail (see [veqsio.com/sla](https://veqsio.com/sla)), not through GitHub issues. See [`CONTRIBUTING.md`](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Security: see [`SECURITY.md`](SECURITY.md) (report vulnerabilities privately) and [`docs/security.md`](docs/security.md) for the security model.
 
 ## Enterprise SSO & provisioning
 
