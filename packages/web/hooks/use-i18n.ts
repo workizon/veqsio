@@ -7,6 +7,8 @@ export type { Tr } from '@/lib/tr'
 
 const KEY = 'veqsio.locale'
 const listeners = new Set<() => void>()
+const noSubscribe = () => () => {}
+const readBrowserLanguage = () => (typeof navigator === 'undefined' ? null : navigator.language)
 const read = () => (typeof window === 'undefined' ? null : window.localStorage.getItem(KEY))
 
 /** The user's own language choice, or null to follow the instance default / browser language. */
@@ -31,7 +33,9 @@ function useInstanceLanguage(): string | undefined {
 export function useI18n() {
   const stored = useSyncExternalStore((cb) => { listeners.add(cb); return () => { listeners.delete(cb) } }, read, () => null)
   const instance = useInstanceLanguage()
-  const browser = typeof navigator === 'undefined' ? null : navigator.language
+  // Read through the same mechanism as the stored choice: the server (and the hydration pass) see null, the browser language applies right after hydration.
+  // Reading navigator.language directly while rendering made the first client render differ from the server HTML (React error #418) in every non-English browser.
+  const browser = useSyncExternalStore(noSubscribe, readBrowserLanguage, () => null)
   const locale = resolveLocale(stored, instance, browser)
   setActiveLocale(locale)
   const tr = useCallback((text: string, vars?: I18nVars) => fill(translate(locale, text), vars), [locale])
