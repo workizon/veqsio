@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { SortableTh } from '@/components/sortable-th'
 import { useMultiSort } from '@/lib/table-sort'
 import { Spinner } from '@/components/spinner'
@@ -9,11 +11,13 @@ import { barShares, categoryColor, categoryLabel, formatDuration } from '@/lib/t
 
 /** "Average time in status" for a board's project or one sprint: a bar per status and a table. */
 export function TimeInStatusReportView({ boardId, sprintId }: { boardId?: string; sprintId?: string }) {
+  const { tr } = useI18n();
+
   const { data, isLoading, error } = useTimeInStatusReport(sprintId ? { sprintId } : { boardId })
   const ms = useMultiSort()
   if (isLoading) return <Spinner />
   if (error) return <p role="alert" className="text-[var(--error)]">{(error as Error).message}</p>
-  if (!data || data.statuses.length === 0) return <EmptyState icon="history" title="Nothing to average yet" description="Issues need at least one status to be counted." />
+  if (!data || data.statuses.length === 0) return <EmptyState icon="history" title={tr('Nothing to average yet')} description={tr('Issues need at least one status to be counted.')} />
   const bars = barShares(data.statuses.map((s) => ({ ...s, durationMs: s.avgMs })))
   return (
     <div className="space-y-4">
@@ -25,8 +29,8 @@ export function TimeInStatusReportView({ boardId, sprintId }: { boardId?: string
         {bars.map((s) => <div key={s.status} title={`${s.status}: ${formatDuration(s.avgMs)}`} style={{ width: `${s.pct}%`, background: categoryColor(s.category) }} className="border-r border-[var(--surface-0)] last:border-r-0" />)}
       </div>
       <table className="w-full text-sm">
-        <caption className="sr-only">Average time in status</caption>
-        <thead><tr className="text-left text-[var(--text-tertiary)]"><SortableTh {...ms.th('status')}>Status</SortableTh><SortableTh {...ms.th('category')}>Category</SortableTh><SortableTh {...ms.th('issues')}>Issues</SortableTh><SortableTh {...ms.th('visits')}>Stays</SortableTh><SortableTh {...ms.th('avg')}>Average</SortableTh><SortableTh {...ms.th('total')}>Total</SortableTh></tr></thead>
+        <caption className="sr-only">{tr('Average time in status')}</caption>
+        <thead><tr className="text-left text-[var(--text-tertiary)]"><SortableTh {...ms.th('status')}>{tr('Status')}</SortableTh><SortableTh {...ms.th('category')}>{tr('Category')}</SortableTh><SortableTh {...ms.th('issues')}>{tr('Issues')}</SortableTh><SortableTh {...ms.th('visits')}>{tr('Stays')}</SortableTh><SortableTh {...ms.th('avg')}>{tr('Average')}</SortableTh><SortableTh {...ms.th('total')}>{tr('Total')}</SortableTh></tr></thead>
         <tbody>
           {ms.sort(data.statuses, { status: (s) => s.status, category: (s) => categoryLabel(s.category), issues: (s) => s.issues, visits: (s) => s.visits, avg: (s) => s.avgMs, total: (s) => s.totalMs }).map((s) => (
             <tr key={s.status} className="border-t border-[var(--surface-2)]">
@@ -38,8 +42,8 @@ export function TimeInStatusReportView({ boardId, sprintId }: { boardId?: string
         </tbody>
       </table>
       {data.categories.length > 0 && (
-        <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-[var(--text-secondary)]" aria-label="Average time per category and issue">
-          {data.categories.map((c) => <li key={c.category}>{categoryLabel(c.category)}: <strong className="text-[var(--text-primary)]">{formatDuration(c.avgMs)}</strong> per issue</li>)}
+        <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-[var(--text-secondary)]" aria-label={tr('Average time per category and issue')}>
+          {data.categories.map((c) => <li key={c.category}>{categoryLabel(c.category)}: <strong className="text-[var(--text-primary)]">{formatDuration(c.avgMs)}</strong> {tr('per issue')}</li>)}
         </ul>
       )}
     </div>

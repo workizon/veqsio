@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
@@ -27,6 +29,8 @@ const TABS: Array<{ id: Tab; label: string }> = [
 ]
 
 export default function MyRequestsPage() {
+  const { tr } = useI18n();
+
   const { slug } = useParams<{ slug: string }>()
   const { data, isLoading, error } = useMyRequests(slug)
   const [tab, setTab] = useState<Tab>('open')
@@ -47,14 +51,14 @@ export default function MyRequestsPage() {
   return (
     <PortalShell slug={slug}>
       <PortalHeading
-        title="My requests"
-        description="Track everything you have raised and see when we reply."
-        action={<Link href={`/portal/${slug}`} className="veqsio-btn-primary min-h-[44px] inline-flex items-center gap-1.5 px-4"><Plus aria-hidden className="w-4 h-4" />Raise a request</Link>}
+        title={tr('My requests')}
+        description={tr('Track everything you have raised and see when we reply.')}
+        action={<Link href={`/portal/${slug}`} className="veqsio-btn-primary min-h-[44px] inline-flex items-center gap-1.5 px-4"><Plus aria-hidden className="w-4 h-4" />{tr('Raise a request')}</Link>}
       />
 
       <div className="space-y-4">
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div role="tablist" aria-label="Filter requests" className="inline-flex self-start rounded-xl bg-[var(--surface-2)] p-1">
+          <div role="tablist" aria-label={tr('Filter requests')} className="inline-flex self-start rounded-xl bg-[var(--surface-2)] p-1">
             {TABS.map((t) => (
               <button
                 key={t.id} type="button" role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)}
@@ -62,19 +66,19 @@ export default function MyRequestsPage() {
                   tab === t.id ? 'bg-[var(--surface-0)] text-[var(--text-primary)] shadow-[var(--shadow-sm)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
-                {t.label}<span className="ml-1.5 text-caption text-[var(--text-tertiary)]">{isLoading ? '' : counts[t.id]}</span>
+                {tr(t.label)}<span className="ml-1.5 text-caption text-[var(--text-tertiary)]">{isLoading ? '' : counts[t.id]}</span>
               </button>
             ))}
           </div>
           <div className="relative sm:w-72">
-            <label htmlFor="req-search" className="sr-only">Search my requests</label>
+            <label htmlFor="req-search" className="sr-only">{tr('Search my requests')}</label>
             <Search aria-hidden className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)] pointer-events-none" />
-            <input id="req-search" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by summary or key" className="veqsio-input w-full min-h-[44px] !pl-9 !pr-3" />
+            <input id="req-search" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr('Search by summary or key')} className="veqsio-input w-full min-h-[44px] !pl-9 !pr-3" />
           </div>
         </div>
 
         {isLoading && (
-          <div className="rounded-xl border border-[var(--surface-3)] bg-[var(--surface-0)] divide-y divide-[var(--surface-3)]" aria-busy="true" aria-label="Loading requests">
+          <div className="rounded-xl border border-[var(--surface-3)] bg-[var(--surface-0)] divide-y divide-[var(--surface-3)]" aria-busy="true" aria-label={tr('Loading requests')}>
             {[0, 1, 2, 3].map((i) => (
               <div key={i} className="flex items-center gap-4 p-4"><Skeleton className="h-4 w-16" /><Skeleton className="h-4 flex-1" /><Skeleton className="h-6 w-20 rounded-full" /></div>
             ))}
@@ -85,15 +89,15 @@ export default function MyRequestsPage() {
         {data && rows.length === 0 && (
           all.length === 0 ? (
             <div className="rounded-xl border border-[var(--surface-3)] bg-[var(--surface-0)]">
-              <EmptyState icon="inbox" title="You have not raised any requests yet" description="When you send a request it will show up here, with its status and every reply." action={<Link href={`/portal/${slug}`} className="veqsio-btn-primary min-h-[44px] inline-flex items-center px-5">Raise your first request</Link>} />
+              <EmptyState icon="inbox" title={tr('You have not raised any requests yet')} description={tr('When you send a request it will show up here, with its status and every reply.')} action={<Link href={`/portal/${slug}`} className="veqsio-btn-primary min-h-[44px] inline-flex items-center px-5">{tr('Raise your first request')}</Link>} />
             </div>
           ) : (
             <div className="rounded-xl border border-[var(--surface-3)] bg-[var(--surface-0)]">
               <EmptyState
                 icon={needle ? 'search' : CheckCircle2}
-                title={needle ? 'No matching requests' : tab === 'open' ? 'You are all caught up' : 'Nothing here yet'}
-                description={needle ? 'Try a different word or switch to the All tab.' : tab === 'open' ? 'You have no open requests.' : 'No requests in this view.'}
-                action={(needle || tab !== 'all') && <button type="button" className="veqsio-btn-secondary min-h-[44px] px-4" onClick={() => { setQ(''); setTab('all') }}>Show all requests</button>}
+                title={needle ? tr('No matching requests') : tab === 'open' ? tr('You are all caught up') : tr('Nothing here yet')}
+                description={needle ? tr('Try a different word or switch to the All tab.') : tab === 'open' ? tr('You have no open requests.') : tr('No requests in this view.')}
+                action={(needle || tab !== 'all') && <button type="button" className="veqsio-btn-secondary min-h-[44px] px-4" onClick={() => { setQ(''); setTab('all') }}>{tr('Show all requests')}</button>}
               />
             </div>
           )
@@ -110,12 +114,12 @@ export default function MyRequestsPage() {
                       <span className="font-mono">{r.key}</span>
                       {r.requestType && <><span aria-hidden>·</span><span>{r.requestType}</span></>}
                       <span aria-hidden>·</span>
-                      <time dateTime={r.created} title={new Date(r.created).toLocaleString()}>Created {timeAgo(r.created)}</time>
-                      {r.resolved && <><span aria-hidden>·</span><span>Resolved {timeAgo(r.resolved)}</span></>}
+                      <time dateTime={r.created} title={new Date(r.created).toLocaleString()}>{tr('Created')} {timeAgo(r.created)}</time>
+                      {r.resolved && <><span aria-hidden>·</span><span>{tr('Resolved')} {timeAgo(r.resolved)}</span></>}
                     </div>
                   </div>
-                  {r.sla && <span className={`hidden sm:inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-caption font-medium ${SLA_CHIP[r.sla].cls}`}>{SLA_CHIP[r.sla].label}</span>}
-                  {r.assignee && <span className="hidden sm:inline-flex shrink-0" title={`Handled by ${r.assignee}`}><Avatar name={r.assignee} size="sm" /><span className="sr-only">Handled by {r.assignee}</span></span>}
+                  {r.sla && <span className={`hidden sm:inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-caption font-medium ${SLA_CHIP[r.sla].cls}`}>{tr(SLA_CHIP[r.sla].label)}</span>}
+                  {r.assignee && <span className="hidden sm:inline-flex shrink-0" title={tr('Handled by {name}', { name: r.assignee })}><Avatar name={r.assignee} size="sm" /><span className="sr-only">{tr('Handled by')} {r.assignee}</span></span>}
                   <StatusBadge status={r.status} category={r.resolved ? 'done' : undefined} />
                   <ChevronRight aria-hidden className="w-4 h-4 shrink-0 text-[var(--text-tertiary)] transition-transform group-hover:translate-x-0.5" />
                 </Link>

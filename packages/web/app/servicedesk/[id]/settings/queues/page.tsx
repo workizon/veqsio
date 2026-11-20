@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { ArrowDown, ArrowUp, Trash2 } from 'lucide-react'
@@ -14,9 +16,11 @@ const EXAMPLE = 'resolution = Unresolved AND assignee is EMPTY ORDER BY created 
 
 /** Inline JQL error: the parser's message and, when known, the character position with a caret under the JQL. */
 function JqlError({ id, jql, error }: { id: string; jql: string; error: JqlErrorInfo }) {
+  const { tr } = useI18n();
+
   return (
     <div id={id} role="alert" className="text-sm text-[var(--error)] space-y-1">
-      <p>{error.message}{error.position !== null && <span className="text-[var(--text-secondary)]"> (position {error.position + 1})</span>}</p>
+      <p>{error.message}{error.position !== null && <span className="text-[var(--text-secondary)]"> {tr('(position')} {error.position + 1})</span>}</p>
       {error.position !== null && (
         <pre aria-hidden="true" className="text-xs font-mono bg-[var(--surface-2)] rounded px-2 py-1 overflow-x-auto">{jql}{'\n'}{' '.repeat(Math.min(error.position, jql.length))}^</pre>
       )}
@@ -29,6 +33,8 @@ function QueueEditor({ q, canEdit, onMove, onDelete, first, last, saveQueue }: {
   onMove: (dir: -1 | 1) => void; onDelete: () => void
   saveQueue: (v: { name: string; jql: string | null }) => Promise<unknown>
 }) {
+  const { tr } = useI18n();
+
   const [jql, setJql] = useState(q.jql ?? '')
   const [error, setError] = useState<JqlErrorInfo | null>(null)
   const [saving, setSaving] = useState(false)
@@ -36,7 +42,7 @@ function QueueEditor({ q, canEdit, onMove, onDelete, first, last, saveQueue }: {
   const errId = `q-${q.id}-err`
   const save = async () => {
     setSaving(true)
-    try { await saveQueue({ name: q.name, jql: jql.trim() || null }); setError(null); toast('Queue saved', 'success') }
+    try { await saveQueue({ name: q.name, jql: jql.trim() || null }); setError(null); toast(tr('Queue saved'), 'success') }
     catch (e) { const info = jqlErrorFrom(e); if (info) setError(info); else onErr(e as Error) }
     finally { setSaving(false) }
   }
@@ -53,20 +59,20 @@ function QueueEditor({ q, canEdit, onMove, onDelete, first, last, saveQueue }: {
         )}
       </div>
       <label className="block space-y-1">
-        <span className="text-sm font-medium">JQL</span>
+        <span className="text-sm font-medium">{tr('JQL')}</span>
         <textarea
           rows={2} maxLength={2000} readOnly={!canEdit} spellCheck={false}
           className={`veqsio-input w-full font-mono text-sm ${error ? 'border-[var(--error)]' : ''}`}
           value={jql} aria-invalid={error ? true : undefined} aria-describedby={error ? errId : undefined}
           onChange={(e) => { setJql(e.target.value); setError(null) }}
-          placeholder="Empty shows every request of this desk"
+          placeholder={tr('Empty shows every request of this desk')}
         />
       </label>
       {error && <JqlError id={errId} jql={jql} error={error} />}
       {canEdit && dirty && (
         <div className="flex gap-2">
-          <button className="veqsio-btn-primary" disabled={saving} onClick={save}>Save JQL</button>
-          <button className="veqsio-btn-secondary" disabled={saving} onClick={() => { setJql(q.jql ?? ''); setError(null) }}>Cancel</button>
+          <button className="veqsio-btn-primary" disabled={saving} onClick={save}>{tr('Save JQL')}</button>
+          <button className="veqsio-btn-secondary" disabled={saving} onClick={() => { setJql(q.jql ?? ''); setError(null) }}>{tr('Cancel')}</button>
         </div>
       )}
     </li>
@@ -75,6 +81,8 @@ function QueueEditor({ q, canEdit, onMove, onDelete, first, last, saveQueue }: {
 
 /** Project settings > Queues */
 export default function QueuesSettingsPage() {
+  const { tr } = useI18n();
+
   const id = Number(useParams<{ id: string }>().id)
   const { isAdmin } = useDeskAdmin(id)
   const queues = useAdminQueues(id)
@@ -92,29 +100,28 @@ export default function QueuesSettingsPage() {
 
   return (
     <section className="space-y-4 max-w-2xl" aria-labelledby="q-h">
-      <h2 id="q-h" className="text-heading-2">Queues</h2>
+      <h2 id="q-h" className="text-heading-2">{tr('Queues')}</h2>
       <p className="text-sm text-[var(--text-secondary)]">
-        A queue is a saved JQL query over this desk&apos;s requests. Anything the JQL search understands works, including <code>currentUser()</code>, relative dates and <code>ORDER BY</code> (the queue&apos;s sort). It is always narrowed to this desk&apos;s project.
-      </p>
+        {tr('A queue is a saved JQL query over this desk\'s requests. Anything the JQL search understands works, including')} <code>currentUser()</code>{tr(', relative dates and')} <code>ORDER BY</code> {tr('(the queue\'s sort). It is always narrowed to this desk\'s project.')} </p>
 
       {isAdmin && (
         <form className="veqsio-card p-4 space-y-3" onSubmit={(e) => {
           e.preventDefault()
           save.mutate({ name: name.trim(), jql: jql.trim() || null, sortOrder: list.length }, {
-            onSuccess: () => { setName(''); setCreateError(null); toast('Queue created', 'success') },
+            onSuccess: () => { setName(''); setCreateError(null); toast(tr('Queue created'), 'success') },
             onError: (err) => { const info = err instanceof ApiError ? jqlErrorFrom(err) : null; if (info) setCreateError(info); else onErr(err) },
           })
         }}>
-          <h3 className="text-sm font-semibold">New queue</h3>
-          <label className="block space-y-1"><span className="text-sm font-medium">Name</span><input required maxLength={255} className="veqsio-input w-full" value={name} onChange={(e) => setName(e.target.value)} /></label>
+          <h3 className="text-sm font-semibold">{tr('New queue')}</h3>
+          <label className="block space-y-1"><span className="text-sm font-medium">{tr('Name')}</span><input required maxLength={255} className="veqsio-input w-full" value={name} onChange={(e) => setName(e.target.value)} /></label>
           <label className="block space-y-1">
-            <span className="text-sm font-medium">JQL</span>
+            <span className="text-sm font-medium">{tr('JQL')}</span>
             <textarea rows={2} maxLength={2000} spellCheck={false} className={`veqsio-input w-full font-mono text-sm ${createError ? 'border-[var(--error)]' : ''}`}
               value={jql} placeholder={EXAMPLE} aria-invalid={createError ? true : undefined} aria-describedby={createError ? 'q-new-err' : undefined}
               onChange={(e) => { setJql(e.target.value); setCreateError(null) }} />
           </label>
           {createError && <JqlError id="q-new-err" jql={jql} error={createError} />}
-          <button type="submit" className="veqsio-btn-primary" disabled={save.isPending}>Create queue</button>
+          <button type="submit" className="veqsio-btn-primary" disabled={save.isPending}>{tr('Create queue')}</button>
         </form>
       )}
 

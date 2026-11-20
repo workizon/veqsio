@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -28,6 +30,8 @@ import { confirmDialog } from '@/components/dialogs'
  * when it should follow the open page (route /pages/[id]).
  */
 export function PagesWorkspace({ scopeKey, pageId }: { scopeKey?: string | null; pageId: number | null }) {
+  const { tr } = useI18n();
+
   const router = useRouter()
   const { isEnabled, loaded } = useFeatures()
   const projects = useProjects()
@@ -49,7 +53,7 @@ export function PagesWorkspace({ scopeKey, pageId }: { scopeKey?: string | null;
   }, [focus])
 
   if (loaded && !isEnabled('pages')) {
-    return <AppLayout><EmptyState icon="archive" title="Pages are switched off" description="An administrator turned the Wiki / Pages feature off for this instance." /></AppLayout>
+    return <AppLayout><EmptyState icon="archive" title={tr('Pages are switched off')} description={tr('An administrator turned the Wiki / Pages feature off for this instance.')} /></AppLayout>
   }
 
   const switchScope = (value: string) => router.push(value ? `/projects/${encodeURIComponent(value)}/pages` : '/pages')
@@ -61,39 +65,39 @@ export function PagesWorkspace({ scopeKey, pageId }: { scopeKey?: string | null;
       <div className="max-w-[1600px] mx-auto">
         {!focus && (
           <>
-            <Breadcrumb items={[{ label: 'Pages', href: '/pages' }, ...(scope ? [{ label: scope, href: `/projects/${scope}/pages` }] : [])]} />
+            <Breadcrumb items={[{ label: tr('Pages'), href: '/pages' }, ...(scope ? [{ label: scope, href: `/projects/${scope}/pages` }] : [])]} />
             <div className="flex flex-wrap items-center gap-3 mb-4">
-              <h1 className="text-heading-1 mr-auto">Pages</h1>
+              <h1 className="text-heading-1 mr-auto">{tr('Pages')}</h1>
               <label className="flex items-center gap-2 text-sm">
-                <span className="sr-only sm:not-sr-only">Space</span>
-                <select className="veqsio-input" aria-label="Choose workspace or project pages" value={scope ?? ''} onChange={(e) => switchScope(e.target.value)}>
-                  <option value="">Workspace</option>
+                <span className="sr-only sm:not-sr-only">{tr('Space')}</span>
+                <select className="veqsio-input" aria-label={tr('Choose workspace or project pages')} value={scope ?? ''} onChange={(e) => switchScope(e.target.value)}>
+                  <option value="">{tr('Workspace')}</option>
                   {(projects.data ?? []).map((p) => <option key={p.key} value={p.key}>{p.name} ({p.key})</option>)}
                 </select>
               </label>
-              <button type="button" className="veqsio-btn-primary" onClick={() => setCreating({ parentId: null })}><Plus className="w-4 h-4" aria-hidden /> New page</button>
+              <button type="button" className="veqsio-btn-primary" onClick={() => setCreating({ parentId: null })}><Plus className="w-4 h-4" aria-hidden /> {tr('New page')}</button>
             </div>
           </>
         )}
 
         <div className={`grid gap-6 ${focus ? 'grid-cols-1' : 'lg:grid-cols-[260px_minmax(0,1fr)]'}`}>
           {!focus && (
-            <nav aria-label="Page navigation" className="veqsio-card p-3 self-start max-h-[calc(100dvh-12rem)] overflow-y-auto">
+            <nav aria-label={tr('Page navigation')} className="veqsio-card p-3 self-start max-h-[calc(100dvh-12rem)] overflow-y-auto">
               <div className="relative mb-3">
                 <Search className="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" aria-hidden />
-                <input type="search" className="veqsio-input w-full pl-8" placeholder="Search pages" aria-label="Search pages" value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+                <input type="search" className="veqsio-input w-full pl-8" placeholder={tr('Search pages')} aria-label={tr('Search pages')} value={searchText} onChange={(e) => setSearchText(e.target.value)} />
               </div>
               {showSearch ? (
                 <div aria-live="polite">
                   {search.isLoading && <Spinner />}
-                  {search.isError && <p role="alert" className="text-sm text-red-600">Search failed.</p>}
-                  {search.data && search.data.length === 0 && <p className="text-sm text-[var(--text-secondary)] px-1">No pages match &ldquo;{debounced}&rdquo;.</p>}
+                  {search.isError && <p role="alert" className="text-sm text-red-600">{tr('Search failed.')}</p>}
+                  {search.data && search.data.length === 0 && <p className="text-sm text-[var(--text-secondary)] px-1">{tr('No pages match “')}{debounced}{tr('”.')}</p>}
                   <ul className="space-y-2">
                     {search.data?.map((h) => (
                       <li key={h.id}>
                         <Link href={`/pages/${h.id}`} className="block rounded-md p-2 hover:bg-[var(--surface-2)]">
                           <span className="block text-sm font-medium">{h.title}</span>
-                          <span className="block text-xs text-[var(--text-tertiary)]">{h.projectKey ?? 'Workspace'}</span>
+                          <span className="block text-xs text-[var(--text-tertiary)]">{h.projectKey ?? tr('Workspace')}</span>
                           <span className="block text-xs text-[var(--text-secondary)] break-words">
                             {snippetParts(h.snippet).map((s, i) => s.match ? <mark key={i} className="veqsio-hl">{s.text}</mark> : <span key={i}>{s.text}</span>)}
                           </span>
@@ -103,7 +107,7 @@ export function PagesWorkspace({ scopeKey, pageId }: { scopeKey?: string | null;
                   </ul>
                 </div>
               ) : list.isLoading || scope === undefined ? <Spinner />
-                : list.isError ? <p role="alert" className="text-sm text-red-600 px-1">Could not load the pages.</p>
+                : list.isError ? <p role="alert" className="text-sm text-red-600 px-1">{tr('Could not load the pages.')}</p>
                 : <PageTree pages={list.data ?? []} currentId={pageId} onCreate={(parentId) => setCreating({ parentId })} canCreate={canCreateHere} />}
             </nav>
           )}
@@ -113,7 +117,7 @@ export function PagesWorkspace({ scopeKey, pageId }: { scopeKey?: string | null;
               <Landing pages={list.data} loading={list.isLoading} scope={scope ?? null} onCreate={() => setCreating({ parentId: null })} />
             ) : page.isLoading ? <Spinner />
               : page.isError ? (
-                <EmptyState icon="inbox" title="Page not found" description="It does not exist, was removed, or you are not allowed to see it." action={<Link className="veqsio-btn-secondary" href="/pages">Back to Pages</Link>} />
+                <EmptyState icon="inbox" title={tr('Page not found')} description={tr('It does not exist, was removed, or you are not allowed to see it.')} action={<Link className="veqsio-btn-secondary" href="/pages">{tr('Back to Pages')}</Link>} />
               ) : page.data ? (
                 <PageView key={page.data.id} page={page.data} pages={list.data ?? []} focus={focus} onFocus={setFocus} />
               ) : null}
@@ -135,14 +139,16 @@ export function PagesWorkspace({ scopeKey, pageId }: { scopeKey?: string | null;
 }
 
 function Landing({ pages, loading, scope, onCreate }: { pages: PageSummary[] | undefined; loading: boolean; scope: string | null; onCreate: () => void }) {
+  const { tr } = useI18n();
+
   if (loading) return <Spinner />
   if (!pages?.length) {
-    return <EmptyState icon="archive" title="No pages yet" description={scope ? `Write the first page for project ${scope}: documentation, decisions, meeting notes.` : 'Write the first workspace page. Every signed-in user can read it.'} action={<button type="button" className="veqsio-btn-primary" onClick={onCreate}>Create a page</button>} />
+    return <EmptyState icon="archive" title={tr('No pages yet')} description={scope ? tr('Write the first page for project {scope}: documentation, decisions, meeting notes.', { scope }) : tr('Write the first workspace page. Every signed-in user can read it.')} action={<button type="button" className="veqsio-btn-primary" onClick={onCreate}>{tr('Create a page')}</button>} />
   }
   const recent = [...pages].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 12)
   return (
     <section aria-labelledby="recent-pages">
-      <h2 id="recent-pages" className="text-heading-2 mb-3">Recently updated</h2>
+      <h2 id="recent-pages" className="text-heading-2 mb-3">{tr('Recently updated')}</h2>
       <ul className="grid gap-2 sm:grid-cols-2">
         {recent.map((p) => (
           <li key={p.id}>
@@ -150,7 +156,7 @@ function Landing({ pages, loading, scope, onCreate }: { pages: PageSummary[] | u
               <FileText className="w-4 h-4 mt-0.5 text-[var(--text-tertiary)]" aria-hidden />
               <span className="min-w-0">
                 <span className="block font-medium truncate">{p.title}</span>
-                <span className="block text-xs text-[var(--text-secondary)]">{p.author?.displayName ?? 'Unknown'} · {new Date(p.updatedAt).toLocaleDateString()}</span>
+                <span className="block text-xs text-[var(--text-secondary)]">{p.author?.displayName ?? tr('Unknown')} · {new Date(p.updatedAt).toLocaleDateString()}</span>
               </span>
             </Link>
           </li>
@@ -161,6 +167,8 @@ function Landing({ pages, loading, scope, onCreate }: { pages: PageSummary[] | u
 }
 
 function NewPageDialog({ scope, parentId, pages, onClose, onCreated }: { scope: string | null; parentId: number | null; pages: PageSummary[]; onClose: () => void; onCreated: (id: number) => void }) {
+  const { tr } = useI18n();
+
   const create = useCreatePage()
   const [title, setTitle] = useState('')
   const [parent, setParent] = useState<number | null>(parentId)
@@ -171,19 +179,19 @@ function NewPageDialog({ scope, parentId, pages, onClose, onCreated }: { scope: 
         create.mutate({ title, parentId: parent, projectKey: scope }, { onSuccess: (r) => onCreated(r.id), onError: (err) => toast(err.message, 'error') })
       }}>
         <div>
-          <label htmlFor="np-title" className="block text-sm font-medium mb-1">Title</label>
+          <label htmlFor="np-title" className="block text-sm font-medium mb-1">{tr('Title')}</label>
           <input id="np-title" className="veqsio-input w-full" value={title} maxLength={255} onChange={(e) => setTitle(e.target.value)} required autoFocus />
         </div>
         <div>
-          <label htmlFor="np-parent" className="block text-sm font-medium mb-1">Parent page</label>
+          <label htmlFor="np-parent" className="block text-sm font-medium mb-1">{tr('Parent page')}</label>
           <select id="np-parent" className="veqsio-input w-full" value={parent ?? ''} onChange={(e) => setParent(e.target.value ? Number(e.target.value) : null)}>
-            <option value="">None (top level)</option>
+            <option value="">{tr('None (top level)')}</option>
             {pages.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}
           </select>
         </div>
         <div className="flex justify-end gap-2">
-          <button type="button" className="veqsio-btn-ghost" onClick={onClose}>Cancel</button>
-          <button type="submit" className="veqsio-btn-primary" disabled={!title.trim() || create.isPending}>Create</button>
+          <button type="button" className="veqsio-btn-ghost" onClick={onClose}>{tr('Cancel')}</button>
+          <button type="submit" className="veqsio-btn-primary" disabled={!title.trim() || create.isPending}>{tr('Create')}</button>
         </div>
       </form>
     </Modal>
@@ -191,6 +199,8 @@ function NewPageDialog({ scope, parentId, pages, onClose, onCreated }: { scope: 
 }
 
 function PageView({ page, pages, focus, onFocus }: { page: PageDetail; pages: PageSummary[]; focus: boolean; onFocus: (v: boolean) => void }) {
+  const { tr } = useI18n();
+
   const projects = useProjects()
   const update = useUpdatePage(page.id)
   const archive = useArchivePage(page.id)
@@ -226,7 +236,7 @@ function PageView({ page, pages, focus, onFocus }: { page: PageDetail; pages: Pa
       else if (e.key === 'L' && e.shiftKey && canLock) { e.preventDefault(); update.mutate({ locked: !page.locked }, { onError: (err) => toast(err.message, 'error') }) }
       else if (e.key === 'R' && e.shiftKey && (canEdit || page.archived)) {
         e.preventDefault()
-        if (page.archived || (await confirmDialog('Archive this page and the pages below it? You can restore them later.'))) archive.mutate(!page.archived, { onSuccess: () => toast(page.archived ? 'Page restored' : 'Page archived', 'success'), onError: (err) => toast(err.message, 'error') })
+        if (page.archived || (await confirmDialog(tr('Archive this page and the pages below it? You can restore them later.')))) archive.mutate(!page.archived, { onSuccess: () => toast(page.archived ? tr('Page restored') : tr('Page archived'), 'success'), onError: (err) => toast(err.message, 'error') })
       }
     }
     window.addEventListener('keydown', onKey)
@@ -241,8 +251,8 @@ function PageView({ page, pages, focus, onFocus }: { page: PageDetail; pages: Pa
   }
 
   const save = () => update.mutate({ title: title.trim(), body, expectedVersion: page.version }, {
-    onSuccess: (r) => { toast(r.changed ? 'Page saved' : 'No changes to save', 'success'); setEditing(false) },
-    onError: (e: any) => toast(e.status === 409 ? 'Someone else changed this page. Copy your text, reload the page and apply it again.' : e.message, 'error'),
+    onSuccess: (r) => { toast(r.changed ? tr('Page saved') : tr('No changes to save'), 'success'); setEditing(false) },
+    onError: (e: any) => toast(e.status === 409 ? tr('Someone else changed this page. Copy your text, reload the page and apply it again.') : e.message, 'error'),
   })
 
   const crumbs = [...page.ancestors]
@@ -251,68 +261,68 @@ function PageView({ page, pages, focus, onFocus }: { page: PageDetail; pages: Pa
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
       <article className={`min-w-0 ${focus ? 'max-w-3xl mx-auto w-full' : ''}`} aria-labelledby="page-title">
         {crumbs.length > 0 && (
-          <nav aria-label="Page path" className="text-xs text-[var(--text-secondary)] mb-2 flex flex-wrap gap-1">
+          <nav aria-label={tr('Page path')} className="text-xs text-[var(--text-secondary)] mb-2 flex flex-wrap gap-1">
             {crumbs.map((a) => <span key={a.id}><Link className="hover:underline" href={`/pages/${a.id}`}>{a.title}</Link> /</span>)}
           </nav>
         )}
         <div className="flex flex-wrap items-start gap-2 mb-4">
           {editing ? (
-            <input aria-label="Page title" className="veqsio-input flex-1 text-xl font-semibold" value={title} maxLength={255} onChange={(e) => setTitle(e.target.value)} />
+            <input aria-label={tr('Page title')} className="veqsio-input flex-1 text-xl font-semibold" value={title} maxLength={255} onChange={(e) => setTitle(e.target.value)} />
           ) : (
             <h1 id="page-title" className="text-heading-1 flex-1 min-w-0 break-words">
               {page.title}
-              {page.locked && <Lock className="inline w-5 h-5 ml-2 text-[var(--text-tertiary)]" aria-label="Locked" />}
+              {page.locked && <Lock className="inline w-5 h-5 ml-2 text-[var(--text-tertiary)]" aria-label={tr('Locked')} />}
             </h1>
           )}
-          <div className="flex flex-wrap gap-1.5" role="toolbar" aria-label="Page actions">
+          <div className="flex flex-wrap gap-1.5" role="toolbar" aria-label={tr('Page actions')}>
             {editing ? (
               <>
-                <button type="button" className="veqsio-btn-primary" disabled={!title.trim() || update.isPending} onClick={save}>Save</button>
-                <button type="button" className="veqsio-btn-ghost" onClick={async () => { if (!dirty || (await confirmDialog('Discard your changes?'))) { setEditing(false); setTitle(page.title); setBody(page.body) } }}>Cancel</button>
+                <button type="button" className="veqsio-btn-primary" disabled={!title.trim() || update.isPending} onClick={save}>{tr('Save')}</button>
+                <button type="button" className="veqsio-btn-ghost" onClick={async () => { if (!dirty || (await confirmDialog(tr('Discard your changes?')))) { setEditing(false); setTitle(page.title); setBody(page.body) } }}>{tr('Cancel')}</button>
               </>
             ) : (
               <>
-                {canEdit && <button type="button" className="veqsio-btn-secondary" title="Edit (E)" aria-keyshortcuts="e" onClick={() => { setTitle(page.title); setBody(page.body); setEditing(true) }}><Pencil className="w-4 h-4" aria-hidden /> Edit</button>}
-                <button type="button" className="veqsio-btn-ghost" onClick={() => setHistoryOpen(true)}><History className="w-4 h-4" aria-hidden /> History</button>
-                {canEdit && <button type="button" className="veqsio-btn-ghost" onClick={() => setMoveOpen(true)}><FolderInput className="w-4 h-4" aria-hidden /> Move</button>}
+                {canEdit && <button type="button" className="veqsio-btn-secondary" title={tr('Edit (E)')} aria-keyshortcuts="e" onClick={() => { setTitle(page.title); setBody(page.body); setEditing(true) }}><Pencil className="w-4 h-4" aria-hidden /> {tr('Edit')}</button>}
+                <button type="button" className="veqsio-btn-ghost" onClick={() => setHistoryOpen(true)}><History className="w-4 h-4" aria-hidden /> {tr('History')}</button>
+                {canEdit && <button type="button" className="veqsio-btn-ghost" onClick={() => setMoveOpen(true)}><FolderInput className="w-4 h-4" aria-hidden /> {tr('Move')}</button>}
                 {canLock && (
-                  <button type="button" className="veqsio-btn-ghost" disabled={update.isPending} title="Lock or unlock (Shift+L)" aria-keyshortcuts="Shift+L"
+                  <button type="button" className="veqsio-btn-ghost" disabled={update.isPending} title={tr('Lock or unlock (Shift+L)')} aria-keyshortcuts="Shift+L"
                     onClick={() => update.mutate({ locked: !page.locked }, { onError: (e) => toast(e.message, 'error') })}>
-                    {page.locked ? <><Unlock className="w-4 h-4" aria-hidden /> Unlock</> : <><Lock className="w-4 h-4" aria-hidden /> Lock</>}
+                    {page.locked ? <><Unlock className="w-4 h-4" aria-hidden /> {tr('Unlock')}</> : <><Lock className="w-4 h-4" aria-hidden /> {tr('Lock')}</>}
                   </button>
                 )}
                 {(canEdit || page.archived) && (
-                  <button type="button" className="veqsio-btn-ghost" disabled={archive.isPending} title="Archive or restore (Shift+R)" aria-keyshortcuts="Shift+R"
-                    onClick={async () => { if (page.archived || (await confirmDialog('Archive this page and the pages below it? You can restore them later.'))) archive.mutate(!page.archived, { onSuccess: () => toast(page.archived ? 'Page restored' : 'Page archived', 'success'), onError: (e) => toast(e.message, 'error') }) }}>
-                    {page.archived ? <><ArchiveRestore className="w-4 h-4" aria-hidden /> Restore</> : <><Archive className="w-4 h-4" aria-hidden /> Archive</>}
+                  <button type="button" className="veqsio-btn-ghost" disabled={archive.isPending} title={tr('Archive or restore (Shift+R)')} aria-keyshortcuts="Shift+R"
+                    onClick={async () => { if (page.archived || (await confirmDialog(tr('Archive this page and the pages below it? You can restore them later.')))) archive.mutate(!page.archived, { onSuccess: () => toast(page.archived ? tr('Page restored') : tr('Page archived'), 'success'), onError: (e) => toast(e.message, 'error') }) }}>
+                    {page.archived ? <><ArchiveRestore className="w-4 h-4" aria-hidden /> {tr('Restore')}</> : <><Archive className="w-4 h-4" aria-hidden /> {tr('Archive')}</>}
                   </button>
                 )}
               </>
             )}
             <button type="button" className="veqsio-btn-ghost" aria-pressed={focus} onClick={() => onFocus(!focus)}>
-              {focus ? <><Minimize2 className="w-4 h-4" aria-hidden /> Exit focus</> : <><Maximize2 className="w-4 h-4" aria-hidden /> Focus</>}
+              {focus ? <><Minimize2 className="w-4 h-4" aria-hidden /> {tr('Exit focus')}</> : <><Maximize2 className="w-4 h-4" aria-hidden /> {tr('Focus')}</>}
             </button>
           </div>
         </div>
 
-        {page.archived && <p role="status" className="mb-4 rounded-md border border-[var(--surface-4)] bg-[var(--surface-2)] px-3 py-2 text-sm">This page is archived and read-only. Use Restore to bring it back.</p>}
-        {page.locked && !canEdit && !page.archived && <p role="status" className="mb-4 rounded-md border border-[var(--surface-4)] bg-[var(--surface-2)] px-3 py-2 text-sm">This page is locked. Only its author and administrators can edit it.</p>}
+        {page.archived && <p role="status" className="mb-4 rounded-md border border-[var(--surface-4)] bg-[var(--surface-2)] px-3 py-2 text-sm">{tr('This page is archived and read-only. Use Restore to bring it back.')}</p>}
+        {page.locked && !canEdit && !page.archived && <p role="status" className="mb-4 rounded-md border border-[var(--surface-4)] bg-[var(--surface-2)] px-3 py-2 text-sm">{tr('This page is locked. Only its author and administrators can edit it.')}</p>}
 
         {editing ? (
-          <RichTextEditor value={body} onChange={setBody} label="Page content" rows={22} maxLength={200000} onSubmit={save} />
+          <RichTextEditor value={body} onChange={setBody} label={tr('Page content')} rows={22} maxLength={200000} onSubmit={save} />
         ) : (
           <>
             {selection && (
-              <div role="region" aria-label="Selected text" className="sticky top-16 z-10 mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-[var(--surface-4)] bg-[var(--surface-0)] px-3 py-2 shadow-sm text-sm">
+              <div role="region" aria-label={tr('Selected text')} className="sticky top-16 z-10 mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-[var(--surface-4)] bg-[var(--surface-0)] px-3 py-2 shadow-sm text-sm">
                 <span className="flex-1 min-w-0 truncate text-[var(--text-secondary)]">&ldquo;{selection}&rdquo;</span>
-                <button type="button" className="veqsio-btn-secondary" onClick={() => setConvertText(selection)}><Bug className="w-4 h-4" aria-hidden /> Create issue</button>
-                {canComment && <button type="button" className="veqsio-btn-ghost" onClick={() => { setQuote(selection); document.getElementById('page-comments-heading')?.scrollIntoView({ behavior: 'smooth' }) }}>Comment on this</button>}
+                <button type="button" className="veqsio-btn-secondary" onClick={() => setConvertText(selection)}><Bug className="w-4 h-4" aria-hidden /> {tr('Create issue')}</button>
+                {canComment && <button type="button" className="veqsio-btn-ghost" onClick={() => { setQuote(selection); document.getElementById('page-comments-heading')?.scrollIntoView({ behavior: 'smooth' }) }}>{tr('Comment on this')}</button>}
               </div>
             )}
             <div ref={contentRef} onMouseUp={readSelection} onKeyUp={readSelection}>
               {rendered.html
                 ? <div className="rich-text pages-body" dangerouslySetInnerHTML={{ __html: rendered.html }} />
-                : <p className="text-[var(--text-secondary)]">This page is empty.{canEdit ? ' Choose Edit to write something.' : ''}</p>}
+                : <p className="text-[var(--text-secondary)]">{tr('This page is empty.')}{canEdit ? tr(' Choose Edit to write something.') : ''}</p>}
             </div>
             <PageComments pageId={page.id} canComment={canComment} quote={quote} onClearQuote={() => setQuote(null)} />
           </>
@@ -320,10 +330,10 @@ function PageView({ page, pages, focus, onFocus }: { page: PageDetail; pages: Pa
       </article>
 
       {!focus && (
-        <aside aria-label="Page details" className="space-y-4 self-start xl:sticky xl:top-20">
+        <aside aria-label={tr('Page details')} className="space-y-4 self-start xl:sticky xl:top-20">
           {rendered.toc.length > 0 && (
             <section className="veqsio-card p-3" aria-labelledby="toc-heading">
-              <h2 id="toc-heading" className="text-sm font-semibold flex items-center gap-1.5 mb-2"><ListTree className="w-4 h-4" aria-hidden /> On this page</h2>
+              <h2 id="toc-heading" className="text-sm font-semibold flex items-center gap-1.5 mb-2"><ListTree className="w-4 h-4" aria-hidden /> {tr('On this page')}</h2>
               <ul className="text-sm space-y-1">
                 {rendered.toc.map((t) => (
                   <li key={t.id} style={{ paddingLeft: (t.level - 1) * 10 }}>
@@ -334,8 +344,8 @@ function PageView({ page, pages, focus, onFocus }: { page: PageDetail; pages: Pa
             </section>
           )}
           <section className="veqsio-card p-3" aria-labelledby="linked-heading">
-            <h2 id="linked-heading" className="text-sm font-semibold flex items-center gap-1.5 mb-2"><Bug className="w-4 h-4" aria-hidden /> Linked issues</h2>
-            {page.linkedIssues.length === 0 ? <p className="text-sm text-[var(--text-secondary)]">None yet. Select text in the page and choose Create issue.</p> : (
+            <h2 id="linked-heading" className="text-sm font-semibold flex items-center gap-1.5 mb-2"><Bug className="w-4 h-4" aria-hidden /> {tr('Linked issues')}</h2>
+            {page.linkedIssues.length === 0 ? <p className="text-sm text-[var(--text-secondary)]">{tr('None yet. Select text in the page and choose Create issue.')}</p> : (
               <ul className="text-sm space-y-2">
                 {page.linkedIssues.map((i) => (
                   <li key={i.id}>
@@ -348,12 +358,12 @@ function PageView({ page, pages, focus, onFocus }: { page: PageDetail; pages: Pa
             )}
           </section>
           <section className="veqsio-card p-3 text-sm" aria-labelledby="info-heading">
-            <h2 id="info-heading" className="text-sm font-semibold mb-2">Details</h2>
+            <h2 id="info-heading" className="text-sm font-semibold mb-2">{tr('Details')}</h2>
             <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[var(--text-secondary)]">
-              <dt>Space</dt><dd>{page.projectKey ? `${page.projectName ?? ''} (${page.projectKey})` : 'Workspace'}</dd>
-              <dt>Author</dt><dd>{page.author?.displayName ?? 'Unknown'}</dd>
-              <dt>Updated</dt><dd>{new Date(page.updatedAt).toLocaleString()}</dd>
-              <dt>Version</dt><dd>{page.version}</dd>
+              <dt>{tr('Space')}</dt><dd>{page.projectKey ? `${page.projectName ?? ''} (${page.projectKey})` : tr('Workspace')}</dd>
+              <dt>{tr('Author')}</dt><dd>{page.author?.displayName ?? tr('Unknown')}</dd>
+              <dt>{tr('Updated')}</dt><dd>{new Date(page.updatedAt).toLocaleString()}</dd>
+              <dt>{tr('Version')}</dt><dd>{page.version}</dd>
             </dl>
           </section>
         </aside>
@@ -367,6 +377,8 @@ function PageView({ page, pages, focus, onFocus }: { page: PageDetail; pages: Pa
 }
 
 function MoveDialog({ page, pages, onClose }: { page: PageDetail; pages: PageSummary[]; onClose: () => void }) {
+  const { tr } = useI18n();
+
   const move = useMovePage(page.id)
   const [parent, setParent] = useState<number | null>(page.parentId)
   const [position, setPosition] = useState('')
@@ -377,22 +389,22 @@ function MoveDialog({ page, pages, onClose }: { page: PageDetail; pages: PageSum
       <form className="space-y-4" onSubmit={(e) => {
         e.preventDefault()
         const index = position.trim() ? Math.max(0, Number(position) - 1) : undefined
-        move.mutate({ parentId: parent, index }, { onSuccess: () => { toast('Page moved', 'success'); onClose() }, onError: (err) => toast(err.message, 'error') })
+        move.mutate({ parentId: parent, index }, { onSuccess: () => { toast(tr('Page moved'), 'success'); onClose() }, onError: (err) => toast(err.message, 'error') })
       }}>
         <div>
-          <label htmlFor="mv-parent" className="block text-sm font-medium mb-1">New parent</label>
+          <label htmlFor="mv-parent" className="block text-sm font-medium mb-1">{tr('New parent')}</label>
           <select id="mv-parent" className="veqsio-input w-full" value={parent ?? ''} onChange={(e) => setParent(e.target.value ? Number(e.target.value) : null)}>
-            <option value="">None (top level)</option>
+            <option value="">{tr('None (top level)')}</option>
             {options.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}
           </select>
         </div>
         <div>
-          <label htmlFor="mv-pos" className="block text-sm font-medium mb-1">Position among its siblings (1 = first, empty = last)</label>
+          <label htmlFor="mv-pos" className="block text-sm font-medium mb-1">{tr('Position among its siblings (1 = first, empty = last)')}</label>
           <input id="mv-pos" type="number" min={1} className="veqsio-input w-32" value={position} onChange={(e) => setPosition(e.target.value)} />
         </div>
         <div className="flex justify-end gap-2">
-          <button type="button" className="veqsio-btn-ghost" onClick={onClose}>Cancel</button>
-          <button type="submit" className="veqsio-btn-primary" disabled={move.isPending}>Move</button>
+          <button type="button" className="veqsio-btn-ghost" onClick={onClose}>{tr('Cancel')}</button>
+          <button type="submit" className="veqsio-btn-primary" disabled={move.isPending}>{tr('Move')}</button>
         </div>
       </form>
     </Modal>

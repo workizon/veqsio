@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
@@ -17,6 +19,8 @@ export interface ChildIssuesHandle {
 }
 
 export const ChildIssues = forwardRef<ChildIssuesHandle, { issue: ApiIssue }>(function ChildIssues({ issue }, ref) {
+  const { tr } = useI18n();
+
   const { data, isLoading } = useSubtasks(issue.key)
   const { data: issueTypes } = useIssueTypesMeta()
   const create = useCreateIssue()
@@ -44,7 +48,7 @@ export const ChildIssues = forwardRef<ChildIssuesHandle, { issue: ApiIssue }>(fu
     const text = summary.trim()
     if (!text) return
     if (!subtaskType) {
-      toast('No sub-task issue type is configured', 'error')
+      toast(tr('No sub-task issue type is configured'), 'error')
       return
     }
     try {
@@ -67,13 +71,13 @@ export const ChildIssues = forwardRef<ChildIssuesHandle, { issue: ApiIssue }>(fu
     <section ref={sectionRef} aria-labelledby="issue-children-heading" className="space-y-3">
       <div className="flex items-center justify-between gap-3">
         <h2 id="issue-children-heading" className="text-heading-3 text-[var(--text-primary)]">
-          Sub-tasks {progress.total > 0 && <span className="text-[var(--text-tertiary)] font-normal">({progress.done}/{progress.total})</span>}
+          {tr('Sub-tasks')} {progress.total > 0 && <span className="text-[var(--text-tertiary)] font-normal">({progress.done}/{progress.total})</span>}
         </h2>
         <button
           type="button"
           onClick={() => { setAdding(true); setTimeout(() => inputRef.current?.focus(), 0) }}
-          aria-label="Add a sub-task"
-          title="Add a sub-task"
+          aria-label={tr('Add a sub-task')}
+          title={tr('Add a sub-task')}
           className="p-1.5 rounded text-[var(--text-tertiary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]"
         >
           <Plus className="w-4 h-4" aria-hidden="true" />
@@ -88,12 +92,12 @@ export const ChildIssues = forwardRef<ChildIssuesHandle, { issue: ApiIssue }>(fu
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={progress.donePercent}
-            aria-label="Sub-task progress"
+            aria-label={tr('Sub-task progress')}
           >
             <div className="bg-[var(--status-done)]" style={{ width: `${progress.donePercent}%` }} />
             <div className="bg-[var(--status-inprogress)]" style={{ width: `${progress.inProgressPercent}%` }} />
           </div>
-          <span className="text-caption text-[var(--text-tertiary)] tabular-nums">{progress.donePercent}% Done</span>
+          <span className="text-caption text-[var(--text-tertiary)] tabular-nums">{progress.donePercent}{tr('% Done')}</span>
         </div>
       )}
 
@@ -104,10 +108,9 @@ export const ChildIssues = forwardRef<ChildIssuesHandle, { issue: ApiIssue }>(fu
         </div>
       ) : children.length === 0 && !adding ? (
         <p className="text-body-sm text-[var(--text-tertiary)]">
-          No sub-tasks yet.{' '}
+          {tr('No sub-tasks yet.')}{' '}
           <button type="button" onClick={() => { setAdding(true); setTimeout(() => inputRef.current?.focus(), 0) }} className="text-[var(--brand-500)] hover:underline">
-            Add one
-          </button>
+            {tr('Add one')} </button>
         </p>
       ) : (
         <ul className="divide-y divide-[var(--surface-3)] border border-[var(--surface-3)] rounded-lg">
@@ -116,7 +119,7 @@ export const ChildIssues = forwardRef<ChildIssuesHandle, { issue: ApiIssue }>(fu
               <IssueTypeIcon name={c.fields.issuetype?.name} />
               <Link href={`/issues/${c.key}`} className="font-mono text-body-sm text-[var(--brand-500)] hover:underline shrink-0">{c.key}</Link>
               <Link href={`/issues/${c.key}`} className="flex-1 min-w-0 truncate text-body-sm text-[var(--text-primary)] hover:underline">{c.fields.summary}</Link>
-              {c.fields.assignee ? <Avatar name={c.fields.assignee.displayName} size="sm" /> : <span className="sr-only">Unassigned</span>}
+              {c.fields.assignee ? <Avatar name={c.fields.assignee.displayName} size="sm" /> : <span className="sr-only">{tr('Unassigned')}</span>}
               <StatusLozenge name={c.fields.status.name} category={c.fields.status.category} />
             </li>
           ))}
@@ -128,21 +131,20 @@ export const ChildIssues = forwardRef<ChildIssuesHandle, { issue: ApiIssue }>(fu
           onSubmit={(e) => { e.preventDefault(); void submit() }}
           className="flex flex-wrap items-center gap-2"
         >
-          <label htmlFor="child-summary" className="sr-only">Sub-task summary</label>
+          <label htmlFor="child-summary" className="sr-only">{tr('Sub-task summary')}</label>
           <input
             id="child-summary"
             ref={inputRef}
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); setAdding(false); setSummary('') } }}
-            placeholder="What needs to be done?"
+            placeholder={tr('What needs to be done?')}
             maxLength={500}
             className="veqsio-input flex-1 min-w-[12rem] text-sm"
           />
           <button type="submit" disabled={create.isPending || !summary.trim()} className="veqsio-btn-primary text-sm flex items-center gap-2 disabled:opacity-50">
-            {create.isPending && <Spinner size="sm" />} Create
-          </button>
-          <button type="button" onClick={() => { setAdding(false); setSummary('') }} className="veqsio-btn-secondary text-sm">Cancel</button>
+            {create.isPending && <Spinner size="sm" />} {tr('Create')} </button>
+          <button type="button" onClick={() => { setAdding(false); setSummary('') }} className="veqsio-btn-secondary text-sm">{tr('Cancel')}</button>
         </form>
       )}
     </section>

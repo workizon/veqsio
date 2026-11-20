@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowRightLeft } from 'lucide-react'
 import type { MoveTarget } from '@/lib/planning'
@@ -27,6 +29,8 @@ interface MoveMenuProps {
  * returns focus. The panel is positioned with `fixed` so lists with overflow never clip it.
  */
 export function MoveMenu({ options, onSelect, label, text, disabled, className = '' }: MoveMenuProps) {
+  const { tr } = useI18n();
+
   const [open, setOpen] = useState(false)
   const [pos, setPos] = useState<{ top?: number; bottom?: number; right: number }>({ right: 0 })
   const trigger = useRef<HTMLButtonElement>(null)
@@ -101,7 +105,7 @@ export function MoveMenu({ options, onSelect, label, text, disabled, className =
           style={{ position: 'fixed', zIndex: 60, ...pos }}
           className="min-w-[200px] max-w-[280px] max-h-72 overflow-auto rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)] shadow-[var(--shadow-lg)] py-1"
         >
-          {options.length === 0 && <div className="px-3 py-2 text-caption text-[var(--text-tertiary)]">Nowhere to move to</div>}
+          {options.length === 0 && <div className="px-3 py-2 text-caption text-[var(--text-tertiary)]">{tr('Nowhere to move to')}</div>}
           {options.map((o) => (
             <button
               key={o.id}

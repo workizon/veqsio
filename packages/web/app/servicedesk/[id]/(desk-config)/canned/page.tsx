@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { RichTextEditor } from '@/components/rich-text-editor'
 import { useState } from 'react'
 import Link from 'next/link'
@@ -11,6 +13,8 @@ import { useCannedResponses, useDeleteCanned, useDesks, useSaveCanned } from '@/
 import { confirmDialog } from '@/components/dialogs'
 
 export default function CannedResponsesPage() {
+  const { tr } = useI18n();
+
   const id = Number(useParams<{ id: string }>().id)
   const desks = useDesks()
   const canned = useCannedResponses(id)
@@ -27,16 +31,16 @@ export default function CannedResponsesPage() {
   return (
     <>
       <div className="space-y-4">
-        <PageHeader title="Canned responses" actions={<><Link href={`/servicedesk/${id}`} className="veqsio-btn-secondary">Back to service desk</Link></>} />
+        <PageHeader title={tr('Canned responses')} actions={<><Link href={`/servicedesk/${id}`} className="veqsio-btn-secondary">{tr('Back to service desk')}</Link></>} />
         <p className="text-sm text-[var(--text-secondary)]">
-          Reusable replies for agents. Placeholders: <code>{'{{customer.name}}'}</code>, <code>{'{{issue.key}}'}</code>.
+          {tr('Reusable replies for agents. Placeholders:')} <code>{'{{customer.name}}'}</code>, <code>{'{{issue.key}}'}</code>.
         </p>
 
         {canned.isLoading && <Spinner />}
         {canned.error && <div role="alert" className="text-[var(--error)]">{canned.error.message}</div>}
 
         <ul className="space-y-2">
-          {canned.data?.values.length === 0 && <li className="text-[var(--text-tertiary)]">No canned responses yet</li>}
+          {canned.data?.values.length === 0 && <li className="text-[var(--text-tertiary)]">{tr('No canned responses yet')}</li>}
           {canned.data?.values.map((c) => (
             <li key={c.id} className="veqsio-card p-3 space-y-1">
               <div className="flex items-center justify-between gap-2">
@@ -44,14 +48,14 @@ export default function CannedResponsesPage() {
                 {isAdmin && (
                   <div className="flex gap-2">
                     <button className="veqsio-btn-secondary text-sm" onClick={() => { setEditId(c.id); setTitle(c.title); setBody(c.body) }}>
-                      Edit<span className="sr-only"> {c.title}</span>
+                      {tr('Edit')}<span className="sr-only"> {c.title}</span>
                     </button>
                     <button
                       className="veqsio-btn-secondary text-sm"
                       disabled={del.isPending}
                       onClick={async () => { if ((await confirmDialog(`Delete "${c.title}"?`))) del.mutate(c.id) }}
                     >
-                      Delete<span className="sr-only"> {c.title}</span>
+                      {tr('Delete')}<span className="sr-only"> {c.title}</span>
                     </button>
                   </div>
                 )}
@@ -69,21 +73,21 @@ export default function CannedResponsesPage() {
               save.mutate({ id: editId, title: title.trim(), body }, { onSuccess: reset })
             }}
           >
-            <h2 className="text-heading-2">{editId ? 'Edit response' : 'New response'}</h2>
+            <h2 className="text-heading-2">{editId ? tr('Edit response') : tr('New response')}</h2>
             <div className="space-y-1">
-              <label htmlFor="canned-title" className="text-sm">Title</label>
+              <label htmlFor="canned-title" className="text-sm">{tr('Title')}</label>
               <input id="canned-title" className="veqsio-input w-full" maxLength={200} required value={title} onChange={(e) => setTitle(e.target.value)} />
             </div>
             <div className="space-y-1">
-              <label htmlFor="canned-body" className="text-sm">Text</label>
-              <RichTextEditor id="canned-body" label="Text" rows={6} maxLength={10000} mentions={false} value={body} onChange={setBody} />
+              <label htmlFor="canned-body" className="text-sm">{tr('Text')}</label>
+              <RichTextEditor id="canned-body" label={tr('Text')} rows={6} maxLength={10000} mentions={false} value={body} onChange={setBody} />
             </div>
             {save.error && <div role="alert" className="text-[var(--error)]">{save.error.message}</div>}
             <div className="flex gap-2">
               <button type="submit" className="veqsio-btn-primary" disabled={save.isPending || !title.trim() || !body.trim()}>
-                {editId ? 'Save' : 'Create'}
+                {editId ? tr('Save') : tr('Create')}
               </button>
-              {editId && <button type="button" className="veqsio-btn-secondary" onClick={reset}>Cancel</button>}
+              {editId && <button type="button" className="veqsio-btn-secondary" onClick={reset}>{tr('Cancel')}</button>}
             </div>
           </form>
         )}

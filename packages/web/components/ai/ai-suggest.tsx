@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { Sparkles } from 'lucide-react'
 import { aiJson, useAiFeatures } from './use-ai'
@@ -26,6 +28,8 @@ export function AiSuggest({ projectId, summary, description, onApply }: {
   description: string
   onApply: (s: SuggestionApply) => void
 }) {
+  const { tr } = useI18n();
+
   const { enabled, features } = useAiFeatures()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -47,27 +51,27 @@ export function AiSuggest({ projectId, summary, description, onApply }: {
     <div className="space-y-2">
       <button type="button" className="veqsio-btn-secondary text-body-sm flex items-center gap-1.5"
         onClick={ask} disabled={loading || !projectId || summary.trim().length < 3}>
-        <Sparkles className="w-4 h-4" aria-hidden /> {loading ? 'Thinking…' : 'Suggest type/priority/labels'}
+        <Sparkles className="w-4 h-4" aria-hidden /> {loading ? tr('Thinking…') : tr('Suggest type/priority/labels')}
       </button>
       {error && <p role="alert" className="text-caption text-[var(--error)]">{error}</p>}
       {s && (
         <div className="rounded-lg border border-[var(--surface-3)] bg-[var(--surface-1)] p-3 text-body-sm space-y-2" aria-live="polite">
-          {empty ? <p>No confident suggestion.</p> : (
+          {empty ? <p>{tr('No confident suggestion.')}</p> : (
             <ul className="space-y-0.5">
-              {s.issueType && <li>Type: <strong>{s.issueType.name}</strong></li>}
-              {s.priority && <li>Priority: <strong>{s.priority.name}</strong></li>}
-              {s.labels.length > 0 && <li>Labels: <strong>{s.labels.join(', ')}</strong></li>}
+              {s.issueType && <li>{tr('Type:')} <strong>{s.issueType.name}</strong></li>}
+              {s.priority && <li>{tr('Priority:')} <strong>{s.priority.name}</strong></li>}
+              {s.labels.length > 0 && <li>{tr('Labels:')} <strong>{s.labels.join(', ')}</strong></li>}
             </ul>
           )}
-          <p className="text-caption text-[var(--text-tertiary)]">AI-generated, check before use.</p>
+          <p className="text-caption text-[var(--text-tertiary)]">{tr('AI-generated, check before use.')}</p>
           <div className="flex gap-2">
             {!empty && (
               <button type="button" className="veqsio-btn-primary text-body-sm" onClick={() => {
                 onApply({ issueTypeId: s.issueType?.id, priorityId: s.priority?.id, labels: s.labels })
                 setS(null)
-              }}>Apply</button>
+              }}>{tr('Apply')}</button>
             )}
-            <button type="button" className="veqsio-btn-secondary text-body-sm" onClick={() => setS(null)}>Dismiss</button>
+            <button type="button" className="veqsio-btn-secondary text-body-sm" onClick={() => setS(null)}>{tr('Dismiss')}</button>
           </div>
         </div>
       )}

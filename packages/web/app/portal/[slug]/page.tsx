@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { PortalApprovals } from '@/components/approvals/portal-approvals'
 import { RichTextEditor } from '@/components/rich-text-editor'
 import { useState } from 'react'
@@ -16,6 +18,8 @@ import { uploadPortalFile } from '@/hooks/use-servicedesk-admin'
 import { initialValues, submittableValues, validateValues, visibleKeys } from '@/lib/request-form'
 
 export default function PortalPage() {
+  const { tr } = useI18n();
+
   const { slug } = useParams<{ slug: string }>()
   const router = useRouter()
   const { data, isLoading, error } = usePortal(slug)
@@ -34,7 +38,7 @@ export default function PortalPage() {
   if (isLoading) {
     return (
       <PortalShell slug={slug} hero={<div className="border-b border-[var(--surface-3)] bg-[var(--surface-0)]"><div className="max-w-3xl mx-auto px-4 py-16 flex flex-col items-center gap-4"><Skeleton className="h-9 w-3/4" /><Skeleton className="h-5 w-1/2" /><Skeleton className="h-14 w-full max-w-xl rounded-xl mt-4" /></div></div>}>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Loading request types">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label={tr('Loading request types')}>
           {[0, 1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-32 rounded-xl" />)}
         </div>
       </PortalShell>
@@ -43,7 +47,7 @@ export default function PortalPage() {
   if (error || !data) {
     return (
       <PortalShell slug={slug} width="narrow">
-        <EmptyState icon="frown" title="This help center is not available" description="You may need to sign in or ask for access." action={<a href="/login" className="veqsio-btn-primary min-h-[44px] inline-flex items-center px-5">Sign in</a>} />
+        <EmptyState icon="frown" title={tr('This help center is not available')} description={tr('You may need to sign in or ask for access.')} action={<a href="/login" className="veqsio-btn-primary min-h-[44px] inline-flex items-center px-5">{tr('Sign in')}</a>} />
       </PortalShell>
     )
   }
@@ -63,7 +67,7 @@ export default function PortalPage() {
     e.preventDefault()
     if (!type) return
     const problems = validateValues(type.fields, values, files)
-    if (!type.summaryField && !summary.trim()) problems._summary = 'Summary is required'
+    if (!type.summaryField && !summary.trim()) problems._summary = tr('Summary is required')
     if (Object.keys(problems).length) {
       setErrors(problems)
       // Move focus to the first invalid control once the errors have rendered.
@@ -88,7 +92,7 @@ export default function PortalPage() {
               try { await uploadPortalFile(slug, r.key, file) } catch (err) { failed.push((err as Error).message) }
             }
             setUploading(false)
-            if (failed.length) toast(`Request sent, but some files could not be attached: ${failed.join('; ')}`, 'warning')
+            if (failed.length) toast(tr('Request sent, but some files could not be attached: {files}', { files: failed.join('; ') }), 'warning')
           }
           router.push(`/portal/${slug}/requests/${r.key}`)
         },
@@ -109,8 +113,7 @@ export default function PortalPage() {
       <PortalShell slug={slug} title={data.name} width="narrow">
         <div className="space-y-6">
           <button type="button" onClick={() => setTypeId(null)} className="inline-flex items-center gap-1.5 min-h-[44px] -ml-2 px-2 rounded-md text-body font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-300)]">
-            <ArrowLeft aria-hidden className="w-4 h-4" /> All request types
-          </button>
+            <ArrowLeft aria-hidden className="w-4 h-4" /> {tr('All request types')} </button>
           <div className="flex items-start gap-4">
             <RequestTypeTile name={type.icon} size="lg" />
             <div className="min-w-0">
@@ -121,15 +124,15 @@ export default function PortalPage() {
 
           <form onSubmit={submit} noValidate aria-label={`${type.name} request`} className="rounded-2xl border border-[var(--surface-3)] bg-[var(--surface-0)] shadow-[var(--shadow-sm)]">
             <div className="p-5 sm:p-7 space-y-6">
-              <p className="text-caption text-[var(--text-tertiary)]"><span aria-hidden className="text-[var(--error)]">*</span> Required field</p>
+              <p className="text-caption text-[var(--text-tertiary)]"><span aria-hidden className="text-[var(--error)]">*</span> {tr('Required field')}</p>
 
               {!type.summaryField && (
                 <div className="space-y-1.5">
                   <label htmlFor="req-summary" className="block text-body-sm font-medium text-[var(--text-primary)]">
-                    Summary <span aria-hidden className="text-[var(--error)]">*</span><span className="sr-only"> (required)</span>
+                    {tr('Summary')} <span aria-hidden className="text-[var(--error)]">*</span><span className="sr-only"> {tr('(required)')}</span>
                   </label>
                   <input
-                    id="req-summary" required maxLength={500} placeholder="Briefly describe what you need"
+                    id="req-summary" required maxLength={500} placeholder={tr('Briefly describe what you need')}
                     className={`veqsio-input w-full min-h-[44px] px-3 ${errors._summary ? 'border-[var(--error)] focus:border-[var(--error)]' : ''}`}
                     value={summary} onChange={(e) => { setSummary(e.target.value); if (errors._summary) setErrors((p) => ({ ...p, _summary: '' })) }}
                     aria-invalid={errors._summary ? true : undefined} aria-describedby={errors._summary ? 'req-summary-err' : undefined}
@@ -139,8 +142,8 @@ export default function PortalPage() {
               )}
 
               {kb.data && kb.data.values.length > 0 && (
-                <aside aria-label="Suggested articles" className="rounded-xl border border-[var(--brand-100)] bg-[var(--brand-50)] p-4 space-y-2">
-                  <div className="flex items-center gap-2 text-body-sm font-medium text-[var(--text-primary)]"><BookOpen aria-hidden className="w-4 h-4 text-[var(--brand-600)]" />These articles may help</div>
+                <aside aria-label={tr('Suggested articles')} className="rounded-xl border border-[var(--brand-100)] bg-[var(--brand-50)] p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-body-sm font-medium text-[var(--text-primary)]"><BookOpen aria-hidden className="w-4 h-4 text-[var(--brand-600)]" />{tr('These articles may help')}</div>
                   <ul className="space-y-2">
                     {kb.data.values.slice(0, 3).map((a) => (
                       <li key={a.id} className="text-body-sm"><span className="font-medium text-[var(--brand-700)]">{a.title}</span><span className="text-[var(--text-secondary)]"> — {a.excerpt}</span></li>
@@ -157,9 +160,9 @@ export default function PortalPage() {
 
               {!type.descriptionField && (
                 <div className="space-y-1.5">
-                  <label htmlFor="req-description" className="block text-body-sm font-medium text-[var(--text-primary)]">Description</label>
-                  <p className="text-caption text-[var(--text-tertiary)]">Include anything that helps us resolve this faster: what you expected, what happened, and any error messages.</p>
-                  <RichTextEditor id="req-description" label="Description" rows={5} maxLength={20000} mentions={false} value={description} onChange={setDescription} />
+                  <label htmlFor="req-description" className="block text-body-sm font-medium text-[var(--text-primary)]">{tr('Description')}</label>
+                  <p className="text-caption text-[var(--text-tertiary)]">{tr('Include anything that helps us resolve this faster: what you expected, what happened, and any error messages.')}</p>
+                  <RichTextEditor id="req-description" label={tr('Description')} rows={5} maxLength={20000} mentions={false} value={description} onChange={setDescription} />
                 </div>
               )}
 
@@ -170,9 +173,9 @@ export default function PortalPage() {
               )}
             </div>
             <div className="sticky bottom-0 z-10 flex items-center justify-end gap-2 rounded-b-2xl border-t border-[var(--surface-3)] bg-[color-mix(in_srgb,var(--surface-0)_92%,transparent)] backdrop-blur px-5 sm:px-7 py-3">
-              <button type="button" className="veqsio-btn-secondary min-h-[44px] px-4" onClick={() => setTypeId(null)} disabled={busy}>Cancel</button>
+              <button type="button" className="veqsio-btn-secondary min-h-[44px] px-4" onClick={() => setTypeId(null)} disabled={busy}>{tr('Cancel')}</button>
               <button type="submit" disabled={busy} className="veqsio-btn-primary min-h-[44px] px-5">
-                {busy ? 'Sending…' : 'Send request'}
+                {busy ? tr('Sending…') : tr('Send request')}
               </button>
             </div>
           </form>
@@ -187,21 +190,21 @@ export default function PortalPage() {
       <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_60%,var(--surface-1))] opacity-60" />
       <div className="relative max-w-3xl mx-auto px-4 sm:px-6 pt-12 pb-12 sm:pt-16 sm:pb-16 text-center">
         <h1 id="portal-hero" className="text-[28px] sm:text-[36px] leading-tight font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
-          {data.welcomeMessage || `Welcome to ${portalName}`}
+          {data.welcomeMessage || tr('Welcome to {name}', { name: portalName })}
         </h1>
         <p className="mt-3 text-body sm:text-heading-2 sm:font-normal text-[var(--text-secondary)]">
-          {data.introduction || data.description || 'Tell us what you need and we will route it to the right team.'}
+          {data.introduction || data.description || tr('Tell us what you need and we will route it to the right team.')}
         </p>
         <form role="search" onSubmit={(e) => e.preventDefault()} className="relative mt-8 max-w-xl mx-auto text-left">
-          <label htmlFor="portal-search" className="sr-only">Search request types and articles</label>
+          <label htmlFor="portal-search" className="sr-only">{tr('Search request types and articles')}</label>
           <Search aria-hidden className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-tertiary)] pointer-events-none" />
           <input
             id="portal-search" type="search" autoComplete="off" value={q} onChange={(e) => setQ(e.target.value)}
-            placeholder="What do you need help with?"
+            placeholder={tr('What do you need help with?')}
             className="veqsio-input w-full !min-h-[56px] !rounded-xl !pl-12 !pr-12 !text-[16px] shadow-[var(--shadow-md)]"
           />
           {q && (
-            <button type="button" onClick={() => setQ('')} aria-label="Clear search" className="absolute right-1.5 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-2)]">
+            <button type="button" onClick={() => setQ('')} aria-label={tr('Clear search')} className="absolute right-1.5 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-2)]">
               <X aria-hidden className="w-4 h-4" />
             </button>
           )}
@@ -216,16 +219,16 @@ export default function PortalPage() {
 
       {needle && (
         <p role="status" className="text-body-sm text-[var(--text-secondary)]">
-          {shown.length + articles.length === 0 ? (search.isFetching ? 'Searching…' : `Nothing matches “${q.trim()}”.`) : `${shown.length} request ${shown.length === 1 ? 'type' : 'types'}${articles.length ? ` and ${articles.length} ${articles.length === 1 ? 'article' : 'articles'}` : ''} found`}
+          {shown.length + articles.length === 0 ? (search.isFetching ? tr('Searching…') : tr('Nothing matches “{q}”.', { q: q.trim() })) : `${shown.length} ${shown.length === 1 ? tr('request type') : tr('request types')}${articles.length ? ` ${tr('and')} ${articles.length} ${articles.length === 1 ? tr('article') : tr('articles')}` : ''} ${tr('found')}`}
         </p>
       )}
 
       {data.requestTypes.length === 0 && (
-        <EmptyState icon="inbox" title="No request types yet" description="This help center has no forms available at the moment. Please check back soon or contact your administrator." />
+        <EmptyState icon="inbox" title={tr('No request types yet')} description={tr('This help center has no forms available at the moment. Please check back soon or contact your administrator.')} />
       )}
 
       {data.requestTypes.length > 0 && needle && shown.length === 0 && articles.length === 0 && !search.isFetching && (
-        <EmptyState icon="search" title="No results" description="Try a different word, or clear the search to browse everything we offer." action={<button type="button" className="veqsio-btn-secondary min-h-[44px] px-4" onClick={() => setQ('')}>Clear search</button>} />
+        <EmptyState icon="search" title={tr('No results')} description={tr('Try a different word, or clear the search to browse everything we offer.')} action={<button type="button" className="veqsio-btn-secondary min-h-[44px] px-4" onClick={() => setQ('')}>{tr('Clear search')}</button>} />
       )}
 
       {groups.map((g) => {
@@ -233,7 +236,7 @@ export default function PortalPage() {
         if (!list.length) return null
         return (
           <section key={g} aria-labelledby={`grp-${g}`} className="space-y-3">
-            <h2 id={`grp-${g}`} className="text-heading-3 text-[var(--text-primary)]">{g}</h2>
+            <h2 id={`grp-${g}`} className="text-heading-3 text-[var(--text-primary)]">{g === 'General' ? tr('General') : g}</h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {list.map((t) => (
                 <button key={t.id} type="button" onClick={() => choose(t.id)} className="veqsio-card group relative !p-5 text-left flex flex-col gap-3 min-h-[44px] hover:-translate-y-0.5 hover:border-[var(--brand-300)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-400)]">
@@ -252,7 +255,7 @@ export default function PortalPage() {
 
       {articles.length > 0 && (
         <section aria-labelledby="kb-results" className="space-y-3">
-          <h2 id="kb-results" className="text-heading-3 text-[var(--text-primary)]">Knowledge base articles</h2>
+          <h2 id="kb-results" className="text-heading-3 text-[var(--text-primary)]">{tr('Knowledge base articles')}</h2>
           <ul className="grid gap-3 sm:grid-cols-2">
             {articles.map((a) => (
               <li key={a.id} className="veqsio-card !p-4 flex gap-3">

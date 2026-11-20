@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useTerm } from '@/hooks/use-term'
 import { TimeInStatusReportView } from '@/components/time-in-status-report'
 import { useEffect, useState } from 'react'
@@ -26,6 +28,8 @@ const LABELS: Record<Report, string> = {
 const API = '/rest/agile/1.0'
 
 export default function ReportsPage() {
+  const { tr } = useI18n();
+
   const { t } = useTerm()
   const boards = useQuery({ queryKey: ['boards'], queryFn: () => get<{ values: Array<{ id: string; name: string; type: string }> }>('/rest/api/2/board') })
   const [boardId, setBoardId] = useState('')
@@ -90,92 +94,82 @@ export default function ReportsPage() {
   return (
     <AppLayout>
       <div className="space-y-4">
-        <PageHeader title="Reports" description="Burndown, velocity, cumulative flow and more, per board." />
+        <PageHeader title={tr('Reports')} description={tr('Burndown, velocity, cumulative flow and more, per board.')} />
         <div className={`flex flex-wrap gap-3 items-end ${boards.data?.values.length === 0 ? 'hidden' : ''}`}>
-          <label className="text-sm space-y-1 block">Board
-            <select className="veqsio-input block" value={bid} onChange={(e) => { setBoardId(e.target.value); setSprintId('') }}>
+          <label className="text-sm space-y-1 block">{tr('Board')} <select className="veqsio-input block" value={bid} onChange={(e) => { setBoardId(e.target.value); setSprintId('') }}>
               {boards.data?.values.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           </label>
-          <label className="text-sm space-y-1 block">Report
-            <select className="veqsio-input block" value={report} onChange={(e) => setReport(e.target.value as Report)}>
-              {(Object.keys(LABELS) as Report[]).map((r) => <option key={r} value={r}>{LABELS[r]}</option>)}
+          <label className="text-sm space-y-1 block">{tr('Report')} <select className="veqsio-input block" value={report} onChange={(e) => setReport(e.target.value as Report)}>
+              {(Object.keys(LABELS) as Report[]).map((r) => <option key={r} value={r}>{tr(LABELS[r])}</option>)}
             </select>
           </label>
           {isTis && (
-            <label className="text-sm space-y-1 block">Scope
-              <select className="veqsio-input block" value={tisScope} onChange={(e) => setTisScope(e.target.value as 'board' | 'sprint')}>
-                <option value="board">Whole board / project</option>
-                <option value="sprint">One sprint</option>
+            <label className="text-sm space-y-1 block">{tr('Scope')} <select className="veqsio-input block" value={tisScope} onChange={(e) => setTisScope(e.target.value as 'board' | 'sprint')}>
+                <option value="board">{tr('Whole board / project')}</option>
+                <option value="sprint">{tr('One sprint')}</option>
               </select>
             </label>
           )}
           {needsSprint && (
-            <label className="text-sm space-y-1 block">Sprint
-              <select className="veqsio-input block" value={sid} onChange={(e) => setSprintId(e.target.value)}>
+            <label className="text-sm space-y-1 block">{tr('Sprint')} <select className="veqsio-input block" value={sid} onChange={(e) => setSprintId(e.target.value)}>
                 {sprints.data?.values.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.state})</option>)}
               </select>
             </label>
           )}
           {report === 'burnup' && (
-            <label className="text-sm space-y-1 block">Scope
-              <select className="veqsio-input block" value={burnupScope} onChange={(e) => setBurnupScope(e.target.value as BurnupScope)}>
-                <option value="sprint">Sprint</option>
-                <option value="version">Version</option>
-                <option value="epic">Epic</option>
+            <label className="text-sm space-y-1 block">{tr('Scope')} <select className="veqsio-input block" value={burnupScope} onChange={(e) => setBurnupScope(e.target.value as BurnupScope)}>
+                <option value="sprint">{tr('Sprint')}</option>
+                <option value="version">{tr('Version')}</option>
+                <option value="epic">{tr('Epic')}</option>
               </select>
             </label>
           )}
           {needsVersion && (
-            <label className="text-sm space-y-1 block">Version
-              <select className="veqsio-input block" value={vid} onChange={(e) => setVersionChoice(e.target.value)}>
+            <label className="text-sm space-y-1 block">{tr('Version')} <select className="veqsio-input block" value={vid} onChange={(e) => setVersionChoice(e.target.value)}>
                 {versions.data?.versions.map((v) => <option key={v.id} value={v.id}>{v.name}{v.released ? ' (released)' : ''}</option>)}
               </select>
             </label>
           )}
           {needsEpic && (
-            <label className="text-sm space-y-1 block">Epic
-              <select className="veqsio-input block" value={eid} onChange={(e) => setEpicChoice(e.target.value)}>
+            <label className="text-sm space-y-1 block">{tr('Epic')} <select className="veqsio-input block" value={eid} onChange={(e) => setEpicChoice(e.target.value)}>
                 {epics.data?.epics.map((e) => <option key={e.key} value={e.key}>{e.key} {e.summary}</option>)}
               </select>
             </label>
           )}
           {(report === 'release' || report === 'epic-burndown' || report === 'version') && (
-            <label className="text-sm space-y-1 block">Velocity window
-              <select className="veqsio-input block" value={lookback} onChange={(e) => setLookback(e.target.value)}>
-                <option value="7">Last 7 days</option>
-                <option value="14">Last 14 days</option>
-                <option value="30">Last 30 days</option>
-                <option value="60">Last 60 days</option>
+            <label className="text-sm space-y-1 block">{tr('Velocity window')} <select className="veqsio-input block" value={lookback} onChange={(e) => setLookback(e.target.value)}>
+                <option value="7">{tr('Last 7 days')}</option>
+                <option value="14">{tr('Last 14 days')}</option>
+                <option value="30">{tr('Last 30 days')}</option>
+                <option value="60">{tr('Last 60 days')}</option>
               </select>
             </label>
           )}
           {isTis && (
-            <label className="text-sm space-y-1 block">Scope
-              <select className="veqsio-input block" value={tisScope} onChange={(e) => setTisScope(e.target.value as 'board' | 'sprint')}>
-                <option value="board">Whole board</option>
-                <option value="sprint">Selected sprint</option>
+            <label className="text-sm space-y-1 block">{tr('Scope')} <select className="veqsio-input block" value={tisScope} onChange={(e) => setTisScope(e.target.value as 'board' | 'sprint')}>
+                <option value="board">{tr('Whole board')}</option>
+                <option value="sprint">{tr('Selected sprint')}</option>
               </select>
             </label>
           )}
-          {!isTis && <label className="text-sm space-y-1 block">Unit
-            <select className="veqsio-input block" value={unit} onChange={(e) => setUnitChoice(e.target.value as Unit)}>
-              <option value="points">Story points</option>
+          {!isTis && <label className="text-sm space-y-1 block">{tr('Unit')} <select className="veqsio-input block" value={unit} onChange={(e) => setUnitChoice(e.target.value as Unit)}>
+              <option value="points">{tr('Story points')}</option>
               <option value="issues">{t('Issue count')}</option>
-              <option value="hours">Estimate (hours)</option>
+              <option value="hours">{tr('Estimate (hours)')}</option>
             </select>
           </label>}
         </div>
 
         <div className="veqsio-card p-4">
-          {boards.data?.values.length === 0 && <EmptyState icon="inbox" title="No boards yet" description="Reports are built from a board. Create a board and they appear here." />}
+          {boards.data?.values.length === 0 && <EmptyState icon="inbox" title={tr('No boards yet')} description={tr('Reports are built from a board. Create a board and they appear here.')} />}
           {isTis && bid && <TimeInStatusReportView boardId={bid} sprintId={tisScope === 'sprint' ? sid : undefined} />}
           {!isTis && data.isLoading && <Spinner />}
           {!isTis && data.error && <p role="alert" className="text-[var(--error)]">{(data.error as Error).message}</p>}
           {!isTis && data.data && unit !== 'issues' && report !== 'cfd' && report !== 'control' && data.data.unestimated !== undefined && (
             <p className="text-sm text-[var(--text-secondary)] mb-3" data-testid="unestimated-note">
-              Values are in {unitLabel}.
-              {data.data.unestimated > 0 && <> {data.data.unestimated} issue{data.data.unestimated === 1 ? ' has' : 's have'} no estimate and count as 0.</>}
+              {tr('Values are in')} {unitLabel}.
+              {data.data.unestimated > 0 && <> {data.data.unestimated} {tr(data.data.unestimated === 1 ? 'issue has' : 'issues have')} {tr('no estimate and count as 0.')}</>}
             </p>
           )}
           {!isTis && data.data && <ReportView report={report} data={data.data} unit={unit} />}
@@ -186,24 +180,26 @@ export default function ReportsPage() {
 }
 
 function ReportView({ report, data, unit }: { report: Report; data: any; unit: Unit }) {
+  const { tr } = useI18n();
+
   switch (report) {
     case 'tis':
       return null
     case 'burnup':
       return <BurnupView data={data} unit={unit} />
     case 'release':
-      return <ReleaseBurndownView data={data} unit={unit} title={`Release burndown ${data.version?.name ?? ''}`} />
+      return <ReleaseBurndownView data={data} unit={unit} title={tr('Release burndown {name}', { name: data.version?.name ?? '' })} />
     case 'epic-burndown':
-      return <ReleaseBurndownView data={data} unit={unit} title={`Epic burndown ${data.epic?.key ?? ''}`} />
+      return <ReleaseBurndownView data={data} unit={unit} title={tr('Epic burndown {name}', { name: data.epic?.key ?? '' })} />
     case 'version':
       return <VersionReportView data={data} unit={unit} />
     case 'burndown':
-      return <LineChart ariaLabel="Sprint burndown" labels={data.points.map((p: any) => p.date)} series={[
+      return <LineChart ariaLabel={tr('Sprint burndown')} labels={data.points.map((p: any) => p.date)} series={[
         { name: 'Ideal', color: 'var(--text-tertiary)', dashed: true, values: data.points.map((p: any) => p.ideal) },
         { name: 'Remaining', color: 'var(--brand-500)', values: data.points.map((p: any) => (Number.isFinite(p.remaining) ? p.remaining : null)) },
       ]} />
     case 'cfd':
-      return <LineChart ariaLabel="Cumulative flow" stacked labels={data.points.map((p: any) => p.date)} series={[
+      return <LineChart ariaLabel={tr('Cumulative flow')} stacked labels={data.points.map((p: any) => p.date)} series={[
         { name: 'Done', color: '#16A06A', values: data.points.map((p: any) => p.done) },
         { name: 'In progress', color: '#3D6AF0', values: data.points.map((p: any) => p.in_progress) },
         { name: 'To do', color: '#98A2B3', values: data.points.map((p: any) => p.todo) },
@@ -212,18 +208,18 @@ function ReportView({ report, data, unit }: { report: Report; data: any; unit: U
       return (
         <div className="space-y-3">
           <div className="grid grid-cols-3 gap-3 text-center">
-            <Stat label="Committed" value={data.committed} /><Stat label="Completed" value={data.completed} /><Stat label="Not completed" value={data.incomplete} />
+            <Stat label={tr('Committed')} value={data.committed} /><Stat label={tr('Completed')} value={data.completed} /><Stat label={tr('Not completed')} value={data.incomplete} />
           </div>
-          <KeyList title="Completed" keys={data.completedIssues} /><KeyList title="Not completed" keys={data.incompleteIssues} />
-          {data.flaggedIssues?.length > 0 && <KeyList title="Flagged (impediments)" keys={data.flaggedIssues} />}
-          {data.scopeChanges?.length > 0 && <KeyList title="Scope changes after the start" keys={data.scopeChanges.map((c: any) => `${c.kind === 'added' ? '+' : '-'}${c.key}`)} />}
+          <KeyList title={tr('Completed')} keys={data.completedIssues} /><KeyList title={tr('Not completed')} keys={data.incompleteIssues} />
+          {data.flaggedIssues?.length > 0 && <KeyList title={tr('Flagged (impediments)')} keys={data.flaggedIssues} />}
+          {data.scopeChanges?.length > 0 && <KeyList title={tr('Scope changes after the start')} keys={data.scopeChanges.map((c: any) => `${c.kind === 'added' ? '+' : '-'}${c.key}`)} />}
         </div>
       )
     case 'velocity':
-      return data.sprints.length === 0 ? <p className="text-[var(--text-tertiary)]">No closed sprints yet.</p> : (
+      return data.sprints.length === 0 ? <p className="text-[var(--text-tertiary)]">{tr('No closed sprints yet.')}</p> : (
         <div className="space-y-3">
-          <p className="text-sm">Average velocity: <strong>{data.averageVelocity?.toFixed(1)}</strong></p>
-          <table className="w-full text-sm"><thead><tr className="text-left"><th>Sprint</th><th>Committed</th><th>Completed</th><th className="w-1/2"></th></tr></thead>
+          <p className="text-sm">{tr('Average velocity:')} <strong>{data.averageVelocity?.toFixed(1)}</strong></p>
+          <table className="w-full text-sm"><thead><tr className="text-left"><th>{tr('Sprint')}</th><th>{tr('Committed')}</th><th>{tr('Completed')}</th><th className="w-1/2"></th></tr></thead>
             <tbody>{data.sprints.map((s: any) => (
               <tr key={s.sprintId}><td>{s.name}</td><td>{s.committed}</td><td>{s.completed}</td>
                 <td><div className="h-3 bg-[var(--surface-3)] rounded"><div className="h-3 bg-[var(--brand-500)] rounded" style={{ width: `${s.committed ? (s.completed / s.committed) * 100 : 0}%` }} /></div></td></tr>
@@ -234,14 +230,14 @@ function ReportView({ report, data, unit }: { report: Report; data: any; unit: U
       return (
         <div className="space-y-3">
           <div className="grid grid-cols-3 gap-3 text-center">
-            <Stat label="Average cycle (days)" value={fmt(data.averageCycleDays)} /><Stat label="Median" value={fmt(data.medianCycleDays)} /><Stat label="85th percentile" value={fmt(data.p85CycleDays)} />
+            <Stat label={tr('Average cycle (days)')} value={fmt(data.averageCycleDays)} /><Stat label={tr('Median')} value={fmt(data.medianCycleDays)} /><Stat label={tr('85th percentile')} value={fmt(data.p85CycleDays)} />
           </div>
-          <table className="w-full text-sm"><thead><tr className="text-left"><th>Issue</th><th>Done</th><th>Cycle (d)</th><th>Lead (d)</th></tr></thead>
+          <table className="w-full text-sm"><thead><tr className="text-left"><th>{tr('Issue')}</th><th>{tr('Done')}</th><th>{tr('Cycle (d)')}</th><th>{tr('Lead (d)')}</th></tr></thead>
             <tbody>{data.points.slice(-50).map((p: any) => <tr key={p.key}><td>{p.key}</td><td>{new Date(p.doneAt).toLocaleDateString()}</td><td>{fmt(p.cycleDays)}</td><td>{fmt(p.leadDays)}</td></tr>)}</tbody></table>
         </div>
       )
     case 'epics':
-      return data.epics.length === 0 ? <p className="text-[var(--text-tertiary)]">No epics in this project.</p> : (
+      return data.epics.length === 0 ? <p className="text-[var(--text-tertiary)]">{tr('No epics in this project.')}</p> : (
         <ul className="space-y-3">{data.epics.map((e: any) => (
           <li key={e.key}>
             <div className="flex justify-between text-sm"><span><strong>{e.key}</strong> {e.summary}</span><span>{e.percentDone}%</span></div>

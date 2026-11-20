@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState, useCallback } from 'react'
 import { Plus, Pencil, Trash2, Package } from 'lucide-react'
 import { Modal } from '@/components/modal'
@@ -28,6 +30,8 @@ export function ComponentManager({
   onDelete,
   isMutating,
 }: ComponentManagerProps) {
+  const { tr } = useI18n();
+
   const ms = useMultiSort()
   const [isOpen, setIsOpen] = useState(false)
   const [editing, setEditing] = useState<Component | null>(null)
@@ -54,7 +58,7 @@ export function ComponentManager({
     (e: React.FormEvent) => {
       e.preventDefault()
       if (!form.name.trim()) {
-        toast('Name is required', 'error')
+        toast(tr('Name is required'), 'error')
         return
       }
       const payload = {
@@ -81,18 +85,17 @@ export function ComponentManager({
   )
 
   const userOptions = [
-    { value: '', label: 'No lead' },
+    { value: '', label: tr('No lead') },
     ...users.map((u) => ({ value: String(u.id), label: u.displayName })),
   ]
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-[var(--text-primary)]">Components</h3>
+        <h3 className="text-lg font-semibold text-[var(--text-primary)]">{tr('Components')}</h3>
         <button onClick={openCreate} className="veqsio-btn-primary flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          Add component
-        </button>
+          {tr('Add component')} </button>
       </div>
 
       {isLoading ? (
@@ -104,18 +107,18 @@ export function ComponentManager({
       ) : components.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-[var(--text-secondary)]">
           <Package className="w-10 h-10 mb-3 text-[var(--text-tertiary)]" />
-          <p className="text-sm">No components yet.</p>
-          <p className="text-xs mt-1">Components help you group issues within a project.</p>
+          <p className="text-sm">{tr('No components yet.')}</p>
+          <p className="text-xs mt-1">{tr('Components help you group issues within a project.')}</p>
         </div>
       ) : (
         <div className="border border-[var(--surface-3)] rounded-lg overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="veqsio-table-header">
-                <SortableTh {...ms.th('name')} className="text-left px-4 py-2">Name</SortableTh>
-                <SortableTh {...ms.th('description')} className="text-left px-4 py-2">Description</SortableTh>
-                <SortableTh {...ms.th('lead')} className="text-left px-4 py-2">Lead</SortableTh>
-                <th className="text-right px-4 py-2">Actions</th>
+                <SortableTh {...ms.th('name')} className="text-left px-4 py-2">{tr('Name')}</SortableTh>
+                <SortableTh {...ms.th('description')} className="text-left px-4 py-2">{tr('Description')}</SortableTh>
+                <SortableTh {...ms.th('lead')} className="text-left px-4 py-2">{tr('Lead')}</SortableTh>
+                <th className="text-right px-4 py-2">{tr('Actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -129,14 +132,14 @@ export function ComponentManager({
                       <button
                         onClick={() => openEdit(comp)}
                         className="p-1.5 hover:bg-[var(--surface-2)] rounded transition-colors"
-                        title="Edit"
+                        title={tr('Edit')}
                       >
                         <Pencil className="w-4 h-4 text-[var(--text-secondary)]" />
                       </button>
                       <button
                         onClick={() => setConfirmDelete(comp.id)}
                         className="p-1.5 hover:bg-[var(--surface-2)] rounded transition-colors"
-                        title="Delete"
+                        title={tr('Delete')}
                       >
                         <Trash2 className="w-4 h-4 text-[var(--error)]" />
                       </button>
@@ -153,37 +156,37 @@ export function ComponentManager({
       <Modal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title={editing ? 'Edit component' : 'Create component'}
+        title={editing ? tr('Edit component') : tr('Create component')}
         size="md"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Name *</label>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">{tr('Name *')}</label>
             <input
               type="text"
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               className="veqsio-input w-full"
-              placeholder="Component name"
+              placeholder={tr('Component name')}
               autoFocus
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Description</label>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">{tr('Description')}</label>
             <textarea
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               className="veqsio-input w-full min-h-[80px] resize-y"
-              placeholder="Short description"
+              placeholder={tr('Short description')}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Component lead</label>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">{tr('Component lead')}</label>
             <Select
               value={form.leadId}
               options={userOptions}
               onChange={(v) => setForm((f) => ({ ...f, leadId: v }))}
-              placeholder="Select a lead"
+              placeholder={tr('Select a lead')}
             />
           </div>
           <div className="flex items-center justify-end gap-3 pt-2">
@@ -192,10 +195,9 @@ export function ComponentManager({
               onClick={() => setIsOpen(false)}
               className="veqsio-btn-secondary"
             >
-              Cancel
-            </button>
+              {tr('Cancel')} </button>
             <button type="submit" disabled={isMutating} className="veqsio-btn-primary">
-              {isMutating ? 'Saving...' : editing ? 'Save' : 'Create'}
+              {isMutating ? tr('Saving...') : editing ? tr('Save') : tr('Create')}
             </button>
           </div>
         </form>
@@ -205,23 +207,21 @@ export function ComponentManager({
       <Modal
         isOpen={confirmDelete !== null}
         onClose={() => setConfirmDelete(null)}
-        title="Delete component"
+        title={tr('Delete component')}
         size="sm"
       >
         <div className="space-y-4">
           <p className="text-sm text-[var(--text-secondary)]">
-            Are you sure you want to delete this component? This action cannot be undone.
-          </p>
+            {tr('Are you sure you want to delete this component? This action cannot be undone.')} </p>
           <div className="flex items-center justify-end gap-3">
             <button onClick={() => setConfirmDelete(null)} className="veqsio-btn-secondary">
-              Cancel
-            </button>
+              {tr('Cancel')} </button>
             <button
               onClick={() => confirmDelete !== null && handleDelete(confirmDelete)}
               disabled={isMutating}
               className="veqsio-btn-primary bg-[var(--error)] hover:bg-[var(--error)]/90"
             >
-              {isMutating ? 'Deleting...' : 'Delete'}
+              {isMutating ? tr('Deleting...') : tr('Delete')}
             </button>
           </div>
         </div>

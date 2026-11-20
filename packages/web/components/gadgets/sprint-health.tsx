@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useMemo } from 'react'
 import { useSprintHealth } from '@/hooks/use-dashboards'
 import { AreaTrend } from '@/components/charts/area-trend'
@@ -12,6 +14,8 @@ interface SprintHealthGadgetProps {
 }
 
 export function SprintHealthGadget({ config }: SprintHealthGadgetProps) {
+  const { tr } = useI18n();
+
   const sprintId = config.sprintId || '1'
   const { data, isLoading } = useSprintHealth(sprintId)
 
@@ -28,7 +32,7 @@ export function SprintHealthGadget({ config }: SprintHealthGadgetProps) {
   }
 
   if (!chartData.length) {
-    return <EmptyState icon="inbox" title="No sprint data available" />
+    return <EmptyState icon="inbox" title={tr('No sprint data available')} />
   }
 
   return (
@@ -38,21 +42,21 @@ export function SprintHealthGadget({ config }: SprintHealthGadgetProps) {
         <div className="bg-[var(--surface-1)] rounded-lg p-3 border border-[var(--surface-3)]">
           <div className="flex items-center gap-2 text-[var(--success)] mb-1">
             <CheckCircle2 className="w-4 h-4" />
-            <span className="text-caption-sm font-medium">Completed</span>
+            <span className="text-caption-sm font-medium">{tr('Completed')}</span>
           </div>
           <p className="text-heading-2 text-[var(--text-primary)]">{completed}</p>
         </div>
         <div className="bg-[var(--surface-1)] rounded-lg p-3 border border-[var(--surface-3)]">
           <div className="flex items-center gap-2 text-[var(--warning)] mb-1">
             <AlertTriangle className="w-4 h-4" />
-            <span className="text-caption-sm font-medium">Remaining</span>
+            <span className="text-caption-sm font-medium">{tr('Remaining')}</span>
           </div>
           <p className="text-heading-2 text-[var(--text-primary)]">{remaining}</p>
         </div>
         <div className="bg-[var(--surface-1)] rounded-lg p-3 border border-[var(--surface-3)]">
           <div className="flex items-center gap-2 text-[var(--brand-500)] mb-1">
             <TrendingUp className="w-4 h-4" />
-            <span className="text-caption-sm font-medium">Progress</span>
+            <span className="text-caption-sm font-medium">{tr('Progress')}</span>
           </div>
           <p className="text-heading-2 text-[var(--text-primary)]">{percent}%</p>
         </div>

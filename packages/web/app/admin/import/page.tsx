@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { usePathname } from 'next/navigation'
 import { useState, useRef } from 'react'
 import Papa from 'papaparse'
@@ -17,6 +19,8 @@ interface ImportResult {
 }
 
 function CsvImportPageBody() {
+  const { tr } = useI18n();
+
   const { data: projectsData } = useProjects()
   const [projectKey, setProjectKey] = useState('')
   const [file, setFile] = useState<File | null>(null)
@@ -50,7 +54,7 @@ function CsvImportPageBody() {
 
   const handleImport = async () => {
     if (!file || !projectKey) {
-      toast('Please select a file and project', 'warning')
+      toast(tr('Please select a file and project'), 'warning')
       return
     }
 
@@ -72,14 +76,14 @@ function CsvImportPageBody() {
           })
           const data = await response.json()
           if (!response.ok) {
-            throw new Error(data.errorMessages?.[0] || 'Import failed')
+            throw new Error(data.errorMessages?.[0] || tr('Import failed'))
           }
           setResults(data.results)
           setStats({ total: data.total, success: data.success, errors: data.errors })
           if (data.errors === 0) {
-            toast(`Imported ${data.success} issues`, 'success')
+            toast(tr('Imported {n} issues', { n: data.success }), 'success')
           } else {
-            toast(`Imported ${data.success}/${data.total} issues (${data.errors} errors)`, 'warning')
+            toast(tr('Imported {success}/{total} issues ({errors} errors)', { success: data.success, total: data.total, errors: data.errors }), 'warning')
           }
         } catch (err: any) {
           toast(err.message, 'error')
@@ -103,36 +107,34 @@ function CsvImportPageBody() {
     a.download = 'veqsio-import-template.csv'
     a.click()
     URL.revokeObjectURL(url)
-    toast('Template downloaded', 'success')
+    toast(tr('Template downloaded'), 'success')
   }
 
   return (
     <>
       <div className="space-y-6">
         <div>
-          <Breadcrumb items={[{ label: 'Admin', href: '/admin' }, { label: 'CSV Import' }]} />
-          <h1 className="text-heading-1 text-[var(--text-primary)] mt-2">CSV Import</h1>
+          <Breadcrumb items={[{ label: tr('Admin'), href: '/admin' }, { label: tr('CSV Import') }]} />
+          <h1 className="text-heading-1 text-[var(--text-primary)] mt-2">{tr('CSV Import')}</h1>
           <p className="text-body text-[var(--text-secondary)] mt-1">
-            Bulk import issues from a CSV file.{' '}
+            {tr('Bulk import issues from a CSV file.')}{' '}
             <a href="/admin/import/csv" className="text-[var(--brand-500)] hover:underline">
-              Use the advanced wizard (Jira CSV exports, column mapping, validation)
-            </a>
+              {tr('Use the advanced wizard (Jira CSV exports, column mapping, validation)')} </a>
           </p>
         </div>
 
         <div className="veqsio-card space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-heading-2 text-[var(--text-primary)]">Upload file</h2>
+            <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('Upload file')}</h2>
             <button onClick={downloadTemplate} className="veqsio-btn-secondary flex items-center gap-2">
               <Download className="w-4 h-4" />
-              Download Template
-            </button>
+              {tr('Download Template')} </button>
           </div>
 
           <div>
-            <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">Target project</label>
+            <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">{tr('Target project')}</label>
             <select value={projectKey} onChange={(e) => setProjectKey(e.target.value)} className="veqsio-input w-full">
-              <option value="">Select project...</option>
+              <option value="">{tr('Select project...')}</option>
               {projects.map((p) => (
                 <option key={p.id} value={p.key}>
                   {p.name} ({p.key})
@@ -151,15 +153,15 @@ function CsvImportPageBody() {
               <p className="text-body text-[var(--text-primary)]">{file.name}</p>
             ) : (
               <>
-                <p className="text-body text-[var(--text-primary)]">Click to upload CSV</p>
-                <p className="text-caption text-[var(--text-tertiary)] mt-1">Supported columns: summary, description, issuetype, priority, labels</p>
+                <p className="text-body text-[var(--text-primary)]">{tr('Click to upload CSV')}</p>
+                <p className="text-caption text-[var(--text-tertiary)] mt-1">{tr('Supported columns: summary, description, issuetype, priority, labels')}</p>
               </>
             )}
           </div>
 
           {preview && preview.length > 0 && (
             <div>
-              <h3 className="text-heading-3 text-[var(--text-primary)] mb-2">Preview (first 5 rows)</h3>
+              <h3 className="text-heading-3 text-[var(--text-primary)] mb-2">{tr('Preview (first 5 rows)')}</h3>
               <div className="overflow-x-auto border border-[var(--surface-3)] rounded-lg">
                 <table className="w-full text-sm">
                   <thead className="bg-[var(--surface-2)]">
@@ -192,25 +194,24 @@ function CsvImportPageBody() {
               className="veqsio-btn-primary flex items-center gap-2 disabled:opacity-50"
             >
               {importing ? <Spinner size="sm" /> : <Upload className="w-4 h-4" />}
-              Import Issues
-            </button>
+              {tr('Import Issues')} </button>
           </div>
         </div>
 
         {stats && (
           <div className="veqsio-card space-y-4">
-            <h2 className="text-heading-2 text-[var(--text-primary)]">Results</h2>
+            <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('Results')}</h2>
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-[var(--surface-2)] rounded-lg p-4 text-center">
-                <p className="text-caption text-[var(--text-tertiary)]">Total</p>
+                <p className="text-caption text-[var(--text-tertiary)]">{tr('Total')}</p>
                 <p className="text-display text-[var(--text-primary)]">{stats.total}</p>
               </div>
               <div className="bg-green-500/10 rounded-lg p-4 text-center">
-                <p className="text-caption text-green-600">Success</p>
+                <p className="text-caption text-green-600">{tr('Success')}</p>
                 <p className="text-display text-green-600">{stats.success}</p>
               </div>
               <div className="bg-[var(--error)]/10 rounded-lg p-4 text-center">
-                <p className="text-caption text-[var(--error)]">Errors</p>
+                <p className="text-caption text-[var(--error)]">{tr('Errors')}</p>
                 <p className="text-display text-[var(--error)]">{stats.errors}</p>
               </div>
             </div>
@@ -220,9 +221,9 @@ function CsvImportPageBody() {
                 <table className="w-full text-sm">
                   <thead className="bg-[var(--surface-2)] sticky top-0">
                     <tr>
-                      <th className="px-3 py-2 text-left text-[var(--text-secondary)] font-medium">Row</th>
-                      <th className="px-3 py-2 text-left text-[var(--text-secondary)] font-medium">Status</th>
-                      <th className="px-3 py-2 text-left text-[var(--text-secondary)] font-medium">Details</th>
+                      <th className="px-3 py-2 text-left text-[var(--text-secondary)] font-medium">{tr('Row')}</th>
+                      <th className="px-3 py-2 text-left text-[var(--text-secondary)] font-medium">{tr('Status')}</th>
+                      <th className="px-3 py-2 text-left text-[var(--text-secondary)] font-medium">{tr('Details')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[var(--surface-3)]">
@@ -232,12 +233,10 @@ function CsvImportPageBody() {
                         <td className="px-3 py-2">
                           {r.key ? (
                             <span className="flex items-center gap-1 text-green-600">
-                              <CheckCircle className="w-4 h-4" /> Created
-                            </span>
+                              <CheckCircle className="w-4 h-4" /> {tr('Created')} </span>
                           ) : (
                             <span className="flex items-center gap-1 text-[var(--error)]">
-                              <AlertCircle className="w-4 h-4" /> Error
-                            </span>
+                              <AlertCircle className="w-4 h-4" /> {tr('Error')} </span>
                           )}
                         </td>
                         <td className="px-3 py-2 text-[var(--text-primary)]">

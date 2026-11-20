@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -19,6 +21,8 @@ import { confirmDialog } from '@/components/dialogs'
 const STRIP_COLOR = { 'no-dates': '#667085', 'not-started': '#667085', 'in-progress': '#2D54D8', overdue: '#C9372C', finished: '#16A06A' } as const
 
 export default function InitiativePage() {
+  const { tr } = useI18n();
+
   const params = useParams()
   const id = String(params.id)
   const router = useRouter()
@@ -43,22 +47,22 @@ export default function InitiativePage() {
     setDraft({ name: i.name, description: i.description, status: i.status, startDate: i.startDate ?? '', targetDate: i.targetDate ?? '' })
     setEditing(true)
   }
-  const dateProblem = draft.startDate && draft.targetDate && draft.targetDate < draft.startDate ? 'The target date must not be before the start date' : null
+  const dateProblem = draft.startDate && draft.targetDate && draft.targetDate < draft.startDate ? tr('The target date must not be before the start date') : null
   const save = async (e: React.FormEvent) => {
     e.preventDefault()
     if (dateProblem || !draft.name.trim()) return
     try {
       await update.mutateAsync({ name: draft.name.trim(), description: draft.description, status: draft.status, startDate: draft.startDate || null, targetDate: draft.targetDate || null })
       setEditing(false)
-      toast('Initiative saved', 'success')
-    } catch (err: any) { toast(err?.message || 'Could not save', 'error') }
+      toast(tr('Initiative saved'), 'success')
+    } catch (err: any) { toast(err?.message || tr('Could not save'), 'error') }
   }
   const addLink = async (v: { issueKey?: string; projectKey?: string }, reset: () => void) => {
-    try { await link.mutateAsync(v); reset(); toast('Linked', 'success') } catch (err: any) { toast(err?.message || 'Could not link', 'error') }
+    try { await link.mutateAsync(v); reset(); toast(tr('Linked'), 'success') } catch (err: any) { toast(err?.message || tr('Could not link'), 'error') }
   }
   const remove = async () => {
-    if (!i || !(await confirmDialog(`Delete the initiative "${i.name}"? Epics and projects are not deleted.`))) return
-    try { await del.mutateAsync(); toast('Initiative deleted', 'success'); router.push('/initiatives') } catch (err: any) { toast(err?.message || 'Could not delete', 'error') }
+    if (!i || !(await confirmDialog(tr('Delete the initiative "{name}"? Epics and projects are not deleted.', { name: i.name })))) return
+    try { await del.mutateAsync(); toast(tr('Initiative deleted'), 'success'); router.push('/initiatives') } catch (err: any) { toast(err?.message || tr('Could not delete'), 'error') }
   }
 
   const strip = i ? timelineStrip(i.startDate, i.targetDate, i.status) : null
@@ -68,9 +72,9 @@ export default function InitiativePage() {
   return (
     <AppLayout>
       <div className="space-y-6 max-w-4xl">
-        <Breadcrumb items={[{ label: 'Initiatives', href: '/initiatives' }, { label: i?.name ?? '…' }]} />
+        <Breadcrumb items={[{ label: tr('Initiatives'), href: '/initiatives' }, { label: i?.name ?? '…' }]} />
         {q.isLoading && <Spinner />}
-        {q.error && <p role="alert" className="text-[var(--error)]">{(q.error as Error).message === 'Not Found' || (q.error as Error).message === 'Not found' ? 'Initiative not found' : (q.error as Error).message}</p>}
+        {q.error && <p role="alert" className="text-[var(--error)]">{(q.error as Error).message === 'Not Found' || (q.error as Error).message === 'Not found' ? tr('Initiative not found') : (q.error as Error).message}</p>}
 
         {i && badge && strip && (
           <>
@@ -78,11 +82,11 @@ export default function InitiativePage() {
               <div className="flex flex-wrap items-center gap-3">
                 <h1 className="text-heading-1 text-[var(--text-primary)]">{i.name}</h1>
                 <span className="rounded-full px-2 py-0.5 text-xs font-medium" style={{ background: `${badge.color}1f`, color: badge.color }}>{badge.label}</span>
-                {i.health && <StatusUpdateBadge state={i.health.state} title="Latest health update" />}
+                {i.health && <StatusUpdateBadge state={i.health.state} title={tr('Latest health update')} />}
                 {i.canManage && (
                   <span className="ml-auto flex gap-2">
-                    <button type="button" className="veqsio-btn-secondary" onClick={startEdit}>Edit</button>
-                    <button type="button" className="veqsio-btn-secondary text-[var(--error)]" onClick={remove}>Delete</button>
+                    <button type="button" className="veqsio-btn-secondary" onClick={startEdit}>{tr('Edit')}</button>
+                    <button type="button" className="veqsio-btn-secondary text-[var(--error)]" onClick={remove}>{tr('Delete')}</button>
                   </span>
                 )}
               </div>
@@ -91,50 +95,49 @@ export default function InitiativePage() {
             </header>
 
             {editing && (
-              <form onSubmit={save} className="veqsio-card space-y-3" aria-label="Edit initiative">
-                <label className="text-sm block">Name<input className="veqsio-input block w-full" value={draft.name} maxLength={255} required onChange={(e) => setDraft({ ...draft, name: e.target.value })} /></label>
-                <label className="text-sm block">Description<textarea className="veqsio-input block w-full" rows={4} value={draft.description} onChange={(e) => setDraft({ ...draft, description: e.target.value })} /></label>
+              <form onSubmit={save} className="veqsio-card space-y-3" aria-label={tr('Edit initiative')}>
+                <label className="text-sm block">{tr('Name')}<input className="veqsio-input block w-full" value={draft.name} maxLength={255} required onChange={(e) => setDraft({ ...draft, name: e.target.value })} /></label>
+                <label className="text-sm block">{tr('Description')}<textarea className="veqsio-input block w-full" rows={4} value={draft.description} onChange={(e) => setDraft({ ...draft, description: e.target.value })} /></label>
                 <div className="grid gap-3 sm:grid-cols-3">
-                  <label className="text-sm block">Status
-                    <select className="veqsio-input block w-full" value={draft.status} onChange={(e) => setDraft({ ...draft, status: e.target.value as InitiativeStatus })}>
+                  <label className="text-sm block">{tr('Status')} <select className="veqsio-input block w-full" value={draft.status} onChange={(e) => setDraft({ ...draft, status: e.target.value as InitiativeStatus })}>
                       {INITIATIVE_STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
                   </label>
-                  <label className="text-sm block">Start date<input type="date" className="veqsio-input block w-full" value={draft.startDate} onChange={(e) => setDraft({ ...draft, startDate: e.target.value })} /></label>
-                  <label className="text-sm block">Target date<input type="date" className="veqsio-input block w-full" value={draft.targetDate} onChange={(e) => setDraft({ ...draft, targetDate: e.target.value })} /></label>
+                  <label className="text-sm block">{tr('Start date')}<input type="date" className="veqsio-input block w-full" value={draft.startDate} onChange={(e) => setDraft({ ...draft, startDate: e.target.value })} /></label>
+                  <label className="text-sm block">{tr('Target date')}<input type="date" className="veqsio-input block w-full" value={draft.targetDate} onChange={(e) => setDraft({ ...draft, targetDate: e.target.value })} /></label>
                 </div>
                 {dateProblem && <p role="alert" className="text-sm text-[var(--error)]">{dateProblem}</p>}
                 <div className="flex gap-2">
-                  <button type="submit" className="veqsio-btn-primary disabled:opacity-50" disabled={!!dateProblem || update.isPending}>Save</button>
-                  <button type="button" className="veqsio-btn-secondary" onClick={() => setEditing(false)}>Cancel</button>
+                  <button type="submit" className="veqsio-btn-primary disabled:opacity-50" disabled={!!dateProblem || update.isPending}>{tr('Save')}</button>
+                  <button type="button" className="veqsio-btn-secondary" onClick={() => setEditing(false)}>{tr('Cancel')}</button>
                 </div>
               </form>
             )}
 
             <section aria-labelledby="init-progress" className="veqsio-card space-y-3">
-              <h2 id="init-progress" className="text-heading-3">Progress</h2>
-              <ProgressBar percent={i.progress.percentDone} label={`Progress of ${i.name}`} />
-              <p className="text-sm text-[var(--text-secondary)]">{progressText(i.progress)}. Counted over the child issues of the linked epics and the issues of the linked projects you can see; cancelled issues are left out.</p>
+              <h2 id="init-progress" className="text-heading-3">{tr('Progress')}</h2>
+              <ProgressBar percent={i.progress.percentDone} label={tr('Progress of {name}', { name: i.name })} />
+              <p className="text-sm text-[var(--text-secondary)]">{progressText(i.progress)}{tr('. Counted over the child issues of the linked epics and the issues of the linked projects you can see; cancelled issues are left out.')}</p>
               <div>
                 <div className="flex justify-between text-xs text-[var(--text-tertiary)] mb-1">
-                  <span>{i.startDate ?? 'Start'}</span><span>{strip.label}</span><span>{i.targetDate ?? 'Target'}</span>
+                  <span>{i.startDate ?? tr('Start')}</span><span>{strip.label}</span><span>{i.targetDate ?? tr('Target')}</span>
                 </div>
-                <div className="relative h-3 rounded-full bg-[var(--surface-3)]" role="img" aria-label={`Timeline: ${strip.label}`}>
+                <div className="relative h-3 rounded-full bg-[var(--surface-3)]" role="img" aria-label={tr('Timeline: {label}', { label: strip.label })}>
                   <div className="absolute inset-y-0 left-0 rounded-full opacity-40" style={{ width: `${strip.elapsedPct}%`, background: STRIP_COLOR[strip.state] }} />
-                  {strip.todayPct !== null && <div className="absolute -top-1 -bottom-1 w-0.5" style={{ left: `${strip.todayPct}%`, background: STRIP_COLOR[strip.state] }} title="Today" />}
+                  {strip.todayPct !== null && <div className="absolute -top-1 -bottom-1 w-0.5" style={{ left: `${strip.todayPct}%`, background: STRIP_COLOR[strip.state] }} title={tr('Today')} />}
                 </div>
               </div>
             </section>
 
             <section aria-labelledby="init-epics" className="space-y-3">
-              <h2 id="init-epics" className="text-heading-3">Linked epics ({i.epicCount})</h2>
+              <h2 id="init-epics" className="text-heading-3">{tr('Linked epics (')}{i.epicCount})</h2>
               {i.canManage && (
                 <form className="flex flex-wrap items-end gap-2" onSubmit={(e) => { e.preventDefault(); if (epicKey.trim()) addLink({ issueKey: epicKey.trim() }, () => setEpicKey('')) }}>
-                  <label className="text-sm block">Add an epic by key<input className="veqsio-input block" placeholder="PROJ-12" value={epicKey} onChange={(e) => setEpicKey(e.target.value)} /></label>
-                  <button type="submit" className="veqsio-btn-secondary" disabled={!epicKey.trim() || link.isPending}>Link epic</button>
+                  <label className="text-sm block">{tr('Add an epic by key')}<input className="veqsio-input block" placeholder={tr('PROJ-12')} value={epicKey} onChange={(e) => setEpicKey(e.target.value)} /></label>
+                  <button type="submit" className="veqsio-btn-secondary" disabled={!epicKey.trim() || link.isPending}>{tr('Link epic')}</button>
                 </form>
               )}
-              {(i.epics ?? []).length === 0 && <p className="text-sm text-[var(--text-tertiary)]">No epics linked.</p>}
+              {(i.epics ?? []).length === 0 && <p className="text-sm text-[var(--text-tertiary)]">{tr('No epics linked.')}</p>}
               <ul className="space-y-2">
                 {(i.epics ?? []).map((e) => (
                   <li key={e.key} className="veqsio-card space-y-1">
@@ -142,9 +145,9 @@ export default function InitiativePage() {
                       <Link href={`/issues/${e.key}`} className="font-mono text-[var(--brand-500)] hover:underline">{e.key}</Link>
                       <span className="truncate">{e.summary}</span>
                       <span className="text-[var(--text-tertiary)]">{e.project.key} · {e.status}</span>
-                      {i.canManage && <button type="button" className="ml-auto text-xs text-[var(--error)] hover:underline" aria-label={`Unlink ${e.key}`} onClick={() => unlink.mutate({ kind: 'epics', key: e.key })}>Unlink</button>}
+                      {i.canManage && <button type="button" className="ml-auto text-xs text-[var(--error)] hover:underline" aria-label={tr('Unlink {key}', { key: e.key })} onClick={() => unlink.mutate({ kind: 'epics', key: e.key })}>{tr('Unlink')}</button>}
                     </div>
-                    <ProgressBar percent={e.progress.percentDone} label={`Progress of ${e.key}`} />
+                    <ProgressBar percent={e.progress.percentDone} label={tr('Progress of {key}', { key: e.key })} />
                     <p className="text-xs text-[var(--text-tertiary)]">{progressText(e.progress)}</p>
                   </li>
                 ))}
@@ -152,27 +155,26 @@ export default function InitiativePage() {
             </section>
 
             <section aria-labelledby="init-projects" className="space-y-3">
-              <h2 id="init-projects" className="text-heading-3">Linked projects ({i.projectCount})</h2>
+              <h2 id="init-projects" className="text-heading-3">{tr('Linked projects (')}{i.projectCount})</h2>
               {i.canManage && (
                 <form className="flex flex-wrap items-end gap-2" onSubmit={(e) => { e.preventDefault(); if (projectKey) addLink({ projectKey }, () => setProjectKey('')) }}>
-                  <label className="text-sm block">Add a project
-                    <select className="veqsio-input block" value={projectKey} onChange={(e) => setProjectKey(e.target.value)}>
-                      <option value="">Choose…</option>
+                  <label className="text-sm block">{tr('Add a project')} <select className="veqsio-input block" value={projectKey} onChange={(e) => setProjectKey(e.target.value)}>
+                      <option value="">{tr('Choose…')}</option>
                       {(projects.data ?? []).filter((p) => !linkedProjectKeys.has(p.key)).map((p) => <option key={p.key} value={p.key}>{p.key} — {p.name}</option>)}
                     </select>
                   </label>
-                  <button type="submit" className="veqsio-btn-secondary" disabled={!projectKey || link.isPending}>Link project</button>
+                  <button type="submit" className="veqsio-btn-secondary" disabled={!projectKey || link.isPending}>{tr('Link project')}</button>
                 </form>
               )}
-              {(i.projects ?? []).length === 0 && <p className="text-sm text-[var(--text-tertiary)]">No projects linked.</p>}
+              {(i.projects ?? []).length === 0 && <p className="text-sm text-[var(--text-tertiary)]">{tr('No projects linked.')}</p>}
               <ul className="space-y-2">
                 {(i.projects ?? []).map((p) => (
                   <li key={p.key} className="veqsio-card space-y-1">
                     <div className="flex flex-wrap items-center gap-2 text-sm">
                       <Link href={`/projects/${p.key}`} className="font-medium text-[var(--brand-500)] hover:underline">{p.key} — {p.name}</Link>
-                      {i.canManage && <button type="button" className="ml-auto text-xs text-[var(--error)] hover:underline" aria-label={`Unlink project ${p.key}`} onClick={() => unlink.mutate({ kind: 'projects', key: p.key })}>Unlink</button>}
+                      {i.canManage && <button type="button" className="ml-auto text-xs text-[var(--error)] hover:underline" aria-label={tr('Unlink project {key}', { key: p.key })} onClick={() => unlink.mutate({ kind: 'projects', key: p.key })}>{tr('Unlink')}</button>}
                     </div>
-                    <ProgressBar percent={p.progress.percentDone} label={`Progress of project ${p.key}`} />
+                    <ProgressBar percent={p.progress.percentDone} label={tr('Progress of project {key}', { key: p.key })} />
                     <p className="text-xs text-[var(--text-tertiary)]">{progressText(p.progress)}</p>
                   </li>
                 ))}

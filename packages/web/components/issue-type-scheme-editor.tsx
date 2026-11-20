@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import {
   Plus,
@@ -29,6 +31,8 @@ import type { IssueTypeScheme } from '@/hooks/use-admin'
 import { confirmDialog } from '@/components/dialogs'
 
 export function IssueTypeSchemeEditor() {
+  const { tr } = useI18n();
+
   const [createOpen, setCreateOpen] = useState(false)
   const [editingScheme, setEditingScheme] = useState<IssueTypeScheme | null>(null)
   const [assignScheme, setAssignScheme] = useState<IssueTypeScheme | null>(null)
@@ -48,7 +52,7 @@ export function IssueTypeSchemeEditor() {
         defaultIssueTypeId: Number(fd.get('defaultIssueTypeId')) || undefined,
         issueTypeIds: (fd.getAll('issueTypeIds') as string[]).map(Number),
       })
-      toast('Issue type scheme created', 'success')
+      toast(tr('Issue type scheme created'), 'success')
       setCreateOpen(false)
       e.currentTarget.reset()
     } catch (err: any) {
@@ -60,7 +64,7 @@ export function IssueTypeSchemeEditor() {
     if (!(await confirmDialog(`Delete issue type scheme "${name}"?`))) return
     try {
       await deleteScheme.mutateAsync(id)
-      toast('Scheme deleted', 'success')
+      toast(tr('Scheme deleted'), 'success')
     } catch (err: any) {
       toast(err.message || 'Failed to delete scheme', 'error')
     }
@@ -69,11 +73,10 @@ export function IssueTypeSchemeEditor() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-heading-2 text-[var(--text-primary)]">Issue type schemes</h2>
+        <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('Issue type schemes')}</h2>
         <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          Create Scheme
-        </button>
+          {tr('Create Scheme')} </button>
       </div>
 
       {isLoading ? (
@@ -83,13 +86,12 @@ export function IssueTypeSchemeEditor() {
       ) : schemes.length === 0 ? (
         <EmptyState
           icon="folder"
-          title="No issue type schemes found"
-          description="Create a scheme to manage issue types for projects."
+          title={tr('No issue type schemes found')}
+          description={tr('Create a scheme to manage issue types for projects.')}
           action={
             <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              Create Scheme
-            </button>
+              {tr('Create Scheme')} </button>
           }
         />
       ) : (
@@ -104,7 +106,7 @@ export function IssueTypeSchemeEditor() {
                   <div>
                     <div className="font-medium text-[var(--text-primary)]">{s.name}</div>
                     <div className="text-xs text-[var(--text-tertiary)] mt-0.5">
-                      {s.issueTypes.length} issue type{s.issueTypes.length !== 1 ? 's' : ''}
+                      {s.issueTypes.length} {tr('issue type')}{s.issueTypes.length !== 1 ? 's' : ''}
                       {s.defaultIssueTypeId ? ` · Default: ${s.issueTypes.find(t => t.id === s.defaultIssueTypeId)?.name || s.defaultIssueTypeId}` : ''}
                     </div>
                     {s.projects.length > 0 && (
@@ -123,8 +125,7 @@ export function IssueTypeSchemeEditor() {
                     }}
                     className="veqsio-btn-secondary text-sm"
                   >
-                    Assign to Project
-                  </button>
+                    {tr('Assign to Project')} </button>
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
@@ -150,17 +151,16 @@ export function IssueTypeSchemeEditor() {
         </div>
       )}
 
-      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title="Create issue type scheme">
+      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title={tr('Create issue type scheme')}>
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Name</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Name')}</label>
             <input name="name" type="text" required className="veqsio-input w-full" />
           </div>
           <IssueTypeSelector />
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" onClick={() => setCreateOpen(false)} className="veqsio-btn-secondary">
-              Cancel
-            </button>
+              {tr('Cancel')} </button>
             <button type="submit" disabled={createScheme.isPending} className="veqsio-btn-primary">
               {createScheme.isPending ? 'Creating...' : 'Create'}
             </button>
@@ -174,7 +174,7 @@ export function IssueTypeSchemeEditor() {
         )}
       </Modal>
 
-      <Modal isOpen={!!assignScheme} onClose={() => setAssignScheme(null)} title="Assign to Project">
+      <Modal isOpen={!!assignScheme} onClose={() => setAssignScheme(null)} title={tr('Assign to Project')}>
         {assignScheme && (
           <AssignPanel scheme={assignScheme} onClose={() => setAssignScheme(null)} />
         )}
@@ -184,22 +184,24 @@ export function IssueTypeSchemeEditor() {
 }
 
 function IssueTypeSelector() {
+  const { tr } = useI18n();
+
   const { data } = useIssueTypes()
   const types = data || []
 
   return (
     <div className="space-y-3">
       <div>
-        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Default issue type</label>
+        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Default issue type')}</label>
         <select name="defaultIssueTypeId" className="veqsio-input w-full">
-          <option value="">Select default...</option>
+          <option value="">{tr('Select default...')}</option>
           {types.map((t) => (
             <option key={t.id} value={t.id}>{t.name}</option>
           ))}
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Issue types</label>
+        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Issue types')}</label>
         <div className="border border-[var(--surface-3)] rounded-lg p-3 space-y-2 max-h-60 overflow-auto">
           {types.map((t) => (
             <label key={t.id} className="flex items-center gap-2 text-sm text-[var(--text-primary)] cursor-pointer">
@@ -214,6 +216,8 @@ function IssueTypeSelector() {
 }
 
 function SchemeEditPanel({ scheme, onClose }: { scheme: IssueTypeScheme; onClose: () => void }) {
+  const { tr } = useI18n();
+
   const { data: typesData } = useIssueTypes()
   const updateScheme = useUpdateIssueTypeScheme()
 
@@ -230,7 +234,7 @@ function SchemeEditPanel({ scheme, onClose }: { scheme: IssueTypeScheme; onClose
         defaultIssueTypeId: Number(defaultId) || undefined,
         issueTypeIds: selectedIds,
       })
-      toast('Scheme updated', 'success')
+      toast(tr('Scheme updated'), 'success')
       onClose()
     } catch (err: any) {
       toast(err.message || 'Failed to update scheme', 'error')
@@ -254,13 +258,13 @@ function SchemeEditPanel({ scheme, onClose }: { scheme: IssueTypeScheme; onClose
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Name</label>
+        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Name')}</label>
         <input value={name} onChange={e => setName(e.target.value)} className="veqsio-input w-full" />
       </div>
       <div>
-        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Default issue type</label>
+        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Default issue type')}</label>
         <select value={defaultId} onChange={e => setDefaultId(Number(e.target.value) || '')} className="veqsio-input w-full">
-          <option value="">None</option>
+          <option value="">{tr('None')}</option>
           {selectedIds.map(id => {
             const t = allTypes.find(x => x.id === id)
             return t ? <option key={id} value={id}>{t.name}</option> : null
@@ -268,7 +272,7 @@ function SchemeEditPanel({ scheme, onClose }: { scheme: IssueTypeScheme; onClose
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Issue Types (reorder enabled)</label>
+        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">{tr('Issue Types (reorder enabled)')}</label>
         <div className="border border-[var(--surface-3)] rounded-lg divide-y divide-[var(--surface-3)]">
           {allTypes.map(t => {
             const checked = selectedIds.includes(t.id)
@@ -300,7 +304,7 @@ function SchemeEditPanel({ scheme, onClose }: { scheme: IssueTypeScheme; onClose
         </div>
       </div>
       <div className="flex justify-end gap-2 pt-2">
-        <button onClick={onClose} className="veqsio-btn-secondary">Cancel</button>
+        <button onClick={onClose} className="veqsio-btn-secondary">{tr('Cancel')}</button>
         <button onClick={handleSave} disabled={updateScheme.isPending} className="veqsio-btn-primary flex items-center gap-1.5">
           <Save className="w-4 h-4" />
           {updateScheme.isPending ? 'Saving...' : 'Save'}
@@ -311,6 +315,8 @@ function SchemeEditPanel({ scheme, onClose }: { scheme: IssueTypeScheme; onClose
 }
 
 function AssignPanel({ scheme, onClose }: { scheme: IssueTypeScheme; onClose: () => void }) {
+  const { tr } = useI18n();
+
   const { data: projectsData } = useProjects()
   const assign = useAssignIssueTypeScheme()
 
@@ -319,7 +325,7 @@ function AssignPanel({ scheme, onClose }: { scheme: IssueTypeScheme; onClose: ()
   async function handleAssign(projectId: number) {
     try {
       await assign.mutateAsync({ schemeId: scheme.id, projectId })
-      toast('Scheme assigned to project', 'success')
+      toast(tr('Scheme assigned to project'), 'success')
       onClose()
     } catch (err: any) {
       toast(err.message || 'Failed to assign scheme', 'error')
@@ -328,7 +334,7 @@ function AssignPanel({ scheme, onClose }: { scheme: IssueTypeScheme; onClose: ()
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-[var(--text-secondary)]">Assign "{scheme.name}" to a project:</p>
+      <p className="text-sm text-[var(--text-secondary)]">{tr('Assign "')}{scheme.name}{tr('" to a project:')}</p>
       <div className="border border-[var(--surface-3)] rounded-lg divide-y divide-[var(--surface-3)] max-h-72 overflow-auto">
         {projects.map(p => (
           <div key={p.id} className="flex items-center justify-between px-3 py-2">
@@ -339,13 +345,12 @@ function AssignPanel({ scheme, onClose }: { scheme: IssueTypeScheme; onClose: ()
               className="veqsio-btn-secondary text-sm flex items-center gap-1"
             >
               <Check className="w-3 h-3" />
-              Assign
-            </button>
+              {tr('Assign')} </button>
           </div>
         ))}
       </div>
       <div className="flex justify-end pt-2">
-        <button onClick={onClose} className="veqsio-btn-secondary">Close</button>
+        <button onClick={onClose} className="veqsio-btn-secondary">{tr('Close')}</button>
       </div>
     </div>
   )

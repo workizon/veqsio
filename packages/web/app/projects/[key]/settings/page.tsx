@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { ProjectPermissionsPanel } from '@/components/project-permissions-panel'
 import { ProjectRolesTable } from '@/components/project/project-roles-table'
 import { ProjectAuditPanel } from '@/components/project/project-audit-panel'
@@ -50,6 +52,8 @@ import { useGroups } from '@/hooks/use-admin'
 import { Search, Trash2, UserPlus, Users } from 'lucide-react'
 
 export default function ProjectSettingsPage() {
+  const { tr } = useI18n();
+
   const params = useParams()
   const router = useRouter()
   const requestedTab = useSearchParams()?.get('tab')
@@ -90,7 +94,7 @@ export default function ProjectSettingsPage() {
   const handleUpdateProject = useCallback(
     (data: Parameters<typeof updateProject.mutate>[0]) => {
       updateProject.mutate(data, {
-        onSuccess: () => toast('Project updated', 'success'),
+        onSuccess: () => toast(tr('Project updated'), 'success'),
         onError: (err) => toast(err.message, 'error'),
       })
     },
@@ -100,7 +104,7 @@ export default function ProjectSettingsPage() {
   const handleUploadAvatar = useCallback(
     (file: File) => {
       uploadAvatar.mutate(file, {
-        onSuccess: () => toast('Avatar uploaded', 'success'),
+        onSuccess: () => toast(tr('Avatar uploaded'), 'success'),
         onError: (err) => toast(err.message, 'error'),
       })
     },
@@ -110,7 +114,7 @@ export default function ProjectSettingsPage() {
   const handleCreateComponent = useCallback(
     (data: Parameters<typeof createComponent.mutate>[0]) => {
       createComponent.mutate(data, {
-        onSuccess: () => toast('Component created', 'success'),
+        onSuccess: () => toast(tr('Component created'), 'success'),
         onError: (err) => toast(err.message, 'error'),
       })
     },
@@ -120,7 +124,7 @@ export default function ProjectSettingsPage() {
   const handleUpdateComponent = useCallback(
     (id: number, data: { name?: string; description?: string; leadId?: number }) => {
       updateComponent.mutate({ id, data }, {
-        onSuccess: () => toast('Component updated', 'success'),
+        onSuccess: () => toast(tr('Component updated'), 'success'),
         onError: (err) => toast(err.message, 'error'),
       })
     },
@@ -130,7 +134,7 @@ export default function ProjectSettingsPage() {
   const handleDeleteComponent = useCallback(
     (id: number) => {
       deleteComponent.mutate(id, {
-        onSuccess: () => toast('Component deleted', 'success'),
+        onSuccess: () => toast(tr('Component deleted'), 'success'),
         onError: (err) => toast(err.message, 'error'),
       })
     },
@@ -140,7 +144,7 @@ export default function ProjectSettingsPage() {
   const handleCreateVersion = useCallback(
     (data: Parameters<typeof createVersion.mutate>[0]) => {
       createVersion.mutate(data, {
-        onSuccess: () => toast('Version created', 'success'),
+        onSuccess: () => toast(tr('Version created'), 'success'),
         onError: (err) => toast(err.message, 'error'),
       })
     },
@@ -150,7 +154,7 @@ export default function ProjectSettingsPage() {
   const handleUpdateVersion = useCallback(
     (id: number, data: Parameters<typeof updateVersion.mutate>[0]['data']) => {
       updateVersion.mutate({ id, data }, {
-        onSuccess: () => toast('Version updated', 'success'),
+        onSuccess: () => toast(tr('Version updated'), 'success'),
         onError: (err) => toast(err.message, 'error'),
       })
     },
@@ -160,7 +164,7 @@ export default function ProjectSettingsPage() {
   const handleDeleteVersion = useCallback(
     (id: number) => {
       deleteVersion.mutate(id, {
-        onSuccess: () => toast('Version deleted', 'success'),
+        onSuccess: () => toast(tr('Version deleted'), 'success'),
         onError: (err) => toast(err.message, 'error'),
       })
     },
@@ -170,7 +174,7 @@ export default function ProjectSettingsPage() {
   const handleAddActor = useCallback(
     (roleId: number, data: { userId?: number; groupId?: number; username?: string; groupName?: string }) => {
       addActor.mutate({ roleId, ...data }, {
-        onSuccess: () => toast('Actor added', 'success'),
+        onSuccess: () => toast(tr('Actor added'), 'success'),
         onError: (err) => toast(err.message, 'error'),
       })
     },
@@ -180,7 +184,7 @@ export default function ProjectSettingsPage() {
   const handleRemoveActor = useCallback(
     (roleId: number, data: { user?: string; group?: string }) => {
       removeActor.mutate({ roleId, ...data }, {
-        onSuccess: () => toast('Actor removed', 'success'),
+        onSuccess: () => toast(tr('Actor removed'), 'success'),
         onError: (err) => toast(err.message, 'error'),
       })
     },
@@ -204,7 +208,7 @@ export default function ProjectSettingsPage() {
   const tabs = [
     {
       id: 'details',
-      label: 'Details',
+      label: tr('Details'),
       content: (
         <div className="max-w-xl space-y-6">
           <ProjectSettingsForm
@@ -221,7 +225,7 @@ export default function ProjectSettingsPage() {
     },
     {
       id: 'components',
-      label: 'Components',
+      label: tr('Components'),
       content: (
         <ComponentManager
           components={components || []}
@@ -236,7 +240,7 @@ export default function ProjectSettingsPage() {
     },
     {
       id: 'versions',
-      label: 'Versions',
+      label: tr('Versions'),
       content: (
         <VersionManager
           versions={versions || []}
@@ -249,35 +253,35 @@ export default function ProjectSettingsPage() {
         />
       ),
     },
-    { id: 'schemes', label: 'Schemes', content: <ProjectSchemesPanel projectKey={key} /> },
-    { id: 'permissions', label: 'Permissions', content: <ProjectPermissionsPanel projectKey={key} /> },
+    { id: 'schemes', label: tr('Schemes'), content: <ProjectSchemesPanel projectKey={key} /> },
+    { id: 'permissions', label: tr('Permissions'), content: <ProjectPermissionsPanel projectKey={key} /> },
     {
       id: 'features',
-      label: 'Features',
+      label: tr('Features'),
       content: <ProjectFeaturesPanel projectKey={key} />,
     },
     {
       id: 'repositories',
-      label: 'Repositories',
+      label: tr('Repositories'),
       content: <RepositoriesPanel projectKey={key} />,
     },
-    { id: 'templates', label: 'Templates', content: <TemplateManager projectKey={key} /> },
-    { id: 'recurring', label: 'Recurring issues', content: <RecurringPanel projectKey={key} /> },
+    { id: 'templates', label: tr('Templates'), content: <TemplateManager projectKey={key} /> },
+    { id: 'recurring', label: tr('Recurring issues'), content: <RecurringPanel projectKey={key} /> },
     ...(features.isEnabled('integrations')
       ? [
-          { id: 'webhooks', label: 'Inbound webhooks', content: <InboundSourcesPanel projectKey={key} /> },
-          { id: 'chat', label: 'Slack & Teams', content: <NotificationChannelsPanel scope={{ project: key }} /> },
+          { id: 'webhooks', label: tr('Inbound webhooks'), content: <InboundSourcesPanel projectKey={key} /> },
+          { id: 'chat', label: tr('Slack & Teams'), content: <NotificationChannelsPanel scope={{ project: key }} /> },
         ]
       : []),
     ...(features.isEnabled('intake')
-      ? [{ id: 'intake', label: 'Intake', content: <IntakeSettingsPanel projectKey={key} /> }]
+      ? [{ id: 'intake', label: tr('Intake'), content: <IntakeSettingsPanel projectKey={key} /> }]
       : []),
-    { id: 'people', label: 'Users and roles', content: <ProjectRolesTable projectKey={key} /> },
-    { id: 'security', label: 'Issue security', content: <div className="max-w-xl"><ProjectSecurityPanel projectId={Number((project as { id: number | string }).id)} projectKey={key} /></div> },
-    { id: 'notifications', label: 'Notifications', content: <ProjectNotificationsPanel projectKey={key} /> },
-    { id: 'audit', label: 'Audit log', content: <ProjectAuditPanel projectKey={key} /> },
-    { id: 'reindex', label: 'Re-index', content: <ProjectMaintenancePanel projectKey={key} /> },
-    { id: 'lifecycle', label: 'Archive and delete', content: <LifecyclePanel projectKey={key} projectName={project.name} archived={archived} /> },
+    { id: 'people', label: tr('Users and roles'), content: <ProjectRolesTable projectKey={key} /> },
+    { id: 'security', label: tr('Issue security'), content: <div className="max-w-xl"><ProjectSecurityPanel projectId={Number((project as { id: number | string }).id)} projectKey={key} /></div> },
+    { id: 'notifications', label: tr('Notifications'), content: <ProjectNotificationsPanel projectKey={key} /> },
+    { id: 'audit', label: tr('Audit log'), content: <ProjectAuditPanel projectKey={key} /> },
+    { id: 'reindex', label: tr('Re-index'), content: <ProjectMaintenancePanel projectKey={key} /> },
+    { id: 'lifecycle', label: tr('Archive and delete'), content: <LifecyclePanel projectKey={key} projectName={project.name} archived={archived} /> },
   ]
 
   return (
@@ -285,23 +289,22 @@ export default function ProjectSettingsPage() {
       <div className="space-y-6">
         <Breadcrumb
           items={[
-            { label: 'Projects', href: '/projects' },
+            { label: tr('Projects'), href: '/projects' },
             { label: project.name, href: `/projects/${key}/settings` },
-            { label: 'Settings' },
+            { label: tr('Settings') },
           ]}
         />
         <div>
-          <h1 className="text-heading-1 text-[var(--text-primary)]">Project settings</h1>
+          <h1 className="text-heading-1 text-[var(--text-primary)]">{tr('Project settings')}</h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Manage {project.name} details, components, versions and access.{' '}
-            <a className="text-[var(--brand-500)] hover:underline" href={`/projects/${key}/settings/approvals`}>Approval templates</a>
-            {features.isEnabled('intake') && <>{' · '}<a className="text-[var(--brand-500)] hover:underline" href={`/projects/${key}/intake`}>Intake queue</a></>}
+            {tr('Manage')} {project.name} {tr('details, components, versions and access.')}{' '}
+            <a className="text-[var(--brand-500)] hover:underline" href={`/projects/${key}/settings/approvals`}>{tr('Approval templates')}</a>
+            {features.isEnabled('intake') && <>{' · '}<a className="text-[var(--brand-500)] hover:underline" href={`/projects/${key}/intake`}>{tr('Intake queue')}</a></>}
           </p>
         </div>
         {archived && (
           <p role="status" className="rounded-lg border border-[var(--warning)] bg-[var(--surface-1)] px-4 py-3 text-[13px]">
-            This project is archived and read-only. Changes are refused until a project administrator restores it (see the Archive and delete tab).
-          </p>
+            {tr('This project is archived and read-only. Changes are refused until a project administrator restores it (see the Archive and delete tab).')} </p>
         )}
         {/* the tabs are the "Project settings" links of the left menu; the URL (?tab=) says which one is open */}
         <Tabs tabs={tabs} activeTab={tabs.some((t) => t.id === requestedTab) ? requestedTab! : 'details'} onChange={(id) => router.replace(`/projects/${key}/settings?tab=${id}`)} hideNav />
@@ -325,15 +328,17 @@ function ProjectRolePanel({
   onAddActor: (roleId: number, data: { userId?: number; groupId?: number; username?: string; groupName?: string }) => void
   onRemoveActor: (roleId: number, data: { user?: string; group?: string }) => void
 }) {
+  const { tr } = useI18n();
+
   const [activeRole, setActiveRole] = useState<number | null>(null)
   const [actorType, setActorType] = useState<'user' | 'group'>('user')
   const [search, setSearch] = useState('')
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-[var(--text-primary)]">Project roles</h3>
+      <h3 className="text-lg font-semibold text-[var(--text-primary)]">{tr('Project roles')}</h3>
       {roles.length === 0 ? (
-        <p className="text-sm text-[var(--text-secondary)]">No roles configured.</p>
+        <p className="text-sm text-[var(--text-secondary)]">{tr('No roles configured.')}</p>
       ) : (
         <div className="space-y-4">
           {roles.map((role) => (
@@ -349,7 +354,7 @@ function ProjectRolePanel({
                   )}
                 </div>
                 <span className="text-xs text-[var(--text-tertiary)]">
-                  {role.actors.length} actor{role.actors.length === 1 ? '' : 's'}
+                  {role.actors.length === 1 ? tr('{n} actor', { n: role.actors.length }) : tr('{n} actors', { n: role.actors.length })}
                 </span>
               </div>
 
@@ -360,7 +365,7 @@ function ProjectRolePanel({
                       key={actor.id}
                       className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs bg-[var(--surface-2)] text-[var(--text-secondary)] border border-[var(--surface-3)]"
                     >
-                      {actor.user?.displayName || actor.group?.name || 'Unknown'}
+                      {actor.user?.displayName || actor.group?.name || tr('Unknown')}
                       <button
                         onClick={() =>
                           onRemoveActor(role.id, {
@@ -370,7 +375,7 @@ function ProjectRolePanel({
                         }
                         disabled={isMutating}
                         className="text-[var(--text-tertiary)] hover:text-[var(--error)] disabled:opacity-50"
-                        title="Remove"
+                        title={tr('Remove')}
                       >
                         <Trash2 className="w-3 h-3" />
                       </button>
@@ -385,8 +390,7 @@ function ProjectRolePanel({
                   className="veqsio-btn-secondary text-sm flex items-center gap-1.5"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
-                  Add actor
-                </button>
+                  {tr('Add actor')} </button>
               </div>
 
               {activeRole === role.id && (
@@ -400,15 +404,15 @@ function ProjectRolePanel({
                       }}
                       className="veqsio-input text-sm"
                     >
-                      <option value="user">User</option>
-                      <option value="group">Group</option>
+                      <option value="user">{tr('User')}</option>
+                      <option value="group">{tr('Group')}</option>
                     </select>
                     <div className="relative flex-1">
                       <div className="flex items-center gap-2">
                         <Search className="w-4 h-4 text-[var(--text-tertiary)]" />
                         <input
                           type="text"
-                          placeholder={actorType === 'user' ? 'Search users...' : 'Select group...'}
+                          placeholder={actorType === 'user' ? tr('Search users...') : tr('Select group...')}
                           value={search}
                           onChange={(e) => setSearch(e.target.value)}
                           className="veqsio-input flex-1 text-sm"

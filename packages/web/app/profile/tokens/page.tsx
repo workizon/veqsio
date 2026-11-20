@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { PageHeader } from '@/components/page-header'
 import { AppLayout } from '@/components/app-layout'
@@ -22,6 +24,8 @@ const SCOPE_OPTIONS: { value: string; label: string; hint: string }[] = [
 ]
 
 export default function TokensPage() {
+  const { tr } = useI18n();
+
   const { data: policy } = useTokenPolicy()
   const { data: tokens, isLoading } = useTokens()
   const createToken = useCreateToken()
@@ -41,9 +45,9 @@ export default function TokensPage() {
       setNewToken(result.token)
       setNewName('')
       setShowCreate(false)
-      toast('Token created. Copy it now — you will not see it again.', 'success')
+      toast(tr('Token created. Copy it now — you will not see it again.'), 'success')
     } catch (e: any) {
-      toast(e.message || 'Failed to create token', 'error')
+      toast(e.message || tr('Failed to create token'), 'error')
     }
   }
 
@@ -54,12 +58,12 @@ export default function TokensPage() {
   }
 
   const handleRevoke = async (id: number) => {
-    if (!(await confirmDialog('Revoke this token? Any integrations using it will stop working.'))) return
+    if (!(await confirmDialog(tr('Revoke this token? Any integrations using it will stop working.')))) return
     try {
       await revokeToken.mutateAsync(id)
-      toast('Token revoked', 'success')
+      toast(tr('Token revoked'), 'success')
     } catch (e: any) {
-      toast(e.message || 'Failed to revoke token', 'error')
+      toast(e.message || tr('Failed to revoke token'), 'error')
     }
   }
 
@@ -67,20 +71,19 @@ export default function TokensPage() {
     <AppLayout>
       <div className="space-y-6">
         <PageHeader
-          breadcrumb={[{ label: 'Profile', href: '/profile' }, { label: 'Personal access tokens' }]}
-          title="Personal access tokens"
-          description="Tokens allow scripts and integrations to authenticate with the Veqsio API on your behalf."
-          actions={<button onClick={() => setShowCreate(true)} className="veqsio-btn-primary flex items-center gap-1.5"><Plus className="w-4 h-4" />Create token</button>}
+          breadcrumb={[{ label: tr('Profile'), href: '/profile' }, { label: tr('Personal access tokens') }]}
+          title={tr('Personal access tokens')}
+          description={tr('Tokens allow scripts and integrations to authenticate with the Veqsio API on your behalf.')}
+          actions={<button onClick={() => setShowCreate(true)} className="veqsio-btn-primary flex items-center gap-1.5"><Plus className="w-4 h-4" />{tr('Create token')}</button>}
         />
 
         {newToken && (
           <div className="veqsio-card border-l-4 border-l-[var(--brand-500)] bg-[var(--surface-1)]">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
-                <p className="text-body-sm font-medium text-[var(--text-primary)]">Your new token</p>
+                <p className="text-body-sm font-medium text-[var(--text-primary)]">{tr('Your new token')}</p>
                 <p className="text-caption text-[var(--text-secondary)] mt-1">
-                  Copy it now — it will not be shown again.
-                </p>
+                  {tr('Copy it now — it will not be shown again.')} </p>
                 <div className="mt-3 flex items-center gap-2">
                   <code className="flex-1 block px-3 py-2 bg-[var(--surface-3)] rounded-md text-caption font-mono text-[var(--text-primary)] break-all">
                     {newToken}
@@ -90,7 +93,7 @@ export default function TokensPage() {
                     className="veqsio-btn-secondary flex items-center gap-1 flex-shrink-0"
                   >
                     {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                    {copied ? 'Copied' : 'Copy'}
+                    {copied ? tr('Copied') : tr('Copy')}
                   </button>
                 </div>
               </div>
@@ -103,20 +106,20 @@ export default function TokensPage() {
 
         {showCreate && !newToken && (
           <div className="veqsio-card space-y-4">
-            <h2 className="text-heading-2 text-[var(--text-primary)]">Create token</h2>
+            <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('Create token')}</h2>
             <div>
-              <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">Name</label>
+              <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">{tr('Name')}</label>
               <input
                 type="text"
                 className="veqsio-input w-full"
-                placeholder="e.g. CI/CD Integration"
+                placeholder={tr('e.g. CI/CD Integration')}
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
               />
             </div>
             <div>
-              <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">Scopes</label>
+              <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">{tr('Scopes')}</label>
               <div className="space-y-1.5">
                 {SCOPE_OPTIONS.map((o) => (
                   <label key={o.value} className="flex items-start gap-2 cursor-pointer">
@@ -127,14 +130,14 @@ export default function TokensPage() {
                       onChange={(e) => setScopes((cur) => (e.target.checked ? [...cur, o.value] : cur.filter((s) => s !== o.value)))}
                     />
                     <span className="text-body-sm text-[var(--text-primary)]">
-                      {o.label} <span className="text-caption text-[var(--text-tertiary)]">({o.value}) {o.hint}</span>
+                      {tr(o.label)} <span className="text-caption text-[var(--text-tertiary)]">({o.value}) {tr(o.hint)}</span>
                     </span>
                   </label>
                 ))}
               </div>
             </div>
             <div>
-              <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">Expires after</label>
+              <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">{tr('Expires after')}</label>
               <select
                 className="veqsio-input"
                 value={days ?? policy?.defaultDays ?? 90}
@@ -144,18 +147,18 @@ export default function TokensPage() {
                   .filter((d) => d <= (policy?.maxDays ?? 365))
                   .concat(policy && ![30, 90, 180, 365].includes(policy.maxDays) ? [policy.maxDays] : [])
                   .map((d) => (
-                    <option key={d} value={d}>{d} days{d === policy?.defaultDays ? ' (default)' : ''}</option>
+                    <option key={d} value={d}>{tr('{n} days', { n: d })}{d === policy?.defaultDays ? ` ${tr('(default)')}` : ''}</option>
                   ))}
               </select>
             </div>
             <div className="flex justify-end gap-2">
-              <button onClick={() => setShowCreate(false)} className="veqsio-btn-secondary">Cancel</button>
+              <button onClick={() => setShowCreate(false)} className="veqsio-btn-secondary">{tr('Cancel')}</button>
               <button
                 onClick={handleCreate}
                 disabled={createToken.isPending || !newName.trim() || scopes.length === 0}
                 className="veqsio-btn-primary"
               >
-                {createToken.isPending ? <Spinner size="sm" /> : 'Create'}
+                {createToken.isPending ? <Spinner size="sm" /> : tr('Create')}
               </button>
             </div>
           </div>
@@ -168,10 +171,9 @@ export default function TokensPage() {
         ) : !tokens?.length ? (
           <div className="text-center py-12">
             <Key className="w-12 h-12 text-[var(--text-tertiary)] mx-auto mb-3" />
-            <h3 className="text-body font-medium text-[var(--text-primary)]">No tokens yet</h3>
+            <h3 className="text-body font-medium text-[var(--text-primary)]">{tr('No tokens yet')}</h3>
             <p className="text-body-sm text-[var(--text-secondary)] mt-1">
-              Create a token to use the Veqsio API from scripts and integrations.
-            </p>
+              {tr('Create a token to use the Veqsio API from scripts and integrations.')} </p>
           </div>
         ) : (
           <div className="border border-[var(--surface-3)] rounded-lg overflow-hidden divide-y divide-[var(--surface-3)]">
@@ -185,13 +187,13 @@ export default function TokensPage() {
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-caption text-[var(--text-tertiary)]">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      Created {new Date(token.createdAt).toLocaleDateString()}
+                      {tr('Created')} {new Date(token.createdAt).toLocaleDateString()}
                     </span>
                     {token.lastUsedAt && (
-                      <span>Last used {new Date(token.lastUsedAt).toLocaleDateString()}</span>
+                      <span>{tr('Last used')} {new Date(token.lastUsedAt).toLocaleDateString()}</span>
                     )}
                     {token.expiresAt && (
-                      <span>Expires {new Date(token.expiresAt).toLocaleDateString()}</span>
+                      <span>{tr('Expires')} {new Date(token.expiresAt).toLocaleDateString()}</span>
                     )}
                     <span className="text-[var(--brand-500)]">{token.scopes?.join(', ')}</span>
                   </div>
@@ -200,7 +202,7 @@ export default function TokensPage() {
                   onClick={() => handleRevoke(token.id)}
                   disabled={revokeToken.isPending}
                   className="text-[var(--text-tertiary)] hover:text-red-500 transition-colors p-1"
-                  title="Revoke token"
+                  title={tr('Revoke token')}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

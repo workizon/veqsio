@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { create } from 'zustand'
 import { useEffect, useRef, useState } from 'react'
 import { X, CheckCircle2, AlertCircle, Info, AlertTriangle, Undo2 } from 'lucide-react'
@@ -59,6 +61,8 @@ const colors = {
 }
 
 function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) => void }) {
+  const { tr } = useI18n();
+
   const duration = toast.duration ?? (toast.undo ? UNDO_TOAST_MS : DEFAULT_TOAST_MS)
   const [progress, setProgress] = useState(1)
   const countdownRef = useRef<Countdown | null>(null)
@@ -136,7 +140,7 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
         <button
           type="button"
           onClick={() => close('dismiss')}
-          aria-label="Dismiss notification"
+          aria-label={tr('Dismiss notification')}
           className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]"
         >
           <X className="w-4 h-4" aria-hidden="true" />
@@ -152,6 +156,8 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
 }
 
 export function ToastContainer() {
+  const { tr } = useI18n();
+
   const toasts = useToastStore((state) => state.toasts)
   const removeToast = useToastStore((state) => state.removeToast)
 
@@ -161,7 +167,7 @@ export function ToastContainer() {
       aria-live="polite"
       aria-relevant="additions"
       role="region"
-      aria-label="Notifications"
+      aria-label={tr('Notifications')}
     >
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />

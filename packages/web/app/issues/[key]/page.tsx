@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { saveIssueOffline } from '@/lib/offline-cache'
 import { MilestonesField } from '@/components/issue/milestones-field'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -44,6 +46,8 @@ function scrollToId(id: string) {
  * pure logic in lib/issue-view.ts. All hooks run before any early return (Rules of Hooks).
  */
 export default function IssueDetailPage() {
+  const { tr } = useI18n();
+
   const { key } = useParams() as { key: string }
   const { data: issue, isLoading, error } = useIssue(key)
   // offline reading (opt-in in Personal settings): keep the text of the issue that was just read
@@ -86,13 +90,13 @@ export default function IssueDetailPage() {
       { key, fields: { assignee: { id: myself.id } }, lookup: { users: [{ id: myself.id, displayName: myself.displayName || myself.name }] } },
       {
         onSuccess: () => {
-          if (previous?.id === myself.id) { toast('Already assigned to you', 'info'); return }
+          if (previous?.id === myself.id) { toast(tr('Already assigned to you'), 'info'); return }
           undoableAction({
-            message: 'Assigned to you',
+            message: tr('Assigned to you'),
             undo: () => updateIssue.mutateAsync({ key, fields: { assignee: previous ? { id: previous.id } : null }, lookup: previous ? { users: [{ id: previous.id, displayName: previous.displayName }] } : undefined }).then(() => undefined),
           })
         },
-        onError: (e: any) => toast(e?.message || 'Failed to assign', 'error'),
+        onError: (e: any) => toast(e?.message || tr('Failed to assign'), 'error'),
       },
     )
   }
@@ -104,7 +108,7 @@ export default function IssueDetailPage() {
       const next = !issue?.fields.flagged
       updateIssue.mutate(
         { key, fields: { flagged: next } },
-        { onSuccess: () => toast(next ? 'Flagged as an impediment' : 'Flag removed', 'success'), onError: (e: any) => toast(e?.message || 'Could not change the flag', 'error') },
+        { onSuccess: () => toast(next ? tr('Flagged as an impediment') : tr('Flag removed'), 'success'), onError: (e: any) => toast(e?.message || tr('Could not change the flag'), 'error') },
       )
     },
     comment: () => activityRef.current?.focusComment(),
@@ -144,29 +148,29 @@ export default function IssueDetailPage() {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center h-96 gap-4 text-center" role="alert">
-          <div className="text-body text-[var(--text-primary)]">{error?.message || 'Issue not found'}</div>
-          <Link href="/issues" className="veqsio-btn-secondary">Back to issues</Link>
+          <div className="text-body text-[var(--text-primary)]">{error?.message || tr('Issue not found')}</div>
+          <Link href="/issues" className="veqsio-btn-secondary">{tr('Back to issues')}</Link>
         </div>
       </AppLayout>
     )
   }
 
   const operations: QuickOperation[] = [
-    { id: 'assign', label: 'Assign', hint: 'A', run: actions.assign },
-    { id: 'assign-me', label: 'Assign to me', hint: 'I', run: actions.assignToMe },
-    { id: 'flag', label: issue.fields.flagged ? 'Remove flag' : 'Add flag', hint: 'F', run: actions.flag },
-    { id: 'comment', label: 'Comment', hint: 'M', run: actions.comment },
-    { id: 'labels', label: 'Edit labels', hint: 'L', run: actions.labels },
-    { id: 'description', label: 'Edit description', hint: 'E', run: actions.editDescription },
-    { id: 'command', label: 'Command line', hint: 'Ctrl+Alt+J', run: () => useCommandLineStore.getState().openBar() },
-    { id: 'status', label: 'Change status', run: () => headerRef.current?.openStatus() },
-    { id: 'attach', label: 'Attach files', run: uploader.open },
-    ...(issue.fields.issuetype?.subtask ? [] : [{ id: 'subtask', label: 'Create sub-task', run: () => childrenRef.current?.focusAdd() }]),
-    { id: 'link', label: 'Link issue', run: () => linksRef.current?.openAdd() },
-    { id: 'clone', label: 'Clone', run: () => setDialog('clone') },
-    { id: 'move', label: 'Move', run: () => setDialog('move') },
-    { id: 'change-type', label: 'Change type', run: () => setDialog('change-type') },
-    { id: 'delete', label: 'Delete', run: () => setDialog('delete') },
+    { id: 'assign', label: tr('Assign'), hint: 'A', run: actions.assign },
+    { id: 'assign-me', label: tr('Assign to me'), hint: 'I', run: actions.assignToMe },
+    { id: 'flag', label: issue.fields.flagged ? tr('Remove flag') : tr('Add flag'), hint: 'F', run: actions.flag },
+    { id: 'comment', label: tr('Comment'), hint: 'M', run: actions.comment },
+    { id: 'labels', label: tr('Edit labels'), hint: 'L', run: actions.labels },
+    { id: 'description', label: tr('Edit description'), hint: 'E', run: actions.editDescription },
+    { id: 'command', label: tr('Command line'), hint: 'Ctrl+Alt+J', run: () => useCommandLineStore.getState().openBar() },
+    { id: 'status', label: tr('Change status'), run: () => headerRef.current?.openStatus() },
+    { id: 'attach', label: tr('Attach files'), run: uploader.open },
+    ...(issue.fields.issuetype?.subtask ? [] : [{ id: 'subtask', label: tr('Create sub-task'), run: () => childrenRef.current?.focusAdd() }]),
+    { id: 'link', label: tr('Link issue'), run: () => linksRef.current?.openAdd() },
+    { id: 'clone', label: tr('Clone'), run: () => setDialog('clone') },
+    { id: 'move', label: tr('Move'), run: () => setDialog('move') },
+    { id: 'change-type', label: tr('Change type'), run: () => setDialog('change-type') },
+    { id: 'delete', label: tr('Delete'), run: () => setDialog('delete') },
   ]
 
   return (
@@ -180,34 +184,34 @@ export default function IssueDetailPage() {
           multiple
           className="hidden"
           tabIndex={-1}
-          aria-label="Attach files"
+          aria-label={tr('Attach files')}
           onChange={(e) => void uploader.upload(e.target.files)}
         />
 
         {neighbours && (
-          <nav aria-label="Issues in your list" className={`flex items-center gap-2 text-sm text-[var(--text-secondary)] ${panelCollapsed ? '' : 'lg:hidden'}`}>
+          <nav aria-label={tr('Issues in your list')} className={`flex items-center gap-2 text-sm text-[var(--text-secondary)] ${panelCollapsed ? '' : 'lg:hidden'}`}>
             <button
               type="button"
               className="veqsio-btn-secondary px-2 py-1 disabled:opacity-40"
               disabled={!neighbours.prev}
               onClick={() => step(neighbours.prev)}
-              title={neighbours.prev ? `Previous: ${neighbours.prev} ([)` : 'This is the first issue'}
-              aria-label="Previous issue in list"
+              title={neighbours.prev ? tr('Previous: {key} ([)', { key: neighbours.prev }) : tr('This is the first issue')}
+              aria-label={tr('Previous issue in list')}
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span data-testid="issue-position" aria-live="polite">{neighbours.position} of {neighbours.total}</span>
+            <span data-testid="issue-position" aria-live="polite">{neighbours.position} {tr('of')} {neighbours.total}</span>
             <button
               type="button"
               className="veqsio-btn-secondary px-2 py-1 disabled:opacity-40"
               disabled={!neighbours.next}
               onClick={() => step(neighbours.next)}
-              title={neighbours.next ? `Next: ${neighbours.next} (])` : 'This is the last issue'}
-              aria-label="Next issue in list"
+              title={neighbours.next ? tr('Next: {key} (])', { key: neighbours.next }) : tr('This is the last issue')}
+              aria-label={tr('Next issue in list')}
             >
               <ChevronRight className="w-4 h-4" />
             </button>
-            <Link href="/issues" className="ml-1 text-caption text-[var(--text-tertiary)] hover:underline">Back to list</Link>
+            <Link href="/issues" className="ml-1 text-caption text-[var(--text-tertiary)] hover:underline">{tr('Back to list')}</Link>
           </nav>
         )}
 
@@ -226,13 +230,13 @@ export default function IssueDetailPage() {
 
         {viewers.length > 0 && (
           <div className="flex items-center gap-2 text-caption text-[var(--text-tertiary)]">
-            <span>Also viewing</span>
+            <span>{tr('Also viewing')}</span>
             <PresenceAvatars users={viewers} />
           </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-6 items-start">
-          <main className="space-y-8 min-w-0" aria-label="Issue content">
+          <main className="space-y-8 min-w-0" aria-label={tr('Issue content')}>
             <DescriptionSection ref={descriptionRef} issueKey={key} description={issue.fields.description} resolveAttachment={resolveAttachment} />
             <ChildIssues ref={childrenRef} issue={issue} />
             <LinkedIssues ref={linksRef} issue={issue} />
@@ -254,7 +258,7 @@ export default function IssueDetailPage() {
                   value={issue.fields.storyPoints}
                   onSave={async (storyPoints) => {
                     await updateIssue.mutateAsync({ key, fields: { storyPoints } })
-                    toast('Story points updated', 'success')
+                    toast(tr('Story points updated'), 'success')
                   }}
                 />
               </div>

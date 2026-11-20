@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useCallback, useEffect, useState } from 'react'
 
 interface Prefs {
@@ -34,6 +36,8 @@ const Switch = ({ checked, onChange, label, hint }: { checked: boolean; onChange
  * push on in. Every change is saved at once and announced to screen readers.
  */
 export function PushPreferences() {
+  const { tr } = useI18n();
+
   const [prefs, setPrefs] = useState<Prefs | null>(null)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
@@ -56,15 +60,15 @@ export function PushPreferences() {
     } catch (e: any) { setError(e?.message || 'Could not save') }
   }, [])
 
-  if (error && !prefs) return <p role="alert" className="text-xs text-[var(--error)] mt-3">{error}</p>
-  if (!prefs) return <p className="text-xs text-[var(--text-tertiary)] mt-3" aria-busy="true">Loading your push settings…</p>
+  if (error && !prefs) return <p role="alert" className="text-xs text-[var(--error)] mt-3">{tr(error)}</p>
+  if (!prefs) return <p className="text-xs text-[var(--text-tertiary)] mt-3" aria-busy="true">{tr('Loading your push settings…')}</p>
 
   const card = 'rounded-xl border border-[var(--surface-3)] bg-[var(--surface-0)] p-4 sm:p-5'
   return (
-    <div className="mt-4 space-y-4" aria-label="Push notification settings">
+    <div className="mt-4 space-y-4" aria-label={tr('Push notification settings')}>
       <fieldset className={card}>
-        <legend className="sr-only">Notify me when</legend>
-        <h3 className="text-sm font-semibold mb-1" aria-hidden="true">Notify me when</h3>
+        <legend className="sr-only">{tr('Notify me when')}</legend>
+        <h3 className="text-sm font-semibold mb-1" aria-hidden="true">{tr('Notify me when')}</h3>
         <div className="divide-y divide-[var(--surface-3)]">
           {prefs.kinds.map((k) => (
             <Switch key={k.key} label={k.label} checked={prefs.events[k.key] !== false} onChange={(v) => void save({ events: { [k.key]: v } })} />
@@ -73,26 +77,23 @@ export function PushPreferences() {
       </fieldset>
 
       <fieldset className={card}>
-        <legend className="sr-only">Quiet hours</legend>
-        <h3 className="text-sm font-semibold mb-1" aria-hidden="true">Quiet hours</h3>
-        <Switch label="Do not send push notifications during these hours" checked={prefs.quietEnabled}
+        <legend className="sr-only">{tr('Quiet hours')}</legend>
+        <h3 className="text-sm font-semibold mb-1" aria-hidden="true">{tr('Quiet hours')}</h3>
+        <Switch label={tr('Do not send push notifications during these hours')} checked={prefs.quietEnabled}
           onChange={(v) => void save({ quietEnabled: v, ...(v && prefs.timezone === 'UTC' ? { timezone: browserZone() } : {}) })} />
         <div className={`mt-2 grid grid-cols-2 gap-3 transition-opacity ${prefs.quietEnabled ? '' : 'opacity-50'}`}>
-          <label className="text-xs font-medium text-[var(--text-secondary)]">From
-            <input type="time" className="veqsio-input block w-full mt-1" disabled={!prefs.quietEnabled} value={prefs.quietStart} onChange={(e) => { if (e.target.value) void save({ quietStart: e.target.value }) }} />
+          <label className="text-xs font-medium text-[var(--text-secondary)]">{tr('From')} <input type="time" className="veqsio-input block w-full mt-1" disabled={!prefs.quietEnabled} value={prefs.quietStart} onChange={(e) => { if (e.target.value) void save({ quietStart: e.target.value }) }} />
           </label>
-          <label className="text-xs font-medium text-[var(--text-secondary)]">To
-            <input type="time" className="veqsio-input block w-full mt-1" disabled={!prefs.quietEnabled} value={prefs.quietEnd} onChange={(e) => { if (e.target.value) void save({ quietEnd: e.target.value }) }} />
+          <label className="text-xs font-medium text-[var(--text-secondary)]">{tr('To')} <input type="time" className="veqsio-input block w-full mt-1" disabled={!prefs.quietEnabled} value={prefs.quietEnd} onChange={(e) => { if (e.target.value) void save({ quietEnd: e.target.value }) }} />
           </label>
-          <label className="col-span-2 text-xs font-medium text-[var(--text-secondary)]">Time zone
-            <select className="veqsio-input block w-full mt-1" disabled={!prefs.quietEnabled} value={prefs.timezone} onChange={(e) => void save({ timezone: e.target.value })}>
+          <label className="col-span-2 text-xs font-medium text-[var(--text-secondary)]">{tr('Time zone')} <select className="veqsio-input block w-full mt-1" disabled={!prefs.quietEnabled} value={prefs.timezone} onChange={(e) => void save({ timezone: e.target.value })}>
               {zones(prefs.timezone).map((z) => <option key={z} value={z}>{z}</option>)}
             </select>
           </label>
         </div>
-        <p className="text-xs text-[var(--text-tertiary)] mt-3">The window may cross midnight, for example 22:00 to 07:00. On-call pages are still delivered during quiet hours; switch that one off above if you do not want them at all.</p>
+        <p className="text-xs text-[var(--text-tertiary)] mt-3">{tr('The window may cross midnight, for example 22:00 to 07:00. On-call pages are still delivered during quiet hours; switch that one off above if you do not want them at all.')}</p>
       </fieldset>
-      <p role="status" aria-live="polite" className={error ? 'text-xs text-[var(--error)]' : 'text-xs text-[var(--text-tertiary)] min-h-[1rem]'}>{error || message}</p>
+      <p role="status" aria-live="polite" className={error ? 'text-xs text-[var(--error)]' : 'text-xs text-[var(--text-tertiary)] min-h-[1rem]'}>{tr(error || message)}</p>
     </div>
   )
 }

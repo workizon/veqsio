@@ -15,6 +15,7 @@ export function createTestDb(sql: ReturnType<typeof postgres>) {
 
 export async function resetTestDb(sql: ReturnType<typeof postgres>) {
   const tables = [
+    'inbox_notifications',
     'ai_usage',
     'ai_settings',
     'migration_external_refs',

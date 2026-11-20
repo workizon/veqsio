@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { AgentBadge } from '@/components/agent-badge'
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
@@ -30,9 +32,14 @@ export interface DetailsHandle {
 
 const PICKER = 'w-[min(18rem,calc(100vw-2rem))]'
 const optionClass = 'w-full flex items-center gap-2 px-3 py-2 text-left text-body-sm text-[var(--text-primary)] hover:bg-[var(--surface-2)] focus-visible:bg-[var(--surface-2)] focus-visible:outline-none'
-const muted = <span className="text-[var(--text-tertiary)]">None</span>
+function Muted() {
+  const { tr } = useI18n()
+  return <span className="text-[var(--text-tertiary)]">{tr('None')}</span>
+}
 
 export const DetailsPanel = forwardRef<DetailsHandle, { issue: ApiIssue }>(function DetailsPanel({ issue }, ref) {
+  const { tr } = useI18n();
+
   const { fields } = issue
   const key = issue.key
   const projectKey = fields.project?.key || ''
@@ -55,13 +62,13 @@ export const DetailsPanel = forwardRef<DetailsHandle, { issue: ApiIssue }>(funct
       await update.mutateAsync({ key, fields: patch, lookup })
       if (undo) undoableAction({ message: undo.message, undo: () => update.mutateAsync({ key, fields: undo.patch, lookup: undo.lookup }).then(() => undefined) })
     } catch (err: any) {
-      toast(err?.message || 'Failed to update issue', 'error')
+      toast(err?.message || tr('Failed to update issue'), 'error')
     }
   }
 
   const assignToMe = () => {
     if (!myself) return
-    void save({ assignee: { id: myself.id } }, { users: [{ id: myself.id, displayName: myself.displayName || myself.name }] }, assigneeUndo('Assigned to you'))
+    void save({ assignee: { id: myself.id } }, { users: [{ id: myself.id, displayName: myself.displayName || myself.name }] }, assigneeUndo(tr('Assigned to you')))
   }
   const assigneeUndo = (message: string) => ({
     message,
@@ -71,9 +78,9 @@ export const DetailsPanel = forwardRef<DetailsHandle, { issue: ApiIssue }>(funct
   const assignedToMe = !!myself && fields.assignee?.id === myself.id
 
   return (
-    <aside aria-label="Issue details" className="space-y-3">
-      <CollapsibleSection id="details" title="Details">
-        <FieldRow label="Assignee" htmlFor="field-assignee">
+    <aside aria-label={tr('Issue details')} className="space-y-3">
+      <CollapsibleSection id="details" title={tr('Details')}>
+        <FieldRow label={tr('Assignee')} htmlFor="field-assignee">
           <AssigneeField
             open={assigneeOpen}
             onOpenChange={setAssigneeOpen}
@@ -81,77 +88,76 @@ export const DetailsPanel = forwardRef<DetailsHandle, { issue: ApiIssue }>(funct
             myself={myself ? { id: myself.id, displayName: myself.displayName || myself.name } : undefined}
             onPick={(u) => {
               setAssigneeOpen(false)
-              void save({ assignee: u ? { id: u.id } : null }, u ? { users: [u] } : undefined, assigneeUndo(u ? `Assigned to ${u.displayName}` : 'Assignee removed'))
+              void save({ assignee: u ? { id: u.id } : null }, u ? { users: [u] } : undefined, assigneeUndo(u ? tr('Assigned to {name}', { name: u.displayName }) : tr('Assignee removed')))
             }}
           />
           {!assignedToMe && myself && (
             <button type="button" onClick={assignToMe} className="text-caption text-[var(--brand-500)] hover:underline ml-0.5 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]">
-              Assign to me
-            </button>
+              {tr('Assign to me')} </button>
           )}
         </FieldRow>
 
-        <FieldRow label="Reporter">
+        <FieldRow label={tr('Reporter')}>
           <span className="flex items-center gap-2 py-1">
-            <Avatar name={fields.reporter?.displayName || 'Unknown'} size="sm" />
-            <span className="truncate">{fields.reporter?.displayName || 'Unknown'}</span>
+            <Avatar name={fields.reporter?.displayName || tr('Unknown')} size="sm" />
+            <span className="truncate">{fields.reporter?.displayName || tr('Unknown')}</span>
           </span>
         </FieldRow>
 
-        <FieldRow label="Labels" htmlFor="field-labels">
-          <LabelsField open={labelsOpen} onOpenChange={setLabelsOpen} labels={fields.labels || []} onChange={(labels) => void save({ labels }, undefined, { message: 'Labels updated', patch: { labels: fields.labels || [] } })} />
+        <FieldRow label={tr('Labels')} htmlFor="field-labels">
+          <LabelsField open={labelsOpen} onOpenChange={setLabelsOpen} labels={fields.labels || []} onChange={(labels) => void save({ labels }, undefined, { message: tr('Labels updated'), patch: { labels: fields.labels || [] } })} />
         </FieldRow>
 
-        <FieldRow label="Priority" htmlFor="field-priority">
-          <PriorityField priority={fields.priority} onPick={(p) => void save({ priority: { id: p.id } }, { priorities: [p] }, fields.priority ? { message: `Priority set to ${p.name}`, patch: { priority: { id: fields.priority.id } }, lookup: { priorities: [fields.priority] } } : undefined)} />
+        <FieldRow label={tr('Priority')} htmlFor="field-priority">
+          <PriorityField priority={fields.priority} onPick={(p) => void save({ priority: { id: p.id } }, { priorities: [p] }, fields.priority ? { message: tr('Priority set to {name}', { name: p.name }), patch: { priority: { id: fields.priority.id } }, lookup: { priorities: [fields.priority] } } : undefined)} />
         </FieldRow>
 
         {fields.resolution && (
-          <FieldRow label="Resolution"><span className="py-1 inline-block">{fields.resolution.name}</span></FieldRow>
+          <FieldRow label={tr('Resolution')}><span className="py-1 inline-block">{fields.resolution.name}</span></FieldRow>
         )}
 
         <SecurityRow projectKey={projectKey} level={fields.security} onChange={(security) => void save({ security })} />
 
-        <FieldRow label="Parent" htmlFor="field-parent">
+        <FieldRow label={tr('Parent')} htmlFor="field-parent">
           <ParentField issue={issue} onSave={(id) => void save({ parent: id === null ? null : { id } })} />
         </FieldRow>
 
-        <FieldRow label="Sprint">
+        <FieldRow label={tr('Sprint')}>
           <span className="py-1 inline-block">
             {fields.sprint ? (
               <span className="flex items-center gap-1.5">
                 {fields.sprint.name}
                 {fields.sprint.state && <Lozenge tone={fields.sprint.state === 'active' ? 'brand' : 'neutral'}>{fields.sprint.state}</Lozenge>}
               </span>
-            ) : muted}
+            ) : <Muted />}
           </span>
         </FieldRow>
 
-        <FieldRow label="Fix versions" htmlFor="field-fixversions">
+        <FieldRow label={tr('Fix versions')} htmlFor="field-fixversions">
           <VersionsField
             id="field-fixversions"
-            label="Fix versions"
+            label={tr('Fix versions')}
             projectKey={projectKey}
             selected={fields.fixVersions || []}
             onChange={(ids, all) => void save({ fixVersions: ids }, { versions: all })}
           />
         </FieldRow>
 
-        <FieldRow label="Affects versions" htmlFor="field-versions">
+        <FieldRow label={tr('Affects versions')} htmlFor="field-versions">
           <VersionsField
             id="field-versions"
-            label="Affects versions"
+            label={tr('Affects versions')}
             projectKey={projectKey}
             selected={fields.versions || []}
             onChange={(ids, all) => void save({ versions: ids }, { versions: all })}
           />
         </FieldRow>
 
-        <FieldRow label="Components" htmlFor="field-components">
+        <FieldRow label={tr('Components')} htmlFor="field-components">
           <ComponentsField projectKey={projectKey} selected={fields.components || []} onChange={(ids, all) => void save({ components: ids }, { components: all })} />
         </FieldRow>
 
-        <FieldRow label="Due date" htmlFor="field-duedate">
+        <FieldRow label={tr('Due date')} htmlFor="field-duedate">
           <DueDateField value={fields.duedate} onChange={(v) => void save({ duedate: v })} />
         </FieldRow>
       </CollapsibleSection>
@@ -159,31 +165,31 @@ export const DetailsPanel = forwardRef<DetailsHandle, { issue: ApiIssue }>(funct
       <PeopleSection issueKey={key} />
 
       <CustomFieldsSection issue={issue} />
-      <CollapsibleSection id="dates" title="Dates">
-        <FieldRow label="Created"><RelativeTime date={fields.created} className="py-1 inline-block" /></FieldRow>
-        <FieldRow label="Updated"><RelativeTime date={fields.updated} className="py-1 inline-block" /></FieldRow>
-        {fields.resolved && <FieldRow label="Resolved"><RelativeTime date={fields.resolved} className="py-1 inline-block" /></FieldRow>}
+      <CollapsibleSection id="dates" title={tr('Dates')}>
+        <FieldRow label={tr('Created')}><RelativeTime date={fields.created} className="py-1 inline-block" /></FieldRow>
+        <FieldRow label={tr('Updated')}><RelativeTime date={fields.updated} className="py-1 inline-block" /></FieldRow>
+        {fields.resolved && <FieldRow label={tr('Resolved')}><RelativeTime date={fields.resolved} className="py-1 inline-block" /></FieldRow>}
       </CollapsibleSection>
 
       <TimeTrackingSection issue={issue} onSaveEstimate={(seconds) => void save({ timeestimate: seconds })} />
 
       {requestMeta.data?.isRequest && requestMeta.data.staff && (
-        <CollapsibleSection id="customer-request" title="Customer request">
+        <CollapsibleSection id="customer-request" title={tr('Customer request')}>
           <RequestActions issueKey={key} meta={requestMeta.data} />
         </CollapsibleSection>
       )}
 
       {requestMeta.data?.isRequest && requestMeta.data.staff && (
-        <CollapsibleSection id="sla" title="SLA">
+        <CollapsibleSection id="sla" title={tr('SLA')}>
           {requestMeta.data.sla && requestMeta.data.sla.length > 0 ? (
             <div className="flex flex-wrap gap-1.5 py-1">{requestMeta.data.sla.map((x) => <SlaBadge key={x.slaId} sla={x} />)}</div>
           ) : (
-            <p className="text-body-sm text-[var(--text-tertiary)] py-1">No SLA applies to this request.</p>
+            <p className="text-body-sm text-[var(--text-tertiary)] py-1">{tr('No SLA applies to this request.')}</p>
           )}
         </CollapsibleSection>
       )}
 
-      <CollapsibleSection id="development" title="Development" defaultOpen={false}>
+      <CollapsibleSection id="development" title={tr('Development')} defaultOpen={false}>
         <DevelopmentPanel issueKey={key} />
       </CollapsibleSection>
     </aside>
@@ -195,20 +201,22 @@ export const DetailsPanel = forwardRef<DetailsHandle, { issue: ApiIssue }>(funct
 /* ------------------------------------------------------------------ */
 
 function PeopleSection({ issueKey }: { issueKey: string }) {
+  const { tr } = useI18n();
+
   const { data: watchers, isLoading: watchersLoading } = useIssueWatchers(issueKey)
   const { data: votes, isLoading: votesLoading } = useIssueVotes(issueKey)
   const toggleWatch = useToggleWatch()
   const toggleVote = useToggleVote()
   const watching = !!watchers?.isWatching
   return (
-    <CollapsibleSection id="people" title="People">
-      <FieldRow label="Watchers">
+    <CollapsibleSection id="people" title={tr('People')}>
+      <FieldRow label={tr('Watchers')}>
         {watchersLoading ? <Skeleton className="h-5 w-24 mt-1" /> : (
           <div className="py-1 space-y-1">
-            {(watchers?.watchers || []).length === 0 ? <span className="text-[var(--text-tertiary)]">No watchers</span> : (
+            {(watchers?.watchers || []).length === 0 ? <span className="text-[var(--text-tertiary)]">{tr('No watchers')}</span> : (
               <ul className="space-y-1">
                 {(watchers?.watchers || []).map((w) => (
-                  <li key={w.id} className="flex items-center gap-2"><Avatar name={w.displayName || 'Unknown'} size="sm" /><span className="truncate">{w.displayName}</span></li>
+                  <li key={w.id} className="flex items-center gap-2"><Avatar name={w.displayName || tr('Unknown')} size="sm" /><span className="truncate">{w.displayName}</span></li>
                 ))}
               </ul>
             )}
@@ -218,13 +226,13 @@ function PeopleSection({ issueKey }: { issueKey: string }) {
               disabled={toggleWatch.isPending}
               className="flex items-center gap-1 text-caption text-[var(--brand-500)] hover:underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]"
             >
-              <Eye className="w-3.5 h-3.5" aria-hidden="true" /> {watching ? 'Stop watching' : 'Start watching'}
+              <Eye className="w-3.5 h-3.5" aria-hidden="true" /> {watching ? tr('Stop watching') : tr('Start watching')}
               <span className="text-[var(--text-tertiary)]">({watchers?.watchCount ?? 0})</span>
             </button>
           </div>
         )}
       </FieldRow>
-      <FieldRow label="Votes">
+      <FieldRow label={tr('Votes')}>
         {votesLoading ? <Skeleton className="h-5 w-24 mt-1" /> : (
           <div className="py-1">
             <button
@@ -235,7 +243,7 @@ function PeopleSection({ issueKey }: { issueKey: string }) {
               className={`flex items-center gap-1.5 text-body-sm rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)] ${votes?.hasVoted ? 'text-[var(--brand-500)]' : 'text-[var(--text-primary)] hover:text-[var(--brand-500)]'}`}
             >
               <ThumbsUp className="w-3.5 h-3.5" aria-hidden="true" />
-              {votes?.votes ?? 0} {votes?.hasVoted ? '(you voted)' : ''}
+              {votes?.votes ?? 0} {votes?.hasVoted ? tr('(you voted)') : ''}
             </button>
           </div>
         )}
@@ -258,33 +266,35 @@ export function AssigneeField({
   myself?: { id: number; displayName: string }
   onPick: (u: { id: number; displayName: string } | null) => void
 }) {
+  const { tr } = useI18n();
+
   const [search, setSearch] = useState('')
   const { data: results, isFetching } = useUserSearch(search)
   return (
     <Popover
       open={open}
       onOpenChange={(o) => { onOpenChange(o); if (o) setSearch('') }}
-      label="Assign issue"
+      label={tr('Assign issue')}
       align="right"
       panelClassName={`${PICKER} py-2`}
       trigger={(p) => (
-        <InlineValueButton id={id} {...p} aria-label={`Assignee: ${assignee?.displayName || 'Unassigned'}. Change assignee`}>
+        <InlineValueButton id={id} {...p} aria-label={tr('Assignee: {name}. Change assignee', { name: assignee?.displayName || tr('Unassigned') })}>
           {assignee ? (
             <span className="flex items-center gap-2"><Avatar name={assignee.displayName} size="sm" /><span className="truncate">{assignee.displayName}</span>{assignee.isAgent && <AgentBadge />}</span>
           ) : (
-            <span className="text-[var(--text-tertiary)]">Unassigned</span>
+            <span className="text-[var(--text-tertiary)]">{tr('Unassigned')}</span>
           )}
         </InlineValueButton>
       )}
     >
       <div className="px-3 pb-2">
-        <label htmlFor={`${id}-search`} className="sr-only">Search users</label>
-        <input id={`${id}-search`} autoFocus value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search users..." className="veqsio-input w-full text-sm" />
+        <label htmlFor={`${id}-search`} className="sr-only">{tr('Search users')}</label>
+        <input id={`${id}-search`} autoFocus value={search} onChange={(e) => setSearch(e.target.value)} placeholder={tr('Search users...')} className="veqsio-input w-full text-sm" />
       </div>
       <ul className="max-h-56 overflow-y-auto">
-        <li><button type="button" className={optionClass} onClick={() => onPick(null)}>Unassigned</button></li>
+        <li><button type="button" className={optionClass} onClick={() => onPick(null)}>{tr('Unassigned')}</button></li>
         {myself && (
-          <li><button type="button" className={optionClass} onClick={() => onPick(myself)}><Avatar name={myself.displayName} size="sm" />{myself.displayName} <span className="text-[var(--text-tertiary)]">(me)</span></button></li>
+          <li><button type="button" className={optionClass} onClick={() => onPick(myself)}><Avatar name={myself.displayName} size="sm" />{myself.displayName} <span className="text-[var(--text-tertiary)]">{tr('(me)')}</span></button></li>
         )}
         {search && isFetching && <li className="px-3 py-2"><Skeleton className="h-5 w-full" /></li>}
         {(results || []).filter((u) => u.id !== myself?.id).map((u) => (
@@ -294,7 +304,7 @@ export function AssigneeField({
             </button>
           </li>
         ))}
-        {search && !isFetching && (results || []).length === 0 && <li className="px-3 py-2 text-body-sm text-[var(--text-tertiary)]">No users found</li>}
+        {search && !isFetching && (results || []).length === 0 && <li className="px-3 py-2 text-body-sm text-[var(--text-tertiary)]">{tr('No users found')}</li>}
       </ul>
     </Popover>
   )
@@ -307,21 +317,23 @@ export function PriorityField({
   priority: ApiIssue['fields']['priority']
   onPick: (p: { id: number; name: string; color?: string }) => void
 }) {
+  const { tr } = useI18n();
+
   const [open, setOpen] = useState(false)
   const { data: priorities, isLoading } = usePriorities()
   return (
     <Popover
       open={open}
       onOpenChange={setOpen}
-      label="Set priority"
+      label={tr('Set priority')}
       align="right"
       haspopup="listbox"
       panelClassName={`${PICKER} py-1`}
       trigger={(p) => (
-        <InlineValueButton id={id} {...p} aria-label={`Priority: ${priority?.name || 'None'}. Change priority`}>
+        <InlineValueButton id={id} {...p} aria-label={tr('Priority: {name}. Change priority', { name: priority?.name || tr('None') })}>
           {priority ? (
             <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: priority.color || 'var(--text-tertiary)' }} aria-hidden="true" />{priority.name}</span>
-          ) : muted}
+          ) : <Muted />}
         </InlineValueButton>
       )}
     >
@@ -357,11 +369,13 @@ export function LabelsField({
   labels: string[]
   onChange: (labels: string[]) => void
 }) {
+  const { tr } = useI18n();
+
   const [draft, setDraft] = useState('')
   const add = () => {
     const v = draft.trim().replace(/\s+/g, '-')
     if (!v) return
-    if (labels.includes(v)) { toast('Label already exists', 'info'); return }
+    if (labels.includes(v)) { toast(tr('Label already exists'), 'info'); return }
     onChange([...labels, v])
     setDraft('')
   }
@@ -369,14 +383,14 @@ export function LabelsField({
     <Popover
       open={open}
       onOpenChange={onOpenChange}
-      label="Edit labels"
+      label={tr('Edit labels')}
       align="right"
       panelClassName={`${PICKER} p-3 space-y-2`}
       trigger={(p) => (
-        <InlineValueButton id={id} {...p} aria-label="Edit labels">
+        <InlineValueButton id={id} {...p} aria-label={tr('Edit labels')}>
           {labels.length > 0 ? (
             <span className="flex flex-wrap gap-1">{labels.map((l) => <Lozenge key={l}>{l}</Lozenge>)}</span>
-          ) : muted}
+          ) : <Muted />}
         </InlineValueButton>
       )}
     >
@@ -386,7 +400,7 @@ export function LabelsField({
             <li key={l}>
               <span className="inline-flex items-center gap-1 rounded bg-[var(--surface-2)] px-1.5 py-0.5 text-xs font-medium text-[var(--text-secondary)]">
                 {l}
-                <button type="button" onClick={() => onChange(labels.filter((x) => x !== l))} aria-label={`Remove label ${l}`} className="hover:text-[var(--error)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)] rounded">
+                <button type="button" onClick={() => onChange(labels.filter((x) => x !== l))} aria-label={tr('Remove label {name}', { name: l })} className="hover:text-[var(--error)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)] rounded">
                   <X className="w-3 h-3" aria-hidden="true" />
                 </button>
               </span>
@@ -395,9 +409,9 @@ export function LabelsField({
         </ul>
       )}
       <form onSubmit={(e) => { e.preventDefault(); add() }} className="flex gap-2">
-        <label htmlFor={`${id}-input`} className="sr-only">New label</label>
-        <input id={`${id}-input`} autoFocus value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Add a label and press Enter" className="veqsio-input w-full text-sm" />
-        <button type="submit" className="veqsio-btn-primary text-sm" disabled={!draft.trim()}>Add</button>
+        <label htmlFor={`${id}-input`} className="sr-only">{tr('New label')}</label>
+        <input id={`${id}-input`} autoFocus value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={tr('Add a label and press Enter')} className="veqsio-input w-full text-sm" />
+        <button type="submit" className="veqsio-btn-primary text-sm" disabled={!draft.trim()}>{tr('Add')}</button>
       </form>
     </Popover>
   )
@@ -430,7 +444,7 @@ function MultiPicker({
       panelClassName={`${PICKER} p-2`}
       trigger={(p) => (
         <InlineValueButton id={id} {...p} aria-label={`Edit ${label.toLowerCase()}`}>
-          {selected.length > 0 ? <span className="flex flex-wrap gap-1">{selected.map((s) => <Lozenge key={s.id}>{s.name}</Lozenge>)}</span> : muted}
+          {selected.length > 0 ? <span className="flex flex-wrap gap-1">{selected.map((s) => <Lozenge key={s.id}>{s.name}</Lozenge>)}</span> : <Muted />}
         </InlineValueButton>
       )}
     >
@@ -462,16 +476,21 @@ function MultiPicker({
 }
 
 export function VersionsField(props: { id: string; label: string; projectKey: string; selected: Array<{ id: number; name: string }>; onChange: (ids: number[], all: Array<{ id: number; name: string }>) => void }) {
+  const { tr } = useI18n();
+
   const { data, isLoading } = useProjectVersions(props.projectKey)
-  return <MultiPicker id={props.id} label={props.label} selected={props.selected} options={(data || []).filter((v) => !v.archived)} loading={isLoading} onChange={props.onChange} emptyText="No versions in this project" />
+  return <MultiPicker id={props.id} label={props.label} selected={props.selected} options={(data || []).filter((v) => !v.archived)} loading={isLoading} onChange={props.onChange} emptyText={tr('No versions in this project')} />
 }
 
 export function ComponentsField(props: { id?: string; projectKey: string; selected: Array<{ id: number; name: string }>; onChange: (ids: number[], all: Array<{ id: number; name: string }>) => void }) {
+  const { tr } = useI18n();
+
   const { data, isLoading } = useProjectComponents(props.projectKey)
-  return <MultiPicker id={props.id ?? 'field-components'} label="Components" selected={props.selected} options={data || []} loading={isLoading} onChange={props.onChange} emptyText="No components in this project" />
+  return <MultiPicker id={props.id ?? 'field-components'} label={tr('Components')} selected={props.selected} options={data || []} loading={isLoading} onChange={props.onChange} emptyText={tr('No components in this project')} />
 }
 
 export function DueDateField({ value, onChange, id = 'field-duedate' }: { value: string | null; onChange: (v: string | null) => void; id?: string }) {
+  const { tr } = useI18n()
   const [editing, setEditing] = useState(false)
   if (editing) {
     return (
@@ -490,13 +509,15 @@ export function DueDateField({ value, onChange, id = 'field-duedate' }: { value:
   }
   const overdue = value ? new Date(`${value}T23:59:59`).getTime() < Date.now() : false
   return (
-    <InlineValueButton id={id} onClick={() => setEditing(true)} aria-label={`Due date: ${value || 'none'}. Change due date`}>
-      {value ? <span className={overdue ? 'text-[var(--error)]' : ''}>{new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}{overdue ? ' (overdue)' : ''}</span> : muted}
+    <InlineValueButton id={id} onClick={() => setEditing(true)} aria-label={tr('Due date: {value}. Change due date', { value: value || tr('none') })}>
+      {value ? <span className={overdue ? 'text-[var(--error)]' : ''}>{new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}{overdue ? tr(' (overdue)') : ''}</span> : <Muted />}
     </InlineValueButton>
   )
 }
 
 function ParentField({ issue, onSave }: { issue: ApiIssue; onSave: (id: number | null) => void }) {
+  const { tr } = useI18n();
+
   const [open, setOpen] = useState(false)
   const [keyText, setKeyText] = useState('')
   const [busy, setBusy] = useState(false)
@@ -520,25 +541,25 @@ function ParentField({ issue, onSave }: { issue: ApiIssue; onSave: (id: number |
     <Popover
       open={open}
       onOpenChange={setOpen}
-      label="Edit parent"
+      label={tr('Edit parent')}
       align="right"
       panelClassName={`${PICKER} p-3 space-y-2`}
       trigger={(p) => (
-        <InlineValueButton id="field-parent" {...p} aria-label="Edit parent">
+        <InlineValueButton id="field-parent" {...p} aria-label={tr('Edit parent')}>
           {parent ? (
             parent.key ? (
               <span className="block truncate"><Link href={`/issues/${parent.key}`} onClick={(e) => e.stopPropagation()} className="text-[var(--brand-500)] hover:underline font-mono">{parent.key}</Link> <span className="text-[var(--text-secondary)]">{parent.summary}</span></span>
-            ) : <span>Issue #{parent.id}</span>
-          ) : muted}
+            ) : <span>{tr('Issue #')}{parent.id}</span>
+          ) : <Muted />}
         </InlineValueButton>
       )}
     >
       <form onSubmit={(e) => { e.preventDefault(); void submit() }} className="space-y-2">
-        <label htmlFor="parent-key" className="text-caption text-[var(--text-secondary)] block">Parent issue key</label>
-        <input id="parent-key" ref={inputRef} autoFocus value={keyText} onChange={(e) => setKeyText(e.target.value)} placeholder="e.g. PROJ-12" className="veqsio-input w-full text-sm" />
+        <label htmlFor="parent-key" className="text-caption text-[var(--text-secondary)] block">{tr('Parent issue key')}</label>
+        <input id="parent-key" ref={inputRef} autoFocus value={keyText} onChange={(e) => setKeyText(e.target.value)} placeholder={tr('e.g. PROJ-12')} className="veqsio-input w-full text-sm" />
         <div className="flex items-center gap-2">
-          <button type="submit" disabled={busy || !keyText.trim()} className="veqsio-btn-primary text-sm disabled:opacity-50">Set parent</button>
-          {parent && <button type="button" onClick={() => { setOpen(false); onSave(null) }} className="veqsio-btn-secondary text-sm">Remove</button>}
+          <button type="submit" disabled={busy || !keyText.trim()} className="veqsio-btn-primary text-sm disabled:opacity-50">{tr('Set parent')}</button>
+          {parent && <button type="button" onClick={() => { setOpen(false); onSave(null) }} className="veqsio-btn-secondary text-sm">{tr('Remove')}</button>}
         </div>
       </form>
     </Popover>

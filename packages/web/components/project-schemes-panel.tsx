@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Spinner } from '@/components/spinner'
@@ -23,19 +25,21 @@ async function api<T>(url: string, init?: RequestInit): Promise<T> {
 
 /** Which configuration schemes this project uses (Jira's project settings overview). Changing one needs an administrator. */
 export function ProjectSchemesPanel({ projectKey }: { projectKey: string }) {
+  const { tr } = useI18n();
+
   const qc = useQueryClient()
   const url = `/rest/api/2/project/${encodeURIComponent(projectKey)}/schemes`
   const q = useQuery({ queryKey: ['project-schemes', projectKey], queryFn: () => api<{ schemes: Row[]; fieldConfigurationOverrides: number }>(url) })
   const save = useMutation({
     mutationFn: (v: { kind: string; schemeId: number | null }) => api<unknown>(url, { method: 'PUT', body: JSON.stringify(v) }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['project-schemes', projectKey] }); toast('Scheme changed', 'success') },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['project-schemes', projectKey] }); toast(tr('Scheme changed'), 'success') },
     onError: (e) => { toast((e as Error).message, 'error'); qc.invalidateQueries({ queryKey: ['project-schemes', projectKey] }) },
   })
   if (q.isLoading) return <Spinner />
   if (q.error) return <p role="alert" className="text-body-sm text-[var(--error)]">{(q.error as Error).message}</p>
   return (
     <div className="max-w-3xl space-y-3">
-      <p className="text-body-sm text-[var(--text-secondary)]">The schemes this project uses. Only system administrators can switch a scheme; schemes are shared by every project that uses them, so edit their contents in Administration.</p>
+      <p className="text-body-sm text-[var(--text-secondary)]">{tr('The schemes this project uses. Only system administrators can switch a scheme; schemes are shared by every project that uses them, so edit their contents in Administration.')}</p>
       <ul className="divide-y divide-[var(--surface-3)] rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)]">
         {(q.data?.schemes ?? []).map((s) => {
           const m = META[s.kind]
@@ -59,13 +63,13 @@ export function ProjectSchemesPanel({ projectKey }: { projectKey: string }) {
               ) : (
                 <span id={`scheme-${s.kind}`} className="w-64 text-body-sm">{s.current ?? 'None'}</span>
               )}
-              <Link href={m.admin} className="text-body-sm">Manage</Link>
+              <Link href={m.admin} className="text-body-sm">{tr('Manage')}</Link>
             </li>
           )
         })}
       </ul>
       {!!q.data?.fieldConfigurationOverrides && (
-        <p className="text-body-sm text-[var(--text-secondary)]">{q.data.fieldConfigurationOverrides} issue type(s) use a custom field configuration. <Link href="/admin?tab=field-configs">Manage</Link></p>
+        <p className="text-body-sm text-[var(--text-secondary)]">{q.data.fieldConfigurationOverrides} {tr('issue type(s) use a custom field configuration.')} <Link href="/admin?tab=field-configs">{tr('Manage')}</Link></p>
       )}
     </div>
   )

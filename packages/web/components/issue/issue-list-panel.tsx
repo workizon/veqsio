@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { ArrowDown, ArrowUp, ChevronDown, ChevronsLeft, ChevronsRight, ListChecks, Search } from 'lucide-react'
@@ -45,6 +47,8 @@ function usePanelSort(): [PanelSort | null, (s: PanelSort | null) => void] {
 
 /** "Order by <field> v  ^" as in Jira: a searchable field menu and an ascending / descending toggle. */
 function OrderBy({ sort, onChange }: { sort: PanelSort | null; onChange: (s: PanelSort | null) => void }) {
+  const { tr } = useI18n();
+
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
   const ref = useRef<HTMLDivElement>(null)
@@ -57,7 +61,7 @@ function OrderBy({ sort, onChange }: { sort: PanelSort | null; onChange: (s: Pan
     return () => { document.removeEventListener('mousedown', close); document.removeEventListener('keydown', esc) }
   }, [open])
   const current = ORDER_FIELDS.find((f) => f.field === sort?.field)
-  const shown = ORDER_FIELDS.filter((f) => f.label.toLowerCase().includes(q.trim().toLowerCase()))
+  const shown = ORDER_FIELDS.filter((f) => tr(f.label).toLowerCase().includes(q.trim().toLowerCase()))
   return (
     <div ref={ref} className="relative flex items-center gap-1 px-3 py-2 border-b border-[var(--surface-3)]">
       <button
@@ -67,15 +71,15 @@ function OrderBy({ sort, onChange }: { sort: PanelSort | null; onChange: (s: Pan
         aria-expanded={open}
         className={`flex-1 min-w-0 inline-flex items-center justify-between gap-1 rounded-md px-2 py-1 text-sm text-left border ${sort ? 'border-[var(--brand-500)] text-[var(--brand-600)] bg-[var(--brand-50)]' : 'border-[var(--surface-3)] text-[var(--text-secondary)]'}`}
       >
-        <span className="truncate">{current ? `Order by ${current.label}` : 'Order by'}</span>
+        <span className="truncate">{current ? tr('Order by {field}', { field: tr(current.label) }) : tr('Order by')}</span>
         <ChevronDown className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
       </button>
       <button
         type="button"
         disabled={!sort}
         onClick={() => sort && onChange({ ...sort, dir: sort.dir === 'asc' ? 'desc' : 'asc' })}
-        aria-label={sort?.dir === 'desc' ? 'Descending, click for ascending' : 'Ascending, click for descending'}
-        title={sort?.dir === 'desc' ? 'Descending' : 'Ascending'}
+        aria-label={sort?.dir === 'desc' ? tr('Descending, click for ascending') : tr('Ascending, click for descending')}
+        title={sort?.dir === 'desc' ? tr('Descending') : tr('Ascending')}
         className="p-1.5 rounded-md border border-[var(--surface-3)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-40"
       >
         {sort?.dir === 'desc' ? <ArrowDown className="w-4 h-4" /> : <ArrowUp className="w-4 h-4" />}
@@ -87,15 +91,15 @@ function OrderBy({ sort, onChange }: { sort: PanelSort | null; onChange: (s: Pan
               autoFocus
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search"
-              aria-label="Search fields"
+              placeholder={tr('Search')}
+              aria-label={tr('Search fields')}
               className="veqsio-input w-full pr-8 text-sm"
             />
             <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" aria-hidden="true" />
           </div>
-          <ul role="listbox" aria-label="Order by" className="max-h-64 overflow-y-auto pb-1">
+          <ul role="listbox" aria-label={tr('Order by')} className="max-h-64 overflow-y-auto pb-1">
             <li>
-              <button type="button" role="option" aria-selected={!sort} onClick={() => { onChange(null); setOpen(false) }} className="w-full text-left px-3 py-1.5 text-sm text-[var(--text-tertiary)] hover:bg-[var(--surface-1)]">Default order</button>
+              <button type="button" role="option" aria-selected={!sort} onClick={() => { onChange(null); setOpen(false) }} className="w-full text-left px-3 py-1.5 text-sm text-[var(--text-tertiary)] hover:bg-[var(--surface-1)]">{tr('Default order')}</button>
             </li>
             {shown.map((f) => (
               <li key={f.field}>
@@ -106,11 +110,11 @@ function OrderBy({ sort, onChange }: { sort: PanelSort | null; onChange: (s: Pan
                   onClick={() => { onChange({ field: f.field, dir: sort?.field === f.field ? sort.dir : (f.field === 'created' || f.field === 'updated' ? 'desc' : 'asc') }); setOpen(false) }}
                   className={`w-full text-left px-3 py-1.5 text-sm hover:bg-[var(--surface-1)] ${sort?.field === f.field ? 'font-medium text-[var(--brand-600)]' : 'text-[var(--text-primary)]'}`}
                 >
-                  {f.label}
+                  {tr(f.label)}
                 </button>
               </li>
             ))}
-            {shown.length === 0 && <li className="px-3 py-2 text-sm text-[var(--text-tertiary)]">No matching field</li>}
+            {shown.length === 0 && <li className="px-3 py-2 text-sm text-[var(--text-tertiary)]">{tr('No matching field')}</li>}
           </ul>
         </div>
       )}
@@ -158,6 +162,8 @@ export function useIssuePanelCollapsed(): [boolean, () => void] {
  * stores its result keys), or the latest issues of the same project when there is none.
  */
 export function IssueListPanel({ issueKey, projectKey, collapsed, onToggle }: Props) {
+  const { tr } = useI18n();
+
   const [stored, setStored] = useState<ReturnType<typeof loadIssueList>>(null)
   useEffect(() => { setStored(loadIssueList(browserSessionStorage())) }, [issueKey])
 
@@ -184,10 +190,10 @@ export function IssueListPanel({ issueKey, projectKey, collapsed, onToggle }: Pr
   if (collapsed) {
     return (
       <div className="hidden lg:flex flex-col items-center gap-2 w-9 py-2 rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)] self-start sticky top-20">
-        <button type="button" onClick={onToggle} aria-label="Show the issue list" title="Show the issue list" className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
+        <button type="button" onClick={onToggle} aria-label={tr('Show the issue list')} title={tr('Show the issue list')} className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
           <ChevronsRight className="w-4 h-4" />
         </button>
-        <button type="button" onClick={onToggle} aria-label="Issues" title="Issues" className="p-1 rounded-md text-[var(--text-secondary)] hover:bg-[var(--surface-2)]">
+        <button type="button" onClick={onToggle} aria-label={tr('Issues')} title={tr('Issues')} className="p-1 rounded-md text-[var(--text-secondary)] hover:bg-[var(--surface-2)]">
           <ListChecks className="w-4 h-4" />
         </button>
       </div>
@@ -196,22 +202,22 @@ export function IssueListPanel({ issueKey, projectKey, collapsed, onToggle }: Pr
 
   return (
     <aside
-      aria-label="Issues"
+      aria-label={tr('Issues')}
       className="hidden lg:block sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)]"
     >
       <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-[var(--surface-3)] sticky top-0 bg-[var(--surface-0)]">
         <div className="min-w-0">
-          <p className="text-sm font-medium text-[var(--text-primary)]">Issues</p>
+          <p className="text-sm font-medium text-[var(--text-primary)]">{tr('Issues')}</p>
           <p className="text-caption text-[var(--text-tertiary)] truncate" title={fromList ? stored?.label : undefined}>
-            {sort || fromList ? (stored?.label || 'Your list') : `Latest in ${projectKey}`}
+            {sort || fromList ? (stored?.label || tr('Your list')) : tr('Latest in {project}', { project: projectKey })}
           </p>
         </div>
-        <button type="button" onClick={onToggle} className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]" aria-label="Hide the issue list" title="Hide the issue list">
+        <button type="button" onClick={onToggle} className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]" aria-label={tr('Hide the issue list')} title={tr('Hide the issue list')}>
           <ChevronsLeft className="w-4 h-4" />
         </button>
       </div>
       <OrderBy sort={sort} onChange={setSort} />
-      {isLoading && <p className="px-3 py-3 text-caption text-[var(--text-tertiary)]">Loading…</p>}
+      {isLoading && <p className="px-3 py-3 text-caption text-[var(--text-tertiary)]">{tr('Loading…')}</p>}
       <ul>
         {issues.map((i) => {
           const current = i.key.toLowerCase() === issueKey.toLowerCase()
@@ -232,7 +238,7 @@ export function IssueListPanel({ issueKey, projectKey, collapsed, onToggle }: Pr
             </li>
           )
         })}
-        {!isLoading && issues.length === 0 && <li className="px-3 py-3 text-caption text-[var(--text-tertiary)]">No issues</li>}
+        {!isLoading && issues.length === 0 && <li className="px-3 py-3 text-caption text-[var(--text-tertiary)]">{tr('No issues')}</li>}
       </ul>
     </aside>
   )

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronLeft, ChevronRight, Download, X, ZoomIn, ZoomOut } from 'lucide-react'
@@ -11,6 +13,8 @@ import { stepIndex, swipeStep, type LightboxImage } from '@/lib/lightbox'
  * returns to where it was.
  */
 export function ImageLightbox({ images, index, onIndex, onClose }: { images: LightboxImage[]; index: number; onIndex: (i: number) => void; onClose: () => void }) {
+  const { tr } = useI18n();
+
   const [zoom, setZoom] = useState(false)
   const closeRef = useRef<HTMLButtonElement>(null)
   const touch = useRef<{ x: number; y: number } | null>(null)
@@ -53,7 +57,7 @@ export function ImageLightbox({ images, index, onIndex, onClose }: { images: Lig
       data-lightbox
       role="dialog"
       aria-modal="true"
-      aria-label={image.alt ? `Image: ${image.alt}` : 'Image viewer'}
+      aria-label={image.alt ? tr('Image: {alt}', { alt: image.alt }) : tr('Image viewer')}
       className={`fixed inset-0 z-[100] flex flex-col overscroll-contain bg-black/90 ${zoom ? '' : 'touch-pan-y'}`}
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
       onTouchStart={(e) => { const t = e.touches[0]; touch.current = { x: t.clientX, y: t.clientY } }}
@@ -71,17 +75,17 @@ export function ImageLightbox({ images, index, onIndex, onClose }: { images: Lig
           {count > 1 && <span className="text-white/70">{index + 1} / {count}</span>}
         </span>
         <div className="flex shrink-0 items-center gap-2">
-          <button type="button" className={btn} onClick={() => setZoom(!zoom)} aria-label={zoom ? 'Fit to screen' : 'Zoom in'} aria-pressed={zoom}>
+          <button type="button" className={btn} onClick={() => setZoom(!zoom)} aria-label={zoom ? tr('Fit to screen') : tr('Zoom in')} aria-pressed={zoom}>
             {zoom ? <ZoomOut className="h-5 w-5" aria-hidden="true" /> : <ZoomIn className="h-5 w-5" aria-hidden="true" />}
           </button>
-          <a className={btn} href={image.src} download={image.downloadName || image.alt || true} aria-label="Download"><Download className="h-5 w-5" aria-hidden="true" /></a>
-          <button ref={closeRef} type="button" className={btn} onClick={onClose} aria-label="Close"><X className="h-5 w-5" aria-hidden="true" /></button>
+          <a className={btn} href={image.src} download={image.downloadName || image.alt || true} aria-label={tr('Download')}><Download className="h-5 w-5" aria-hidden="true" /></a>
+          <button ref={closeRef} type="button" className={btn} onClick={onClose} aria-label={tr('Close')}><X className="h-5 w-5" aria-hidden="true" /></button>
         </div>
       </div>
 
       <div className={`relative flex min-h-0 flex-1 items-center justify-center sm:px-16 ${zoom ? 'overflow-auto' : 'overflow-hidden'}`} onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
         {count > 1 && (
-          <button type="button" className={`${btn} absolute left-3 top-1/2 z-10 -translate-y-1/2`} onClick={() => go(-1)} aria-label="Previous image"><ChevronLeft className="h-6 w-6" aria-hidden="true" /></button>
+          <button type="button" className={`${btn} absolute left-3 top-1/2 z-10 -translate-y-1/2`} onClick={() => go(-1)} aria-label={tr('Previous image')}><ChevronLeft className="h-6 w-6" aria-hidden="true" /></button>
         )}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -93,7 +97,7 @@ export function ImageLightbox({ images, index, onIndex, onClose }: { images: Lig
           className={zoom ? 'max-w-none cursor-zoom-out' : 'max-h-full max-w-full cursor-zoom-in object-contain'}
         />
         {count > 1 && (
-          <button type="button" className={`${btn} absolute right-3 top-1/2 z-10 -translate-y-1/2`} onClick={() => go(1)} aria-label="Next image"><ChevronRight className="h-6 w-6" aria-hidden="true" /></button>
+          <button type="button" className={`${btn} absolute right-3 top-1/2 z-10 -translate-y-1/2`} onClick={() => go(1)} aria-label={tr('Next image')}><ChevronRight className="h-6 w-6" aria-hidden="true" /></button>
         )}
       </div>
     </div>,

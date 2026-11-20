@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { usePathname } from 'next/navigation'
 import { AppLayout } from '@/components/app-layout'
 import { useState, useEffect } from 'react'
@@ -20,6 +22,8 @@ import {
 } from 'lucide-react'
 
 function SSOAdminPageBody() {
+  const { tr } = useI18n();
+
   const { data: settings, isLoading } = useSSOSettings()
   const updateMutation = useUpdateSSOSettings()
 
@@ -43,7 +47,7 @@ function SSOAdminPageBody() {
 
   const handleSave = async () => {
     if (!clientId || !clientSecret || !tenantId || !redirectUri) {
-      toast('All fields are required', 'error')
+      toast(tr('All fields are required'), 'error')
       return
     }
 
@@ -56,7 +60,7 @@ function SSOAdminPageBody() {
         enforceSso,
         active: true,
       })
-      toast('SSO settings saved successfully', 'success')
+      toast(tr('SSO settings saved successfully'), 'success')
     } catch (err) {
       toast(err instanceof Error ? err.message : 'Failed to save settings', 'error')
     }
@@ -64,7 +68,7 @@ function SSOAdminPageBody() {
 
   const handleTest = async () => {
     if (!clientId || !clientSecret || !tenantId || !redirectUri) {
-      toast('Fill in all fields before testing', 'warning')
+      toast(tr('Fill in all fields before testing'), 'warning')
       return
     }
 
@@ -85,9 +89,9 @@ function SSOAdminPageBody() {
         'width=600,height=700,scrollbars=yes'
       )
       if (!popup) {
-        toast('Popup blocked. Please allow popups for this site.', 'error')
+        toast(tr('Popup blocked. Please allow popups for this site.'), 'error')
       } else {
-        toast('Test login window opened. Complete the Microsoft flow to verify.', 'info')
+        toast(tr('Test login window opened. Complete the Microsoft flow to verify.'), 'info')
       }
     } catch (err) {
       toast(err instanceof Error ? err.message : 'Test failed', 'error')
@@ -98,7 +102,7 @@ function SSOAdminPageBody() {
 
   if (isLoading) {
     return (
-      <div className="text-center py-12 text-[var(--text-secondary)]">Loading SSO settings...</div>
+      <div className="text-center py-12 text-[var(--text-secondary)]">{tr('Loading SSO settings...')}</div>
     )
   }
 
@@ -110,10 +114,9 @@ function SSOAdminPageBody() {
             <Shield className="w-5 h-5 text-[var(--brand-500)]" />
           </div>
           <div>
-            <h2 className="text-heading-2 text-[var(--text-primary)]">Microsoft Entra ID SSO</h2>
+            <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('Microsoft Entra ID SSO')}</h2>
             <p className="text-body-sm text-[var(--text-secondary)]">
-              Configure single sign-on with Microsoft Azure Active Directory
-            </p>
+              {tr('Configure single sign-on with Microsoft Azure Active Directory')} </p>
           </div>
         </div>
       </div>
@@ -123,8 +126,7 @@ function SSOAdminPageBody() {
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
               <KeyRound className="w-4 h-4 text-[var(--text-tertiary)]" />
-              Application (Client) ID
-            </label>
+              {tr('Application (Client) ID')} </label>
             <input
               type="text"
               value={clientId}
@@ -133,15 +135,13 @@ function SSOAdminPageBody() {
               className="veqsio-input w-full"
             />
             <p className="text-caption text-[var(--text-tertiary)]">
-              The client ID from your Microsoft Entra app registration.
-            </p>
+              {tr('The client ID from your Microsoft Entra app registration.')} </p>
           </div>
 
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
               <Building2 className="w-4 h-4 text-[var(--text-tertiary)]" />
-              Directory (Tenant) ID
-            </label>
+              {tr('Directory (Tenant) ID')} </label>
             <input
               type="text"
               value={tenantId}
@@ -150,21 +150,19 @@ function SSOAdminPageBody() {
               className="veqsio-input w-full"
             />
             <p className="text-caption text-[var(--text-tertiary)]">
-              Your Microsoft Entra tenant ID, or &quot;common&quot; for multi-tenant.
-            </p>
+              {tr('Your Microsoft Entra tenant ID, or "common" for multi-tenant.')} </p>
           </div>
 
           <div className="space-y-2 md:col-span-2">
             <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
               <Eye className="w-4 h-4 text-[var(--text-tertiary)]" />
-              Client Secret
-            </label>
+              {tr('Client Secret')} </label>
             <div className="relative">
               <input
                 type={showSecret ? 'text' : 'password'}
                 value={clientSecret}
                 onChange={(e) => setClientSecret(e.target.value)}
-                placeholder="Enter client secret value"
+                placeholder={tr('Enter client secret value')}
                 className="veqsio-input w-full pr-10"
               />
               <button
@@ -176,15 +174,13 @@ function SSOAdminPageBody() {
               </button>
             </div>
             <p className="text-caption text-[var(--text-tertiary)]">
-              The client secret from your app registration Certificates & secrets.
-            </p>
+              {tr('The client secret from your app registration Certificates & secrets.')} </p>
           </div>
 
           <div className="space-y-2 md:col-span-2">
             <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
               <Link className="w-4 h-4 text-[var(--text-tertiary)]" />
-              Redirect URI
-            </label>
+              {tr('Redirect URI')} </label>
             <input
               type="text"
               value={redirectUri}
@@ -193,8 +189,7 @@ function SSOAdminPageBody() {
               className="veqsio-input w-full"
             />
             <p className="text-caption text-[var(--text-tertiary)]">
-              Must match the redirect URI configured in your Microsoft app registration.
-            </p>
+              {tr('Must match the redirect URI configured in your Microsoft app registration.')} </p>
           </div>
         </div>
 
@@ -205,10 +200,9 @@ function SSOAdminPageBody() {
                 <Globe className="w-5 h-5 text-[var(--brand-500)]" />
               </div>
               <div>
-                <p className="text-sm font-medium text-[var(--text-primary)]">Enforce SSO-only login</p>
+                <p className="text-sm font-medium text-[var(--text-primary)]">{tr('Enforce SSO-only login')}</p>
                 <p className="text-caption text-[var(--text-secondary)]">
-                  When enabled, users can only sign in via Microsoft SSO. Local password login will be disabled.
-                </p>
+                  {tr('When enabled, users can only sign in via Microsoft SSO. Local password login will be disabled.')} </p>
               </div>
             </div>
             <button
@@ -237,8 +231,7 @@ function SSOAdminPageBody() {
             ) : (
               <Save className="w-4 h-4" />
             )}
-            Save Settings
-          </button>
+            {tr('Save Settings')} </button>
 
           <button
             type="button"
@@ -251,8 +244,7 @@ function SSOAdminPageBody() {
             ) : (
               <TestTube className="w-4 h-4" />
             )}
-            Test Connection
-          </button>
+            {tr('Test Connection')} </button>
         </div>
       </div>
     </div>

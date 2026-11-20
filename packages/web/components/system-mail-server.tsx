@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useState } from 'react'
 import { Mail, Save, TestTube, Shield, Server, Eye, EyeOff } from 'lucide-react'
 import { toast } from './toast'
@@ -7,6 +9,8 @@ import { Spinner } from './spinner'
 import { useMailConfig, useUpdateMailConfig, useTestMailConfig } from '@/hooks/use-admin'
 
 export function SystemMailServer() {
+  const { tr } = useI18n();
+
   const { data, isLoading } = useMailConfig()
   const update = useUpdateMailConfig()
   const test = useTestMailConfig()
@@ -35,7 +39,7 @@ export function SystemMailServer() {
     e.preventDefault()
     try {
       await update.mutateAsync({ host, port, user, pass, from, tls })
-      toast('Mail server configuration saved', 'success')
+      toast(tr('Mail server configuration saved'), 'success')
     } catch (err: any) {
       toast(err.message || 'Failed to save mail configuration', 'error')
     }
@@ -43,7 +47,7 @@ export function SystemMailServer() {
 
   async function handleTest() {
     if (!testAddress) {
-      toast('Please enter a test email address', 'warning')
+      toast(tr('Please enter a test email address'), 'warning')
       return
     }
     try {
@@ -70,10 +74,9 @@ export function SystemMailServer() {
             <Mail className="w-5 h-5 text-[var(--brand-500)]" />
           </div>
           <div>
-            <h2 className="text-heading-2 text-[var(--text-primary)]">Outgoing mail</h2>
+            <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('Outgoing mail')}</h2>
             <p className="text-body-sm text-[var(--text-secondary)]">
-              Configure the SMTP server used for notifications.
-            </p>
+              {tr('Configure the SMTP server used for notifications.')} </p>
           </div>
         </div>
 
@@ -81,8 +84,7 @@ export function SystemMailServer() {
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
               <Server className="w-4 h-4 text-[var(--text-tertiary)]" />
-              SMTP Host
-            </label>
+              {tr('SMTP Host')} </label>
             <input
               type="text"
               value={host}
@@ -96,8 +98,7 @@ export function SystemMailServer() {
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
               <Server className="w-4 h-4 text-[var(--text-tertiary)]" />
-              SMTP Port
-            </label>
+              {tr('SMTP Port')} </label>
             <input
               type="number"
               value={port}
@@ -110,8 +111,7 @@ export function SystemMailServer() {
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
               <Mail className="w-4 h-4 text-[var(--text-tertiary)]" />
-              Username
-            </label>
+              {tr('Username')} </label>
             <input
               type="text"
               value={user}
@@ -123,8 +123,7 @@ export function SystemMailServer() {
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
               <Shield className="w-4 h-4 text-[var(--text-tertiary)]" />
-              Password
-            </label>
+              {tr('Password')} </label>
             <div className="relative">
               <input
                 type={showPass ? 'text' : 'password'}
@@ -145,13 +144,12 @@ export function SystemMailServer() {
           <div className="space-y-2 md:col-span-2">
             <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
               <Mail className="w-4 h-4 text-[var(--text-tertiary)]" />
-              From Address
-            </label>
+              {tr('From Address')} </label>
             <input
               type="email"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              placeholder="veqsio@example.com"
+              placeholder={tr('veqsio@example.com')}
               required
               className="veqsio-input w-full"
             />
@@ -167,8 +165,7 @@ export function SystemMailServer() {
             className="w-4 h-4 rounded border-[var(--surface-4)] text-[var(--brand-500)]"
           />
           <label htmlFor="tls" className="text-sm text-[var(--text-secondary)]">
-            Use TLS/SSL encryption
-          </label>
+            {tr('Use TLS/SSL encryption')} </label>
         </div>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-[var(--surface-3)]">
@@ -177,7 +174,7 @@ export function SystemMailServer() {
               type="email"
               value={testAddress}
               onChange={(e) => setTestAddress(e.target.value)}
-              placeholder="Test email address"
+              placeholder={tr('Test email address')}
               className="veqsio-input flex-1 sm:w-64"
             />
             <button
@@ -191,8 +188,7 @@ export function SystemMailServer() {
               ) : (
                 <TestTube className="w-4 h-4" />
               )}
-              Test
-            </button>
+              {tr('Test')} </button>
           </div>
 
           <button
@@ -205,8 +201,7 @@ export function SystemMailServer() {
             ) : (
               <Save className="w-4 h-4" />
             )}
-            Save
-          </button>
+            {tr('Save')} </button>
         </div>
       </form>
     </div>

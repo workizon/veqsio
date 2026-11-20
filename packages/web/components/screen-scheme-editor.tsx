@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import {
   Plus,
@@ -32,6 +34,8 @@ import type { Screen, ScreenTab } from '@/hooks/use-admin'
 import { confirmDialog } from '@/components/dialogs'
 
 export function ScreenSchemeEditor() {
+  const { tr } = useI18n();
+
   const [createOpen, setCreateOpen] = useState(false)
   const [editingScreen, setEditingScreen] = useState<Screen | null>(null)
 
@@ -51,32 +55,31 @@ export function ScreenSchemeEditor() {
         name: fd.get('name') as string,
         description: (fd.get('description') as string) || undefined,
       })
-      toast('Screen created', 'success')
+      toast(tr('Screen created'), 'success')
       setCreateOpen(false)
       e.currentTarget.reset()
     } catch (err: any) {
-      toast(err.message || 'Failed to create screen', 'error')
+      toast(err.message || tr('Failed to create screen'), 'error')
     }
   }
 
   async function handleDelete(id: number, name: string) {
-    if (!(await confirmDialog(`Delete screen "${name}"?`))) return
+    if (!(await confirmDialog(tr('Delete screen "{name}"?', { name })))) return
     try {
       await deleteScreen.mutateAsync(id)
-      toast('Screen deleted', 'success')
+      toast(tr('Screen deleted'), 'success')
     } catch (err: any) {
-      toast(err.message || 'Failed to delete screen', 'error')
+      toast(err.message || tr('Failed to delete screen'), 'error')
     }
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-heading-2 text-[var(--text-primary)]">Screens</h2>
+        <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('Screens')}</h2>
         <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          Create Screen
-        </button>
+          {tr('Create Screen')} </button>
       </div>
 
       {isLoading ? (
@@ -86,13 +89,12 @@ export function ScreenSchemeEditor() {
       ) : screens.length === 0 ? (
         <EmptyState
           icon="folder"
-          title="No screens found"
-          description="Create a screen to define field layouts for issue operations."
+          title={tr('No screens found')}
+          description={tr('Create a screen to define field layouts for issue operations.')}
           action={
             <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              Create Screen
-            </button>
+              {tr('Create Screen')} </button>
           }
         />
       ) : (
@@ -110,7 +112,7 @@ export function ScreenSchemeEditor() {
                       <div className="text-xs text-[var(--text-tertiary)]">{s.description}</div>
                     )}
                     <div className="text-xs text-[var(--text-tertiary)] mt-0.5">
-                      {s.tabs.length} tab{s.tabs.length !== 1 ? 's' : ''}
+                      {s.tabs.length === 1 ? tr('{n} tab', { n: s.tabs.length }) : tr('{n} tabs', { n: s.tabs.length })}
                     </div>
                   </div>
                 </div>
@@ -140,28 +142,27 @@ export function ScreenSchemeEditor() {
         </div>
       )}
 
-      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title="Create screen">
+      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title={tr('Create screen')}>
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Name</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Name')}</label>
             <input name="name" type="text" required className="veqsio-input w-full" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Description</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Description')}</label>
             <input name="description" type="text" className="veqsio-input w-full" />
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" onClick={() => setCreateOpen(false)} className="veqsio-btn-secondary">
-              Cancel
-            </button>
+              {tr('Cancel')} </button>
             <button type="submit" disabled={createScreen.isPending} className="veqsio-btn-primary">
-              {createScreen.isPending ? 'Creating...' : 'Create'}
+              {createScreen.isPending ? tr('Creating...') : tr('Create')}
             </button>
           </div>
         </form>
       </Modal>
 
-      <Modal isOpen={!!liveScreen} onClose={() => setEditingScreen(null)} title={liveScreen?.name || 'Edit Screen'} size="lg">
+      <Modal isOpen={!!liveScreen} onClose={() => setEditingScreen(null)} title={liveScreen?.name || tr('Edit Screen')} size="lg">
         {liveScreen && <ScreenEditPanel screen={liveScreen} onClose={() => setEditingScreen(null)} />}
       </Modal>
     </div>
@@ -169,6 +170,8 @@ export function ScreenSchemeEditor() {
 }
 
 function ScreenEditPanel({ screen, onClose }: { screen: Screen; onClose: () => void }) {
+  const { tr } = useI18n();
+
   const updateScreen = useUpdateScreen()
   const [name, setName] = useState(screen.name)
   const [description, setDescription] = useState(screen.description || '')
@@ -176,10 +179,10 @@ function ScreenEditPanel({ screen, onClose }: { screen: Screen; onClose: () => v
   async function handleSave() {
     try {
       await updateScreen.mutateAsync({ id: screen.id, name, description: description || undefined })
-      toast('Screen updated', 'success')
+      toast(tr('Screen updated'), 'success')
       onClose()
     } catch (err: any) {
-      toast(err.message || 'Failed to update screen', 'error')
+      toast(err.message || tr('Failed to update screen'), 'error')
     }
   }
 
@@ -187,19 +190,18 @@ function ScreenEditPanel({ screen, onClose }: { screen: Screen; onClose: () => v
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Name</label>
+          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Name')}</label>
           <input value={name} onChange={e => setName(e.target.value)} className="veqsio-input w-full" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Description</label>
+          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Description')}</label>
           <input value={description} onChange={e => setDescription(e.target.value)} className="veqsio-input w-full" />
         </div>
       </div>
       <div className="flex justify-end gap-2">
         <button onClick={handleSave} disabled={updateScreen.isPending} className="veqsio-btn-primary flex items-center gap-1.5">
           <Save className="w-4 h-4" />
-          Save
-        </button>
+          {tr('Save')} </button>
       </div>
 
       <hr className="border-[var(--surface-3)]" />
@@ -210,6 +212,8 @@ function ScreenEditPanel({ screen, onClose }: { screen: Screen; onClose: () => v
 }
 
 function ScreenTabsEditor({ screen }: { screen: Screen }) {
+  const { tr } = useI18n();
+
   const createTab = useCreateScreenTab()
   const deleteTab = useDeleteScreenTab()
   const [activeTabId, setActiveTabId] = useState<number | undefined>(screen.tabs[0]?.id)
@@ -219,21 +223,21 @@ function ScreenTabsEditor({ screen }: { screen: Screen }) {
     if (!newTabName.trim()) return
     try {
       await createTab.mutateAsync({ screenId: screen.id, name: newTabName.trim() })
-      toast('Tab added', 'success')
+      toast(tr('Tab added'), 'success')
       setNewTabName('')
     } catch (err: any) {
-      toast(err.message || 'Failed to add tab', 'error')
+      toast(err.message || tr('Failed to add tab'), 'error')
     }
   }
 
   async function handleDeleteTab(tabId: number, name: string) {
-    if (!(await confirmDialog(`Delete tab "${name}"?`))) return
+    if (!(await confirmDialog(tr('Delete tab "{name}"?', { name })))) return
     try {
       await deleteTab.mutateAsync({ screenId: screen.id, tabId })
-      toast('Tab deleted', 'success')
+      toast(tr('Tab deleted'), 'success')
       if (activeTabId === tabId) setActiveTabId(screen.tabs.find(t => t.id !== tabId)?.id)
     } catch (err: any) {
-      toast(err.message || 'Failed to delete tab', 'error')
+      toast(err.message || tr('Failed to delete tab'), 'error')
     }
   }
 
@@ -241,24 +245,23 @@ function ScreenTabsEditor({ screen }: { screen: Screen }) {
 
   return (
     <div className="space-y-3">
-      <h3 className="text-heading-2 text-[var(--text-primary)]">Tabs</h3>
+      <h3 className="text-heading-2 text-[var(--text-primary)]">{tr('Tabs')}</h3>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
         <input
           value={newTabName}
           onChange={e => setNewTabName(e.target.value)}
-          placeholder="New tab name..."
+          placeholder={tr('New tab name...')}
           className="veqsio-input flex-1 w-full"
           onKeyDown={e => { if (e.key === 'Enter') handleAddTab() }}
         />
         <button onClick={handleAddTab} disabled={createTab.isPending} className="veqsio-btn-secondary flex items-center gap-1.5">
           <Plus className="w-4 h-4" />
-          Add Tab
-        </button>
+          {tr('Add Tab')} </button>
       </div>
 
       {screen.tabs.length === 0 ? (
-        <EmptyState icon="folder" title="No tabs" description="Add a tab to organize screen fields." />
+        <EmptyState icon="folder" title={tr('No tabs')} description={tr('Add a tab to organize screen fields.')} />
       ) : (
         <div className="flex items-center gap-1 border-b border-[var(--surface-3)] overflow-x-auto">
           {screen.tabs.map(tab => (
@@ -295,6 +298,8 @@ function ScreenTabsEditor({ screen }: { screen: Screen }) {
 }
 
 function TabFieldsEditor({ screenId, tab }: { screenId: number; tab: ScreenTab }) {
+  const { tr } = useI18n();
+
   const { data: catalog } = useScreenFieldCatalog()
   const addField = useAddScreenTabField()
   const removeField = useRemoveScreenTabField()
@@ -309,19 +314,19 @@ function TabFieldsEditor({ screenId, tab }: { screenId: number; tab: ScreenTab }
     if (!item) return
     try {
       await addField.mutateAsync({ screenId, tabId: tab.id, ...(item.custom ? { fieldId: item.fieldId, isCustomField: true } : { fieldKey: item.key, isCustomField: false }) })
-      toast('Field added', 'success')
+      toast(tr('Field added'), 'success')
       setSelectedField('')
     } catch (err: any) {
-      toast(err.message || 'Failed to add field', 'error')
+      toast(err.message || tr('Failed to add field'), 'error')
     }
   }
 
   async function handleRemove(fieldId: number) {
     try {
       await removeField.mutateAsync({ screenId, tabId: tab.id, fieldId })
-      toast('Field removed', 'success')
+      toast(tr('Field removed'), 'success')
     } catch (err: any) {
-      toast(err.message || 'Failed to remove field', 'error')
+      toast(err.message || tr('Failed to remove field'), 'error')
     }
   }
 
@@ -335,7 +340,7 @@ function TabFieldsEditor({ screenId, tab }: { screenId: number; tab: ScreenTab }
           onChange={e => setSelectedField(e.target.value)}
           className="veqsio-input flex-1 w-full"
         >
-          <option value="">Select field...</option>
+          <option value="">{tr('Select field...')}</option>
           {allFields.map(f => {
             if (usedKeys.has(f.key)) return null
             return (
@@ -347,12 +352,11 @@ function TabFieldsEditor({ screenId, tab }: { screenId: number; tab: ScreenTab }
         </select>
         <button onClick={handleAdd} disabled={!selectedField || addField.isPending} className="veqsio-btn-secondary flex items-center gap-1.5">
           <Plus className="w-4 h-4" />
-          Add Field
-        </button>
+          {tr('Add Field')} </button>
       </div>
 
       {tab.fields.length === 0 ? (
-        <EmptyState icon="folder" title="No fields" description="Add fields to this tab." />
+        <EmptyState icon="folder" title={tr('No fields')} description={tr('Add fields to this tab.')} />
       ) : (
         <div className="border border-[var(--surface-3)] rounded-lg divide-y divide-[var(--surface-3)]">
           {tab.fields.map(f => (
@@ -362,17 +366,16 @@ function TabFieldsEditor({ screenId, tab }: { screenId: number; tab: ScreenTab }
                 <span className="text-sm text-[var(--text-primary)]">
                   {allFields.find(af => af.key === (f.isCustomField ? `customfield_${f.fieldId}` : f.fieldKey))?.name || `Field ${f.fieldKey ?? f.fieldId}`}
                 </span>
-                {f.isCustomField && <span className="text-xs text-[var(--text-tertiary)]">Custom</span>}
+                {f.isCustomField && <span className="text-xs text-[var(--text-tertiary)]">{tr('Custom')}</span>}
               </div>
               <label className="ml-auto mr-3 flex items-center gap-1.5 text-caption text-[var(--text-secondary)]">
                 <input
                   type="checkbox"
                   checked={!!f.required}
                   disabled={setRequired.isPending}
-                  onChange={(e) => setRequired.mutate({ screenId, tabId: tab.id, fieldId: f.id, required: e.target.checked }, { onError: (err: any) => toast(err.message || 'Failed to update the field', 'error') })}
+                  onChange={(e) => setRequired.mutate({ screenId, tabId: tab.id, fieldId: f.id, required: e.target.checked }, { onError: (err: any) => toast(err.message || tr('Failed to update the field'), 'error') })}
                 />
-                Required on transitions
-              </label>
+                {tr('Required on transitions')} </label>
               <button
                 onClick={() => handleRemove(f.id)}
                 className="veqsio-btn-ghost p-1.5 text-[var(--error)] hover:bg-[var(--error)]/10"

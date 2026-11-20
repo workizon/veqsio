@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { useActivityStream } from '@/hooks/use-dashboards'
 import { Spinner } from '@/components/spinner'
@@ -21,6 +23,8 @@ const actionIcons: Record<string, React.ReactNode> = {
 }
 
 export function ActivityStreamGadget({ config }: ActivityStreamGadgetProps) {
+  const { tr } = useI18n();
+
   const limit = config?.limit || 10
   const { data, isLoading } = useActivityStream(limit)
 
@@ -36,8 +40,8 @@ export function ActivityStreamGadget({ config }: ActivityStreamGadgetProps) {
     return (
       <EmptyState
         icon="inbox"
-        title="No recent activity"
-        description="Activity will appear here as team members make changes."
+        title={tr('No recent activity')}
+        description={tr('Activity will appear here as team members make changes.')}
       />
     )
   }

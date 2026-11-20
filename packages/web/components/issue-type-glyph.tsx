@@ -1,3 +1,6 @@
+'use client'
+
+import { useI18n } from '@/hooks/use-i18n'
 import { Bookmark, Bug, Check, CornerDownRight, Flame, HelpCircle, LifeBuoy, Zap, type LucideIcon } from 'lucide-react'
 
 /**
@@ -18,6 +21,7 @@ const TYPES: Record<string, { Icon: LucideIcon; bg: string; label: string; round
 }
 
 export function IssueTypeGlyph({ name, size = 16, className = '', color }: { name?: string | null; size?: number; className?: string; color?: string | null }) {
+  const { tr } = useI18n()
   const known = TYPES[(name || '').toLowerCase()]
   const inner = Math.round(size * 0.66)
   if (!known && name && name !== '?') {
@@ -30,11 +34,12 @@ export function IssueTypeGlyph({ name, size = 16, className = '', color }: { nam
     )
   }
   const t = known ?? { Icon: HelpCircle, bg: color || '#667085', label: name || 'Issue' }
+  const shown = known ? tr(known.label) : name || tr('Issue')
   return (
     <span
       role="img"
-      aria-label={name || t.label}
-      title={name || t.label}
+      aria-label={shown}
+      title={shown}
       className={`inline-flex items-center justify-center shrink-0 ${t.round ? 'rounded-full' : 'rounded-[4px]'} text-white ${className}`}
       style={{ width: size, height: size, background: t.bg }}
     >

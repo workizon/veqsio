@@ -1,5 +1,8 @@
 'use client'
 
+
+import { LOCALES } from '@/lib/i18n'
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useState } from 'react'
 import { Save, Globe, Calendar, Clock, Type } from 'lucide-react'
 import { toast } from './toast'
@@ -7,6 +10,8 @@ import { Spinner } from './spinner'
 import { useSystemConfig, useUpdateSystemConfig } from '@/hooks/use-admin'
 
 export function SystemGeneralConfig() {
+  const { tr } = useI18n();
+
   const { data, isLoading } = useSystemConfig()
   const update = useUpdateSystemConfig()
 
@@ -36,7 +41,7 @@ export function SystemGeneralConfig() {
         dateFormat,
         timezone,
       })
-      toast('Configuration saved successfully', 'success')
+      toast(tr('Configuration saved successfully'), 'success')
     } catch (err: any) {
       toast(err.message || 'Failed to save configuration', 'error')
     }
@@ -56,8 +61,7 @@ export function SystemGeneralConfig() {
         <div className="space-y-2">
           <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
             <Type className="w-4 h-4 text-[var(--text-tertiary)]" />
-            Site Name
-          </label>
+            {tr('Site Name')} </label>
           <input
             type="text"
             value={siteName}
@@ -66,15 +70,13 @@ export function SystemGeneralConfig() {
             className="veqsio-input w-full"
           />
           <p className="text-caption text-[var(--text-tertiary)]">
-            Displayed in the browser title and header.
-          </p>
+            {tr('Displayed in the browser title and header.')} </p>
         </div>
 
         <div className="space-y-2">
           <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
             <Globe className="w-4 h-4 text-[var(--text-tertiary)]" />
-            Base URL
-          </label>
+            {tr('Base URL')} </label>
           <input
             type="url"
             value={baseUrl}
@@ -83,63 +85,55 @@ export function SystemGeneralConfig() {
             className="veqsio-input w-full"
           />
           <p className="text-caption text-[var(--text-tertiary)]">
-            The root URL where Veqsio is hosted.
-          </p>
+            {tr('The root URL where Veqsio is hosted.')} </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
               <Type className="w-4 h-4 text-[var(--text-tertiary)]" />
-              Default Language
-            </label>
+              {tr('Default Language')} </label>
             <select
               value={defaultLanguage}
               onChange={(e) => setDefaultLanguage(e.target.value)}
               className="veqsio-input w-full"
             >
-              <option value="en">English</option>
-              <option value="de">German</option>
-              <option value="fr">French</option>
-              <option value="es">Spanish</option>
-              <option value="lv">Latvian</option>
+              {LOCALES.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
             </select>
           </div>
 
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
               <Calendar className="w-4 h-4 text-[var(--text-tertiary)]" />
-              Date Format
-            </label>
+              {tr('Date Format')} </label>
             <select
               value={dateFormat}
               onChange={(e) => setDateFormat(e.target.value)}
               className="veqsio-input w-full"
             >
-              <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-              <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-              <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-              <option value="DD.MM.YYYY">DD.MM.YYYY</option>
+              <option value="YYYY-MM-DD">{tr('YYYY-MM-DD')}</option>
+              <option value="DD/MM/YYYY">{tr('DD/MM/YYYY')}</option>
+              <option value="MM/DD/YYYY">{tr('MM/DD/YYYY')}</option>
+              <option value="DD.MM.YYYY">{tr('DD.MM.YYYY')}</option>
             </select>
           </div>
 
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
               <Clock className="w-4 h-4 text-[var(--text-tertiary)]" />
-              Timezone
-            </label>
+              {tr('Timezone')} </label>
             <select
               value={timezone}
               onChange={(e) => setTimezone(e.target.value)}
               className="veqsio-input w-full"
             >
-              <option value="UTC">UTC</option>
-              <option value="Europe/Riga">Europe/Riga</option>
-              <option value="Europe/Berlin">Europe/Berlin</option>
-              <option value="Europe/London">Europe/London</option>
-              <option value="America/New_York">America/New_York</option>
-              <option value="America/Los_Angeles">America/Los_Angeles</option>
-              <option value="Asia/Tokyo">Asia/Tokyo</option>
+              <option value="UTC">{tr('UTC')}</option>
+              <option value="Europe/Riga">{tr('Europe/Riga')}</option>
+              <option value="Europe/Berlin">{tr('Europe/Berlin')}</option>
+              <option value="Europe/London">{tr('Europe/London')}</option>
+              <option value="America/New_York">{tr('America/New_York')}</option>
+              <option value="America/Los_Angeles">{tr('America/Los_Angeles')}</option>
+              <option value="Asia/Tokyo">{tr('Asia/Tokyo')}</option>
             </select>
           </div>
         </div>
@@ -156,8 +150,7 @@ export function SystemGeneralConfig() {
           ) : (
             <Save className="w-4 h-4" />
           )}
-          Save Configuration
-        </button>
+          {tr('Save Configuration')} </button>
       </div>
     </form>
   )

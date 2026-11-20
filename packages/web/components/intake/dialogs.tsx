@@ -1,6 +1,7 @@
 'use client'
 
 import { useId, useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 import { Modal } from '@/components/modal'
 import { useIntakeAssignable, useIntakePriorities, useIntakeTypes, type ActionBody, type IntakeItem } from '@/hooks/use-intake'
 
@@ -15,28 +16,40 @@ interface Common {
   onCancel: () => void
 }
 
-const Field = ({ label, hint, children, id }: { label: string; hint?: string; children: React.ReactNode; id: string }) => (
+const Field = ({ label, hint, children, id }: { label: string; hint?: string; children: React.ReactNode; id: string }) => {
+  const { tr } = useI18n()
+  return (
   <div>
-    <label htmlFor={id} className="block text-sm font-medium text-[var(--text-primary)] mb-1">{label}</label>
+    <label htmlFor={id} className="block text-sm font-medium text-[var(--text-primary)] mb-1">{tr(label)}</label>
     {children}
-    {hint && <p className="mt-1 text-xs text-[var(--text-tertiary)]">{hint}</p>}
+    {hint && <p className="mt-1 text-xs text-[var(--text-tertiary)]">{tr(hint)}</p>}
   </div>
-)
+  )
+}
 
-const Footer = ({ busy, error, onCancel, submit }: { busy: boolean; error: string | null; onCancel: () => void; submit: string }) => (
+const Footer = ({ busy, error, onCancel, submit }: { busy: boolean; error: string | null; onCancel: () => void; submit: string }) => {
+  const { tr } = useI18n()
+  return (
   <>
     {error && <p role="alert" className="text-sm text-[var(--error)]">{error}</p>}
     <div className="flex justify-end gap-2 pt-2">
-      <button type="button" className="veqsio-btn-secondary" onClick={onCancel}>Cancel</button>
-      <button type="submit" className="veqsio-btn-primary" disabled={busy}>{busy ? 'Working…' : submit}</button>
+      <button type="button" className="veqsio-btn-secondary" onClick={onCancel}>{tr('Cancel')}</button>
+      <button type="submit" className="veqsio-btn-primary" disabled={busy}>{busy ? tr('Working…') : tr(submit)}</button>
     </div>
   </>
-)
+  )
+}
 
-const countLabel = (n: number) => (n === 1 ? 'this item' : `${n} items`)
+const dialogTitle = (tr: (k: string, v?: Record<string, string | number>) => string, verb: 'accept' | 'decline' | 'snooze' | 'duplicate', n: number) => {
+  if (verb === 'accept') return n === 1 ? tr('Accept this item') : tr('Accept {n} items', { n })
+  if (verb === 'decline') return n === 1 ? tr('Decline this item') : tr('Decline {n} items', { n })
+  if (verb === 'snooze') return n === 1 ? tr('Snooze this item') : tr('Snooze {n} items', { n })
+  return n === 1 ? tr('Mark this item as duplicate') : tr('Mark {n} items as duplicate', { n })
+}
 
 export function AcceptDialog({ project, items, busy, error, onCancel, onSubmit }: Common & { onSubmit: (b: ActionBody) => void }) {
   const id = useId()
+  const { tr } = useI18n()
   const types = useIntakeTypes(project)
   const priorities = useIntakePriorities()
   const users = useIntakeAssignable()
@@ -50,7 +63,7 @@ export function AcceptDialog({ project, items, busy, error, onCancel, onSubmit }
   const single = items.length === 1
   const withEmail = items.filter((i) => i.requester.email).length
   return (
-    <Modal isOpen onClose={onCancel} title={`Accept ${countLabel(items.length)}`}>
+    <Modal isOpen onClose={onCancel} title={dialogTitle(tr, 'accept', items.length)}>
       <form
         className="space-y-4"
         onSubmit={(e) => {
@@ -67,23 +80,23 @@ export function AcceptDialog({ project, items, busy, error, onCancel, onSubmit }
         }}
       >
         <p className="text-sm text-[var(--text-secondary)]">
-          {single ? 'An issue is created from this submission.' : `An issue is created for each of the ${items.length} submissions, with the same settings.`}
+          {single ? tr('An issue is created from this submission.') : tr('An issue is created for each of the {n} submissions, with the same settings.', { n: items.length })}
         </p>
         <Field id={`${id}-type`} label="Issue type">
           <select id={`${id}-type`} className="veqsio-input w-full" value={effectiveType} onChange={(e) => setTypeId(e.target.value)} required autoFocus>
-            {types.isLoading && <option value="">Loading…</option>}
+            {types.isLoading && <option value="">{tr('Loading…')}</option>}
             {(types.data ?? []).map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
         </Field>
         <Field id={`${id}-prio`} label="Priority">
           <select id={`${id}-prio`} className="veqsio-input w-full" value={priorityId} onChange={(e) => setPriorityId(e.target.value)}>
-            <option value="">Default</option>
+            <option value="">{tr('Default')}</option>
             {(priorities.data ?? []).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </Field>
         <Field id={`${id}-assignee`} label="Assignee">
           <select id={`${id}-assignee`} className="veqsio-input w-full" value={assigneeId} onChange={(e) => setAssigneeId(e.target.value)}>
-            <option value="">Unassigned</option>
+            <option value="">{tr('Unassigned')}</option>
             {(users.data ?? []).map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
           </select>
         </Field>
@@ -95,7 +108,7 @@ export function AcceptDialog({ project, items, busy, error, onCancel, onSubmit }
         <Field id={`${id}-note`} label="Note for the issue (optional)" hint="Added to the issue description.">
           <textarea id={`${id}-note`} className="veqsio-input w-full min-h-[60px]" maxLength={2000} value={note} onChange={(e) => setNote(e.target.value)} />
         </Field>
-        <Field id={`${id}-reason`} label="Message to the requester (optional)" hint={withEmail ? `${withEmail} requester(s) with an email address are notified.` : 'None of the requesters has an email address, nobody is notified.'}>
+        <Field id={`${id}-reason`} label="Message to the requester (optional)" hint={withEmail ? tr('{n} requester(s) with an email address are notified.', { n: withEmail }) : 'None of the requesters has an email address, nobody is notified.'}>
           <textarea id={`${id}-reason`} className="veqsio-input w-full min-h-[60px]" maxLength={2000} value={reason} onChange={(e) => setReason(e.target.value)} />
         </Field>
         <Footer busy={busy || !effectiveType} error={error} onCancel={onCancel} submit="Accept" />
@@ -106,12 +119,13 @@ export function AcceptDialog({ project, items, busy, error, onCancel, onSubmit }
 
 export function DeclineDialog({ items, busy, error, onCancel, onSubmit }: Common & { onSubmit: (b: ActionBody) => void }) {
   const id = useId()
+  const { tr } = useI18n()
   const [reason, setReason] = useState('')
   const withEmail = items.filter((i) => i.requester.email).length
   return (
-    <Modal isOpen onClose={onCancel} title={`Decline ${countLabel(items.length)}`}>
+    <Modal isOpen onClose={onCancel} title={dialogTitle(tr, 'decline', items.length)}>
       <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); onSubmit({ reason: reason.trim() || undefined }) }}>
-        <Field id={`${id}-reason`} label="Reason (optional)" hint={withEmail ? `Sent to ${withEmail} requester(s) with an email address.` : 'None of the requesters has an email address, nobody is notified.'}>
+        <Field id={`${id}-reason`} label="Reason (optional)" hint={withEmail ? tr('Sent to {n} requester(s) with an email address.', { n: withEmail }) : 'None of the requesters has an email address, nobody is notified.'}>
           <textarea id={`${id}-reason`} className="veqsio-input w-full min-h-[80px]" maxLength={2000} value={reason} onChange={(e) => setReason(e.target.value)} autoFocus />
         </Field>
         <Footer busy={busy} error={error} onCancel={onCancel} submit="Decline" />
@@ -127,10 +141,11 @@ const dayInput = (days: number) => {
 
 export function SnoozeDialog({ items, busy, error, onCancel, onSubmit }: Common & { onSubmit: (b: ActionBody) => void }) {
   const id = useId()
+  const { tr } = useI18n()
   const [date, setDate] = useState(dayInput(7))
   const [reason, setReason] = useState('')
   return (
-    <Modal isOpen onClose={onCancel} title={`Snooze ${countLabel(items.length)}`} size="sm">
+    <Modal isOpen onClose={onCancel} title={dialogTitle(tr, 'snooze', items.length)} size="sm">
       <form
         className="space-y-4"
         onSubmit={(e) => {
@@ -143,9 +158,9 @@ export function SnoozeDialog({ items, busy, error, onCancel, onSubmit }: Common 
         <Field id={`${id}-date`} label="Come back on" hint="The item moves back to Pending automatically.">
           <input id={`${id}-date`} type="date" className="veqsio-input w-full" value={date} min={dayInput(1)} max={dayInput(365)} onChange={(e) => setDate(e.target.value)} required autoFocus />
         </Field>
-        <div className="flex gap-2" role="group" aria-label="Quick choices">
+        <div className="flex gap-2" role="group" aria-label={tr('Quick choices')}>
           {[['Tomorrow', 1], ['In a week', 7], ['In a month', 30]].map(([label, days]) => (
-            <button key={label as string} type="button" className="veqsio-btn-secondary text-xs" onClick={() => setDate(dayInput(days as number))}>{label}</button>
+            <button key={label as string} type="button" className="veqsio-btn-secondary text-xs" onClick={() => setDate(dayInput(days as number))}>{tr(label as string)}</button>
           ))}
         </div>
         <Field id={`${id}-reason`} label="Note (optional)">
@@ -159,13 +174,14 @@ export function SnoozeDialog({ items, busy, error, onCancel, onSubmit }: Common 
 
 export function DuplicateDialog({ project, items, busy, error, onCancel, onSubmit }: Common & { onSubmit: (b: ActionBody) => void }) {
   const id = useId()
+  const { tr } = useI18n()
   const [issue, setIssue] = useState('')
   const [reason, setReason] = useState('')
   return (
-    <Modal isOpen onClose={onCancel} title={`Mark ${countLabel(items.length)} as duplicate`} size="sm">
+    <Modal isOpen onClose={onCancel} title={dialogTitle(tr, 'duplicate', items.length)} size="sm">
       <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); onSubmit({ issue: issue.trim(), reason: reason.trim() || undefined }) }}>
-        <Field id={`${id}-issue`} label="Existing issue" hint={`An issue key of this project, for example ${project}-12.`}>
-          <input id={`${id}-issue`} className="veqsio-input w-full" value={issue} onChange={(e) => setIssue(e.target.value)} placeholder={`${project}-12`} required autoFocus pattern="[A-Za-z][A-Za-z0-9_]*-[0-9]+" title="An issue key such as ABC-12" />
+        <Field id={`${id}-issue`} label="Existing issue" hint={tr('An issue key of this project, for example {key}.', { key: `${project}-12` })}>
+          <input id={`${id}-issue`} className="veqsio-input w-full" value={issue} onChange={(e) => setIssue(e.target.value)} placeholder={`${project}-12`} required autoFocus pattern="[A-Za-z][A-Za-z0-9_]*-[0-9]+" title={tr('An issue key such as ABC-12')} />
         </Field>
         <Field id={`${id}-reason`} label="Note (optional)">
           <input id={`${id}-reason`} className="veqsio-input w-full" maxLength={2000} value={reason} onChange={(e) => setReason(e.target.value)} />
@@ -178,12 +194,13 @@ export function DuplicateDialog({ project, items, busy, error, onCancel, onSubmi
 
 export function SubmitDialog({ busy, error, onCancel, onSubmit }: Omit<Common, 'items' | 'project'> & { onSubmit: (b: { title: string; description?: string }) => void }) {
   const id = useId()
+  const { tr } = useI18n()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   return (
-    <Modal isOpen onClose={onCancel} title="Submit to intake">
+    <Modal isOpen onClose={onCancel} title={tr('Submit to intake')}>
       <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); onSubmit({ title: title.trim(), description: description.trim() || undefined }) }}>
-        <p className="text-sm text-[var(--text-secondary)]">Your submission waits in the queue until someone on the team accepts it. It becomes an issue only then.</p>
+        <p className="text-sm text-[var(--text-secondary)]">{tr('Your submission waits in the queue until someone on the team accepts it. It becomes an issue only then.')}</p>
         <Field id={`${id}-title`} label="Title">
           <input id={`${id}-title`} className="veqsio-input w-full" maxLength={200} value={title} onChange={(e) => setTitle(e.target.value)} required autoFocus />
         </Field>

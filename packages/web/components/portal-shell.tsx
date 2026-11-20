@@ -1,5 +1,8 @@
 'use client'
 
+
+import { LanguageSwitcher } from '@/components/language-switcher'
+import { useI18n } from '@/hooks/use-i18n'
 import { PoweredBy } from '@/components/powered-by'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -16,14 +19,16 @@ import { signOut } from '@/lib/session'
 const WIDTHS = { wide: 'max-w-5xl', narrow: 'max-w-3xl' } as const
 
 function NavLinks({ slug, className }: { slug: string; className: string }) {
+  const { tr } = useI18n();
+
   const pathname = usePathname() ?? ''
   const mine = pathname.startsWith(`/portal/${slug}/requests`)
   const items = [
-    { href: `/portal/${slug}`, label: 'Raise a request', active: !mine },
-    { href: `/portal/${slug}/requests`, label: 'My requests', active: mine },
+    { href: `/portal/${slug}`, label: tr('Raise a request'), active: !mine },
+    { href: `/portal/${slug}/requests`, label: tr('My requests'), active: mine },
   ]
   return (
-    <nav aria-label="Portal" className={className}>
+    <nav aria-label={tr('Portal')} className={className}>
       {items.map((i) => (
         <Link
           key={i.href} href={i.href} aria-current={i.active ? 'page' : undefined}
@@ -40,6 +45,8 @@ function NavLinks({ slug, className }: { slug: string; className: string }) {
 }
 
 function UserMenu() {
+  const { tr } = useI18n();
+
   const router = useRouter()
   const { theme, toggleTheme } = useTheme()
   const me = useMyself()
@@ -56,33 +63,33 @@ function UserMenu() {
   }, [open])
 
   if (me.isLoading) return <div aria-hidden className="h-9 w-16 rounded-full bg-[var(--surface-2)] animate-pulse" />
-  if (!me.data) return <Link href="/login" className="veqsio-btn-secondary text-sm min-h-[44px] inline-flex items-center">Sign in</Link>
+  if (!me.data) return <Link href="/login" className="veqsio-btn-secondary text-sm min-h-[44px] inline-flex items-center">{tr('Sign in')}</Link>
 
-  const name = me.data.displayName || me.data.name || 'Account'
+  const name = me.data.displayName || me.data.name || tr('Account')
   return (
     <div className="relative" ref={ref}>
       <button
         type="button" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}
         className="flex items-center gap-2 h-11 pl-1.5 pr-2 rounded-full hover:bg-[var(--surface-2)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-300)]"
       >
-        <span className="sr-only">Account menu for {name}</span>
+        <span className="sr-only">{tr('Account menu for')} {name}</span>
         <Avatar name={name} size="lg" className="!w-8 !h-8" />
         <ChevronDown aria-hidden className={`w-4 h-4 text-[var(--text-tertiary)] transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div role="menu" aria-label="Account" className="absolute right-0 mt-2 w-64 rounded-xl border border-[var(--surface-3)] bg-[var(--surface-0)] shadow-[var(--shadow-lg)] p-1.5 z-30">
+        <div role="menu" aria-label={tr('Account')} className="absolute right-0 mt-2 w-64 rounded-xl border border-[var(--surface-3)] bg-[var(--surface-0)] shadow-[var(--shadow-lg)] p-1.5 z-30">
           <div className="px-3 py-2.5 border-b border-[var(--surface-3)] mb-1.5">
             <div className="text-body font-medium text-[var(--text-primary)] truncate">{name}</div>
             {me.data.emailAddress && <div className="text-caption text-[var(--text-tertiary)] truncate">{me.data.emailAddress}</div>}
           </div>
+          <div className="px-3 py-1.5"><LanguageSwitcher block /></div>
           <button role="menuitem" type="button" onClick={toggleTheme} className="w-full flex items-center gap-2.5 px-3 min-h-[44px] rounded-lg text-body text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] text-left">
             {theme === 'light' ? <Moon aria-hidden className="w-4 h-4" /> : <Sun aria-hidden className="w-4 h-4" />}
-            {theme === 'light' ? 'Dark theme' : 'Light theme'}
+            {theme === 'light' ? tr('Dark theme') : tr('Light theme')}
           </button>
           <button role="menuitem" type="button" onClick={() => signOut(router)} className="w-full flex items-center gap-2.5 px-3 min-h-[44px] rounded-lg text-body text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] text-left">
             <LogOut aria-hidden className="w-4 h-4" />
-            Sign out
-          </button>
+            {tr('Sign out')} </button>
         </div>
       )}
     </div>
@@ -97,8 +104,9 @@ function UserMenu() {
 export function PortalShell({ slug, title, children, hero, width = 'wide' }: {
   slug: string; title?: string; children: React.ReactNode; hero?: React.ReactNode; width?: keyof typeof WIDTHS
 }) {
+  const { tr } = useI18n()
   const portal = usePortal(slug).data
-  const heading = portal?.portalTitle || title || portal?.name || 'Help center'
+  const heading = portal?.portalTitle || title || portal?.name || tr('Help center')
   const accent = portal?.accentColor && /^#[0-9a-fA-F]{6}$/.test(portal.accentColor) ? portal.accentColor : undefined
   const style = accent ? ({ '--brand-500': accent, '--brand-600': accent } as React.CSSProperties) : undefined
   const logo = portal?.logoUrl && /^(https:\/\/|\/(?!\/))/.test(portal.logoUrl) ? portal.logoUrl : null

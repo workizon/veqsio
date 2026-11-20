@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { Fragment } from 'react'
 import Link from 'next/link'
 import { ChevronRight, Home } from 'lucide-react'
@@ -14,11 +16,13 @@ interface BreadcrumbProps {
 }
 
 export function Breadcrumb({ items }: BreadcrumbProps) {
+  const { tr } = useI18n();
+
   return (
     <nav className="flex items-center gap-1.5 text-sm">
       <Link
         href="/"
-        aria-label="Home"
+        aria-label={tr('Home')}
         className="p-1 rounded hover:bg-[var(--surface-2)] text-[var(--text-tertiary)] transition-colors"
       >
         <Home className="w-4 h-4" />

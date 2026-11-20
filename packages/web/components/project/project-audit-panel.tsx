@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Search } from 'lucide-react'
@@ -12,6 +14,8 @@ const PAGE = 50
 
 /** The audit trail of one project: changes to the project itself and to its issues. */
 export function ProjectAuditPanel({ projectKey }: { projectKey: string }) {
+  const { tr } = useI18n();
+
   const [search, setSearch] = useState('')
   const [start, setStart] = useState(0)
   const q = useDebouncedValue(search.trim())
@@ -26,20 +30,20 @@ export function ProjectAuditPanel({ projectKey }: { projectKey: string }) {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-heading-2 text-[var(--text-primary)]">Audit log</h2>
-        <p className="mt-1 text-sm text-[var(--text-secondary)] max-w-3xl">Who changed what in this project: settings, roles, permissions and issues. The whole instance’s log is in Administration.</p>
+        <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('Audit log')}</h2>
+        <p className="mt-1 text-sm text-[var(--text-secondary)] max-w-3xl">{tr('Who changed what in this project: settings, roles, permissions and issues. The whole instance’s log is in Administration.')}</p>
       </div>
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" aria-hidden="true" />
-        <input className="veqsio-input w-full pl-9" placeholder="Filter by person, action or target…" value={search} onChange={(e) => { setSearch(e.target.value); setStart(0) }} aria-label="Filter the audit log" />
+        <input className="veqsio-input w-full pl-9" placeholder={tr('Filter by person, action or target…')} value={search} onChange={(e) => { setSearch(e.target.value); setStart(0) }} aria-label={tr('Filter the audit log')} />
       </div>
-      {data.isLoading ? <div className="flex justify-center py-12"><Spinner /></div> : data.error ? <p className="text-[var(--error)]">Could not load the audit log.</p> : (
+      {data.isLoading ? <div className="flex justify-center py-12"><Spinner /></div> : data.error ? <p className="text-[var(--error)]">{tr('Could not load the audit log.')}</p> : (
         <div className="rounded-lg border border-[var(--surface-3)] overflow-hidden">
           <table className="w-full text-sm">
-            <caption className="sr-only">Audit log of {projectKey}</caption>
-            <thead><tr className="veqsio-table-header text-left"><th scope="col">When</th><th scope="col">Who</th><th scope="col">Action</th><th scope="col">Target</th><th scope="col" className="text-right">Result</th></tr></thead>
+            <caption className="sr-only">{tr('Audit log of')} {projectKey}</caption>
+            <thead><tr className="veqsio-table-header text-left"><th scope="col">{tr('When')}</th><th scope="col">{tr('Who')}</th><th scope="col">{tr('Action')}</th><th scope="col">{tr('Target')}</th><th scope="col" className="text-right">{tr('Result')}</th></tr></thead>
             <tbody>
-              {(data.data?.values ?? []).length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-[var(--text-tertiary)]">Nothing recorded for this project yet.</td></tr>}
+              {(data.data?.values ?? []).length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-[var(--text-tertiary)]">{tr('Nothing recorded for this project yet.')}</td></tr>}
               {(data.data?.values ?? []).map((r) => (
                 <tr key={r.id} className="veqsio-table-row">
                   <td className="px-4 py-2 whitespace-nowrap text-[var(--text-secondary)]">{new Date(r.createdAt).toLocaleString()}</td>

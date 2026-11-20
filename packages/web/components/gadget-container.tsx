@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { DeskGadget, VersionProgressGadget } from '@/components/gadgets/desk-gadgets'
 import { useState, type ReactNode } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
@@ -64,6 +66,8 @@ interface GadgetContainerProps {
 }
 
 export function GadgetContainer({ gadget, onRemove, onUpdateConfig, editable = true }: GadgetContainerProps) {
+  const { tr } = useI18n();
+
   const [configOpen, setConfigOpen] = useState(false)
   const [localConfig, setLocalConfig] = useState(gadget.config)
 
@@ -110,7 +114,7 @@ export function GadgetContainer({ gadget, onRemove, onUpdateConfig, editable = t
       case 'version-progress':
         return <VersionProgressGadget config={gadget.config} />
       default:
-        return <div className="p-4 text-body-sm text-[var(--text-secondary)]">Unknown gadget type</div>
+        return <div className="p-4 text-body-sm text-[var(--text-secondary)]">{tr('Unknown gadget type')}</div>
     }
   }
 
@@ -133,7 +137,7 @@ export function GadgetContainer({ gadget, onRemove, onUpdateConfig, editable = t
               {...attributes}
               {...listeners}
               className="veqsio-btn-ghost p-1 cursor-grab active:cursor-grabbing text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
-              title="Drag to reorder"
+              title={tr('Drag to reorder')}
             >
               <GripVertical className="w-4 h-4" />
             </button>}
@@ -149,14 +153,14 @@ export function GadgetContainer({ gadget, onRemove, onUpdateConfig, editable = t
                 setConfigOpen(true)
               }}
               className="veqsio-btn-ghost p-1.5 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
-              title="Configure"
+              title={tr('Configure')}
             >
               <Settings className="w-4 h-4" />
             </button>
             <button
               onClick={() => onRemove(gadget.id)}
               className="veqsio-btn-ghost p-1.5 text-[var(--text-tertiary)] hover:text-[var(--error)]"
-              title="Remove"
+              title={tr('Remove')}
             >
               <X className="w-4 h-4" />
             </button>
@@ -185,14 +189,12 @@ export function GadgetContainer({ gadget, onRemove, onUpdateConfig, editable = t
               onClick={() => setConfigOpen(false)}
               className="veqsio-btn-secondary"
             >
-              Cancel
-            </button>
+              {tr('Cancel')} </button>
             <button
               onClick={handleSaveConfig}
               className="veqsio-btn-primary"
             >
-              Save
-            </button>
+              {tr('Save')} </button>
           </div>
         </div>
       </Modal>
@@ -201,26 +203,28 @@ export function GadgetContainer({ gadget, onRemove, onUpdateConfig, editable = t
 }
 
 function AgileConfig({ type, config, update }: { type: string; config: Record<string, unknown>; update: (k: string, v: unknown) => void }) {
+  const { tr } = useI18n();
+
   const boards = useBoards().data?.values ?? []
   return (
     <div className="space-y-3">
       <div>
-        <label className="block text-caption text-[var(--text-secondary)] mb-1.5">Board</label>
+        <label className="block text-caption text-[var(--text-secondary)] mb-1.5">{tr('Board')}</label>
         <select value={(config.boardId as string) || ''} onChange={(e) => update('boardId', e.target.value)} className="veqsio-input w-full">
-          <option value="">Choose a board…</option>
+          <option value="">{tr('Choose a board…')}</option>
           {boards.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
         </select>
       </div>
       {type !== 'cumulative-flow' && (
         <div>
-          <label className="block text-caption text-[var(--text-secondary)] mb-1.5">Unit</label>
+          <label className="block text-caption text-[var(--text-secondary)] mb-1.5">{tr('Unit')}</label>
           <select value={(config.unit as string) || 'issues'} onChange={(e) => update('unit', e.target.value)} className="veqsio-input w-full">
-            <option value="issues">Issues</option><option value="points">Story points</option><option value="hours">Hours</option>
+            <option value="issues">{tr('Issues')}</option><option value="points">{tr('Story points')}</option><option value="hours">{tr('Hours')}</option>
           </select>
         </div>
       )}
-      {type === 'velocity' && <div><label className="block text-caption text-[var(--text-secondary)] mb-1.5">Sprints to show</label><input type="number" min={1} max={30} value={(config.count as number) || 6} onChange={(e) => update('count', parseInt(e.target.value, 10) || 6)} className="veqsio-input w-full" /></div>}
-      {type === 'cumulative-flow' && <div><label className="block text-caption text-[var(--text-secondary)] mb-1.5">Days</label><input type="number" min={7} max={365} value={(config.days as number) || 30} onChange={(e) => update('days', parseInt(e.target.value, 10) || 30)} className="veqsio-input w-full" /></div>}
+      {type === 'velocity' && <div><label className="block text-caption text-[var(--text-secondary)] mb-1.5">{tr('Sprints to show')}</label><input type="number" min={1} max={30} value={(config.count as number) || 6} onChange={(e) => update('count', parseInt(e.target.value, 10) || 6)} className="veqsio-input w-full" /></div>}
+      {type === 'cumulative-flow' && <div><label className="block text-caption text-[var(--text-secondary)] mb-1.5">{tr('Days')}</label><input type="number" min={7} max={365} value={(config.days as number) || 30} onChange={(e) => update('days', parseInt(e.target.value, 10) || 30)} className="veqsio-input w-full" /></div>}
     </div>
   )
 }
@@ -234,6 +238,8 @@ function ConfigFields({
   config: Record<string, unknown>
   onChange: (config: Record<string, unknown>) => void
 }) {
+  const { tr } = useI18n();
+
   const update = (key: string, value: unknown) => {
     onChange({ ...config, [key]: value })
   }
@@ -251,20 +257,20 @@ function ConfigFields({
     return (
       <div className="space-y-3">
         <div>
-          <label className="block text-caption text-[var(--text-secondary)] mb-1.5">JQL (leave empty for everything you can see)</label>
-          <input value={(config.jql as string) || ''} onChange={(e) => update('jql', e.target.value)} className="veqsio-input w-full" placeholder="project = DEMO AND resolution = Unresolved" />
+          <label className="block text-caption text-[var(--text-secondary)] mb-1.5">{tr('JQL (leave empty for everything you can see)')}</label>
+          <input value={(config.jql as string) || ''} onChange={(e) => update('jql', e.target.value)} className="veqsio-input w-full" placeholder={tr('project = DEMO AND resolution = Unresolved')} />
         </div>
         {(type === 'issue-statistics') && select('field', 'Group by', FIELDS, 'status')}
         {(type === 'two-dimensional') && <>{select('field', 'Rows', FIELDS, 'assignee')}{select('field2', 'Columns', FIELDS, 'status')}</>}
         {(type === 'issue-statistics' || type === 'workload' || type === 'two-dimensional') && select('metric', 'Count', [['count', 'Issues'], ['estimate', 'Estimated hours'], ['spent', 'Hours spent']], 'count')}
         {type === 'created-heatmap' && <>{select('dateField', 'Day by', [['created', 'Created'], ['resolved', 'Resolved'], ['updated', 'Updated'], ['due', 'Due']], 'created')}
-          <div><label className="block text-caption text-[var(--text-secondary)] mb-1.5">Days to show</label><input type="number" min={7} max={365} value={(config.days as number) || 120} onChange={(e) => update('days', parseInt(e.target.value, 10) || 120)} className="veqsio-input w-full" /></div></>}
+          <div><label className="block text-caption text-[var(--text-secondary)] mb-1.5">{tr('Days to show')}</label><input type="number" min={7} max={365} value={(config.days as number) || 120} onChange={(e) => update('days', parseInt(e.target.value, 10) || 120)} className="veqsio-input w-full" /></div></>}
         {type === 'stat' && <>
-          <div><label className="block text-caption text-[var(--text-secondary)] mb-1.5">Label</label><input value={(config.label as string) || ''} onChange={(e) => update('label', e.target.value)} className="veqsio-input w-full" maxLength={100} /></div>
-          <label className="flex items-center gap-2 text-body-sm"><input type="checkbox" checked={!!config.compare} onChange={(e) => update('compare', e.target.checked)} /> Compare new issues with the previous period</label>
-          {!!config.compare && <div><label className="block text-caption text-[var(--text-secondary)] mb-1.5">Period (days)</label><input type="number" min={1} max={365} value={(config.days as number) || 7} onChange={(e) => update('days', parseInt(e.target.value, 10) || 7)} className="veqsio-input w-full" /></div>}
+          <div><label className="block text-caption text-[var(--text-secondary)] mb-1.5">{tr('Label')}</label><input value={(config.label as string) || ''} onChange={(e) => update('label', e.target.value)} className="veqsio-input w-full" maxLength={100} /></div>
+          <label className="flex items-center gap-2 text-body-sm"><input type="checkbox" checked={!!config.compare} onChange={(e) => update('compare', e.target.checked)} /> {tr('Compare new issues with the previous period')}</label>
+          {!!config.compare && <div><label className="block text-caption text-[var(--text-secondary)] mb-1.5">{tr('Period (days)')}</label><input type="number" min={1} max={365} value={(config.days as number) || 7} onChange={(e) => update('days', parseInt(e.target.value, 10) || 7)} className="veqsio-input w-full" /></div>}
         </>}
-        {(type === 'issue-statistics' || type === 'workload' || type === 'recently-created') && <div><label className="block text-caption text-[var(--text-secondary)] mb-1.5">Rows to show</label><input type="number" min={1} max={100} value={(config.limit as number) || 10} onChange={(e) => update('limit', parseInt(e.target.value, 10) || 10)} className="veqsio-input w-full" /></div>}
+        {(type === 'issue-statistics' || type === 'workload' || type === 'recently-created') && <div><label className="block text-caption text-[var(--text-secondary)] mb-1.5">{tr('Rows to show')}</label><input type="number" min={1} max={100} value={(config.limit as number) || 10} onChange={(e) => update('limit', parseInt(e.target.value, 10) || 10)} className="veqsio-input w-full" /></div>}
       </div>
     )
   }
@@ -272,7 +278,7 @@ function ConfigFields({
     return <AgileConfig type={type} config={config} update={update} />
   }
   if (type === 'notes') {
-    return (<div><label className="block text-caption text-[var(--text-secondary)] mb-1.5">Text</label><textarea rows={6} value={(config.text as string) || ''} onChange={(e) => update('text', e.target.value)} className="veqsio-input w-full" maxLength={20000} /></div>)
+    return (<div><label className="block text-caption text-[var(--text-secondary)] mb-1.5">{tr('Text')}</label><textarea rows={6} value={(config.text as string) || ''} onChange={(e) => update('text', e.target.value)} className="veqsio-input w-full" maxLength={20000} /></div>)
   }
 
   switch (type) {
@@ -280,17 +286,16 @@ function ConfigFields({
       return (
         <div>
           <label className="block text-caption text-[var(--text-secondary)] mb-1.5">
-            Group by
-          </label>
+            {tr('Group by')} </label>
           <select
             value={(config.field as string) || 'status'}
             onChange={(e) => update('field', e.target.value)}
             className="veqsio-input w-full"
           >
-            <option value="status">Status</option>
-            <option value="priority">Priority</option>
-            <option value="type">Issue type</option>
-            <option value="assignee">Assignee</option>
+            <option value="status">{tr('Status')}</option>
+            <option value="priority">{tr('Priority')}</option>
+            <option value="type">{tr('Issue type')}</option>
+            <option value="assignee">{tr('Assignee')}</option>
           </select>
         </div>
       )
@@ -299,8 +304,7 @@ function ConfigFields({
         <div className="space-y-3">
           <div>
             <label className="block text-caption text-[var(--text-secondary)] mb-1.5">
-              Filter ID
-            </label>
+              {tr('Filter ID')} </label>
             <input
               type="text"
               value={(config.filterId as string) || ''}
@@ -309,17 +313,16 @@ function ConfigFields({
               placeholder="e.g. 1"
             />
           </div>
-          <div className="text-caption text-[var(--text-tertiary)] text-center">— or —</div>
+          <div className="text-caption text-[var(--text-tertiary)] text-center">{tr('— or —')}</div>
           <div>
             <label className="block text-caption text-[var(--text-secondary)] mb-1.5">
-              JQL
-            </label>
+              {tr('JQL')} </label>
             <input
               type="text"
               value={(config.jql as string) || ''}
               onChange={(e) => update('jql', e.target.value)}
               className="veqsio-input w-full"
-              placeholder="project = DEMO ORDER BY created DESC"
+              placeholder={tr('project = DEMO ORDER BY created DESC')}
             />
           </div>
         </div>
@@ -328,8 +331,7 @@ function ConfigFields({
       return (
         <div>
           <label className="block text-caption text-[var(--text-secondary)] mb-1.5">
-            Number of items
-          </label>
+            {tr('Number of items')} </label>
           <input
             type="number"
             min={1}
@@ -344,8 +346,7 @@ function ConfigFields({
       return (
         <div>
           <label className="block text-caption text-[var(--text-secondary)] mb-1.5">
-            Days to show
-          </label>
+            {tr('Days to show')} </label>
           <input
             type="number"
             min={7}
@@ -360,8 +361,7 @@ function ConfigFields({
       return (
         <div>
           <label className="block text-caption text-[var(--text-secondary)] mb-1.5">
-            Sprint ID
-          </label>
+            {tr('Sprint ID')} </label>
           <input
             type="text"
             value={(config.sprintId as string) || '1'}
@@ -376,22 +376,20 @@ function ConfigFields({
         <div className="space-y-3">
           <div>
             <label className="block text-caption text-[var(--text-secondary)] mb-1.5">
-              Period
-            </label>
+              {tr('Period')} </label>
             <select
               value={(config.period as string) || 'daily'}
               onChange={(e) => update('period', e.target.value)}
               className="veqsio-input w-full"
             >
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
+              <option value="daily">{tr('Daily')}</option>
+              <option value="weekly">{tr('Weekly')}</option>
+              <option value="monthly">{tr('Monthly')}</option>
             </select>
           </div>
           <div>
             <label className="block text-caption text-[var(--text-secondary)] mb-1.5">
-              Number of periods
-            </label>
+              {tr('Number of periods')} </label>
             <input
               type="number"
               min={1}
@@ -406,8 +404,7 @@ function ConfigFields({
     default:
       return (
         <p className="text-body-sm text-[var(--text-secondary)]">
-          This gadget has no configurable options.
-        </p>
+          {tr('This gadget has no configurable options.')} </p>
       )
   }
 }

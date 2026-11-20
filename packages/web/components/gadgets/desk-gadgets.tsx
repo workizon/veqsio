@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { useDeskQueues, useDeskReport } from '@/hooks/use-servicedesk'
@@ -10,13 +12,17 @@ import { useGadgetData } from '@/hooks/use-dashboards'
 type Config = Record<string, unknown>
 const deskOf = (c: Config) => Number(c.deskId) || 0
 
-function NoDesk() { return <EmptyState icon="inbox" title="Choose a service desk" description="This gadget needs a deskId in its configuration." /> }
+function NoDesk() {
+  const { tr } = useI18n();
+ return <EmptyState icon="inbox" title={tr('Choose a service desk')} description={tr('This gadget needs a deskId in its configuration.')} /> }
 
 function QueueCounts({ id }: { id: number }) {
+  const { tr } = useI18n();
+
   const q = useDeskQueues(id)
   if (q.isLoading) return <ChartSkeleton />
   const rows = q.data?.values ?? []
-  if (!rows.length) return <EmptyState icon="inbox" title="No queues" />
+  if (!rows.length) return <EmptyState icon="inbox" title={tr('No queues')} />
   return (
     <ul className="divide-y divide-[var(--surface-3)]">
       {rows.map((r) => (
@@ -30,10 +36,12 @@ function QueueCounts({ id }: { id: number }) {
 }
 
 function SlaRows({ id, days, mode }: { id: number; days: number; mode: 'compliance' | 'breaches' }) {
+  const { tr } = useI18n();
+
   const q = useDeskReport(id, days)
   if (q.isLoading) return <ChartSkeleton />
   const sla = q.data?.sla ?? []
-  if (!sla.length) return <EmptyState icon="inbox" title="No SLAs configured" />
+  if (!sla.length) return <EmptyState icon="inbox" title={tr('No SLAs configured')} />
   const rows = mode === 'breaches' ? [...sla].sort((a, b) => b.breached - a.breached) : sla
   return (
     <ul className="space-y-3">
@@ -43,7 +51,7 @@ function SlaRows({ id, days, mode }: { id: number; days: number; mode: 'complian
           <li key={s.slaId} className="text-body-sm">
             <div className="flex items-baseline justify-between"><span className="font-medium">{s.name}</span><span className="tabular-nums">{mode === 'breaches' ? `${s.breached} breached` : pct === null ? '–' : `${pct}%`}</span></div>
             <div className="mt-1 h-2 rounded-full bg-[var(--surface-2)] overflow-hidden" aria-hidden="true"><div className={`h-full rounded-full ${mode === 'breaches' && s.breached > 0 ? 'bg-[var(--error)]' : 'bg-[var(--success)]'}`} style={{ width: `${mode === 'breaches' ? Math.min(100, s.breached * 20) : pct ?? 0}%` }} /></div>
-            <p className="mt-0.5 text-xs text-[var(--text-tertiary)]">{s.met} met · {s.breached} breached · {s.running} running</p>
+            <p className="mt-0.5 text-xs text-[var(--text-tertiary)]">{s.met} {tr('met ·')} {s.breached} {tr('breached ·')} {s.running} running</p>
           </li>
         )
       })}
@@ -52,10 +60,12 @@ function SlaRows({ id, days, mode }: { id: number; days: number; mode: 'complian
 }
 
 function Csat({ id, days }: { id: number; days: number }) {
+  const { tr } = useI18n();
+
   const q = useDeskReport(id, days)
   if (q.isLoading) return <ChartSkeleton />
   const d = q.data
-  if (!d || d.csat.responses === 0) return <EmptyState icon="inbox" title="No ratings yet" />
+  if (!d || d.csat.responses === 0) return <EmptyState icon="inbox" title={tr('No ratings yet')} />
   const max = Math.max(1, ...d.csatDistribution.map((x) => x.count))
   return (
     <div className="space-y-3">
@@ -79,6 +89,8 @@ export function DeskGadget({ type, config }: { type: string; config: Config }) {
 
 /** Progress of one version: its issues by status category, as a bar. */
 export function VersionProgressGadget({ config }: { config: Config }) {
+  const { tr } = useI18n();
+
   const projectId = Number(config.projectId) || 0
   const versionId = Number(config.versionId) || 0
   const meta = useQuery({
@@ -94,10 +106,10 @@ export function VersionProgressGadget({ config }: { config: Config }) {
   })
   const jql = meta.data ? `project = ${meta.data.key} AND fixVersion = "${meta.data.name}"` : ''
   const buckets = useGadgetData<{ buckets: { name: string; value: number }[]; total: number }>('issue-statistics', { jql, field: 'statusCategory' })
-  if (!projectId || !versionId) return <EmptyState icon="inbox" title="Choose a version" />
+  if (!projectId || !versionId) return <EmptyState icon="inbox" title={tr('Choose a version')} />
   if (meta.isLoading || buckets.isLoading) return <ChartSkeleton />
   const total = buckets.data?.total ?? 0
-  if (!total) return <EmptyState icon="inbox" title="No issues in this version" />
+  if (!total) return <EmptyState icon="inbox" title={tr('No issues in this version')} />
   const count = (re: RegExp) => (buckets.data?.buckets ?? []).filter((b) => re.test(b.name)).reduce((a, b) => a + b.value, 0)
   const done = count(/done|complete/i), doing = count(/progress/i), todo = total - done - doing
   return (
@@ -106,7 +118,7 @@ export function VersionProgressGadget({ config }: { config: Config }) {
       <div className="flex h-3 overflow-hidden rounded-full bg-[var(--surface-2)]" role="img" aria-label={`${done} done, ${doing} in progress, ${todo} to do`}>
         <div className="bg-[var(--success)]" style={{ width: `${(done / total) * 100}%` }} /><div className="bg-[var(--brand-500)]" style={{ width: `${(doing / total) * 100}%` }} />
       </div>
-      <p className="text-xs text-[var(--text-tertiary)]">{done} done · {doing} in progress · {todo} to do</p>
+      <p className="text-xs text-[var(--text-tertiary)]">{done} {tr('done ·')} {doing} {tr('in progress ·')} {todo} {tr('to do')}</p>
     </div>
   )
 }

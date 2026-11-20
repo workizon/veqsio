@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { AppLayout } from '@/components/app-layout'
 import { Spinner } from '@/components/spinner'
 import { EmptyState } from '@/components/empty-state'
@@ -33,6 +35,8 @@ import {
 import { confirmDialog } from '@/components/dialogs'
 
 export default function AutomationPage() {
+  const { tr } = useI18n();
+
   const router = useRouter()
   const { data: rules, isLoading, error } = useAutomationRules()
   const deleteMutation = useDeleteAutomationRule()
@@ -46,11 +50,11 @@ export default function AutomationPage() {
     <AppLayout>
       <div className="space-y-4">
         <PageHeader
-          title="Automation"
-          description="Rules that act on issues when something happens, so nobody has to do it by hand."
+          title={tr('Automation')}
+          description={tr('Rules that act on issues when something happens, so nobody has to do it by hand.')}
           actions={<>
             <RuleDraftButton />
-            <button onClick={() => router.push('/automation/create')} className="veqsio-btn-primary flex items-center gap-2"><Plus className="w-4 h-4" />Create rule</button>
+            <button onClick={() => router.push('/automation/create')} className="veqsio-btn-primary flex items-center gap-2"><Plus className="w-4 h-4" />{tr('Create rule')}</button>
           </>}
         />
 
@@ -71,8 +75,8 @@ export default function AutomationPage() {
         {!isLoading && !error && (!rules || rules.length === 0) && (
           <EmptyState
             icon="folder"
-            title="No automation rules"
-            description="Use Create rule above to add the first one, or Describe a rule to let the AI draft it."
+            title={tr('No automation rules')}
+            description={tr('Use Create rule above to add the first one, or Describe a rule to let the AI draft it.')}
           />
         )}
 
@@ -89,12 +93,10 @@ export default function AutomationPage() {
                       </h3>
                       {rule.isEnabled ? (
                         <span className="veqsio-badge-status-done text-[10px] px-2 py-0.5 rounded-full">
-                          Active
-                        </span>
+                          {tr('Active')} </span>
                       ) : (
                         <span className="veqsio-badge text-[10px] px-2 py-0.5 rounded-full">
-                          Disabled
-                        </span>
+                          {tr('Disabled')} </span>
                       )}
                     </div>
                     {rule.description && (
@@ -122,14 +124,14 @@ export default function AutomationPage() {
                     <button
                       onClick={() => setRunRuleId(rule.id)}
                       className="veqsio-btn-ghost p-2"
-                      title="Test run"
+                      title={tr('Test run')}
                     >
                       <Play className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setHistoryRuleId(rule.id)}
                       className="veqsio-btn-ghost p-2"
-                      title="Execution history"
+                      title={tr('Execution history')}
                     >
                       <History className="w-4 h-4" />
                     </button>
@@ -149,7 +151,7 @@ export default function AutomationPage() {
                     <button
                       onClick={() => router.push(`/automation/create?id=${rule.id}`)}
                       className="veqsio-btn-ghost p-2"
-                      title="Edit"
+                      title={tr('Edit')}
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
@@ -160,7 +162,7 @@ export default function AutomationPage() {
                         }
                       }}
                       className="veqsio-btn-ghost p-2 hover:text-[var(--error)]"
-                      title="Delete"
+                      title={tr('Delete')}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -213,10 +215,12 @@ function ExecutionHistoryModal({
   ruleId: number | null
   onClose: () => void
 }) {
+  const { tr } = useI18n();
+
   const { data: executions, isLoading } = useAutomationExecutions(ruleId)
 
   return (
-    <Modal isOpen={ruleId !== null} onClose={onClose} title="Execution history" size="lg">
+    <Modal isOpen={ruleId !== null} onClose={onClose} title={tr('Execution history')} size="lg">
       <div className="max-h-[60vh] overflow-y-auto space-y-2">
         {isLoading && (
           <div className="flex items-center justify-center py-8">
@@ -224,7 +228,7 @@ function ExecutionHistoryModal({
           </div>
         )}
         {!isLoading && (!executions || executions.length === 0) && (
-          <EmptyState icon="inbox" title="No executions yet" description="Run this rule to see history." />
+          <EmptyState icon="inbox" title={tr('No executions yet')} description={tr('Run this rule to see history.')} />
         )}
         {!isLoading &&
           executions?.map((ex) => (
@@ -285,27 +289,26 @@ function TestRunModal({
   onRun: () => void
   isRunning: boolean
 }) {
+  const { tr } = useI18n();
+
   return (
-    <Modal isOpen={ruleId !== null} onClose={onClose} title="Test run" size="sm">
+    <Modal isOpen={ruleId !== null} onClose={onClose} title={tr('Test run')} size="sm">
       <div className="space-y-4">
         <p className="text-body-sm text-[var(--text-secondary)]">
-          Provide an issue key to run this rule against a specific issue, or leave blank for a generic manual run.
-        </p>
+          {tr('Provide an issue key to run this rule against a specific issue, or leave blank for a generic manual run.')} </p>
         <input
           type="text"
           value={issueKey}
           onChange={(e) => setIssueKey(e.target.value)}
-          placeholder="e.g. PROJ-123"
+          placeholder={tr('e.g. PROJ-123')}
           className="veqsio-input w-full"
         />
         <div className="flex items-center justify-end gap-2">
           <button onClick={onClose} className="veqsio-btn-ghost" disabled={isRunning}>
-            Cancel
-          </button>
+            {tr('Cancel')} </button>
           <button onClick={onRun} className="veqsio-btn-primary flex items-center gap-2" disabled={isRunning}>
             {isRunning ? <Spinner size="sm" /> : <Play className="w-4 h-4" />}
-            Run
-          </button>
+            {tr('Run')} </button>
         </div>
       </div>
     </Modal>

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState, useEffect } from 'react'
 import { Modal } from './modal'
 import { Tabs } from './tabs'
@@ -31,6 +33,8 @@ interface BoardSettingsModalProps {
 }
 
 export function BoardSettingsModal({ open, onClose, initialBoardId }: BoardSettingsModalProps) {
+  const { tr } = useI18n();
+
   const { data: boardsData, isLoading: boardsLoading } = useBoards()
   const [selectedBoardId, setSelectedBoardId] = useState<string>('')
 
@@ -51,7 +55,7 @@ export function BoardSettingsModal({ open, onClose, initialBoardId }: BoardSetti
     <Modal
       isOpen={open}
       onClose={onClose}
-      title="Board settings"
+      title={tr('Board settings')}
       size="lg"
     >
       {boardsLoading ? (
@@ -61,13 +65,13 @@ export function BoardSettingsModal({ open, onClose, initialBoardId }: BoardSetti
       ) : boards.length === 0 ? (
         <EmptyState
           icon="folder"
-          title="No boards yet"
-          description="Create a board in a project to configure board settings."
+          title={tr('No boards yet')}
+          description={tr('Create a board in a project to configure board settings.')}
         />
       ) : (
         <div className="space-y-4">
           <div>
-            <label className="text-caption text-[var(--text-secondary)] block mb-1">Select board</label>
+            <label className="text-caption text-[var(--text-secondary)] block mb-1">{tr('Select board')}</label>
             <select
               value={selectedBoardId}
               onChange={(e) => setSelectedBoardId(e.target.value)}
@@ -90,6 +94,8 @@ export function BoardSettingsModal({ open, onClose, initialBoardId }: BoardSetti
 }
 
 function BoardSettingsContent({ boardId }: { boardId: string }) {
+  const { tr } = useI18n();
+
   const { data: board, isLoading } = useBoard(boardId)
   const { data: statusesData } = useStatuses()
   const updateBoard = useUpdateBoard()
@@ -136,7 +142,7 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
   const handleSaveLayout = async () => {
     try {
       await updateBoard.mutateAsync({ id: boardId, data: { config: { ...board?.config, cardFields: CARD_FIELDS.filter((f) => layout.fields.has(f)), cardSize: layout.size } } })
-      toast('Card layout saved', 'success')
+      toast(tr('Card layout saved'), 'success')
     } catch (e: any) {
       toast(e?.message || 'Could not save the card layout', 'error')
     }
@@ -149,7 +155,7 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
     try {
       await updateBoard.mutateAsync({ id: boardId, data: { config: { ...board?.config, cardColour } } })
       setHasChanges(false)
-      toast('Card colours saved', 'success')
+      toast(tr('Card colours saved'), 'success')
     } catch (e: any) {
       setColourErrors([e?.message || 'Could not save the card colours'])
     }
@@ -243,8 +249,7 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
       {hasChanges && (
         <div className="flex items-center gap-2 bg-[var(--warning)]/10 text-[var(--warning)] px-3 py-2 rounded-lg text-sm">
           <AlertCircle className="w-4 h-4" />
-          You have unsaved changes
-        </div>
+          {tr('You have unsaved changes')} </div>
       )}
       <Tabs
         tabs={[
@@ -254,10 +259,9 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
             content: (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-heading-3 text-[var(--text-primary)]">Column configuration</h3>
+                  <h3 className="text-heading-3 text-[var(--text-primary)]">{tr('Column configuration')}</h3>
                   <button onClick={handleAddColumn} className="veqsio-btn-secondary flex items-center gap-2 text-sm">
-                    <Plus className="w-4 h-4" /> Add Column
-                  </button>
+                    <Plus className="w-4 h-4" /> {tr('Add Column')} </button>
                 </div>
                 <div className="space-y-2">
                   {columns.map((col, idx) => (
@@ -280,7 +284,7 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
                       </div>
                       <div className="flex-1 grid grid-cols-4 gap-3">
                         <div>
-                          <label className="text-caption text-[var(--text-tertiary)] block mb-1">Name</label>
+                          <label className="text-caption text-[var(--text-tertiary)] block mb-1">{tr('Name')}</label>
                           <input
                             type="text"
                             value={col.name}
@@ -289,50 +293,50 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
                           />
                         </div>
                         <div>
-                          <label className="text-caption text-[var(--text-tertiary)] block mb-1">Status</label>
+                          <label className="text-caption text-[var(--text-tertiary)] block mb-1">{tr('Status')}</label>
                           <select
                             value={col.statusId || ''}
                             onChange={(e) => handleColumnChange(col.id, 'statusId', e.target.value ? Number(e.target.value) : null)}
                             className="veqsio-input w-full text-sm"
                           >
-                            <option value="">None</option>
+                            <option value="">{tr('None')}</option>
                             {statuses.map((s) => (
                               <option key={s.id} value={s.id}>{s.name}</option>
                             ))}
                           </select>
                         </div>
                         <div>
-                          <label className="text-caption text-[var(--text-tertiary)] block mb-1">Min WIP</label>
+                          <label className="text-caption text-[var(--text-tertiary)] block mb-1">{tr('Min WIP')}</label>
                           <input
                             type="number"
                             value={col.min ?? ''}
                             onChange={(e) => handleColumnChange(col.id, 'min', e.target.value ? Number(e.target.value) : null)}
                             className="veqsio-input w-full text-sm"
-                            placeholder="None"
+                            placeholder={tr('None')}
                           />
                         </div>
                         <div>
-                          <label className="text-caption text-[var(--text-tertiary)] block mb-1">Max WIP</label>
+                          <label className="text-caption text-[var(--text-tertiary)] block mb-1">{tr('Max WIP')}</label>
                           <input
                             type="number"
                             value={col.max ?? ''}
                             onChange={(e) => handleColumnChange(col.id, 'max', e.target.value ? Number(e.target.value) : null)}
                             className="veqsio-input w-full text-sm"
-                            placeholder="None"
+                            placeholder={tr('None')}
                           />
                         </div>
                       </div>
                       <button
                         onClick={() => handleRemoveColumn(col.id)}
                         className="text-[var(--error)] hover:opacity-70 p-1"
-                        title="Remove column"
+                        title={tr('Remove column')}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   ))}
                   {columns.length === 0 && (
-                    <p className="text-body-sm text-[var(--text-secondary)] text-center py-8">No columns configured. Add a column to get started.</p>
+                    <p className="text-body-sm text-[var(--text-secondary)] text-center py-8">{tr('No columns configured. Add a column to get started.')}</p>
                   )}
                 </div>
                 {columns.length > 0 && (
@@ -356,32 +360,31 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
             content: (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-heading-3 text-[var(--text-primary)]">Quick filters</h3>
+                  <h3 className="text-heading-3 text-[var(--text-primary)]">{tr('Quick filters')}</h3>
                   <button onClick={handleAddFilter} className="veqsio-btn-secondary flex items-center gap-2 text-sm">
-                    <Plus className="w-4 h-4" /> Add Filter
-                  </button>
+                    <Plus className="w-4 h-4" /> {tr('Add Filter')} </button>
                 </div>
                 <div className="space-y-2">
                   {quickFilters.map((qf) => (
                     <div key={qf.id} className="veqsio-card p-3 flex items-center gap-3">
                       <div className="flex-1 grid grid-cols-2 gap-3">
                         <div>
-                          <label className="text-caption text-[var(--text-tertiary)] block mb-1">Name</label>
+                          <label className="text-caption text-[var(--text-tertiary)] block mb-1">{tr('Name')}</label>
                           <input
                             type="text"
                             value={qf.name}
                             onChange={(e) => handleFilterChange(qf.id, 'name', e.target.value)}
-                            placeholder="e.g. My Issues"
+                            placeholder={tr('e.g. My Issues')}
                             className="veqsio-input w-full text-sm"
                           />
                         </div>
                         <div>
-                          <label className="text-caption text-[var(--text-tertiary)] block mb-1">JQL</label>
+                          <label className="text-caption text-[var(--text-tertiary)] block mb-1">{tr('JQL')}</label>
                           <input
                             type="text"
                             value={qf.jql}
                             onChange={(e) => handleFilterChange(qf.id, 'jql', e.target.value)}
-                            placeholder="e.g. assignee = currentUser()"
+                            placeholder={tr('e.g. assignee = currentUser()')}
                             className="veqsio-input w-full text-sm"
                           />
                         </div>
@@ -389,14 +392,14 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
                       <button
                         onClick={() => handleRemoveFilter(qf.id)}
                         className="text-[var(--error)] hover:opacity-70 p-1"
-                        title="Remove filter"
+                        title={tr('Remove filter')}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   ))}
                   {quickFilters.length === 0 && (
-                    <p className="text-body-sm text-[var(--text-secondary)] text-center py-8">No quick filters configured. Add one to get started.</p>
+                    <p className="text-body-sm text-[var(--text-secondary)] text-center py-8">{tr('No quick filters configured. Add one to get started.')}</p>
                   )}
                 </div>
                 {quickFilters.length > 0 && (
@@ -419,10 +422,10 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
             label: 'Card colours',
             content: (
               <div className="space-y-4">
-                <h3 className="text-heading-3 text-[var(--text-primary)]">Card colour by</h3>
+                <h3 className="text-heading-3 text-[var(--text-primary)]">{tr('Card colour by')}</h3>
                 <div className="veqsio-card p-4 space-y-4">
                   <div>
-                    <label htmlFor="card-colour-by" className="text-caption text-[var(--text-secondary)] block mb-1">Colour the left border and tint of each card by</label>
+                    <label htmlFor="card-colour-by" className="text-caption text-[var(--text-secondary)] block mb-1">{tr('Colour the left border and tint of each card by')}</label>
                     <select
                       id="card-colour-by"
                       value={cardColour.by}
@@ -438,21 +441,21 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
                   </div>
                   {cardColour.by === 'rules' ? (
                     <div className="space-y-2">
-                      <p className="text-body-sm text-[var(--text-secondary)]">The first rule that matches a card decides its colour. Cards that match no rule stay plain. A legend above the board lists the colours in use.</p>
+                      <p className="text-body-sm text-[var(--text-secondary)]">{tr('The first rule that matches a card decides its colour. Cards that match no rule stay plain. A legend above the board lists the colours in use.')}</p>
                       {cardColour.rules.map((r, i) => (
                         <div key={i} className="rounded-lg border border-[var(--surface-3)] p-3 space-y-2">
                           <div className="grid grid-cols-1 sm:grid-cols-[1fr_2fr] gap-3">
                             <div>
-                              <label className="text-caption text-[var(--text-tertiary)] block mb-1" htmlFor={`rule-name-${i}`}>Legend name</label>
-                              <input id={`rule-name-${i}`} className="veqsio-input w-full text-sm" value={r.name} maxLength={60} placeholder="e.g. Blocked" onChange={(e) => setRule(i, { name: e.target.value })} />
+                              <label className="text-caption text-[var(--text-tertiary)] block mb-1" htmlFor={`rule-name-${i}`}>{tr('Legend name')}</label>
+                              <input id={`rule-name-${i}`} className="veqsio-input w-full text-sm" value={r.name} maxLength={60} placeholder={tr('e.g. Blocked')} onChange={(e) => setRule(i, { name: e.target.value })} />
                             </div>
                             <div>
-                              <label className="text-caption text-[var(--text-tertiary)] block mb-1" htmlFor={`rule-jql-${i}`}>JQL</label>
-                              <input id={`rule-jql-${i}`} className="veqsio-input w-full text-sm font-mono" value={r.jql} placeholder="e.g. flagged = true" onChange={(e) => setRule(i, { jql: e.target.value })} />
+                              <label className="text-caption text-[var(--text-tertiary)] block mb-1" htmlFor={`rule-jql-${i}`}>{tr('JQL')}</label>
+                              <input id={`rule-jql-${i}`} className="veqsio-input w-full text-sm font-mono" value={r.jql} placeholder={tr('e.g. flagged = true')} onChange={(e) => setRule(i, { jql: e.target.value })} />
                             </div>
                           </div>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-caption text-[var(--text-tertiary)]" id={`rule-colour-${i}`}>Colour</span>
+                            <span className="text-caption text-[var(--text-tertiary)]" id={`rule-colour-${i}`}>{tr('Colour')}</span>
                             <div role="group" aria-labelledby={`rule-colour-${i}`} className="flex flex-wrap gap-1.5">
                               {CARD_COLOUR_TOKENS.map((t) => (
                                 <button
@@ -467,21 +470,19 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
                               type="button"
                               onClick={() => { setCardColour((c) => ({ ...c, rules: c.rules.filter((_, j) => j !== i) })); setHasChanges(true) }}
                               className="ml-auto text-[var(--error)] hover:opacity-70 p-1"
-                              title="Remove rule" aria-label={`Remove rule ${i + 1}`}
+                              title={tr('Remove rule')} aria-label={`Remove rule ${i + 1}`}
                             ><Trash2 className="w-4 h-4" /></button>
                           </div>
                         </div>
                       ))}
                       {cardColour.rules.length < 10 && (
                         <button type="button" className="veqsio-btn-secondary flex items-center gap-2 text-sm" onClick={() => { setCardColour((c) => ({ ...c, rules: [...c.rules, emptyRule()] })); setHasChanges(true) }}>
-                          <Plus className="w-4 h-4" /> Add rule
-                        </button>
+                          <Plus className="w-4 h-4" /> {tr('Add rule')} </button>
                       )}
                     </div>
                   ) : (
                     <p className="text-body-sm text-[var(--text-secondary)]">
-                      {cardColour.by === 'none' ? 'Cards use the plain style.' : `Each ${cardColour.by === 'issuetype' ? 'issue type' : cardColour.by} gets its own colour.`} Flagged issues are always tinted and show a flag.
-                    </p>
+                      {cardColour.by === 'none' ? 'Cards use the plain style.' : `Each ${cardColour.by === 'issuetype' ? 'issue type' : cardColour.by} gets its own colour.`} {tr('Flagged issues are always tinted and show a flag.')} </p>
                   )}
                   {colourErrors.length > 0 && (
                     <ul role="alert" className="text-sm text-[var(--error)] space-y-0.5">{colourErrors.map((m) => <li key={m}>{m}</li>)}</ul>
@@ -501,10 +502,10 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
             label: 'Card layout',
             content: (
               <div className="space-y-4">
-                <h3 className="text-heading-3 text-[var(--text-primary)]">Card layout</h3>
+                <h3 className="text-heading-3 text-[var(--text-primary)]">{tr('Card layout')}</h3>
                 <div className="veqsio-card p-4 space-y-4">
                   <fieldset>
-                    <legend className="text-caption text-[var(--text-secondary)] mb-2">Show on each card (summary, key and flag are always shown)</legend>
+                    <legend className="text-caption text-[var(--text-secondary)] mb-2">{tr('Show on each card (summary, key and flag are always shown)')}</legend>
                     <div className="space-y-2">
                       {CARD_FIELDS.map((f) => (
                         <label key={f} className="flex items-center gap-2 text-sm text-[var(--text-primary)]">
@@ -519,10 +520,10 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
                     </div>
                   </fieldset>
                   <div>
-                    <label htmlFor="card-size" className="text-caption text-[var(--text-secondary)] block mb-1">Density</label>
+                    <label htmlFor="card-size" className="text-caption text-[var(--text-secondary)] block mb-1">{tr('Density')}</label>
                     <select id="card-size" className="veqsio-input" value={layout.size} onChange={(e) => setLayout((l) => ({ ...l, size: e.target.value as CardSize }))}>
-                      <option value="comfortable">Comfortable</option>
-                      <option value="compact">Compact</option>
+                      <option value="comfortable">{tr('Comfortable')}</option>
+                      <option value="compact">{tr('Compact')}</option>
                     </select>
                   </div>
                 </div>
@@ -540,10 +541,10 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
             label: 'Swimlanes',
             content: (
               <div className="space-y-4">
-                <h3 className="text-heading-3 text-[var(--text-primary)]">Swimlane configuration</h3>
+                <h3 className="text-heading-3 text-[var(--text-primary)]">{tr('Swimlane configuration')}</h3>
                 <div className="veqsio-card p-4 space-y-4">
                   <div>
-                    <label className="text-caption text-[var(--text-secondary)] block mb-1">Group by (Swimlane Field)</label>
+                    <label className="text-caption text-[var(--text-secondary)] block mb-1">{tr('Group by (Swimlane Field)')}</label>
                     <select
                       value={swimlaneField}
                       onChange={(e) => {
@@ -552,17 +553,16 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
                       }}
                       className="veqsio-input w-full"
                     >
-                      <option value="">No swimlanes</option>
-                      <option value="assignee">Assignee</option>
-                      <option value="priority">Priority</option>
-                      <option value="project">Project</option>
-                      <option value="issuetype">Issue type</option>
-                      <option value="epic">Epic</option>
+                      <option value="">{tr('No swimlanes')}</option>
+                      <option value="assignee">{tr('Assignee')}</option>
+                      <option value="priority">{tr('Priority')}</option>
+                      <option value="project">{tr('Project')}</option>
+                      <option value="issuetype">{tr('Issue type')}</option>
+                      <option value="epic">{tr('Epic')}</option>
                     </select>
                   </div>
                   <p className="text-body-sm text-[var(--text-secondary)]">
-                    Swimlanes group issues horizontally on the board. Choose a field to group by, or select "No Swimlanes" to display all issues in a single row per column.
-                  </p>
+                    {tr('Swimlanes group issues horizontally on the board. Choose a field to group by, or select "No Swimlanes" to display all issues in a single row per column.')} </p>
                 </div>
                 <div className="flex justify-end">
                   <button

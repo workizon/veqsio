@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { AgentBadge } from '@/components/agent-badge'
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
@@ -68,6 +70,8 @@ export function RichTextEditor({
   value, onChange, label, id, placeholder, rows = 5, maxLength, disabled, autoFocus, mentions = true,
   issueKey, uploadImage, onSubmit, toolbarExtra, className = '',
 }: RichTextEditorProps) {
+  const { tr } = useI18n();
+
   const reactId = useId()
   const textareaId = id ?? `rte-${reactId}`
   const listId = `${textareaId}-mentions`
@@ -100,7 +104,7 @@ export function RichTextEditor({
 
   const apply = useCallback((next: EditState) => {
     if (maxLength && next.value.length > maxLength) {
-      setStatus({ kind: 'error', text: `Limit is ${maxLength} characters` })
+      setStatus({ kind: 'error', text: tr('Limit is {n} characters', { n: maxLength }) })
       return
     }
     pendingSel.current = { start: next.start, end: next.end }
@@ -201,9 +205,9 @@ export function RichTextEditor({
     if (image && !(html && /<table[\s>]/i.test(html))) {
       if (!canUpload) return
       e.preventDefault()
-      if (image.size > MAX_IMAGE_BYTES) { setStatus({ kind: 'error', text: 'Image is too large (max 10 MB)' }); return }
+      if (image.size > MAX_IMAGE_BYTES) { setStatus({ kind: 'error', text: tr('Image is too large (max 10 MB)') }); return }
       const at = state()
-      setStatus({ kind: 'info', text: 'Uploading image...' })
+      setStatus({ kind: 'info', text: tr('Uploading image...') })
       try {
         const up = uploadImage ? await uploadImage(image) : await uploadIssueImage(issueKey!, image)
         const alt = up.name.replace(/[\[\]\n]/g, ' ')
@@ -211,7 +215,7 @@ export function RichTextEditor({
         if (issueKey) queryClient.invalidateQueries({ queryKey: ['issue', issueKey, 'attachments'] })
         setStatus(null)
       } catch (err) {
-        setStatus({ kind: 'error', text: err instanceof Error ? err.message : 'Upload failed' })
+        setStatus({ kind: 'error', text: err instanceof Error ? tr(err.message) : tr('Upload failed') })
       }
       return
     }
@@ -242,7 +246,7 @@ export function RichTextEditor({
   return (
     <div className={`rte border border-[var(--surface-3)] rounded-lg bg-[var(--surface-1)] focus-within:ring-2 focus-within:ring-[var(--brand-500)] ${className}`}>
       <div className="flex flex-wrap items-center gap-1 border-b border-[var(--surface-3)] px-2 py-1">
-        <div role="tablist" aria-label="Editor mode" className="flex gap-1 mr-2">
+        <div role="tablist" aria-label={tr('Editor mode')} className="flex gap-1 mr-2">
           {(['write', 'preview'] as const).map((t) => (
             <button
               key={t}
@@ -254,11 +258,11 @@ export function RichTextEditor({
               onClick={() => setTab(t)}
               className={`px-2 py-1 text-sm rounded ${tab === t ? 'bg-[var(--surface-2)] font-medium text-[var(--text-primary)]' : 'text-[var(--text-tertiary)] hover:bg-[var(--surface-2)]'}`}
             >
-              {t === 'write' ? 'Write' : 'Preview'}
+              {t === 'write' ? tr('Write') : tr('Preview')}
             </button>
           ))}
         </div>
-        <div role="toolbar" aria-label="Formatting" aria-controls={textareaId} className={`flex flex-wrap items-center gap-0.5 ${invisible ? 'opacity-40 pointer-events-none' : ''}`}>
+        <div role="toolbar" aria-label={tr('Formatting')} aria-controls={textareaId} className={`flex flex-wrap items-center gap-0.5 ${invisible ? 'opacity-40 pointer-events-none' : ''}`}>
           {tools.map((t) => (
             <button
               key={t.label}
@@ -267,8 +271,8 @@ export function RichTextEditor({
               disabled={disabled || invisible}
               onMouseDown={(e) => e.preventDefault() /* keep textarea selection */}
               onClick={t.run}
-              aria-label={t.label}
-              title={t.shortcut ? `${t.label} (${t.shortcut})` : t.label}
+              aria-label={tr(t.label)}
+              title={t.shortcut ? `${tr(t.label)} (${t.shortcut})` : tr(t.label)}
               className="p-1.5 rounded hover:bg-[var(--surface-2)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
             >
               {t.icon}
@@ -303,7 +307,7 @@ export function RichTextEditor({
           className="w-full resize-y bg-transparent px-3 py-2 text-body text-[var(--text-primary)] outline-none font-mono text-sm"
         />
         {mention && hits.length > 0 && (
-          <ul id={listId} role="listbox" aria-label="Mention suggestions" className="absolute left-2 bottom-2 z-20 w-64 max-h-52 overflow-auto rounded-lg border border-[var(--surface-3)] bg-[var(--surface-1)] shadow-lg">
+          <ul id={listId} role="listbox" aria-label={tr('Mention suggestions')} className="absolute left-2 bottom-2 z-20 w-64 max-h-52 overflow-auto rounded-lg border border-[var(--surface-3)] bg-[var(--surface-1)] shadow-lg">
             {hits.map((u, i) => (
               <li
                 key={u.id}
@@ -322,11 +326,11 @@ export function RichTextEditor({
       </div>
 
       <div id={`${textareaId}-panel-preview`} role="tabpanel" aria-labelledby={`${textareaId}-tab-preview`} hidden={tab !== 'preview'} className="px-3 py-2 min-h-[6rem]">
-        {tab === 'preview' && (value.trim() ? <RichText value={value} /> : <p className="text-sm text-[var(--text-tertiary)] italic">Nothing to preview</p>)}
+        {tab === 'preview' && (value.trim() ? <RichText value={value} /> : <p className="text-sm text-[var(--text-tertiary)] italic">{tr('Nothing to preview')}</p>)}
       </div>
 
       <div className="flex items-center justify-between px-3 py-1 text-xs text-[var(--text-tertiary)] border-t border-[var(--surface-3)]">
-        <span>Markdown supported{canUpload ? ' · paste images to attach' : ''} · paste tables from Excel or Jira</span>
+        <span>{tr('Markdown supported')}{canUpload ? ` ${tr('· paste images to attach')}` : ''} {tr('· paste tables from Excel or Jira')}</span>
         <span role="status" aria-live="polite" className={status?.kind === 'error' ? 'text-[var(--error)]' : ''}>{status?.text ?? ''}</span>
       </div>
     </div>

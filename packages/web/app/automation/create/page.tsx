@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { AppLayout } from '@/components/app-layout'
 import { Spinner } from '@/components/spinner'
 import { EmptyState } from '@/components/empty-state'
@@ -139,6 +141,8 @@ const SYSTEM_FIELDS = [
 /* ------------------------------------------------------------------ */
 
 export default function AutomationCreatePage() {
+  const { tr } = useI18n();
+
   const router = useRouter()
   const searchParams = useSearchParams()
   const editId = searchParams.get('id') ? Number(searchParams.get('id')) : null
@@ -279,16 +283,14 @@ export default function AutomationCreatePage() {
                   className="veqsio-btn-secondary flex items-center gap-2"
                 >
                   <History className="w-4 h-4" />
-                  History
-                </button>
+                  {tr('History')} </button>
                 <button
                   onClick={handleTestRun}
                   className="veqsio-btn-secondary flex items-center gap-2"
                   disabled={executeMutation.isPending}
                 >
                   {executeMutation.isPending ? <Spinner size="sm" /> : <Play className="w-4 h-4" />}
-                  Test
-                </button>
+                  {tr('Test')} </button>
               </>
             )}
             <button
@@ -297,8 +299,7 @@ export default function AutomationCreatePage() {
               disabled={saving}
             >
               {saving ? <Spinner size="sm" /> : <Save className="w-4 h-4" />}
-              Save
-            </button>
+              {tr('Save')} </button>
           </div>
         </div>
 
@@ -310,26 +311,26 @@ export default function AutomationCreatePage() {
           <>
             {/* Basic settings */}
             <div className="veqsio-card p-4 space-y-4">
-              <h2 className="text-heading-2 text-[var(--text-primary)]">Basic settings</h2>
+              <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('Basic settings')}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-caption text-[var(--text-secondary)]">Name *</label>
+                  <label className="text-caption text-[var(--text-secondary)]">{tr('Name *')}</label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="veqsio-input w-full"
-                    placeholder="Rule name"
+                    placeholder={tr('Rule name')}
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-caption text-[var(--text-secondary)]">Project scope</label>
+                  <label className="text-caption text-[var(--text-secondary)]">{tr('Project scope')}</label>
                   <select
                     value={projectId}
                     onChange={(e) => setProjectId(e.target.value)}
                     className="veqsio-input w-full"
                   >
-                    <option value="">Global (all projects)</option>
+                    <option value="">{tr('Global (all projects)')}</option>
                     {projects?.map((p) => (
                       <option key={p.id} value={String(p.id)}>
                         {p.name} ({p.key})
@@ -339,12 +340,12 @@ export default function AutomationCreatePage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-caption text-[var(--text-secondary)]">Description</label>
+                <label className="text-caption text-[var(--text-secondary)]">{tr('Description')}</label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="veqsio-input w-full min-h-[80px] resize-y"
-                  placeholder="What does this rule do?"
+                  placeholder={tr('What does this rule do?')}
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -356,18 +357,17 @@ export default function AutomationCreatePage() {
                   className="accent-[var(--brand-500)]"
                 />
                 <label htmlFor="enabled" className="text-body-sm text-[var(--text-primary)]">
-                  Enabled
-                </label>
+                  {tr('Enabled')} </label>
               </div>
               {editId && (
                 <div className="flex items-center gap-2">
-                  <label className="text-caption text-[var(--text-secondary)]">Test issue key</label>
+                  <label className="text-caption text-[var(--text-secondary)]">{tr('Test issue key')}</label>
                   <input
                     type="text"
                     value={testIssueKey}
                     onChange={(e) => setTestIssueKey(e.target.value)}
                     className="veqsio-input w-48"
-                    placeholder="PROJ-123"
+                    placeholder={tr('PROJ-123')}
                   />
                 </div>
               )}
@@ -483,6 +483,8 @@ function BuilderSection({
   onUpdate: (idx: number, item: any) => void
   renderConfig: (item: any, onChange: (partial: any) => void) => React.ReactNode
 }) {
+  const { tr } = useI18n();
+
   return (
     <div className="space-y-3">
       {items.map((item, idx) => (
@@ -513,8 +515,8 @@ function BuilderSection({
                 onChange={(e) => onUpdate(idx, { ...item, operator: e.target.value })}
                 className="veqsio-input w-24"
               >
-                <option value="AND">AND</option>
-                <option value="OR">OR</option>
+                <option value="AND">{tr('AND')}</option>
+                <option value="OR">{tr('OR')}</option>
               </select>
             )}
             <button
@@ -534,14 +536,13 @@ function BuilderSection({
         className="veqsio-btn-secondary w-full flex items-center justify-center gap-2 py-3"
       >
         <Plus className="w-4 h-4" />
-        Add
-      </button>
+        {tr('Add')} </button>
 
       {items.length === 0 && (
         <EmptyState
           icon="inbox"
-          title="Nothing here yet"
-          description="Click Add to get started."
+          title={tr('Nothing here yet')}
+          description={tr('Click Add to get started.')}
         />
       )}
     </div>
@@ -561,10 +562,12 @@ function TriggerConfigForm({
   config: Record<string, any>
   onChange: (partial: { config?: Record<string, any> }) => void
 }) {
+  const { tr } = useI18n();
+
   if (triggerType === 'scheduled') {
     return (
       <div className="space-y-2">
-        <label className="text-caption text-[var(--text-secondary)]">Cron expression</label>
+        <label className="text-caption text-[var(--text-secondary)]">{tr('Cron expression')}</label>
         <input
           type="text"
           value={config.cron || ''}
@@ -577,8 +580,7 @@ function TriggerConfigForm({
   }
   return (
     <p className="text-caption text-[var(--text-tertiary)]">
-      No additional configuration required for this trigger.
-    </p>
+      {tr('No additional configuration required for this trigger.')} </p>
   )
 }
 
@@ -603,16 +605,18 @@ function ConditionConfigForm({
     projects?: { id: number; key: string; name: string }[]
   }
 }) {
+  const { tr } = useI18n();
+
   switch (conditionType) {
     case 'jql_match':
       return (
         <div className="space-y-2">
-          <label className="text-caption text-[var(--text-secondary)]">JQL Query</label>
+          <label className="text-caption text-[var(--text-secondary)]">{tr('JQL Query')}</label>
           <textarea
             value={config.jql || ''}
             onChange={(e) => onChange({ config: { ...config, jql: e.target.value } })}
             className="veqsio-input w-full min-h-[80px] resize-y font-mono text-sm"
-            placeholder="status = 'To Do' AND priority = 'High'"
+            placeholder={tr('status = \'To Do\' AND priority = \'High\'')}
           />
         </div>
       )
@@ -621,26 +625,26 @@ function ConditionConfigForm({
       return (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1">
-            <label className="text-caption text-[var(--text-secondary)]">Field</label>
+            <label className="text-caption text-[var(--text-secondary)]">{tr('Field')}</label>
             <select
               value={config.field || ''}
               onChange={(e) => onChange({ config: { ...config, field: e.target.value } })}
               className="veqsio-input w-full"
             >
-              <option value="">Select field</option>
+              <option value="">{tr('Select field')}</option>
               {SYSTEM_FIELDS.map((f) => (
                 <option key={f} value={f}>{f}</option>
               ))}
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-caption text-[var(--text-secondary)]">Value</label>
+            <label className="text-caption text-[var(--text-secondary)]">{tr('Value')}</label>
             <input
               type="text"
               value={config.value || ''}
               onChange={(e) => onChange({ config: { ...config, value: e.target.value } })}
               className="veqsio-input w-full"
-              placeholder="Value to match"
+              placeholder={tr('Value to match')}
             />
           </div>
         </div>
@@ -649,13 +653,13 @@ function ConditionConfigForm({
     case 'field_changed':
       return (
         <div className="space-y-1">
-          <label className="text-caption text-[var(--text-secondary)]">Field</label>
+          <label className="text-caption text-[var(--text-secondary)]">{tr('Field')}</label>
           <select
             value={config.field || ''}
             onChange={(e) => onChange({ config: { ...config, field: e.target.value } })}
             className="veqsio-input w-full"
           >
-            <option value="">Select field</option>
+            <option value="">{tr('Select field')}</option>
             {SYSTEM_FIELDS.map((f) => (
               <option key={f} value={f}>{f}</option>
             ))}
@@ -666,13 +670,13 @@ function ConditionConfigForm({
     case 'issue_type_is':
       return (
         <div className="space-y-1">
-          <label className="text-caption text-[var(--text-secondary)]">Issue type</label>
+          <label className="text-caption text-[var(--text-secondary)]">{tr('Issue type')}</label>
           <select
             value={config.issueTypeId || ''}
             onChange={(e) => onChange({ config: { ...config, issueTypeId: e.target.value } })}
             className="veqsio-input w-full"
           >
-            <option value="">Select issue type</option>
+            <option value="">{tr('Select issue type')}</option>
             {meta.issueTypes?.map((t) => (
               <option key={t.id} value={t.id}>{t.name}</option>
             ))}
@@ -683,13 +687,13 @@ function ConditionConfigForm({
     case 'priority_is':
       return (
         <div className="space-y-1">
-          <label className="text-caption text-[var(--text-secondary)]">Priority</label>
+          <label className="text-caption text-[var(--text-secondary)]">{tr('Priority')}</label>
           <select
             value={config.priorityId || ''}
             onChange={(e) => onChange({ config: { ...config, priorityId: e.target.value } })}
             className="veqsio-input w-full"
           >
-            <option value="">Select priority</option>
+            <option value="">{tr('Select priority')}</option>
             {meta.priorities?.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
@@ -700,13 +704,13 @@ function ConditionConfigForm({
     case 'status_is':
       return (
         <div className="space-y-1">
-          <label className="text-caption text-[var(--text-secondary)]">Status</label>
+          <label className="text-caption text-[var(--text-secondary)]">{tr('Status')}</label>
           <select
             value={config.statusId || ''}
             onChange={(e) => onChange({ config: { ...config, statusId: e.target.value } })}
             className="veqsio-input w-full"
           >
-            <option value="">Select status</option>
+            <option value="">{tr('Select status')}</option>
             {meta.statuses?.map((s) => (
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
@@ -717,13 +721,13 @@ function ConditionConfigForm({
     case 'assignee_is':
       return (
         <div className="space-y-1">
-          <label className="text-caption text-[var(--text-secondary)]">Assignee</label>
+          <label className="text-caption text-[var(--text-secondary)]">{tr('Assignee')}</label>
           <select
             value={config.assigneeId || ''}
             onChange={(e) => onChange({ config: { ...config, assigneeId: e.target.value } })}
             className="veqsio-input w-full"
           >
-            <option value="">Unassigned</option>
+            <option value="">{tr('Unassigned')}</option>
             {meta.users?.map((u) => (
               <option key={u.id} value={String(u.id)}>{u.name}</option>
             ))}
@@ -735,8 +739,7 @@ function ConditionConfigForm({
     case 'issue_is_subtask':
       return (
         <p className="text-caption text-[var(--text-tertiary)]">
-          No additional configuration required.
-        </p>
+          {tr('No additional configuration required.')} </p>
       )
 
     default:
@@ -765,11 +768,13 @@ function ActionConfigForm({
     projects?: { id: number; key: string; name: string }[]
   }
 }) {
+  const { tr } = useI18n();
+
   switch (actionType) {
     case 'transition_issue':
       return (
         <div className="space-y-1">
-          <label className="text-caption text-[var(--text-secondary)]">Transition ID</label>
+          <label className="text-caption text-[var(--text-secondary)]">{tr('Transition ID')}</label>
           <input
             type="number"
             value={config.transitionId || ''}
@@ -783,13 +788,13 @@ function ActionConfigForm({
     case 'assign_issue':
       return (
         <div className="space-y-1">
-          <label className="text-caption text-[var(--text-secondary)]">Assignee</label>
+          <label className="text-caption text-[var(--text-secondary)]">{tr('Assignee')}</label>
           <select
             value={config.assigneeId || ''}
             onChange={(e) => onChange({ config: { ...config, assigneeId: e.target.value } })}
             className="veqsio-input w-full"
           >
-            <option value="">Unassigned</option>
+            <option value="">{tr('Unassigned')}</option>
             {meta.users?.map((u) => (
               <option key={u.id} value={String(u.id)}>{u.name}</option>
             ))}
@@ -800,12 +805,12 @@ function ActionConfigForm({
     case 'add_comment':
       return (
         <div className="space-y-1">
-          <label className="text-caption text-[var(--text-secondary)]">Comment body</label>
+          <label className="text-caption text-[var(--text-secondary)]">{tr('Comment body')}</label>
           <textarea
             value={config.body || ''}
             onChange={(e) => onChange({ config: { ...config, body: e.target.value } })}
             className="veqsio-input w-full min-h-[80px] resize-y"
-            placeholder="Enter comment text..."
+            placeholder={tr('Enter comment text...')}
           />
         </div>
       )
@@ -814,26 +819,26 @@ function ActionConfigForm({
       return (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1">
-            <label className="text-caption text-[var(--text-secondary)]">Field</label>
+            <label className="text-caption text-[var(--text-secondary)]">{tr('Field')}</label>
             <select
               value={config.field || ''}
               onChange={(e) => onChange({ config: { ...config, field: e.target.value } })}
               className="veqsio-input w-full"
             >
-              <option value="">Select field</option>
+              <option value="">{tr('Select field')}</option>
               {SYSTEM_FIELDS.map((f) => (
                 <option key={f} value={f}>{f}</option>
               ))}
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-caption text-[var(--text-secondary)]">Value</label>
+            <label className="text-caption text-[var(--text-secondary)]">{tr('Value')}</label>
             <input
               type="text"
               value={config.value || ''}
               onChange={(e) => onChange({ config: { ...config, value: e.target.value } })}
               className="veqsio-input w-full"
-              placeholder="New value"
+              placeholder={tr('New value')}
             />
           </div>
         </div>
@@ -843,84 +848,84 @@ function ActionConfigForm({
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="space-y-1">
-            <label className="text-caption text-[var(--text-secondary)]">Project</label>
+            <label className="text-caption text-[var(--text-secondary)]">{tr('Project')}</label>
             <select
               value={config.projectId || ''}
               onChange={(e) => onChange({ config: { ...config, projectId: e.target.value } })}
               className="veqsio-input w-full"
             >
-              <option value="">Select project</option>
+              <option value="">{tr('Select project')}</option>
               {meta.projects?.map((p) => (
                 <option key={p.id} value={String(p.id)}>{p.name}</option>
               ))}
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-caption text-[var(--text-secondary)]">Issue type</label>
+            <label className="text-caption text-[var(--text-secondary)]">{tr('Issue type')}</label>
             <select
               value={config.issueTypeId || ''}
               onChange={(e) => onChange({ config: { ...config, issueTypeId: e.target.value } })}
               className="veqsio-input w-full"
             >
-              <option value="">Select type</option>
+              <option value="">{tr('Select type')}</option>
               {meta.issueTypes?.map((t) => (
                 <option key={t.id} value={t.id}>{t.name}</option>
               ))}
             </select>
           </div>
           <div className="space-y-1 md:col-span-2">
-            <label className="text-caption text-[var(--text-secondary)]">Summary</label>
+            <label className="text-caption text-[var(--text-secondary)]">{tr('Summary')}</label>
             <input
               type="text"
               value={config.summary || ''}
               onChange={(e) => onChange({ config: { ...config, summary: e.target.value } })}
               className="veqsio-input w-full"
-              placeholder="Issue summary"
+              placeholder={tr('Issue summary')}
             />
           </div>
           <div className="space-y-1 md:col-span-2">
-            <label className="text-caption text-[var(--text-secondary)]">Description</label>
+            <label className="text-caption text-[var(--text-secondary)]">{tr('Description')}</label>
             <textarea
               value={config.description || ''}
               onChange={(e) => onChange({ config: { ...config, description: e.target.value } })}
               className="veqsio-input w-full min-h-[60px] resize-y"
-              placeholder="Optional description"
+              placeholder={tr('Optional description')}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-caption text-[var(--text-secondary)]">Priority</label>
+            <label className="text-caption text-[var(--text-secondary)]">{tr('Priority')}</label>
             <select
               value={config.priorityId || ''}
               onChange={(e) => onChange({ config: { ...config, priorityId: e.target.value } })}
               className="veqsio-input w-full"
             >
-              <option value="">None</option>
+              <option value="">{tr('None')}</option>
               {meta.priorities?.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-caption text-[var(--text-secondary)]">Assignee</label>
+            <label className="text-caption text-[var(--text-secondary)]">{tr('Assignee')}</label>
             <select
               value={config.assigneeId || ''}
               onChange={(e) => onChange({ config: { ...config, assigneeId: e.target.value } })}
               className="veqsio-input w-full"
             >
-              <option value="">Unassigned</option>
+              <option value="">{tr('Unassigned')}</option>
               {meta.users?.map((u) => (
                 <option key={u.id} value={String(u.id)}>{u.name}</option>
               ))}
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-caption text-[var(--text-secondary)]">Parent Issue ID</label>
+            <label className="text-caption text-[var(--text-secondary)]">{tr('Parent Issue ID')}</label>
             <input
               type="number"
               value={config.parentId || ''}
               onChange={(e) => onChange({ config: { ...config, parentId: e.target.value } })}
               className="veqsio-input w-full"
-              placeholder="Optional parent issue id"
+              placeholder={tr('Optional parent issue id')}
             />
           </div>
         </div>
@@ -929,7 +934,7 @@ function ActionConfigForm({
     case 'send_webhook':
       return (
         <div className="space-y-1">
-          <label className="text-caption text-[var(--text-secondary)]">Webhook URL</label>
+          <label className="text-caption text-[var(--text-secondary)]">{tr('Webhook URL')}</label>
           <input
             type="url"
             value={config.url || ''}
@@ -944,32 +949,32 @@ function ActionConfigForm({
       return (
         <div className="space-y-3">
           <div className="space-y-1">
-            <label className="text-caption text-[var(--text-secondary)]">To address</label>
+            <label className="text-caption text-[var(--text-secondary)]">{tr('To address')}</label>
             <input
               type="email"
               value={config.toAddress || ''}
               onChange={(e) => onChange({ config: { ...config, toAddress: e.target.value } })}
               className="veqsio-input w-full"
-              placeholder="user@example.com"
+              placeholder={tr('user@example.com')}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-caption text-[var(--text-secondary)]">Subject</label>
+            <label className="text-caption text-[var(--text-secondary)]">{tr('Subject')}</label>
             <input
               type="text"
               value={config.subject || ''}
               onChange={(e) => onChange({ config: { ...config, subject: e.target.value } })}
               className="veqsio-input w-full"
-              placeholder="Email subject"
+              placeholder={tr('Email subject')}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-caption text-[var(--text-secondary)]">Body</label>
+            <label className="text-caption text-[var(--text-secondary)]">{tr('Body')}</label>
             <textarea
               value={config.body || ''}
               onChange={(e) => onChange({ config: { ...config, body: e.target.value } })}
               className="veqsio-input w-full min-h-[80px] resize-y"
-              placeholder="HTML body"
+              placeholder={tr('HTML body')}
             />
           </div>
         </div>
@@ -979,7 +984,7 @@ function ActionConfigForm({
     case 'remove_label':
       return (
         <div className="space-y-1">
-          <label className="text-caption text-[var(--text-secondary)]">Label</label>
+          <label className="text-caption text-[var(--text-secondary)]">{tr('Label')}</label>
           <input
             type="text"
             value={config.label || ''}
@@ -993,13 +998,13 @@ function ActionConfigForm({
     case 'set_priority':
       return (
         <div className="space-y-1">
-          <label className="text-caption text-[var(--text-secondary)]">Priority</label>
+          <label className="text-caption text-[var(--text-secondary)]">{tr('Priority')}</label>
           <select
             value={config.priorityId || ''}
             onChange={(e) => onChange({ config: { ...config, priorityId: e.target.value } })}
             className="veqsio-input w-full"
           >
-            <option value="">None</option>
+            <option value="">{tr('None')}</option>
             {meta.priorities?.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
@@ -1011,17 +1016,17 @@ function ActionConfigForm({
       return (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1">
-            <label className="text-caption text-[var(--text-secondary)]">Outward Issue ID</label>
+            <label className="text-caption text-[var(--text-secondary)]">{tr('Outward Issue ID')}</label>
             <input
               type="number"
               value={config.outwardIssueId || ''}
               onChange={(e) => onChange({ config: { ...config, outwardIssueId: Number(e.target.value) } })}
               className="veqsio-input w-full"
-              placeholder="Issue ID to link"
+              placeholder={tr('Issue ID to link')}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-caption text-[var(--text-secondary)]">Link Type ID</label>
+            <label className="text-caption text-[var(--text-secondary)]">{tr('Link Type ID')}</label>
             <input
               type="number"
               value={config.linkTypeId || ''}
@@ -1036,13 +1041,13 @@ function ActionConfigForm({
     case 'log_action':
       return (
         <div className="space-y-1">
-          <label className="text-caption text-[var(--text-secondary)]">Message</label>
+          <label className="text-caption text-[var(--text-secondary)]">{tr('Message')}</label>
           <input
             type="text"
             value={config.message || ''}
             onChange={(e) => onChange({ config: { ...config, message: e.target.value } })}
             className="veqsio-input w-full"
-            placeholder="Log message"
+            placeholder={tr('Log message')}
           />
         </div>
       )
@@ -1065,10 +1070,12 @@ function ExecutionHistoryModal({
   isOpen: boolean
   onClose: () => void
 }) {
+  const { tr } = useI18n();
+
   const { data: executions, isLoading } = useAutomationExecutions(ruleId)
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Execution history" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title={tr('Execution history')} size="lg">
       <div className="max-h-[60vh] overflow-y-auto space-y-2">
         {isLoading && (
           <div className="flex items-center justify-center py-8">
@@ -1076,7 +1083,7 @@ function ExecutionHistoryModal({
           </div>
         )}
         {!isLoading && (!executions || executions.length === 0) && (
-          <EmptyState icon="inbox" title="No executions yet" description="Run this rule to see history." />
+          <EmptyState icon="inbox" title={tr('No executions yet')} description={tr('Run this rule to see history.')} />
         )}
         {!isLoading &&
           executions?.map((ex) => (

@@ -80,6 +80,7 @@ await import('./link-relations.api');
 await import('./status-groups.api');
 await import('./status-updates.api');
 await import('./agents.api');
+await import('./inbox.api');
 await import('./initiatives-milestones.api');
 await import('./templates-lifecycle.api');
 await import('./integrations.api');

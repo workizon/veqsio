@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Sparkles } from 'lucide-react'
@@ -31,6 +33,8 @@ const FEATURE_LABELS: Record<keyof AdminAi['features'], string> = {
 }
 
 export default function AdminAiPage() {
+  const { tr } = useI18n();
+
   const qc = useQueryClient()
   const { data, isLoading, error } = useQuery({
     queryKey: ['admin', 'ai'],
@@ -59,9 +63,9 @@ export default function AdminAiPage() {
         method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
       })
       const json = await res.json().catch(() => null)
-      if (!res.ok) throw new Error(json?.errorMessages?.[0] ?? 'Could not save')
+      if (!res.ok) throw new Error(json?.errorMessages?.[0] ?? tr('Could not save'))
       setApiKey(''); setRemoveKey(false); setTestMsg(null)
-      toast('AI settings saved', 'success')
+      toast(tr('AI settings saved'), 'success')
       await qc.invalidateQueries({ queryKey: ['admin', 'ai'] })
       await qc.invalidateQueries({ queryKey: ['ai', 'features'] })
     } catch (e) {
@@ -84,7 +88,7 @@ export default function AdminAiPage() {
       <div className="space-y-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-[var(--surface-2)] flex items-center justify-center"><Sparkles className="w-5 h-5 text-[var(--brand-500)]" /></div>
-          <PageHeader title="AI assist" description="Optional. Off by default. Veqsio works fully without it." />
+          <PageHeader title={tr('AI assist')} description={tr('Optional. Off by default. Veqsio works fully without it.')} />
         </div>
 
         {isLoading && <Spinner />}
@@ -93,81 +97,79 @@ export default function AdminAiPage() {
         {form && (
           <form className="veqsio-card space-y-5" onSubmit={(e) => { e.preventDefault(); void save() }}>
             <div className="rounded border border-amber-300 bg-amber-50 p-3 text-body-sm">
-              When enabled, issue text the requesting user may see (summary, description, comments, never internal notes unless the user is service-desk staff)
-              is sent to the model endpoint you configure. Use a self-hosted model if that data must not leave your network.
+              {tr('When enabled, issue text the requesting user may see (summary, description, comments, never internal notes unless the user is service-desk staff) is sent to the model endpoint you configure. Use a self-hosted model if that data must not leave your network.')}
             </div>
 
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={form.enabled} onChange={(e) => set('enabled', e.target.checked)} />
-              <span className="text-body-sm font-medium">Enable AI assist (model-backed features)</span>
+              <span className="text-body-sm font-medium">{tr('Enable AI assist (model-backed features)')}</span>
             </label>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className={label} htmlFor="ai-provider">Provider API</label>
+                <label className={label} htmlFor="ai-provider">{tr('Provider API')}</label>
                 <select id="ai-provider" className="veqsio-input w-full" value={form.provider} onChange={(e) => set('provider', e.target.value as AdminAi['provider'])}>
-                  <option value="openai">OpenAI-compatible (OpenAI, Ollama, vLLM, LM Studio, llama.cpp, gateways)</option>
-                  <option value="anthropic">Anthropic Messages API</option>
+                  <option value="openai">{tr('OpenAI-compatible (OpenAI, Ollama, vLLM, LM Studio, llama.cpp, gateways)')}</option>
+                  <option value="anthropic">{tr('Anthropic Messages API')}</option>
                 </select>
               </div>
               <div>
-                <label className={label} htmlFor="ai-model">Model</label>
-                <input id="ai-model" className="veqsio-input w-full" value={form.model ?? ''} onChange={(e) => set('model', e.target.value)} placeholder="e.g. llama3.1:8b" />
+                <label className={label} htmlFor="ai-model">{tr('Model')}</label>
+                <input id="ai-model" className="veqsio-input w-full" value={form.model ?? ''} onChange={(e) => set('model', e.target.value)} placeholder={tr('e.g. llama3.1:8b')} />
               </div>
             </div>
 
             <div>
-              <label className={label} htmlFor="ai-url">Base URL</label>
+              <label className={label} htmlFor="ai-url">{tr('Base URL')}</label>
               <input id="ai-url" className="veqsio-input w-full" value={form.baseUrl ?? ''} onChange={(e) => set('baseUrl', e.target.value)}
                 placeholder={form.provider === 'anthropic' ? 'https://api.anthropic.com' : 'https://api.openai.com/v1'} autoComplete="off" />
               <p className="text-caption text-[var(--text-tertiary)] mt-1">
-                Must be https and contain no credentials. Localhost and private-network hosts (for example http://ollama:11434/v1) are only accepted when the server runs with <code>AI_ALLOW_PRIVATE_HOSTS=true</code>.
+                {tr('Must be https and contain no credentials. Localhost and private-network hosts (for example http://ollama:11434/v1) are only accepted when the server runs with')} <code>AI_ALLOW_PRIVATE_HOSTS=true</code>.
               </p>
             </div>
 
             <div>
-              <label className={label} htmlFor="ai-key">API key</label>
+              <label className={label} htmlFor="ai-key">{tr('API key')}</label>
               <input id="ai-key" type="password" className="veqsio-input w-full" value={apiKey} autoComplete="new-password"
-                onChange={(e) => setApiKey(e.target.value)} placeholder={form.hasKey ? 'A key is stored. Leave empty to keep it.' : 'Optional for local models'} />
+                onChange={(e) => setApiKey(e.target.value)} placeholder={form.hasKey ? tr('A key is stored. Leave empty to keep it.') : tr('Optional for local models')} />
               {form.hasKey && (
                 <label className="flex items-center gap-2 mt-1 text-caption">
-                  <input type="checkbox" checked={removeKey} onChange={(e) => setRemoveKey(e.target.checked)} /> Remove the stored key
-                </label>
+                  <input type="checkbox" checked={removeKey} onChange={(e) => setRemoveKey(e.target.checked)} /> {tr('Remove the stored key')} </label>
               )}
-              <p className="text-caption text-[var(--text-tertiary)] mt-1">Stored encrypted (AES-256-GCM) and never shown again.</p>
+              <p className="text-caption text-[var(--text-tertiary)] mt-1">{tr('Stored encrypted (AES-256-GCM) and never shown again.')}</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className={label} htmlFor="ai-max">Max input characters per request</label>
+                <label className={label} htmlFor="ai-max">{tr('Max input characters per request')}</label>
                 <input id="ai-max" type="number" min={500} max={200000} className="veqsio-input w-full" value={form.maxInputChars} onChange={(e) => set('maxInputChars', Number(e.target.value))} />
               </div>
               <div>
-                <label className={label} htmlFor="ai-limit">Requests per user per day</label>
+                <label className={label} htmlFor="ai-limit">{tr('Requests per user per day')}</label>
                 <input id="ai-limit" type="number" min={1} max={10000} className="veqsio-input w-full" value={form.dailyRequestLimitPerUser} onChange={(e) => set('dailyRequestLimitPerUser', Number(e.target.value))} />
               </div>
             </div>
 
             <fieldset className="space-y-1">
-              <legend className={label}>Features</legend>
+              <legend className={label}>{tr('Features')}</legend>
               {(Object.keys(FEATURE_LABELS) as (keyof AdminAi['features'])[]).map((k) => (
                 <label key={k} className="flex items-center gap-2 text-body-sm">
-                  <input type="checkbox" checked={form.features[k]} onChange={(e) => set('features', { ...form.features, [k]: e.target.checked })} /> {FEATURE_LABELS[k]}
+                  <input type="checkbox" checked={form.features[k]} onChange={(e) => set('features', { ...form.features, [k]: e.target.checked })} /> {tr(FEATURE_LABELS[k])}
                 </label>
               ))}
             </fieldset>
 
             <div className="flex flex-wrap items-center gap-3">
-              <button type="submit" className="veqsio-btn-primary" disabled={busy}>Save</button>
-              <button type="button" className="veqsio-btn-secondary" onClick={test} disabled={busy || !data?.enabled}>Test connection</button>
+              <button type="submit" className="veqsio-btn-primary" disabled={busy}>{tr('Save')}</button>
+              <button type="button" className="veqsio-btn-secondary" onClick={test} disabled={busy || !data?.enabled}>{tr('Test connection')}</button>
               {testMsg && <span role="status" className={testMsg.ok ? 'text-green-700' : 'text-[var(--error)]'}>{testMsg.message}</span>}
             </div>
-            {!data?.enabled && <p className="text-caption text-[var(--text-tertiary)]">Save with AI enabled first, then test the connection.</p>}
+            {!data?.enabled && <p className="text-caption text-[var(--text-tertiary)]">{tr('Save with AI enabled first, then test the connection.')}</p>}
 
             {data?.usage && (
               <p className="text-caption text-[var(--text-tertiary)]">
-                Last 7 days: {data.usage.total} requests
-                {Object.entries(data.usage.byFeature).map(([k, n]) => ` · ${k}: ${n}`).join('')}. Only counts are recorded, never prompts or answers.
+                {tr('Last 7 days:')} {data.usage.total} {tr('requests')}
+                {Object.entries(data.usage.byFeature).map(([k, n]) => ` · ${k}: ${n}`).join('')}{tr('. Only counts are recorded, never prompts or answers.')}
               </p>
             )}
           </form>

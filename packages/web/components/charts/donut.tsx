@@ -1,12 +1,14 @@
 'use client'
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
+import { useI18n } from '@/hooks/use-i18n'
 import { ChartTooltip, PALETTE } from './chart-kit'
 
 export interface Slice { name: string; value: number }
 
 /** Donut with the total in the middle and a value list that carries names, counts and shares (readable without colour). */
 export function Donut({ data, label = 'Issues', height = 200 }: { data: Slice[]; label?: string; height?: number }) {
+  const { tr } = useI18n()
   const total = data.reduce((a, d) => a + d.value, 0)
   return (
     <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -21,7 +23,7 @@ export function Donut({ data, label = 'Issues', height = 200 }: { data: Slice[];
         </ResponsiveContainer>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-[26px] leading-8 font-semibold tabular-nums text-[var(--text-primary)]">{total}</span>
-          <span className="text-[12px] text-[var(--text-tertiary)]">{label}</span>
+          <span className="text-[12px] text-[var(--text-tertiary)]">{tr(label)}</span>
         </div>
       </div>
       <ul className="w-full min-w-0 flex-1 space-y-1.5">

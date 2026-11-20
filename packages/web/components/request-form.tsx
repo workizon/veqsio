@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useId } from 'react'
 import { AlertCircle, Paperclip, X } from 'lucide-react'
 import { fromLocalInput, toLocalInput, visibleKeys, type FieldDef } from '@/lib/request-form'
@@ -39,12 +41,14 @@ interface FieldInputProps {
 }
 
 export function FieldInput({ field, id, value, error, disabled, onChange, files, onFiles }: FieldInputProps) {
+  const { tr } = useI18n();
+
   const uid = useId()
   const helpId = field.helpText ? `${uid}-help` : undefined
   const errId = error ? `${uid}-err` : undefined
   const describedBy = [helpId, errId].filter(Boolean).join(' ') || undefined
   const required = field.required && field.type !== 'checkbox'
-  const labelText = <>{field.label}{required && <span aria-hidden className="text-[var(--error)]"> *</span>}{required && <span className="sr-only"> (required)</span>}</>
+  const labelText = <>{field.label}{required && <span aria-hidden className="text-[var(--error)]"> *</span>}{required && <span className="sr-only"> {tr('(required)')}</span>}</>
   const labelCls = 'block text-body-sm font-medium text-[var(--text-primary)]'
   const invalid = error ? 'border-[var(--error)] focus:border-[var(--error)]' : ''
   const help = field.helpText && field.type !== 'help' ? <p id={helpId} className="text-caption font-normal text-[var(--text-tertiary)]">{field.helpText}</p> : null
@@ -134,7 +138,7 @@ export function FieldInput({ field, id, value, error, disabled, onChange, files,
     case 'select':
       control = (
         <select {...common} className={`veqsio-input w-full min-h-[44px] px-3 ${invalid}`} value={str} onChange={(e) => onChange(e.target.value)}>
-          <option value="">{field.placeholder || 'Select…'}</option>
+          <option value="">{field.placeholder || tr('Select…')}</option>
           {options.map((o) => <option key={o} value={o}>{o}</option>)}
         </select>
       )
@@ -166,7 +170,7 @@ export function FieldInput({ field, id, value, error, disabled, onChange, files,
       control = <input {...common} type="email" placeholder={field.placeholder || 'name@example.com'} className={`veqsio-input w-full min-h-[44px] px-3 ${invalid}`} value={str} onChange={(e) => onChange(e.target.value)} />
       break
     case 'user':
-      control = <input {...common} type="email" placeholder={field.placeholder || 'Email of a colleague'} autoComplete="off" className={`veqsio-input w-full min-h-[44px] px-3 ${invalid}`} value={str} onChange={(e) => onChange(e.target.value)} />
+      control = <input {...common} type="email" placeholder={field.placeholder || tr('Email of a colleague')} autoComplete="off" className={`veqsio-input w-full min-h-[44px] px-3 ${invalid}`} value={str} onChange={(e) => onChange(e.target.value)} />
       break
     default: // text and unknown future types
       control = <input {...common} type="text" placeholder={field.placeholder} maxLength={field.validation?.maxLength} className={`veqsio-input w-full min-h-[44px] px-3 ${invalid}`} value={str} onChange={(e) => onChange(e.target.value)} />

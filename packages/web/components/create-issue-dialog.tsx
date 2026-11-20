@@ -1,5 +1,8 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
+import { useDismiss } from '@/hooks/use-dismiss'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
@@ -64,6 +67,8 @@ function Row({ label, required, hint, children }: { label: string; required?: bo
 
 /** The Create dialog (header button): project and type, then the fields of that project, with Configure Fields. */
 export function CreateIssueDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const { tr } = useI18n();
+
   const router = useRouter()
   const { t } = useTerm()
   const createIssue = useCreateIssue()
@@ -71,6 +76,9 @@ export function CreateIssueDialog({ isOpen, onClose }: { isOpen: boolean; onClos
   const { data: me } = useMyself()
   const [hidden, toggleHidden] = useHiddenFields()
   const [configOpen, setConfigOpen] = useState(false)
+  const configRef = useDismiss<HTMLDivElement>(configOpen, () => setConfigOpen(false))
+  const [assigneeListOpen, setAssigneeListOpen] = useState(true)
+  const assigneeRef = useDismiss<HTMLDivElement>(assigneeListOpen, () => setAssigneeListOpen(false))
 
   const [projectId, setProjectId] = useState('')
   const [issueTypeId, setIssueTypeId] = useState('')
@@ -99,7 +107,7 @@ export function CreateIssueDialog({ isOpen, onClose }: { isOpen: boolean; onClos
     staleTime: 30_000,
     queryFn: async () => {
       const r = await fetch(`/rest/api/2/issue/createmeta?projectKeys=${encodeURIComponent(projectKey!)}&expand=projects.issuetypes.fields`, { credentials: 'include' })
-      if (!r.ok) throw new Error('Could not load the fields of this project')
+      if (!r.ok) throw new Error(tr('Could not load the fields of this project'))
       return ((await r.json()) as { projects: MetaProject[] }).projects[0] ?? null
     },
   })
@@ -156,12 +164,12 @@ export function CreateIssueDialog({ isOpen, onClose }: { isOpen: boolean; onClos
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
-    if (!summary.trim() || !projectId || !issueTypeId) { toast('Please fill in required fields', 'error'); return }
+    if (!summary.trim() || !projectId || !issueTypeId) { toast(tr('Please fill in required fields'), 'error'); return }
     const points = storyPoints.trim() === '' ? undefined : Number(storyPoints)
-    if (points !== undefined && (!Number.isFinite(points) || points < 0 || points > 1000)) { toast('Story points must be a number between 0 and 1000', 'error'); return }
+    if (points !== undefined && (!Number.isFinite(points) || points < 0 || points > 1000)) { toast(tr('Story points must be a number between 0 and 1000'), 'error'); return }
     // required custom fields (set by the field configuration of the project and issue type); a default counts as filled in
     const emptyRequired = customFields.filter((f) => f.required && isEmpty(custom[f.key] ?? f.defaultValue))
-    if (emptyRequired.length) { toast(`Please fill in: ${emptyRequired.map((f) => f.name).join(', ')}`, 'error'); return }
+    if (emptyRequired.length) { toast(tr('Please fill in: {fields}', { fields: emptyRequired.map((f) => f.name).join(', ') }), 'error'); return }
     const customFieldValues = [
       ...(extras.customFields ?? []),
       ...[...Object.entries(custom), ...customFields.filter((f) => custom[f.key] === undefined && f.defaultValue !== undefined).map((f) => [f.key, f.defaultValue] as [string, unknown])]
@@ -189,7 +197,7 @@ export function CreateIssueDialog({ isOpen, onClose }: { isOpen: boolean; onClos
         const form = new FormData()
         files.forEach((f) => form.append('file', f))
         const up = await fetch(`/rest/api/2/issue/${encodeURIComponent(result.key)}/attachments`, { method: 'POST', body: form, credentials: 'include' })
-        if (!up.ok) toast('The issue was created, but the attachments could not be uploaded', 'error')
+        if (!up.ok) toast(tr('The issue was created, but the attachments could not be uploaded'), 'error')
       }
       toast(t(`Issue ${result.key} created`), 'success')
       draft.clear()
@@ -208,17 +216,16 @@ export function CreateIssueDialog({ isOpen, onClose }: { isOpen: boolean; onClos
     <Modal isOpen={isOpen} onClose={onClose} title={t('Create issue')} size="xl">
       <form onSubmit={submit} className="space-y-4">
         <div className="flex items-start justify-between gap-3 -mt-1">
-          <p className="text-caption text-[var(--text-tertiary)]">Required fields are marked with an asterisk <span className="text-[var(--error)]">*</span></p>
-          <div className="relative">
+          <p className="text-caption text-[var(--text-tertiary)]">{tr('Required fields are marked with an asterisk')} <span className="text-[var(--error)]">*</span></p>
+          <div className="relative" ref={configRef}>
             <button type="button" onClick={() => setConfigOpen((o) => !o)} aria-expanded={configOpen} className="veqsio-btn-secondary text-sm inline-flex items-center gap-1.5">
-              <Settings2 className="w-4 h-4" aria-hidden="true" /> Configure fields
-            </button>
+              <Settings2 className="w-4 h-4" aria-hidden="true" /> {tr('Configure fields')} </button>
             {configOpen && (
               <div className="absolute right-0 top-full z-20 mt-1 w-56 rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)] p-2 shadow-lg">
-                <p className="px-2 pb-1 text-caption text-[var(--text-tertiary)]">Show these fields</p>
+                <p className="px-2 pb-1 text-caption text-[var(--text-tertiary)]">{tr('Show these fields')}</p>
                 {OPTIONAL.map((f) => (
                   <label key={f.key} className="flex items-center gap-2 px-2 py-1 text-sm cursor-pointer hover:bg-[var(--surface-1)] rounded">
-                    <input type="checkbox" checked={show(f.key)} onChange={() => toggleHidden(f.key)} /> {f.label}
+                    <input type="checkbox" checked={show(f.key)} onChange={() => toggleHidden(f.key)} /> {tr(f.label)}
                   </label>
                 ))}
               </div>
@@ -228,9 +235,9 @@ export function CreateIssueDialog({ isOpen, onClose }: { isOpen: boolean; onClos
 
         <DraftNotice savedAt={draft.restored?.savedAt ?? null} onDiscard={draft.discard} />
 
-        <Row label="Project" required>
+        <Row label={tr('Project')} required>
           <select className="veqsio-input w-full" value={projectId} onChange={(e) => { setProjectId(e.target.value); setIssueTypeId(''); setPriorityId(''); setExtras({}); setCustom({}); setComponentIds([]) }} required>
-            <option value="">Select project</option>
+            <option value="">{tr('Select project')}</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.key})</option>)}
           </select>
         </Row>
@@ -238,7 +245,7 @@ export function CreateIssueDialog({ isOpen, onClose }: { isOpen: boolean; onClos
           <div className="relative max-w-xs">
             <TypeIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" aria-hidden="true" />
             <select className="veqsio-input w-full pl-9" value={issueTypeId} onChange={(e) => { setIssueTypeId(e.target.value); setCustom({}) }} required disabled={meta.isLoading}>
-              {types.length === 0 && <option value="">{meta.isLoading ? 'Loading…' : 'No issue types'}</option>}
+              {types.length === 0 && <option value="">{meta.isLoading ? tr('Loading…') : tr('No issue types')}</option>}
               {types.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
             </select>
           </div>
@@ -253,15 +260,15 @@ export function CreateIssueDialog({ isOpen, onClose }: { isOpen: boolean; onClos
           onClear={() => setExtras({})}
         />
 
-        <Row label="Summary" required>
-          <input type="text" className="veqsio-input w-full" value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="What needs to be done?" required autoFocus />
+        <Row label={tr('Summary')} required>
+          <input type="text" className="veqsio-input w-full" value={summary} onChange={(e) => setSummary(e.target.value)} placeholder={tr('What needs to be done?')} required autoFocus />
         </Row>
-        <Row label="Reporter" required>
+        <Row label={tr('Reporter')} required>
           <input className="veqsio-input w-full" value={me ? `${me.displayName || me.name}` : ''} readOnly aria-readonly="true" />
         </Row>
 
         {show('attachment') && (
-          <Row label="Attachment">
+          <Row label={tr('Attachment')}>
             <div
               onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
               onDragLeave={() => setDragging(false)}
@@ -269,7 +276,7 @@ export function CreateIssueDialog({ isOpen, onClose }: { isOpen: boolean; onClos
               className={`rounded-lg border border-dashed px-4 py-4 text-center text-sm text-[var(--text-secondary)] ${dragging ? 'border-[var(--brand-500)] bg-[var(--brand-50)]' : 'border-[var(--surface-4)]'}`}
             >
               <UploadCloud className="w-5 h-5 mx-auto mb-1 text-[var(--text-tertiary)]" aria-hidden="true" />
-              Drop files to attach, or <button type="button" className="text-[var(--brand-500)] hover:underline" onClick={() => fileInput.current?.click()}>browse</button>
+              {tr('Drop files to attach, or')} <button type="button" className="text-[var(--brand-500)] hover:underline" onClick={() => fileInput.current?.click()}>{tr('browse')}</button>
               <input ref={fileInput} type="file" multiple className="hidden" onChange={(e) => { addFiles(e.target.files); e.target.value = '' }} />
             </div>
             {files.length > 0 && (
@@ -277,7 +284,7 @@ export function CreateIssueDialog({ isOpen, onClose }: { isOpen: boolean; onClos
                 {files.map((f, i) => (
                   <li key={`${f.name}-${i}`} className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
                     <Paperclip className="w-3.5 h-3.5 shrink-0" aria-hidden="true" /><span className="truncate">{f.name}</span>
-                    <span className="text-caption text-[var(--text-tertiary)]">{Math.max(1, Math.round(f.size / 1024))} KB</span>
+                    <span className="text-caption text-[var(--text-tertiary)]">{Math.max(1, Math.round(f.size / 1024))} {tr('KB')}</span>
                     <button type="button" aria-label={`Remove ${f.name}`} className="ml-auto p-0.5 hover:text-[var(--error)]" onClick={() => setFiles((cur) => cur.filter((_, j) => j !== i))}><X className="w-3.5 h-3.5" /></button>
                   </li>
                 ))}
@@ -287,17 +294,17 @@ export function CreateIssueDialog({ isOpen, onClose }: { isOpen: boolean; onClos
         )}
 
         {show('duedate') && (
-          <Row label="Due date"><input type="date" className="veqsio-input max-w-[12rem]" value={dueDate} onChange={(e) => setDueDate(e.target.value)} /></Row>
+          <Row label={tr('Due date')}><input type="date" className="veqsio-input max-w-[12rem]" value={dueDate} onChange={(e) => setDueDate(e.target.value)} /></Row>
         )}
 
         {show('description') && (
-          <Row label="Description">
-            <RichTextEditor label="Description" placeholder="Add a description… (Markdown supported, @ to mention)" rows={7} maxLength={100000} value={description} onChange={setDescription} />
+          <Row label={tr('Description')}>
+            <RichTextEditor label={tr('Description')} placeholder={tr('Add a description… (Markdown supported, @ to mention)')} rows={7} maxLength={100000} value={description} onChange={setDescription} />
           </Row>
         )}
 
         {show('priority') && priorities.length > 0 && (
-          <Row label="Priority">
+          <Row label={tr('Priority')}>
             <select className="veqsio-input max-w-xs w-full" value={priorityId} onChange={(e) => setPriorityId(e.target.value)}>
               {priorities.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
@@ -305,17 +312,18 @@ export function CreateIssueDialog({ isOpen, onClose }: { isOpen: boolean; onClos
         )}
 
         {show('assignee') && (
-          <Row label="Assignee">
+          <Row label={tr('Assignee')}>
             <div className="relative flex items-center gap-3">
-              <div className="relative flex-1">
+              <div className="relative flex-1" ref={assigneeRef}>
                 <input
                   className="veqsio-input w-full"
                   value={assignee ? assignee.name : assigneeQuery}
-                  placeholder="Automatic"
-                  onChange={(e) => { setAssignee(null); setAssigneeQuery(e.target.value) }}
-                  aria-label="Assignee"
+                  placeholder={tr('Automatic')}
+                  onChange={(e) => { setAssignee(null); setAssigneeQuery(e.target.value); setAssigneeListOpen(true) }}
+                  onFocus={() => setAssigneeListOpen(true)}
+                  aria-label={tr('Assignee')}
                 />
-                {!assignee && assigneeQuery.trim() && (assigneeSearch.data?.length ?? 0) > 0 && (
+                {assigneeListOpen && !assignee && assigneeQuery.trim() && (assigneeSearch.data?.length ?? 0) > 0 && (
                   <ul className="absolute z-20 left-0 right-0 top-full mt-1 max-h-48 overflow-auto rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)] shadow-lg py-1">
                     {assigneeSearch.data!.map((u) => (
                       <li key={u.id}><button type="button" className="w-full text-left px-3 py-1.5 text-sm hover:bg-[var(--surface-1)]" onClick={() => { setAssignee({ id: u.id, name: u.name }); setAssigneeQuery('') }}>{u.name} <span className="text-[var(--text-tertiary)]">({u.key})</span></button></li>
@@ -323,20 +331,20 @@ export function CreateIssueDialog({ isOpen, onClose }: { isOpen: boolean; onClos
                   </ul>
                 )}
               </div>
-              {assignee && <button type="button" className="text-sm text-[var(--text-secondary)] hover:underline" onClick={() => setAssignee(null)}>Automatic</button>}
-              {me && <button type="button" className="text-sm text-[var(--brand-500)] hover:underline whitespace-nowrap" onClick={() => setAssignee({ id: me.id, name: me.displayName || me.name })}>Assign to me</button>}
+              {assignee && <button type="button" className="text-sm text-[var(--text-secondary)] hover:underline" onClick={() => setAssignee(null)}>{tr('Automatic')}</button>}
+              {me && <button type="button" className="text-sm text-[var(--brand-500)] hover:underline whitespace-nowrap" onClick={() => setAssignee({ id: me.id, name: me.displayName || me.name })}>{tr('Assign to me')}</button>}
             </div>
           </Row>
         )}
 
         {show('labels') && (
-          <Row label="Labels" hint="Separate labels with commas">
-            <input className="veqsio-input w-full" value={labels} onChange={(e) => setLabels(e.target.value)} placeholder="bug, frontend, urgent" />
+          <Row label={tr('Labels')} hint={tr('Separate labels with commas')}>
+            <input className="veqsio-input w-full" value={labels} onChange={(e) => setLabels(e.target.value)} placeholder={tr('bug, frontend, urgent')} />
           </Row>
         )}
 
         {show('components') && components.length > 0 && (
-          <Row label="Components">
+          <Row label={tr('Components')}>
             <div className="flex flex-wrap gap-x-4 gap-y-1">
               {components.map((c) => (
                 <label key={c.id} className="inline-flex items-center gap-1.5 text-sm"><input type="checkbox" checked={componentIds.includes(Number(c.id))} onChange={(e) => setComponentIds((cur) => e.target.checked ? [...cur, Number(c.id)] : cur.filter((x) => x !== Number(c.id)))} /> {c.name}</label>
@@ -346,7 +354,7 @@ export function CreateIssueDialog({ isOpen, onClose }: { isOpen: boolean; onClos
         )}
 
         {show('storyPoints') && (
-          <Row label="Story points"><input className="veqsio-input max-w-[8rem]" inputMode="decimal" value={storyPoints} onChange={(e) => setStoryPoints(e.target.value)} placeholder="e.g. 5" /></Row>
+          <Row label={tr('Story points')}><input className="veqsio-input max-w-[8rem]" inputMode="decimal" value={storyPoints} onChange={(e) => setStoryPoints(e.target.value)} placeholder="e.g. 5" /></Row>
         )}
 
         {customFields.map((f) => (
@@ -357,12 +365,10 @@ export function CreateIssueDialog({ isOpen, onClose }: { isOpen: boolean; onClos
 
         <div className="sticky bottom-0 -mx-6 -mb-4 px-6 py-3 flex items-center justify-end gap-3 border-t border-[var(--surface-3)] bg-[var(--surface-0)]">
           <label className="mr-auto inline-flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
-            <input type="checkbox" checked={createAnother} onChange={(e) => setCreateAnother(e.target.checked)} /> Create another
-          </label>
+            <input type="checkbox" checked={createAnother} onChange={(e) => setCreateAnother(e.target.checked)} /> {tr('Create another')} </label>
           <button type="submit" disabled={createIssue.isPending || !summary.trim()} className="veqsio-btn-primary disabled:opacity-50">
-            {createIssue.isPending && <Loader2 className="w-4 h-4 animate-spin inline mr-1" />}Create
-          </button>
-          <button type="button" onClick={onClose} className="veqsio-btn-secondary">Cancel</button>
+            {createIssue.isPending && <Loader2 className="w-4 h-4 animate-spin inline mr-1" />}{tr('Create')} </button>
+          <button type="button" onClick={onClose} className="veqsio-btn-secondary">{tr('Cancel')}</button>
         </div>
       </form>
     </Modal>

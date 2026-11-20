@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { usePathname } from 'next/navigation'
 import { AppLayout } from '@/components/app-layout'
 import { useState } from 'react'
@@ -10,6 +12,8 @@ import { FeatureGate } from '@/components/feature-gate'
 import { confirmDialog } from '@/components/dialogs'
 
 function ScimAdminPageBody() {
+  const { tr } = useI18n();
+
   const { data: tokens, isLoading } = useScimTokens()
   const create = useCreateScimToken()
   const revoke = useRevokeScimToken()
@@ -26,17 +30,17 @@ function ScimAdminPageBody() {
       setFresh(r.token)
       setName('')
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Failed to create token', 'error')
+      toast(e instanceof Error ? e.message : tr('Failed to create token'), 'error')
     }
   }
 
   const onRevoke = async (id: number) => {
-    if (!(await confirmDialog('Revoke this SCIM token? The identity provider will stop provisioning until given a new one.'))) return
+    if (!(await confirmDialog(tr('Revoke this SCIM token? The identity provider will stop provisioning until given a new one.')))) return
     try {
       await revoke.mutateAsync(id)
-      toast('Token revoked', 'success')
+      toast(tr('Token revoked'), 'success')
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Failed to revoke', 'error')
+      toast(e instanceof Error ? e.message : tr('Failed to revoke'), 'error')
     }
   }
 
@@ -47,71 +51,69 @@ function ScimAdminPageBody() {
   }
 
   return (
-    <FeatureGate feature="scim" label="SCIM provisioning" mode="banner">
+    <FeatureGate feature="scim" label={tr('SCIM provisioning')} mode="banner">
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-lg bg-[var(--surface-2)] flex items-center justify-center">
           <Users className="w-5 h-5 text-[var(--brand-500)]" />
         </div>
         <div>
-          <h2 className="text-heading-2 text-[var(--text-primary)]">SCIM provisioning</h2>
+          <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('SCIM provisioning')}</h2>
           <p className="text-body-sm text-[var(--text-secondary)]">
-            Let Okta, Microsoft Entra ID or OneLogin create, update and deactivate users and groups.
-          </p>
+            {tr('Let Okta, Microsoft Entra ID or OneLogin create, update and deactivate users and groups.')} </p>
         </div>
       </div>
 
       <div className="veqsio-card space-y-1 text-body-sm">
-        <div>SCIM base URL: <code className="font-mono">{baseUrl}</code></div>
+        <div>{tr('SCIM base URL:')} <code className="font-mono">{baseUrl}</code></div>
         <div className="text-caption text-[var(--text-secondary)]">
-          Authentication: HTTP bearer token. A SCIM token can create users and change group membership, so treat it like an administrator credential.
-          Deleting a user in the identity provider deactivates the account here; it is never removed.
+          {tr('Authentication: HTTP bearer token. A SCIM token can create users and change group membership, so treat it like an administrator credential.')}
+          {' '}{tr('Deleting a user in the identity provider deactivates the account here; it is never removed.')}
         </div>
       </div>
 
       {fresh && (
         <div className="veqsio-card border-l-4 border-l-[var(--brand-500)]">
-          <p className="text-body-sm font-medium text-[var(--text-primary)]">New SCIM token</p>
-          <p className="text-caption text-[var(--text-secondary)] mt-1">Copy it now. It is shown only once; only a hash is stored.</p>
+          <p className="text-body-sm font-medium text-[var(--text-primary)]">{tr('New SCIM token')}</p>
+          <p className="text-caption text-[var(--text-secondary)] mt-1">{tr('Copy it now. It is shown only once; only a hash is stored.')}</p>
           <div className="mt-3 flex items-center gap-2">
             <code className="flex-1 block px-3 py-2 bg-[var(--surface-3)] rounded-md text-caption font-mono break-all">{fresh}</code>
             <button className="veqsio-btn-secondary flex items-center gap-1" onClick={() => copy(fresh)}>
-              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />} {copied ? 'Copied' : 'Copy'}
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />} {copied ? tr('Copied') : tr('Copy')}
             </button>
-            <button className="veqsio-btn-secondary" onClick={() => setFresh(null)}>Done</button>
+            <button className="veqsio-btn-secondary" onClick={() => setFresh(null)}>{tr('Done')}</button>
           </div>
         </div>
       )}
 
       <div className="veqsio-card flex items-end gap-3">
         <label className="flex-1 space-y-1">
-          <span className="text-caption font-medium text-[var(--text-secondary)]">Token name</span>
-          <input className="veqsio-input w-full" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && onCreate()} placeholder="e.g. Okta production" />
+          <span className="text-caption font-medium text-[var(--text-secondary)]">{tr('Token name')}</span>
+          <input className="veqsio-input w-full" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && onCreate()} placeholder={tr('e.g. Okta production')} />
         </label>
         <button className="veqsio-btn-primary flex items-center gap-1.5" disabled={create.isPending || !name.trim()} onClick={onCreate}>
-          <Plus className="w-4 h-4" /> Create token
-        </button>
+          <Plus className="w-4 h-4" /> {tr('Create token')} </button>
       </div>
 
       {isLoading ? (
-        <div className="text-center py-8 text-[var(--text-secondary)]">Loading tokens...</div>
+        <div className="text-center py-8 text-[var(--text-secondary)]">{tr('Loading tokens...')}</div>
       ) : !tokens?.length ? (
-        <div className="text-center py-8 text-[var(--text-secondary)]">No SCIM tokens yet.</div>
+        <div className="text-center py-8 text-[var(--text-secondary)]">{tr('No SCIM tokens yet.')}</div>
       ) : (
         <div className="border border-[var(--surface-3)] rounded-lg overflow-hidden divide-y divide-[var(--surface-3)]">
           {tokens.map((t) => (
             <div key={t.id} className="px-4 py-3 flex items-center justify-between gap-4">
               <div>
                 <div className="text-body-sm font-medium text-[var(--text-primary)]">
-                  {t.name} {t.revokedAt && <span className="ml-2 text-caption text-red-500">revoked</span>}
+                  {t.name} {t.revokedAt && <span className="ml-2 text-caption text-red-500">{tr('revoked')}</span>}
                 </div>
                 <div className="text-caption text-[var(--text-tertiary)]">
-                  Created {new Date(t.createdAt).toLocaleDateString()}
-                  {t.lastUsedAt ? ` · last used ${new Date(t.lastUsedAt).toLocaleString()}` : ' · never used'}
+                  {tr('Created')} {new Date(t.createdAt).toLocaleDateString()}
+                  {t.lastUsedAt ? tr(' · last used {date}', { date: new Date(t.lastUsedAt).toLocaleString() }) : tr(' · never used')}
                 </div>
               </div>
               {!t.revokedAt && (
-                <button className="p-1 text-[var(--text-tertiary)] hover:text-red-500" title="Revoke" onClick={() => onRevoke(t.id)}>
+                <button className="p-1 text-[var(--text-tertiary)] hover:text-red-500" title={tr('Revoke')} onClick={() => onRevoke(t.id)}>
                   <Trash2 className="w-4 h-4" />
                 </button>
               )}

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useId, useState } from 'react'
 import { Pencil, Trash2, Plus } from 'lucide-react'
 import { describeItem, normalizeCategory, CATEGORY_LABEL, CATEGORY_VAR, validateTransitionDraft, type DStatus } from '@/lib/workflow-graph'
@@ -20,18 +22,20 @@ interface Props {
 
 /** Accessible, pointer-free alternative to the canvas: every status and transition is reachable and editable from here. */
 export function TransitionsTable({ workflow, placed, types, selected, onSelect, onDeleteTransition, onAddTransition }: Props) {
+  const { tr } = useI18n();
+
   const ms = useMultiSort()
-  const nameOf = (id: number | null) => (id === null ? 'Any status' : placed.find((s) => s.id === id)?.name ?? workflow.statuses.find((s) => s.id === id)?.name ?? `#${id}`)
+  const nameOf = (id: number | null) => (id === null ? tr('Any status') : placed.find((s) => s.id === id)?.name ?? workflow.statuses.find((s) => s.id === id)?.name ?? `#${id}`)
   const summarize = (items: Record<string, unknown>[], key: 'conditions' | 'validators' | 'postFunctions') =>
-    items.length === 0 ? <span className="text-[var(--text-tertiary)]">None</span> : (
+    items.length === 0 ? <span className="text-[var(--text-tertiary)]">{tr('None')}</span> : (
       <ul className="space-y-0.5">{items.map((it, i) => <li key={i}>{types ? describeItem(it, types[key], types.lookups) : String(it.type)}</li>)}</ul>
     )
 
   return (
     <div className="space-y-5">
       <section aria-labelledby="wf-statuses-h">
-        <h2 id="wf-statuses-h" className="text-sm font-semibold text-[var(--text-primary)] mb-2">Statuses ({placed.length})</h2>
-        {placed.length === 0 ? <p className="text-sm text-[var(--text-tertiary)]">No statuses yet. Use “Add status”.</p> : (
+        <h2 id="wf-statuses-h" className="text-sm font-semibold text-[var(--text-primary)] mb-2">{tr('Statuses (')}{placed.length})</h2>
+        {placed.length === 0 ? <p className="text-sm text-[var(--text-tertiary)]">{tr('No statuses yet. Use “Add status”.')}</p> : (
           <ul className="flex flex-wrap gap-2">
             {placed.map((s) => {
               const cat = normalizeCategory(s.category)
@@ -45,7 +49,7 @@ export function TransitionsTable({ workflow, placed, types, selected, onSelect, 
                     className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm ${isSel ? 'border-[var(--brand-500)] bg-[var(--brand-50)]' : 'border-[var(--surface-3)] bg-[var(--surface-0)]'} text-[var(--text-primary)]`}
                   >
                     <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: CATEGORY_VAR[cat] }} aria-hidden />
-                    {s.name}<span className="sr-only"> ({CATEGORY_LABEL[cat]}), edit</span>
+                    {s.name}<span className="sr-only"> ({CATEGORY_LABEL[cat]}{tr('), edit')}</span>
                   </button>
                 </li>
               )
@@ -55,24 +59,24 @@ export function TransitionsTable({ workflow, placed, types, selected, onSelect, 
       </section>
 
       <section aria-labelledby="wf-transitions-h">
-        <h2 id="wf-transitions-h" className="text-sm font-semibold text-[var(--text-primary)] mb-2">Transitions ({workflow.transitions.length})</h2>
+        <h2 id="wf-transitions-h" className="text-sm font-semibold text-[var(--text-primary)] mb-2">{tr('Transitions (')}{workflow.transitions.length})</h2>
         <div className="overflow-x-auto rounded-lg border border-[var(--surface-3)]">
           <table className="w-full text-sm">
-            <caption className="sr-only">Transitions of {workflow.name}</caption>
+            <caption className="sr-only">{tr('Transitions of')} {workflow.name}</caption>
             <thead>
               <tr className="veqsio-table-header text-left">
-                <SortableTh {...ms.th('name')} className="px-3 py-2">Name</SortableTh>
-                <SortableTh {...ms.th('from')} className="px-3 py-2">From</SortableTh>
-                <SortableTh {...ms.th('to')} className="px-3 py-2">To</SortableTh>
-                <th scope="col" className="px-3 py-2">Conditions</th>
-                <th scope="col" className="px-3 py-2">Validators</th>
-                <th scope="col" className="px-3 py-2">Post-functions</th>
-                <th scope="col" className="px-3 py-2"><span className="sr-only">Actions</span></th>
+                <SortableTh {...ms.th('name')} className="px-3 py-2">{tr('Name')}</SortableTh>
+                <SortableTh {...ms.th('from')} className="px-3 py-2">{tr('From')}</SortableTh>
+                <SortableTh {...ms.th('to')} className="px-3 py-2">{tr('To')}</SortableTh>
+                <th scope="col" className="px-3 py-2">{tr('Conditions')}</th>
+                <th scope="col" className="px-3 py-2">{tr('Validators')}</th>
+                <th scope="col" className="px-3 py-2">{tr('Post-functions')}</th>
+                <th scope="col" className="px-3 py-2"><span className="sr-only">{tr('Actions')}</span></th>
               </tr>
             </thead>
             <tbody>
               {workflow.transitions.length === 0 && (
-                <tr><td colSpan={7} className="px-3 py-6 text-center text-[var(--text-tertiary)]">No transitions yet.</td></tr>
+                <tr><td colSpan={7} className="px-3 py-6 text-center text-[var(--text-tertiary)]">{tr('No transitions yet.')}</td></tr>
               )}
               {ms.sort(workflow.transitions, { name: (t) => t.name, from: (t) => nameOf(t.fromStatusId), to: (t) => nameOf(t.toStatusId) }).map((t) => {
                 const isSel = selected?.kind === 'transition' && selected.id === t.id
@@ -85,8 +89,8 @@ export function TransitionsTable({ workflow, placed, types, selected, onSelect, 
                     <td className="px-3 py-2 text-xs text-[var(--text-secondary)]">{summarize(t.validators, 'validators')}</td>
                     <td className="px-3 py-2 text-xs text-[var(--text-secondary)]">{summarize(t.postFunctions, 'postFunctions')}</td>
                     <td className="px-3 py-2 whitespace-nowrap">
-                      <button type="button" className="veqsio-btn-ghost p-1.5" onClick={() => onSelect({ kind: 'transition', id: t.id })} aria-label={`Edit transition ${t.name}`}><Pencil className="w-4 h-4" /></button>
-                      <button type="button" className="veqsio-btn-ghost p-1.5 text-[var(--error)]" onClick={() => onDeleteTransition(t)} aria-label={`Delete transition ${t.name}`}><Trash2 className="w-4 h-4" /></button>
+                      <button type="button" className="veqsio-btn-ghost p-1.5" onClick={() => onSelect({ kind: 'transition', id: t.id })} aria-label={tr('Edit transition {name}', { name: t.name })}><Pencil className="w-4 h-4" /></button>
+                      <button type="button" className="veqsio-btn-ghost p-1.5 text-[var(--error)]" onClick={() => onDeleteTransition(t)} aria-label={tr('Delete transition {name}', { name: t.name })}><Trash2 className="w-4 h-4" /></button>
                     </td>
                   </tr>
                 )
@@ -102,6 +106,8 @@ export function TransitionsTable({ workflow, placed, types, selected, onSelect, 
 }
 
 function AddTransitionForm({ workflow, placed, onAdd }: { workflow: WorkflowDetail; placed: DStatus[]; onAdd: Props['onAddTransition'] }) {
+  const { tr } = useI18n();
+
   const [name, setName] = useState('')
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
@@ -117,27 +123,27 @@ function AddTransitionForm({ workflow, placed, onAdd }: { workflow: WorkflowDeta
         if (disabled) return
         if (await onAdd(name.trim(), fromVal, Number(to))) { setName(''); setFrom(''); setTo('') }
       }}
-      aria-label="Add transition"
+      aria-label={tr('Add transition')}
     >
       <div>
-        <label htmlFor={nameId} className="block text-xs font-medium text-[var(--text-secondary)] mb-1">New transition name</label>
+        <label htmlFor={nameId} className="block text-xs font-medium text-[var(--text-secondary)] mb-1">{tr('New transition name')}</label>
         <input id={nameId} className="veqsio-input w-full" value={name} maxLength={255} onChange={(e) => setName(e.target.value)} />
       </div>
       <div>
-        <label htmlFor={fromId} className="block text-xs font-medium text-[var(--text-secondary)] mb-1">From</label>
+        <label htmlFor={fromId} className="block text-xs font-medium text-[var(--text-secondary)] mb-1">{tr('From')}</label>
         <select id={fromId} className="veqsio-input w-full" value={from} onChange={(e) => setFrom(e.target.value)}>
-          <option value="">Any status (global)</option>
+          <option value="">{tr('Any status (global)')}</option>
           {placed.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
       </div>
       <div>
-        <label htmlFor={toId} className="block text-xs font-medium text-[var(--text-secondary)] mb-1">To</label>
+        <label htmlFor={toId} className="block text-xs font-medium text-[var(--text-secondary)] mb-1">{tr('To')}</label>
         <select id={toId} className="veqsio-input w-full" value={to} onChange={(e) => setTo(e.target.value)}>
-          <option value="">Choose…</option>
+          <option value="">{tr('Choose…')}</option>
           {placed.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
       </div>
-      <button type="submit" className="veqsio-btn-primary flex items-center gap-1.5" disabled={disabled}><Plus className="w-4 h-4" /> Add</button>
+      <button type="submit" className="veqsio-btn-primary flex items-center gap-1.5" disabled={disabled}><Plus className="w-4 h-4" /> {tr('Add')}</button>
       {errors.length > 0 && (name || to) && <p className="text-xs text-[var(--text-tertiary)] sm:col-span-4">{errors.join('. ')}</p>}
     </form>
   )

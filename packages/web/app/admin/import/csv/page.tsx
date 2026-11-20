@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
@@ -31,6 +33,8 @@ async function post<T>(url: string, body: unknown): Promise<T> {
 }
 
 export default function CsvImportPage() {
+  const { tr } = useI18n();
+
   const projects = useQuery({
     queryKey: ['projects'],
     queryFn: async () => (await fetch('/rest/api/2/project', { credentials: 'include' })).json() as Promise<Array<{ key: string; name: string }>>,
@@ -76,55 +80,53 @@ export default function CsvImportPage() {
     <AppLayout>
       <div className="space-y-5">
         <div>
-          <Link href="/admin/migration" className="text-sm text-[var(--brand-500)]">← Import from other tools</Link>
-          <h1 className="text-heading-1 text-[var(--text-primary)]">CSV import</h1>
-          <p className="text-[var(--text-secondary)]">Works with Jira CSV exports and with CSV exports of Asana, ClickUp, Linear and spreadsheets: columns are matched by name and you can change every mapping. Check the column mapping, run a validation first, then import.</p>
+          <Link href="/admin/migration" className="text-sm text-[var(--brand-500)]">{tr('← Import from other tools')}</Link>
+          <h1 className="text-heading-1 text-[var(--text-primary)]">{tr('CSV import')}</h1>
+          <p className="text-[var(--text-secondary)]">{tr('Works with Jira CSV exports and with CSV exports of Asana, ClickUp, Linear and spreadsheets: columns are matched by name and you can change every mapping. Check the column mapping, run a validation first, then import.')}</p>
         </div>
         {error && <div role="alert" className="rounded border border-red-300 bg-red-50 text-red-800 p-3 text-sm">{error}</div>}
 
         <section className="veqsio-card p-5 space-y-3">
-          <h2 className="text-heading-3">1. File and project</h2>
-          <label className="block text-sm space-y-1">CSV file
-            <input type="file" accept=".csv,text/csv" className="block" onChange={(e) => onFile(e.target.files?.[0])} />
+          <h2 className="text-heading-3">{tr('1. File and project')}</h2>
+          <label className="block text-sm space-y-1">{tr('CSV file')} <input type="file" accept=".csv,text/csv" className="block" onChange={(e) => onFile(e.target.files?.[0])} />
           </label>
-          <label className="block text-sm space-y-1">Target project
-            <select className="veqsio-input block" value={projectKey} onChange={(e) => setProjectKey(e.target.value)}>
-              <option value="">Select a project…</option>
+          <label className="block text-sm space-y-1">{tr('Target project')} <select className="veqsio-input block" value={projectKey} onChange={(e) => setProjectKey(e.target.value)}>
+              <option value="">{tr('Select a project…')}</option>
               {projects.data?.map((p) => <option key={p.key} value={p.key}>{p.key} — {p.name}</option>)}
             </select>
           </label>
-          {preview && <p className="text-sm text-[var(--text-secondary)]">{fileName}: {preview.rowCount} rows, {preview.headers.length} columns</p>}
+          {preview && <p className="text-sm text-[var(--text-secondary)]">{fileName}: {preview.rowCount} {tr('rows,')} {preview.headers.length} {tr('columns')}</p>}
         </section>
 
         {preview && (
           <section className="veqsio-card p-5 space-y-3">
-            <h2 className="text-heading-3">2. Map columns</h2>
+            <h2 className="text-heading-3">{tr('2. Map columns')}</h2>
             <div className="grid sm:grid-cols-2 gap-3">
               {preview.targetFields.map((f) => (
-                <label key={f} className="text-sm space-y-1 block">{LABELS[f] ?? f}
+                <label key={f} className="text-sm space-y-1 block">{LABELS[f] ? tr(LABELS[f]) : f}
                   {MULTI.has(f) ? (
                     <select multiple size={Math.min(4, preview.headers.length)} className="veqsio-input block w-full"
                       value={(mapping[f] ?? []).map(String)} onChange={(e) => setMulti(f, e.target)}>
-                      {preview.headers.map((h, i) => <option key={i} value={i}>{h || `(column ${i + 1})`}</option>)}
+                      {preview.headers.map((h, i) => <option key={i} value={i}>{h || tr('(column {n})', { n: i + 1 })}</option>)}
                     </select>
                   ) : (
                     <select className="veqsio-input block w-full" value={mapping[f]?.[0] ?? ''} onChange={(e) => setSingle(f, e.target.value)}>
-                      <option value="">— not imported —</option>
-                      {preview.headers.map((h, i) => <option key={i} value={i}>{h || `(column ${i + 1})`}</option>)}
+                      <option value="">{tr('— not imported —')}</option>
+                      {preview.headers.map((h, i) => <option key={i} value={i}>{h || tr('(column {n})', { n: i + 1 })}</option>)}
                     </select>
                   )}
                 </label>
               ))}
             </div>
             <div className="flex flex-wrap gap-4 text-sm">
-              <label>Numeric dates are{' '}
+              <label>{tr('Numeric dates are')}{' '}
                 <select className="veqsio-input inline-block w-auto" value={dateOrder} onChange={(e) => setDateOrder(e.target.value as any)}>
-                  <option value="dmy">day/month/year</option><option value="mdy">month/day/year</option>
+                  <option value="dmy">{tr('day/month/year')}</option><option value="mdy">{tr('month/day/year')}</option>
                 </select>
               </label>
-              <label>Existing keys{' '}
+              <label>{tr('Existing keys')}{' '}
                 <select className="veqsio-input inline-block w-auto" value={onExisting} onChange={(e) => setOnExisting(e.target.value as any)}>
-                  <option value="skip">skip</option><option value="overwrite">overwrite</option>
+                  <option value="skip">{tr('skip')}</option><option value="overwrite">{tr('overwrite')}</option>
                 </select>
               </label>
             </div>
@@ -133,9 +135,9 @@ export default function CsvImportPage() {
                 <tbody>{preview.sample.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j} className="px-2 max-w-[160px] truncate">{c}</td>)}</tr>)}</tbody></table>
             </div>
             <div className="flex gap-2">
-              <button className="veqsio-btn-secondary" disabled={busy || !projectKey || !mapping.summary} onClick={() => submit(true)}>Validate (dry run)</button>
+              <button className="veqsio-btn-secondary" disabled={busy || !projectKey || !mapping.summary} onClick={() => submit(true)}>{tr('Validate (dry run)')}</button>
               <button className="veqsio-btn-primary" disabled={busy || !projectKey || !mapping.summary || !report?.dryRun || report.failed === report.total}
-                onClick={() => submit(false)}>Import {preview.rowCount} rows</button>
+                onClick={() => submit(false)}>{tr('Import {n} rows', { n: preview.rowCount })}</button>
             </div>
             {busy && <Spinner />}
           </section>
@@ -143,22 +145,22 @@ export default function CsvImportPage() {
 
         {report && (
           <section className="veqsio-card p-5 space-y-3" aria-live="polite">
-            <h2 className="text-heading-3">{report.dryRun ? 'Validation result' : 'Import result'}</h2>
+            <h2 className="text-heading-3">{report.dryRun ? tr('Validation result') : tr('Import result')}</h2>
             <p className="text-sm">
-              {report.dryRun ? `${report.created} rows ready` : `${report.created} created, ${report.updated} updated, ${report.skipped} skipped`}
-              {' · '}<span className={report.failed ? 'text-red-700' : ''}>{report.failed} with errors</span>
+              {report.dryRun ? tr('{n} rows ready', { n: report.created }) : tr('{created} created, {updated} updated, {skipped} skipped', { created: report.created, updated: report.updated, skipped: report.skipped })}
+              {' · '}<span className={report.failed ? 'text-red-700' : ''}>{report.failed} {tr('with errors')}</span>
             </p>
             {Object.entries(report.newValues).some(([, v]) => v.length) && (
-              <div className="text-sm"><strong>Will be created:</strong>
+              <div className="text-sm"><strong>{tr('Will be created:')}</strong>
                 <ul className="list-disc ml-5">
                   {Object.entries(report.newValues).filter(([, v]) => v.length).map(([k, v]) => <li key={k}>{k}: {v.slice(0, 20).join(', ')}{v.length > 20 ? '…' : ''}</li>)}
                 </ul>
               </div>
             )}
-            {report.errors.length > 0 && <details open><summary className="cursor-pointer text-sm text-red-700">Errors ({report.errors.length})</summary>
-              <ul className="list-disc ml-5 text-sm">{report.errors.slice(0, 100).map((m, i) => <li key={i}>Row {m.row}: {m.message}</li>)}</ul></details>}
-            {report.warnings.length > 0 && <details><summary className="cursor-pointer text-sm">Warnings ({report.warnings.length})</summary>
-              <ul className="list-disc ml-5 text-sm">{report.warnings.slice(0, 100).map((m, i) => <li key={i}>Row {m.row}: {m.message}</li>)}</ul></details>}
+            {report.errors.length > 0 && <details open><summary className="cursor-pointer text-sm text-red-700">{tr('Errors (')}{report.errors.length})</summary>
+              <ul className="list-disc ml-5 text-sm">{report.errors.slice(0, 100).map((m, i) => <li key={i}>{tr('Row')} {m.row}: {m.message}</li>)}</ul></details>}
+            {report.warnings.length > 0 && <details><summary className="cursor-pointer text-sm">{tr('Warnings (')}{report.warnings.length})</summary>
+              <ul className="list-disc ml-5 text-sm">{report.warnings.slice(0, 100).map((m, i) => <li key={i}>{tr('Row')} {m.row}: {m.message}</li>)}</ul></details>}
           </section>
         )}
       </div>

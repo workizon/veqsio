@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ANY_NODE_ID, NODE_H, boundsOf, center, edgeGeometry, edgeSlots, hitNode, nodeRect, nodeWidth,
@@ -34,6 +36,8 @@ const ANY_W = 120
  * edit, arrow keys to nudge; the Table view offers the same actions without a pointer.
  */
 export function DesignerCanvas({ statuses, transitions, positions, selected, flaggedStatusIds, onSelect, onMove, onConnect }: Props) {
+  const { tr } = useI18n();
+
   const svgRef = useRef<SVGSVGElement>(null)
   const drag = useRef<DragState | null>(null)
   const [conn, setConn] = useState<{ from: number; at: Pos } | null>(null)
@@ -138,21 +142,21 @@ export function DesignerCanvas({ statuses, transitions, positions, selected, fla
     }
   }
 
-  const statusName = (id: number | null) => (id === null ? 'Any status' : statuses.find((s) => s.id === id)?.name ?? `#${id}`)
+  const statusName = (id: number | null) => (id === null ? tr('Any status') : statuses.find((s) => s.id === id)?.name ?? `#${id}`)
 
   const renderNode = (id: number, name: string, rect: Rect, opts: { category?: string; any?: boolean }) => {
     const cat = normalizeCategory(opts.category)
     const color = opts.any ? 'var(--text-tertiary)' : CATEGORY_VAR[cat]
     const isSel = selected?.kind === 'status' && selected.id === id
     const flagged = flaggedStatusIds.has(id)
-    const label = opts.any ? 'Any status' : name
+    const label = opts.any ? tr('Any status') : name
     return (
       <g
         key={`n${id}`}
         className="group outline-none"
         tabIndex={0}
         role="button"
-        aria-label={opts.any ? 'Any status: source of global transitions. Arrow keys move it.' : `Status ${name}, ${CATEGORY_LABEL[cat]}${flagged ? ', has warnings' : ''}. Enter to edit, arrow keys to move.`}
+        aria-label={opts.any ? tr('Any status: source of global transitions. Arrow keys move it.') : flagged ? tr('Status {name}, {category}, has warnings. Enter to edit, arrow keys to move.', { name, category: tr(CATEGORY_LABEL[cat]) }) : tr('Status {name}, {category}. Enter to edit, arrow keys to move.', { name, category: tr(CATEGORY_LABEL[cat]) })}
         aria-pressed={isSel}
         onPointerDown={(e) => startMove(e, id)}
         onPointerMove={moveDrag}
@@ -177,7 +181,7 @@ export function DesignerCanvas({ statuses, transitions, positions, selected, fla
         >
           {label.length > 26 ? label.slice(0, 25) + '…' : label}
         </text>
-        {flagged && <circle cx={rect.x + rect.w - 6} cy={rect.y + 4} r={4} fill="var(--warning)"><title>This status has warnings</title></circle>}
+        {flagged && <circle cx={rect.x + rect.w - 6} cy={rect.y + 4} r={4} fill="var(--warning)"><title>{tr('This status has warnings')}</title></circle>}
         <circle
           cx={rect.x + rect.w} cy={rect.y + rect.h / 2} r={7}
           fill="var(--brand-500)" stroke="var(--surface-0)" strokeWidth={2}
@@ -188,7 +192,7 @@ export function DesignerCanvas({ statuses, transitions, positions, selected, fla
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
         >
-          <title>Drag onto another status to create a transition</title>
+          <title>{tr('Drag onto another status to create a transition')}</title>
         </circle>
       </g>
     )
@@ -199,7 +203,7 @@ export function DesignerCanvas({ statuses, transitions, positions, selected, fla
       <svg
         ref={svgRef}
         role="group"
-        aria-label="Workflow diagram"
+        aria-label={tr('Workflow diagram')}
         viewBox={`${bounds.x} ${bounds.y} ${bounds.w} ${bounds.h}`}
         preserveAspectRatio="xMidYMid meet"
         style={{ width: '100%', height: 'auto', maxWidth: Math.round(bounds.w * 1.25), aspectRatio: `${bounds.w} / ${bounds.h}` }}
@@ -230,7 +234,7 @@ export function DesignerCanvas({ statuses, transitions, positions, selected, fla
               tabIndex={0}
               role="button"
               aria-pressed={isSel}
-              aria-label={`Transition ${t.name} from ${statusName(t.fromStatusId)} to ${statusName(t.toStatusId)}. Enter to edit.`}
+              aria-label={tr('Transition {name} from {from} to {to}. Enter to edit.', { name: t.name, from: statusName(t.fromStatusId), to: statusName(t.toStatusId) })}
               className="outline-none group/edge cursor-pointer"
               onClick={() => onSelect({ kind: 'transition', id: t.id })}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect({ kind: 'transition', id: t.id }) } }}
@@ -257,12 +261,10 @@ export function DesignerCanvas({ statuses, transitions, positions, selected, fla
 
       {placed.length === 0 && (
         <p className="absolute inset-x-0 top-24 text-center text-sm text-[var(--text-tertiary)] pointer-events-none px-6">
-          This workflow has no statuses yet. Use “Add status” to place one on the canvas.
-        </p>
+          {tr('This workflow has no statuses yet. Use “Add status” to place one on the canvas.')} </p>
       )}
       <p className="sticky left-0 bottom-0 px-3 py-2 text-xs text-[var(--text-tertiary)] bg-[var(--surface-1)]/90 border-t border-[var(--surface-3)]">
-        Drag a status to move it. Drag from the dot on its right edge onto another status to add a transition. Use the dashed “Any status” node for global transitions.
-      </p>
+        {tr('Drag a status to move it. Drag from the dot on its right edge onto another status to add a transition. Use the dashed “Any status” node for global transitions.')} </p>
     </div>
   )
 }

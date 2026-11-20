@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useState } from 'react'
 import { Pause, Play, Loader2, CheckCircle2, AlertCircle, Download } from 'lucide-react'
 import { toast } from './toast'
@@ -33,12 +35,14 @@ const statusConfig = {
 }
 
 export function MigrationProgress({ progress, onPause, onResume, onDownloadReport }: MigrationProgressProps) {
+  const { tr } = useI18n();
+
   const [logsOpen, setLogsOpen] = useState(false)
 
   if (!progress) {
     return (
       <div className="veqsio-card p-6 text-center">
-        <p className="text-sm text-[var(--text-tertiary)]">No active migration session</p>
+        <p className="text-sm text-[var(--text-tertiary)]">{tr('No active migration session')}</p>
       </div>
     )
   }
@@ -68,7 +72,7 @@ export function MigrationProgress({ progress, onPause, onResume, onDownloadRepor
               className="veqsio-btn-ghost flex items-center gap-1.5"
             >
               <Pause className="w-4 h-4" />
-              <span>Pause</span>
+              <span>{tr('Pause')}</span>
             </button>
           )}
           {progress.status === 'paused' && (
@@ -77,7 +81,7 @@ export function MigrationProgress({ progress, onPause, onResume, onDownloadRepor
               className="veqsio-btn-primary flex items-center gap-1.5"
             >
               <Play className="w-4 h-4" />
-              <span>Resume</span>
+              <span>{tr('Resume')}</span>
             </button>
           )}
           {(progress.status === 'completed' || progress.status === 'failed') && (
@@ -86,7 +90,7 @@ export function MigrationProgress({ progress, onPause, onResume, onDownloadRepor
               className="veqsio-btn-secondary flex items-center gap-1.5"
             >
               <Download className="w-4 h-4" />
-              <span>Report</span>
+              <span>{tr('Report')}</span>
             </button>
           )}
         </div>

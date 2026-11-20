@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { Check, Lock } from 'lucide-react'
 import { FieldRow, InlineValueButton, Popover } from './primitives'
@@ -10,11 +12,13 @@ const optionClass = 'w-full flex items-start gap-2 px-3 py-2 text-left text-body
 
 /** The row in the details panel: hidden unless the issue has a level or the viewer may set one. */
 export function SecurityRow(props: { projectKey: string; level: { id: number; name: string; description?: string | null } | null | undefined; onChange: (next: { id: number } | null) => void }) {
+  const { tr } = useI18n();
+
   const { data } = useProjectSecurity(props.projectKey)
   const canSet = !!data?.canSet && data.levels.length > 0
   if (!props.level && !canSet) return null
   return (
-    <FieldRow label="Security level" htmlFor="field-security">
+    <FieldRow label={tr('Security level')} htmlFor="field-security">
       <SecurityField {...props} />
     </FieldRow>
   )
@@ -29,12 +33,14 @@ export function SecurityField({ projectKey, level, onChange }: {
   level: { id: number; name: string; description?: string | null } | null | undefined
   onChange: (next: { id: number } | null) => void
 }) {
+  const { tr } = useI18n();
+
   const [open, setOpen] = useState(false)
   const { data } = useProjectSecurity(projectKey)
   const canSet = !!data?.canSet && (data.levels.length ?? 0) > 0
   const display = level ? (
     <span className="flex items-center gap-1.5 text-[var(--warning)]"><Lock className="w-3.5 h-3.5 shrink-0" aria-hidden="true" /><span className="truncate">{level.name}</span></span>
-  ) : <span className="text-[var(--text-tertiary)]">None</span>
+  ) : <span className="text-[var(--text-tertiary)]">{tr('None')}</span>
 
   if (!canSet) return <span className="py-1 inline-block" title={level?.description ?? undefined}>{display}</span>
 
@@ -44,12 +50,12 @@ export function SecurityField({ projectKey, level, onChange }: {
     <Popover
       open={open}
       onOpenChange={setOpen}
-      label="Set security level"
+      label={tr('Set security level')}
       align="right"
       haspopup="listbox"
       panelClassName="w-[min(18rem,calc(100vw-2rem))] py-1"
       trigger={(p) => (
-        <InlineValueButton id="field-security" {...p} aria-label={`Security level: ${level?.name ?? 'None'}. Change security level`}>{display}</InlineValueButton>
+        <InlineValueButton id="field-security" {...p} aria-label={tr('Security level: {name}. Change security level', { name: level?.name ?? tr('None') })}>{display}</InlineValueButton>
       )}
     >
       <ul>
@@ -75,7 +81,7 @@ export function SecurityField({ projectKey, level, onChange }: {
           </li>
         ))}
       </ul>
-      <p className="px-3 py-2 text-caption text-[var(--text-tertiary)] border-t border-[var(--surface-3)]">Only members of the level can see the issue afterwards.</p>
+      <p className="px-3 py-2 text-caption text-[var(--text-tertiary)] border-t border-[var(--surface-3)]">{tr('Only members of the level can see the issue afterwards.')}</p>
     </Popover>
   )
 }

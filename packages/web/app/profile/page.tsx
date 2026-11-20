@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import Link from 'next/link'
 import { AppLayout } from '@/components/app-layout'
@@ -14,6 +16,8 @@ import { toast } from '@/components/toast'
 import { Edit3, Mail, User, CheckCircle2, Clock, ArrowRight, KeyRound } from 'lucide-react'
 
 export default function ProfilePage() {
+  const { tr } = useI18n();
+
   const { data: user, isLoading: userLoading } = useMyself()
   const { data: myIssues, isLoading: issuesLoading } = useMyIssues()
   const { data: activity, isLoading: activityLoading } = useActivityStream(10)
@@ -35,28 +39,28 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <AppLayout>
-        <EmptyState icon="frown" title="Profile not found" description="Could not load your profile." />
+        <EmptyState icon="frown" title={tr('Profile not found')} description={tr('Could not load your profile.')} />
       </AppLayout>
     )
   }
 
   const handleSave = async () => {
     const name = displayName.trim()
-    if (!name) { toast('Display name cannot be empty', 'error'); return }
+    if (!name) { toast(tr('Display name cannot be empty'), 'error'); return }
     if (name === (user.name || user.displayName)) { setEditing(false); return }
     try {
       await update.mutateAsync({ displayName: name })
-      toast('Profile updated', 'success')
+      toast(tr('Profile updated'), 'success')
       setEditing(false)
     } catch (e: any) {
-      toast(e?.message || 'Could not update profile', 'error')
+      toast(e?.message || tr('Could not update profile'), 'error')
     }
   }
 
   return (
     <AppLayout>
       <div className="space-y-6">
-        <Breadcrumb items={[{ label: 'Profile' }]} />
+        <Breadcrumb items={[{ label: tr('Profile') }]} />
 
         {/* Profile card */}
         <div className="veqsio-card flex flex-col sm:flex-row items-start gap-4">
@@ -75,14 +79,14 @@ export default function ProfilePage() {
                 className="veqsio-btn-secondary flex items-center gap-1"
               >
                 <Edit3 className="w-4 h-4" />
-                <span className="hidden sm:inline">{editing ? 'Cancel' : 'Edit'}</span>
+                <span className="hidden sm:inline">{editing ? tr('Cancel') : tr('Edit')}</span>
               </button>
             </div>
 
             {editing ? (
               <div className="mt-4 space-y-3 max-w-md">
                 <div>
-                  <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">Display name</label>
+                  <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">{tr('Display name')}</label>
                   <input
                     type="text"
                     className="veqsio-input w-full"
@@ -93,19 +97,19 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div className="flex justify-end gap-2">
-                  <button onClick={() => setEditing(false)} className="veqsio-btn-secondary">Cancel</button>
-                  <button onClick={handleSave} disabled={update.isPending} className="veqsio-btn-primary disabled:opacity-60">{update.isPending ? 'Saving…' : 'Save'}</button>
+                  <button onClick={() => setEditing(false)} className="veqsio-btn-secondary">{tr('Cancel')}</button>
+                  <button onClick={handleSave} disabled={update.isPending} className="veqsio-btn-primary disabled:opacity-60">{update.isPending ? tr('Saving…') : tr('Save')}</button>
                 </div>
               </div>
             ) : (
               <div className="mt-4 flex flex-wrap gap-4 text-body-sm text-[var(--text-secondary)]">
                 <div className="flex items-center gap-1.5">
                   <Mail className="w-4 h-4 text-[var(--text-tertiary)]" />
-                  {user.emailAddress || 'No email'}
+                  {user.emailAddress || tr('No email')}
                 </div>
                 <div className="flex items-center gap-1.5">
                   <User className="w-4 h-4 text-[var(--text-tertiary)]" />
-                  {user.active ? 'Active' : 'Inactive'}
+                  {user.active ? tr('Active') : tr('Inactive')}
                 </div>
               </div>
             )}
@@ -117,8 +121,7 @@ export default function ProfilePage() {
                 className="inline-flex items-center gap-1.5 text-body-sm text-[var(--brand-500)] hover:underline"
               >
                 <KeyRound className="w-4 h-4" />
-                Personal Access Tokens
-              </Link>
+                {tr('Personal Access Tokens')} </Link>
             </div>
           </div>
         </div>
@@ -128,14 +131,13 @@ export default function ProfilePage() {
           <div className="lg:col-span-2 space-y-4">
             <h2 className="text-heading-2 text-[var(--text-primary)] flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-[var(--text-tertiary)]" />
-              My Issues
-            </h2>
+              {tr('My Issues')} </h2>
             {issuesLoading ? (
               <div className="flex items-center justify-center py-8">
                 <Spinner />
               </div>
             ) : !myIssues?.length ? (
-              <EmptyState icon="inbox" title="No assigned issues" description="Issues assigned to you will appear here." />
+              <EmptyState icon="inbox" title={tr('No assigned issues')} description={tr('Issues assigned to you will appear here.')} />
             ) : (
               <div className="border border-[var(--surface-3)] rounded-lg overflow-hidden">
                 {myIssues.map((issue) => (
@@ -159,14 +161,13 @@ export default function ProfilePage() {
           <div className="space-y-4">
             <h2 className="text-heading-2 text-[var(--text-primary)] flex items-center gap-2">
               <Clock className="w-5 h-5 text-[var(--text-tertiary)]" />
-              Activity
-            </h2>
+              {tr('Activity')} </h2>
             {activityLoading ? (
               <div className="flex items-center justify-center py-8">
                 <Spinner />
               </div>
             ) : !activity?.length ? (
-              <EmptyState icon="history" title="No recent activity" description="Your actions will appear here." />
+              <EmptyState icon="history" title={tr('No recent activity')} description={tr('Your actions will appear here.')} />
             ) : (
               <div className="space-y-3">
                 {activity.map((item) => (

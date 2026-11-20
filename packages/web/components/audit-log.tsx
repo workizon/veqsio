@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { Search, Filter, ClipboardList } from 'lucide-react'
 import { Spinner } from './spinner'
@@ -7,6 +9,8 @@ import { EmptyState } from './empty-state'
 import { useAuditLog } from '@/hooks/use-admin'
 
 export function AuditLog() {
+  const { tr } = useI18n();
+
   const [userFilter, setUserFilter] = useState('')
   const [actionFilter, setActionFilter] = useState('')
   const [fromDate, setFromDate] = useState('')
@@ -24,7 +28,7 @@ export function AuditLog() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-heading-2 text-[var(--text-primary)]">Audit log</h2>
+        <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('Audit log')}</h2>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -32,7 +36,7 @@ export function AuditLog() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
           <input
             type="text"
-            placeholder="Filter by user..."
+            placeholder={tr('Filter by user...')}
             value={userFilter}
             onChange={(e) => setUserFilter(e.target.value)}
             className="veqsio-input w-full pl-9"
@@ -42,7 +46,7 @@ export function AuditLog() {
           <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
           <input
             type="text"
-            placeholder="Filter by action..."
+            placeholder={tr('Filter by action...')}
             value={actionFilter}
             onChange={(e) => setActionFilter(e.target.value)}
             className="veqsio-input w-full pl-9"
@@ -73,19 +77,19 @@ export function AuditLog() {
       ) : logs.length === 0 ? (
         <EmptyState
           icon="folder"
-          title="No audit log entries"
-          description="System events will appear here once they occur."
+          title={tr('No audit log entries')}
+          description={tr('System events will appear here once they occur.')}
         />
       ) : (
         <div className="border border-[var(--surface-3)] rounded-lg overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="veqsio-table-header">
-                <th className="text-left">Timestamp</th>
-                <th className="text-left">User</th>
-                <th className="text-left">Action</th>
-                <th className="text-left">Entity</th>
-                <th className="text-left hidden lg:table-cell">Details</th>
+                <th className="text-left">{tr('Timestamp')}</th>
+                <th className="text-left">{tr('User')}</th>
+                <th className="text-left">{tr('Action')}</th>
+                <th className="text-left">{tr('Entity')}</th>
+                <th className="text-left hidden lg:table-cell">{tr('Details')}</th>
               </tr>
             </thead>
             <tbody>

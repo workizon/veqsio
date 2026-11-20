@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useId, useState } from 'react'
 import { renderCannedResponse, useCannedResponses } from '@/hooks/use-servicedesk'
 
@@ -9,6 +11,8 @@ export function CannedResponseSelect({ deskId, issueKey, onInsert }: {
   issueKey: string
   onInsert: (text: string) => void
 }) {
+  const { tr } = useI18n();
+
   const id = useId()
   const canned = useCannedResponses(deskId)
   const [error, setError] = useState<string | null>(null)
@@ -17,7 +21,7 @@ export function CannedResponseSelect({ deskId, issueKey, onInsert }: {
 
   return (
     <div className="flex flex-wrap items-center gap-2 text-sm">
-      <label htmlFor={id}>Canned response</label>
+      <label htmlFor={id}>{tr('Canned response')}</label>
       <select
         id={id}
         className="veqsio-input max-w-xs"
@@ -30,11 +34,11 @@ export function CannedResponseSelect({ deskId, issueKey, onInsert }: {
             const r = await renderCannedResponse(deskId, cid, issueKey)
             onInsert(r.body)
           } catch (err) {
-            setError(err instanceof Error ? err.message : 'Could not load response')
+            setError(err instanceof Error ? err.message : tr('Could not load response'))
           }
         }}
       >
-        <option value="">Insert a canned response...</option>
+        <option value="">{tr('Insert a canned response...')}</option>
         {items.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
       </select>
       {error && <span role="alert" className="text-[var(--error)]">{error}</span>}

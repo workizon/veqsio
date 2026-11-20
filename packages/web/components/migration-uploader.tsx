@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState, useCallback } from 'react'
 import { Upload, FileText, X, AlertCircle } from 'lucide-react'
 import { toast } from './toast'
@@ -10,6 +12,8 @@ interface MigrationUploaderProps {
 }
 
 export function MigrationUploader({ onUpload, isUploading }: MigrationUploaderProps) {
+  const { tr } = useI18n();
+
   const [dragActive, setDragActive] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
@@ -17,11 +21,11 @@ export function MigrationUploader({ onUpload, isUploading }: MigrationUploaderPr
 
   const validateFile = (file: File): boolean => {
     if (!file.name.endsWith('.xml')) {
-      toast('Please upload a Jira XML backup file (.xml)', 'error')
+      toast(tr('Please upload a Jira XML backup file (.xml)'), 'error')
       return false
     }
     if (file.size > MAX_SIZE) {
-      toast('File exceeds 8GB limit', 'error')
+      toast(tr('File exceeds 8GB limit'), 'error')
       return false
     }
     return true
@@ -90,11 +94,10 @@ export function MigrationUploader({ onUpload, isUploading }: MigrationUploaderPr
           </div>
           <div>
             <p className="text-sm font-medium text-[var(--text-primary)]">
-              {isUploading ? 'Uploading...' : 'Drag & drop your Jira XML backup'}
+              {isUploading ? tr('Uploading...') : tr('Drag & drop your Jira XML backup')}
             </p>
             <p className="text-xs text-[var(--text-tertiary)] mt-1">
-              or click to browse. Max 8GB (.xml)
-            </p>
+              {tr('or click to browse. Max 8GB (.xml)')} </p>
           </div>
         </div>
       </div>
@@ -107,8 +110,7 @@ export function MigrationUploader({ onUpload, isUploading }: MigrationUploaderPr
               {selectedFile.name}
             </p>
             <p className="text-xs text-[var(--text-tertiary)]">
-              {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
-            </p>
+              {(selectedFile.size / (1024 * 1024)).toFixed(2)} {tr('MB')} </p>
           </div>
           <button
             onClick={clearFile}

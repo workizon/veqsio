@@ -5,6 +5,7 @@ import { eq, and, inArray } from 'drizzle-orm';
 import { sendEmail, queueEmails } from './email';
 import { usersWhoCanSee } from '../security/issue-security';
 import { sendPush, mentionedUsernames } from './push';
+import { recordInbox } from './inbox';
 import { deliverWebhook } from './webhooks';
 import type { WebhookEvent } from './webhooks';
 
@@ -142,6 +143,7 @@ export async function notifyIssueCreated(
   };
 
   await queueEmails(users.map((u) => u.email), 'issue-created', data);
+  await recordInbox(users.filter((u) => u.id !== issue.reporterId).map((u) => u.id), { kind: 'created', title: `${data.reporterName} created ${issue.issueKey}`, body: issue.summary, link: `/issues/${issue.issueKey}` });
   await deliverWebhook('issue.created', { ...data, projectId: issue.projectId, issueId: issue.id });
 }
 
@@ -171,6 +173,12 @@ export async function notifyIssueUpdated(
   };
 
   await queueEmails(users.map((u) => u.email), 'issue-updated', data);
+  // A reassignment already reaches the new assignee as "assigned to you"; do not show it twice.
+  const reassigned = changeLog.some((c) => /assignee/i.test(c.field));
+  await recordInbox(
+    users.filter((u) => u.id !== authorId && !(reassigned && u.id === issue.assigneeId)).map((u) => u.id),
+    { kind: 'update', title: `${data.authorName} updated ${issue.issueKey}`, body: changeLog.map((c) => `${c.field}: ${c.oldValue ?? '—'} → ${c.newValue ?? '—'}`).join('; ') || issue.summary, link: `/issues/${issue.issueKey}` },
+  );
 
   const hasStatusChange = changeLog.some((c) => c.field === 'status');
   const event: WebhookEvent = hasStatusChange ? 'issue.transitioned' : 'issue.updated';
@@ -219,6 +227,9 @@ export async function notifyCommentAdded(
     }
     const url = `/issues/${issue.issueKey}?comment=${comment.id}`;
     const who = author[0]?.displayName || 'Someone';
+    const link = `/issues/${issue.issueKey}?comment=${comment.id}`;
+    await recordInbox(mentioned, { kind: 'mention', title: `${who} mentioned you in ${issue.issueKey}`, body: comment.body || issue.summary, link });
+    await recordInbox(plain.filter((i) => !mentioned.includes(i)), { kind: 'comment', title: `${who} commented on ${issue.issueKey}`, body: comment.body || issue.summary, link });
     await sendPush(mentioned, { title: `${who} mentioned you in ${issue.issueKey}`, body: comment.body || issue.summary, url, tag: `mention-${comment.id}`, kind: 'mention' });
     await sendPush(plain.filter((i) => !mentioned.includes(i)), { title: `${who} commented on ${issue.issueKey}`, body: comment.body || issue.summary, url, tag: `comment-${comment.id}`, kind: 'comment' });
   } catch (e) { console.error('[push] comment push failed:', e instanceof Error ? e.message : 'error'); }
@@ -252,6 +263,7 @@ export async function notifyIssueAssigned(
 
   if (issue.id && !(await usersWhoCanSee(issue.id, [assigneeId])).has(assigneeId)) return; // cannot see the issue (security level): no mail
   await sendEmail(assignee[0].email, 'issue-assigned', data);
+  if (assigneeId !== assignerId) await recordInbox([assigneeId], { kind: 'assignment', title: `${data.assignerName} assigned ${issue.issueKey} to you`, body: issue.summary, link: `/issues/${issue.issueKey}` });
   if (assigneeId !== assignerId) await sendPush([assigneeId], { title: `${data.assignerName} assigned ${issue.issueKey} to you`, body: issue.summary, url: `/issues/${issue.issueKey}`, tag: `assigned-${issue.issueKey}`, kind: 'assignment' });
   await deliverWebhook('issue.updated', { ...data, projectId: issue.projectId, issueId: issue.id, assignedTo: assigneeId });
 }
@@ -285,6 +297,7 @@ export async function notifySprintEvent(
       sprintUrl: `${baseUrl}/boards/${sprint.boardId}`,
     };
     await queueEmails(users.map((u) => u.email), 'sprint-started', data);
+    await recordInbox(users.map((u) => u.id), { kind: 'sprint', title: `Sprint started: ${sprint.name}`, body: sprint.goal || '', link: `/boards/${sprint.boardId}` });
     await deliverWebhook('sprint.started', { ...data, sprintId: sprint.id, boardId: sprint.boardId, projectId: project[0]?.id });
   } else {
     const completedIssues = await db
@@ -301,6 +314,7 @@ export async function notifySprintEvent(
       sprintUrl: `${baseUrl}/boards/${sprint.boardId}`,
     };
     await queueEmails(users.map((u) => u.email), 'sprint-closed', data);
+    await recordInbox(users.map((u) => u.id), { kind: 'sprint', title: `Sprint closed: ${sprint.name}`, body: `${data.completedIssues} issues`, link: `/boards/${sprint.boardId}` });
     await deliverWebhook('sprint.closed', { ...data, sprintId: sprint.id, boardId: sprint.boardId, projectId: project[0]?.id });
   }
 }

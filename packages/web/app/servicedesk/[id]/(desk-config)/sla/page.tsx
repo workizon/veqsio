@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -69,6 +71,8 @@ const PRESETS: Array<{ label: string; build: (d: Draft) => Draft }> = [
 ]
 
 export default function SlaPage() {
+  const { tr } = useI18n();
+
   const nameSort = useTextSort()
   const id = Number(useParams<{ id: string }>().id)
   const desks = useDesks()
@@ -105,15 +109,14 @@ export default function SlaPage() {
     <>
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <h1 className="text-heading-1 text-[var(--text-primary)]">SLAs</h1>
+          <h1 className="text-heading-1 text-[var(--text-primary)]">{tr('SLAs')}</h1>
           <div className="flex gap-2">
-            <Link href={`/servicedesk/${id}/calendars`} className="veqsio-btn-secondary">Calendars</Link>
-            <Link href={`/servicedesk/${id}`} className="veqsio-btn-secondary">Back to service desk</Link>
+            <Link href={`/servicedesk/${id}/calendars`} className="veqsio-btn-secondary">{tr('Calendars')}</Link>
+            <Link href={`/servicedesk/${id}`} className="veqsio-btn-secondary">{tr('Back to service desk')}</Link>
           </div>
         </div>
         <p className="text-sm text-[var(--text-secondary)]">
-          An SLA measures how long an event takes. Choose when the clock starts, pauses and stops, then set time goals for the issues it applies to.
-        </p>
+          {tr('An SLA measures how long an event takes. Choose when the clock starts, pauses and stops, then set time goals for the issues it applies to.')} </p>
 
         {slas.isLoading && <Spinner />}
         {slas.error && <div role="alert" className="text-[var(--error)]">{slas.error.message}</div>}
@@ -135,25 +138,25 @@ export default function SlaPage() {
           const box = 'rounded border border-[var(--surface-3)] bg-[var(--surface-1)] px-3 py-1.5 text-sm'
           const condColumn = (title: string, hint: string, block: Block, conds: Condition[], optional = false) => (
             <div className="min-w-0">
-              <p className="font-semibold text-[var(--text-primary)]">{title}{optional && <span className="font-normal text-[var(--text-secondary)]"> (optional)</span>}</p>
-              <p className="mt-1 mb-2 text-sm text-[var(--text-secondary)]">{hint}</p>
+              <p className="font-semibold text-[var(--text-primary)]">{tr(title)}{optional && <span className="font-normal text-[var(--text-secondary)]"> {tr('(optional)')}</span>}</p>
+              <p className="mt-1 mb-2 text-sm text-[var(--text-secondary)]">{tr(hint)}</p>
               <div className="space-y-2">
-                {conds.length === 0 ? <div className="rounded border border-dashed border-[var(--surface-4)] px-3 py-1.5 text-sm text-[var(--text-tertiary)]">&nbsp;</div> : conds.map((c, i) => <div key={i} className={box}>{condText(block, c, statusOpts)}</div>)}
+                {conds.length === 0 ? <div className="rounded border border-dashed border-[var(--surface-4)] px-3 py-1.5 text-sm text-[var(--text-tertiary)]">&nbsp;</div> : conds.map((c, i) => <div key={i} className={box}>{condText(block, c, statusOpts, tr)}</div>)}
               </div>
             </div>
           )
           return (
             <div className="grid gap-6 lg:grid-cols-[17rem_minmax(0,1fr)]">
-              <nav aria-label="SLAs" className="space-y-1">
-                <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">SLAs</p>
-                {list.length === 0 && <p className="px-3 py-2 text-sm text-[var(--text-tertiary)]">No SLAs yet</p>}
+              <nav aria-label={tr('SLAs')} className="space-y-1">
+                <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">{tr('SLAs')}</p>
+                {list.length === 0 && <p className="px-3 py-2 text-sm text-[var(--text-tertiary)]">{tr('No SLAs yet')}</p>}
                 {list.map((x) => (
                   <button key={x.id} type="button" aria-current={current?.id === x.id ? 'true' : undefined} onClick={() => setSelectedId(x.id)}
                     className={`block w-full truncate rounded-md px-3 py-2 text-left text-sm ${current?.id === x.id ? 'bg-[var(--brand-50)] font-medium text-[var(--brand-700)]' : 'text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]'}`} title={x.name}>{x.name}</button>
                 ))}
                 {isAdmin && (
                   <div className="mt-2 border-t border-[var(--surface-3)] pt-2">
-                    <button type="button" className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-2)]" onClick={() => setDraft(newDraft(calendars.find((c) => c.builtIn)?.id ?? null))}><span aria-hidden="true">+</span>Create SLA</button>
+                    <button type="button" className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-2)]" onClick={() => setDraft(newDraft(calendars.find((c) => c.builtIn)?.id ?? null))}><span aria-hidden="true">+</span>{tr('Create SLA')}</button>
                   </div>
                 )}
               </nav>
@@ -164,17 +167,17 @@ export default function SlaPage() {
                     <h2 className="text-heading-1 text-[var(--text-primary)]">{current.name}</h2>
                     {isAdmin && (
                       <div className="flex flex-wrap gap-2">
-                        <button className="veqsio-btn-secondary text-sm" aria-label={`Move ${current.name} up`} disabled={idx <= 0 || reorder.isPending} onClick={() => move(idx, -1)}>Move up</button>
-                        <button className="veqsio-btn-secondary text-sm" aria-label={`Move ${current.name} down`} disabled={idx === list.length - 1 || reorder.isPending} onClick={() => move(idx, 1)}>Move down</button>
-                        <button className="veqsio-btn-secondary text-sm" disabled={del.isPending} onClick={async () => { if ((await confirmDialog(`Delete SLA "${current.name}"?`))) del.mutate(current.id) }}>Delete</button>
-                        <button className="veqsio-btn-primary text-sm" onClick={() => setDraft(toDraft(current))}>Edit SLA</button>
+                        <button className="veqsio-btn-secondary text-sm" aria-label={`Move ${current.name} up`} disabled={idx <= 0 || reorder.isPending} onClick={() => move(idx, -1)}>{tr('Move up')}</button>
+                        <button className="veqsio-btn-secondary text-sm" aria-label={`Move ${current.name} down`} disabled={idx === list.length - 1 || reorder.isPending} onClick={() => move(idx, 1)}>{tr('Move down')}</button>
+                        <button className="veqsio-btn-secondary text-sm" disabled={del.isPending} onClick={async () => { if ((await confirmDialog(tr('Delete SLA "{name}"?', { name: current.name })))) del.mutate(current.id) }}>{tr('Delete')}</button>
+                        <button className="veqsio-btn-primary text-sm" onClick={() => setDraft(toDraft(current))}>{tr('Edit SLA')}</button>
                       </div>
                     )}
                   </div>
 
                   <div>
-                    <h3 className="font-semibold text-[var(--text-primary)]">Time metric</h3>
-                    <p className="mt-1 mb-4 text-sm text-[var(--text-secondary)]">Time is measured between the <strong>Start</strong> and <strong>Stop</strong> conditions below{current.warningPercent ? `; a warning is raised at ${current.warningPercent}% of the goal` : ''}.</p>
+                    <h3 className="font-semibold text-[var(--text-primary)]">{tr('Time metric')}</h3>
+                    <p className="mt-1 mb-4 text-sm text-[var(--text-secondary)]">{tr('Time is measured between the')} <strong>{tr('Start')}</strong> {tr('and')} <strong>{tr('Stop')}</strong> {tr('conditions below')}{current.warningPercent ? tr('; a warning is raised at {n}% of the goal', { n: current.warningPercent }) : ''}.</p>
                     <div className="grid items-start gap-4 md:grid-cols-[1fr_auto_1fr_auto_1fr]">
                       {condColumn('Start', 'Begin counting time when', 'start', current.effectiveConditions.start)}
                       <span className="hidden pt-1 text-[var(--text-tertiary)] md:block" aria-hidden="true">→</span>
@@ -185,24 +188,24 @@ export default function SlaPage() {
                   </div>
 
                   <div>
-                    <h3 className="font-semibold text-[var(--text-primary)]">Goals</h3>
-                    <p className="mt-1 mb-3 text-sm text-[var(--text-secondary)]">Issues are checked against this list from top to bottom and get the time target of the first matching row.</p>
+                    <h3 className="font-semibold text-[var(--text-primary)]">{tr('Goals')}</h3>
+                    <p className="mt-1 mb-3 text-sm text-[var(--text-secondary)]">{tr('Issues are checked against this list from top to bottom and get the time target of the first matching row.')}</p>
                     <div className="overflow-x-auto rounded-lg border border-[var(--surface-3)]">
                       <table className="w-full text-sm">
-                        <caption className="sr-only">Goals of {current.name}</caption>
-                        <thead><tr className="veqsio-table-header text-left"><th scope="col">Issues</th><th scope="col" className="w-28">Goal</th><th scope="col" className="w-64">Calendar</th></tr></thead>
+                        <caption className="sr-only">{tr('Goals of')} {current.name}</caption>
+                        <thead><tr className="veqsio-table-header text-left"><th scope="col">{tr('Issues')}</th><th scope="col" className="w-28">{tr('Goal')}</th><th scope="col" className="w-64">{tr('Calendar')}</th></tr></thead>
                         <tbody>
                           {current.goals.map((g, i) => {
                             const c = criteria(g)
                             return (
                               <tr key={i} className="veqsio-table-row">
-                                <td className="px-4 py-2 font-mono text-[13px]">{c ?? <span className="font-sans text-[var(--text-secondary)]">All remaining issues</span>}</td>
+                                <td className="px-4 py-2 font-mono text-[13px]">{c ?? <span className="font-sans text-[var(--text-secondary)]">{tr('All remaining issues')}</span>}</td>
                                 <td className="px-4 py-2 tabular-nums">{formatMinutes(g.targetMinutes)}</td>
-                                <td className="px-4 py-2">{calName(g.calendarId ?? current.calendarId, current.calendar === 'business' ? 'Business hours' : '24/7')}</td>
+                                <td className="px-4 py-2">{calName(g.calendarId ?? current.calendarId, current.calendar === 'business' ? tr('Business hours') : '24/7')}</td>
                               </tr>
                             )
                           })}
-                          {current.goals.length === 0 && <tr><td colSpan={3} className="px-4 py-4 text-[var(--text-tertiary)]">No goals yet. Edit the SLA to add one.</td></tr>}
+                          {current.goals.length === 0 && <tr><td colSpan={3} className="px-4 py-4 text-[var(--text-tertiary)]">{tr('No goals yet. Edit the SLA to add one.')}</td></tr>}
                         </tbody>
                       </table>
                     </div>
@@ -228,8 +231,8 @@ export default function SlaPage() {
   )
 }
 
-function condText(block: Block, c: Condition, statuses: Option[]): string {
-  const label = CONDITION_OPTIONS[block].find((o) => o.event === c.event)?.label ?? c.event
+function condText(block: Block, c: Condition, statuses: Option[], tr: (k: string, v?: Record<string, string | number>) => string): string {
+  const label = tr(CONDITION_OPTIONS[block].find((o) => o.event === c.event)?.label ?? c.event)
   if (!c.statusIds?.length) return label
   return `${label} ${c.statusIds.map((sid) => statuses.find((s) => s.id === sid)?.name ?? sid).join(', ')}`
 }
@@ -244,6 +247,8 @@ function SlaEditor(props: {
   onCancel: () => void
   onSave: (body: import('@/hooks/use-servicedesk').SlaMetricInput) => void
 }) {
+  const { tr } = useI18n();
+
   const { draft, setDraft, calendars } = props
   const patch = (p: Partial<Draft>) => setDraft({ ...draft, ...p })
   const calOptions = calendars.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)
@@ -284,31 +289,31 @@ function SlaEditor(props: {
     <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); submit() }}>
       <div className="veqsio-card p-4 space-y-3">
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <h2 className="text-heading-2">{draft.id ? 'Edit SLA' : 'Create SLA'}</h2>
+          <h2 className="text-heading-2">{draft.id ? tr('Edit SLA') : tr('Create SLA')}</h2>
           {!draft.id && (
             <div className="flex gap-1 flex-wrap items-center text-sm">
-              <span className="text-[var(--text-tertiary)]">Start from</span>
-              {PRESETS.map((p) => <button key={p.label} type="button" className="veqsio-btn-ghost" onClick={() => setDraft(p.build(draft))}>{p.label}</button>)}
+              <span className="text-[var(--text-tertiary)]">{tr('Start from')}</span>
+              {PRESETS.map((p) => <button key={p.label} type="button" className="veqsio-btn-ghost" onClick={() => setDraft(p.build(draft))}>{tr(p.label)}</button>)}
             </div>
           )}
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="space-y-1 sm:col-span-2">
-            <label htmlFor="sla-name" className="text-sm">Name</label>
-            <input id="sla-name" className="veqsio-input w-full" maxLength={255} required value={draft.name} onChange={(e) => patch({ name: e.target.value })} placeholder="Time to first response" />
+            <label htmlFor="sla-name" className="text-sm">{tr('Name')}</label>
+            <input id="sla-name" className="veqsio-input w-full" maxLength={255} required value={draft.name} onChange={(e) => patch({ name: e.target.value })} placeholder={tr('Time to first response')} />
           </div>
           <div className="space-y-1">
-            <label htmlFor="sla-cal" className="text-sm">Default calendar</label>
+            <label htmlFor="sla-cal" className="text-sm">{tr('Default calendar')}</label>
             <select id="sla-cal" className="veqsio-input w-full" value={draft.calendarId ?? ''} onChange={(e) => patch({ calendarId: e.target.value ? Number(e.target.value) : null })}>
-              {draft.calendarId == null && <option value="">Legacy (desk business hours)</option>}
+              {draft.calendarId == null && <option value="">{tr('Legacy (desk business hours)')}</option>}
               {calOptions}
             </select>
           </div>
         </div>
         <div className="space-y-1 max-w-xs">
-          <label htmlFor="sla-warn" className="text-sm">Warn at % of goal (optional)</label>
+          <label htmlFor="sla-warn" className="text-sm">{tr('Warn at % of goal (optional)')}</label>
           <input id="sla-warn" inputMode="numeric" className="veqsio-input w-24" value={draft.warning} onChange={(e) => patch({ warning: e.target.value })} placeholder="80" />
-          <p className="text-xs text-[var(--text-tertiary)]">Shows a near-breach state when this share of the goal is used.</p>
+          <p className="text-xs text-[var(--text-tertiary)]">{tr('Shows a near-breach state when this share of the goal is used.')}</p>
         </div>
       </div>
 
@@ -321,17 +326,17 @@ function SlaEditor(props: {
       <div className="veqsio-card p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-heading-3">Goals</h2>
-            <p className="text-xs text-[var(--text-tertiary)]">The first goal whose criteria match an issue is used. Order matters.</p>
+            <h2 className="text-heading-3">{tr('Goals')}</h2>
+            <p className="text-xs text-[var(--text-tertiary)]">{tr('The first goal whose criteria match an issue is used. Order matters.')}</p>
           </div>
-          <button type="button" className="veqsio-btn-secondary text-sm" onClick={() => patch({ goals: [...draft.goals, { key: keySeq++, criteria: {}, jql: '', duration: '4h', calendarId: null }] })}>Add goal</button>
+          <button type="button" className="veqsio-btn-secondary text-sm" onClick={() => patch({ goals: [...draft.goals, { key: keySeq++, criteria: {}, jql: '', duration: '4h', calendarId: null }] })}>{tr('Add goal')}</button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="veqsio-table-header text-left">
-                <th className="px-2 py-2 w-8">#</th><th className="px-2 py-2">Issues matching</th><th className="px-2 py-2 w-28">Goal</th>
-                <th className="px-2 py-2 w-44">Calendar</th><th className="px-2 py-2 w-24" />
+                <th className="px-2 py-2 w-8">#</th><th className="px-2 py-2">{tr('Issues matching')}</th><th className="px-2 py-2 w-28">{tr('Goal')}</th>
+                <th className="px-2 py-2 w-44">{tr('Calendar')}</th><th className="px-2 py-2 w-24" />
               </tr>
             </thead>
             <tbody>
@@ -340,13 +345,13 @@ function SlaEditor(props: {
                   <td className="px-2 py-2 text-[var(--text-tertiary)]">{i + 1}</td>
                   <td className="px-2 py-2 space-y-2">
                     <div className="flex flex-wrap gap-2">
-                      <MultiPick label="Priority" options={props.priorityOpts} value={g.criteria.priorityIds ?? []} onChange={(v) => setGoal(i, { criteria: { ...g.criteria, priorityIds: v } })} />
-                      <MultiPick label="Issue type" options={props.typeOpts} value={g.criteria.issueTypeIds ?? []} onChange={(v) => setGoal(i, { criteria: { ...g.criteria, issueTypeIds: v } })} />
-                      <MultiPick label="Request type" options={props.reqOpts} value={g.criteria.requestTypeIds ?? []} onChange={(v) => setGoal(i, { criteria: { ...g.criteria, requestTypeIds: v } })} />
+                      <MultiPick label={tr('Priority')} options={props.priorityOpts} value={g.criteria.priorityIds ?? []} onChange={(v) => setGoal(i, { criteria: { ...g.criteria, priorityIds: v } })} />
+                      <MultiPick label={tr('Issue type')} options={props.typeOpts} value={g.criteria.issueTypeIds ?? []} onChange={(v) => setGoal(i, { criteria: { ...g.criteria, issueTypeIds: v } })} />
+                      <MultiPick label={tr('Request type')} options={props.reqOpts} value={g.criteria.requestTypeIds ?? []} onChange={(v) => setGoal(i, { criteria: { ...g.criteria, requestTypeIds: v } })} />
                     </div>
                     <input
                       aria-label={`Goal ${i + 1} JQL filter`} className="veqsio-input w-full font-mono text-xs" value={g.jql}
-                      onChange={(e) => setGoal(i, { jql: e.target.value })} placeholder='Optional JQL filter, e.g. labels = vip AND component = "Network"'
+                      onChange={(e) => setGoal(i, { jql: e.target.value })} placeholder={tr('Optional JQL filter, e.g. labels = vip AND component = "Network"')}
                     />
                   </td>
                   <td className="px-2 py-2">
@@ -354,29 +359,29 @@ function SlaEditor(props: {
                   </td>
                   <td className="px-2 py-2">
                     <select aria-label={`Goal ${i + 1} calendar`} className="veqsio-input w-full" value={g.calendarId ?? ''} onChange={(e) => setGoal(i, { calendarId: e.target.value ? Number(e.target.value) : null })}>
-                      <option value="">SLA default</option>{calOptions}
+                      <option value="">{tr('SLA default')}</option>{calOptions}
                     </select>
                   </td>
                   <td className="px-2 py-2">
                     <div className="flex gap-1">
-                      <button type="button" className="veqsio-btn-ghost" aria-label={`Move goal ${i + 1} up`} disabled={i === 0} onClick={() => moveGoal(i, -1)}>Up</button>
-                      <button type="button" className="veqsio-btn-ghost" aria-label={`Move goal ${i + 1} down`} disabled={i === draft.goals.length - 1} onClick={() => moveGoal(i, 1)}>Down</button>
-                      <button type="button" className="veqsio-btn-ghost" aria-label={`Delete goal ${i + 1}`} onClick={() => patch({ goals: draft.goals.filter((_, j) => j !== i) })}>Delete</button>
+                      <button type="button" className="veqsio-btn-ghost" aria-label={tr('Move goal {n} up', { n: i + 1 })} disabled={i === 0} onClick={() => moveGoal(i, -1)}>{tr('Up')}</button>
+                      <button type="button" className="veqsio-btn-ghost" aria-label={tr('Move goal {n} down', { n: i + 1 })} disabled={i === draft.goals.length - 1} onClick={() => moveGoal(i, 1)}>{tr('Down')}</button>
+                      <button type="button" className="veqsio-btn-ghost" aria-label={tr('Delete goal {n}', { n: i + 1 })} onClick={() => patch({ goals: draft.goals.filter((_, j) => j !== i) })}>{tr('Delete')}</button>
                     </div>
                   </td>
                 </tr>
               ))}
               <tr className="align-top border-t border-[var(--surface-3)] bg-[var(--surface-2)]">
                 <td className="px-2 py-2 text-[var(--text-tertiary)]">{draft.goals.length + 1}</td>
-                <td className="px-2 py-2 font-medium text-[var(--text-primary)]">All remaining issues</td>
+                <td className="px-2 py-2 font-medium text-[var(--text-primary)]">{tr('All remaining issues')}</td>
                 <td className="px-2 py-2">
-                  <input aria-label="All remaining issues duration" className="veqsio-input w-24" value={draft.defaultGoal.duration}
+                  <input aria-label={tr('All remaining issues duration')} className="veqsio-input w-24" value={draft.defaultGoal.duration}
                     onChange={(e) => patch({ defaultGoal: { ...draft.defaultGoal, duration: e.target.value } })} aria-invalid={parseDuration(draft.defaultGoal.duration) == null} />
                 </td>
                 <td className="px-2 py-2">
-                  <select aria-label="All remaining issues calendar" className="veqsio-input w-full" value={draft.defaultGoal.calendarId ?? ''}
+                  <select aria-label={tr('All remaining issues calendar')} className="veqsio-input w-full" value={draft.defaultGoal.calendarId ?? ''}
                     onChange={(e) => patch({ defaultGoal: { ...draft.defaultGoal, calendarId: e.target.value ? Number(e.target.value) : null } })}>
-                    <option value="">SLA default</option>{calOptions}
+                    <option value="">{tr('SLA default')}</option>{calOptions}
                   </select>
                 </td>
                 <td />
@@ -384,7 +389,7 @@ function SlaEditor(props: {
             </tbody>
           </table>
         </div>
-        <p className="text-xs text-[var(--text-tertiary)]">Durations: 4h 30m, 90m, 1d (24h). The default goal applies to every issue no earlier goal matched.</p>
+        <p className="text-xs text-[var(--text-tertiary)]">{tr('Durations: 4h 30m, 90m, 1d (24h). The default goal applies to every issue no earlier goal matched.')}</p>
       </div>
 
       {errors.length > 0 && (
@@ -392,23 +397,25 @@ function SlaEditor(props: {
       )}
       {props.error && <div role="alert" className="text-[var(--error)]">{props.error}</div>}
       <div className="flex gap-2">
-        <button type="submit" className="veqsio-btn-primary" disabled={props.saving || errors.length > 0}>{draft.id ? 'Save' : 'Create'}</button>
-        <button type="button" className="veqsio-btn-secondary" onClick={props.onCancel}>Cancel</button>
+        <button type="submit" className="veqsio-btn-primary" disabled={props.saving || errors.length > 0}>{draft.id ? tr('Save') : tr('Create')}</button>
+        <button type="button" className="veqsio-btn-secondary" onClick={props.onCancel}>{tr('Cancel')}</button>
       </div>
     </form>
   )
 }
 
 function ConditionBlock({ block, list, onChange, statuses }: { block: Block; list: Condition[]; onChange: (l: Condition[]) => void; statuses: Option[] }) {
+  const { tr } = useI18n();
+
   const { title, hint } = BLOCK_TEXT[block]
   const options = CONDITION_OPTIONS[block]
   const set = (i: number, p: Partial<Condition>) => onChange(list.map((c, j) => (j === i ? { ...c, ...p } : c)))
   return (
     <fieldset className="veqsio-card p-3 space-y-2 min-w-0">
-      <legend className="sr-only">{title}</legend>
-      <h3 className="text-heading-3">{title}</h3>
-      <p className="text-xs text-[var(--text-tertiary)]">{hint}</p>
-      {list.length === 0 && <p className="text-sm text-[var(--text-tertiary)]">{block === 'pause' ? 'The clock never pauses' : 'No conditions'}</p>}
+      <legend className="sr-only">{tr(title)}</legend>
+      <h3 className="text-heading-3">{tr(title)}</h3>
+      <p className="text-xs text-[var(--text-tertiary)]">{tr(hint)}</p>
+      {list.length === 0 && <p className="text-sm text-[var(--text-tertiary)]">{block === 'pause' ? tr('The clock never pauses') : tr('No conditions')}</p>}
       <ul className="space-y-2">
         {list.map((c, i) => (
           <li key={i} className="rounded border border-[var(--surface-3)] p-2 space-y-2">
@@ -420,29 +427,30 @@ function ConditionBlock({ block, list, onChange, statuses }: { block: Block; lis
                   set(i, { event, statusIds: NEEDS_STATUSES.includes(event) ? c.statusIds ?? [] : undefined, restart: block === 'start' ? c.restart : undefined })
                 }}
               >
-                {options.map((o) => <option key={o.event} value={o.event}>{o.label}</option>)}
+                {options.map((o) => <option key={o.event} value={o.event}>{tr(o.label)}</option>)}
               </select>
-              <button type="button" className="veqsio-btn-ghost" aria-label={`Remove ${title} condition ${i + 1}`} onClick={() => onChange(list.filter((_, j) => j !== i))}>Remove</button>
+              <button type="button" className="veqsio-btn-ghost" aria-label={`Remove ${title} condition ${i + 1}`} onClick={() => onChange(list.filter((_, j) => j !== i))}>{tr('Remove')}</button>
             </div>
             {NEEDS_STATUSES.includes(c.event) && (
-              <MultiPick label="Statuses" options={statuses} value={c.statusIds ?? []} onChange={(v) => set(i, { statusIds: v })} />
+              <MultiPick label={tr('Statuses')} options={statuses} value={c.statusIds ?? []} onChange={(v) => set(i, { statusIds: v })} />
             )}
             {block === 'start' && (
               <label className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
                 <input type="checkbox" checked={!!c.restart} onChange={(e) => set(i, { restart: e.target.checked || undefined })} />
-                Restart the clock every time this happens again
-              </label>
+                {tr('Restart the clock every time this happens again')} </label>
             )}
           </li>
         ))}
       </ul>
-      <button type="button" className="veqsio-btn-ghost text-sm" onClick={() => onChange([...list, { event: options[0].event }])}>Add condition</button>
+      <button type="button" className="veqsio-btn-ghost text-sm" onClick={() => onChange([...list, { event: options[0].event }])}>{tr('Add condition')}</button>
     </fieldset>
   )
 }
 
 /** Compact multi-select: a summary button that opens a checklist. */
 function MultiPick({ label, options, value, onChange }: { label: string; options: Option[]; value: number[]; onChange: (v: number[]) => void }) {
+  const { tr } = useI18n();
+
   const names = value.map((v) => options.find((o) => o.id === v)?.name ?? String(v))
   return (
     <details className="relative">
@@ -450,14 +458,14 @@ function MultiPick({ label, options, value, onChange }: { label: string; options
         <span className="text-[var(--text-tertiary)]">{label}: </span>{names.length ? names.join(', ') : 'any'}
       </summary>
       <div className="absolute z-20 mt-1 max-h-56 overflow-auto veqsio-card p-2 min-w-[12rem] space-y-1 shadow-lg">
-        {options.length === 0 && <div className="text-xs text-[var(--text-tertiary)] px-1">Nothing to choose</div>}
+        {options.length === 0 && <div className="text-xs text-[var(--text-tertiary)] px-1">{tr('Nothing to choose')}</div>}
         {options.map((o) => (
           <label key={o.id} className="flex items-center gap-2 text-sm px-1 cursor-pointer">
             <input type="checkbox" checked={value.includes(o.id)} onChange={(e) => onChange(e.target.checked ? [...value, o.id] : value.filter((x) => x !== o.id))} />
             {o.name}
           </label>
         ))}
-        {value.length > 0 && <button type="button" className="veqsio-btn-ghost text-xs" onClick={() => onChange([])}>Clear</button>}
+        {value.length > 0 && <button type="button" className="veqsio-btn-ghost text-xs" onClick={() => onChange([])}>{tr('Clear')}</button>}
       </div>
     </details>
   )

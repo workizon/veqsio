@@ -31,6 +31,8 @@ function Menu({ open, onClose, children, align = 'left' }: { open: boolean; onCl
 }
 
 function Group({ group, pathname }: { group: NavGroup; pathname: string }) {
+  const { tr } = useI18n();
+
   const [open, setOpen] = useState(false)
   const { t } = useTerm()
   const { data: projects = [] } = useProjects()
@@ -55,7 +57,7 @@ function Group({ group, pathname }: { group: NavGroup; pathname: string }) {
       <Menu open={open} onClose={close}>
         {group.projects ? (
           <>
-            <div className="px-3 pt-1 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">Recent</div>
+            <div className="px-3 pt-1 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">{tr('Recent')}</div>
             {projects.slice(0, 6).map((p) => (
               <Link key={p.id} href={`/projects/${p.key}`} onClick={close} className={`${item} flex items-center gap-2`}>
                 <span className="inline-flex w-5 h-5 rounded bg-[var(--brand-50)] text-[var(--brand-700)] text-[10px] font-bold items-center justify-center">
@@ -66,7 +68,7 @@ function Group({ group, pathname }: { group: NavGroup; pathname: string }) {
               </Link>
             ))}
             <div className="my-1 border-t border-[var(--surface-3)]" />
-            <Link href="/projects" onClick={close} className={item}>View all projects</Link>
+            <Link href="/projects" onClick={close} className={item}>{tr('View all projects')}</Link>
           </>
         ) : (
           group.items?.map((l) => (
@@ -82,11 +84,13 @@ function Group({ group, pathname }: { group: NavGroup; pathname: string }) {
 }
 
 export function TopNav() {
+  const { tr } = useI18n();
+
   const pathname = usePathname() || ''
   const { data: modules = [] } = useActiveModules()
   const { isEnabled } = useFeatures()
   return (
-    <nav className="hidden min-[1440px]:flex items-stretch h-header" aria-label="Primary">
+    <nav className="hidden min-[1440px]:flex items-stretch h-header" aria-label={tr('Primary')}>
       {NAV_GROUPS.filter((g) => isEnabled(g.feature)).map((g) => <Group key={g.label} group={{ ...g, items: g.items?.filter((l) => isEnabled(l.feature)) }} pathname={pathname} />)}
       {topNavItems(modules).length > 0 && (
         // Modules share one "Apps" menu (like Jira) so the bar does not overflow as modules are added.
@@ -111,7 +115,7 @@ export function AdminMenu() {
   const { tr } = useI18n()
   return (
     <div className="relative hidden sm:block">
-      <button onClick={() => setOpen(!open)} className="veqsio-btn-ghost p-2" title="Administration" aria-haspopup="menu" aria-expanded={open}>
+      <button onClick={() => setOpen(!open)} className="veqsio-btn-ghost p-2" title={tr('Administration')} aria-haspopup="menu" aria-expanded={open}>
         <Settings className="w-5 h-5" />
       </button>
       <Menu open={open} onClose={() => setOpen(false)} align="right">

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -15,6 +17,8 @@ import { useMultiSort } from '@/lib/table-sort'
 type Tab = 'queues' | 'report'
 
 export default function ServiceDeskPage() {
+  const { tr } = useI18n();
+
   const ms = useMultiSort()
   const id = Number(useParams<{ id: string }>().id)
   const [tab, setTab] = useState<Tab>('queues')
@@ -39,20 +43,20 @@ export default function ServiceDeskPage() {
     <AppLayout>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-heading-1 text-[var(--text-primary)]">Service desk</h1>
-          <Link href={`/servicedesk/${id}/new-request`} className="veqsio-btn-primary ml-auto mr-2">Create request</Link>
-          <Link href={`/servicedesk/${id}/settings`} className="veqsio-btn-secondary mr-2">Settings</Link>
-          <Link href={`/servicedesk/${id}/sla`} className="veqsio-btn-secondary mr-2">SLAs</Link>
-          <Link href={`/servicedesk/${id}/calendars`} className="veqsio-btn-secondary mr-2">Calendars</Link>
-          <Link href={`/servicedesk/${id}/canned`} className="veqsio-btn-secondary mr-2">Canned responses</Link>
-          <Link href={`/servicedesk/${id}/csat`} className="veqsio-btn-secondary mr-2">Satisfaction</Link>
+          <h1 className="text-heading-1 text-[var(--text-primary)]">{tr('Service desk')}</h1>
+          <Link href={`/servicedesk/${id}/new-request`} className="veqsio-btn-primary ml-auto mr-2">{tr('Create request')}</Link>
+          <Link href={`/servicedesk/${id}/settings`} className="veqsio-btn-secondary mr-2">{tr('Settings')}</Link>
+          <Link href={`/servicedesk/${id}/sla`} className="veqsio-btn-secondary mr-2">{tr('SLAs')}</Link>
+          <Link href={`/servicedesk/${id}/calendars`} className="veqsio-btn-secondary mr-2">{tr('Calendars')}</Link>
+          <Link href={`/servicedesk/${id}/canned`} className="veqsio-btn-secondary mr-2">{tr('Canned responses')}</Link>
+          <Link href={`/servicedesk/${id}/csat`} className="veqsio-btn-secondary mr-2">{tr('Satisfaction')}</Link>
           <div role="tablist" className="flex gap-1">
             {(['queues', 'report'] as Tab[]).map((t) => (
               <button
                 key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)}
                 className={tab === t ? 'veqsio-btn-primary' : 'veqsio-btn-secondary'}
               >
-                {t === 'queues' ? 'Queues' : 'Reports'}
+                {t === 'queues' ? tr('Queues') : tr('Reports')}
               </button>
             ))}
           </div>
@@ -60,10 +64,9 @@ export default function ServiceDeskPage() {
 
         {tab === 'queues' && (
           <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
-            <nav aria-label="Queues" className="veqsio-card p-2 space-y-1 h-fit">
+            <nav aria-label={tr('Queues')} className="veqsio-card p-2 space-y-1 h-fit">
               <button onClick={() => { setQueue(''); setStart(0) }} className={`w-full text-left px-3 py-2 rounded ${queue === '' ? 'bg-[var(--surface-2)] font-medium' : ''}`}>
-                All requests
-              </button>
+                {tr('All requests')} </button>
               {queues.data?.values.map((x) => (
                 <button key={x.id} onClick={() => { setQueue(String(x.id)); setStart(0) }} className={`w-full text-left px-3 py-2 rounded ${queue === String(x.id) ? 'bg-[var(--surface-2)] font-medium' : ''}`}>
                   <span className="flex items-center justify-between gap-2"><span>{x.name}</span>
@@ -74,10 +77,9 @@ export default function ServiceDeskPage() {
 
             <section className="space-y-3">
               <div className="flex flex-wrap items-center gap-3">
-                <input className="veqsio-input max-w-xs" placeholder="Search requests" aria-label="Search requests" value={q} onChange={(e) => setQ(e.target.value)} />
+                <input className="veqsio-input max-w-xs" placeholder={tr('Search requests')} aria-label={tr('Search requests')} value={q} onChange={(e) => setQ(e.target.value)} />
                 <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={openOnly} onChange={(e) => setOpenOnly(e.target.checked)} /> Open only
-                </label>
+                  <input type="checkbox" checked={openOnly} onChange={(e) => setOpenOnly(e.target.checked)} /> {tr('Open only')} </label>
               </div>
               {requests.isLoading && <Spinner />}
               {requests.error && <div className="text-[var(--error)]">{requests.error.message}</div>}
@@ -86,13 +88,13 @@ export default function ServiceDeskPage() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="veqsio-table-header text-left">
-                        <SortableTh {...ms.th('key')} className="px-3 py-2">Key</SortableTh><SortableTh {...ms.th('name')} className="px-3 py-2">Summary</SortableTh>
-                        <th className="px-3 py-2">SLA</th><SortableTh {...ms.th('created')} className="px-3 py-2">Created</SortableTh>
+                        <SortableTh {...ms.th('key')} className="px-3 py-2">{tr('Key')}</SortableTh><SortableTh {...ms.th('name')} className="px-3 py-2">{tr('Summary')}</SortableTh>
+                        <th className="px-3 py-2">{tr('SLA')}</th><SortableTh {...ms.th('created')} className="px-3 py-2">{tr('Created')}</SortableTh>
                       </tr>
                     </thead>
                     <tbody>
                       {requests.data.values.length === 0 && (
-                        <tr><td colSpan={4} className="px-3 py-8 text-center text-[var(--text-tertiary)]">No requests in this queue</td></tr>
+                        <tr><td colSpan={4} className="px-3 py-8 text-center text-[var(--text-tertiary)]">{tr('No requests in this queue')}</td></tr>
                       )}
                       {ms.sort(requests.data.values, { key: (r) => r.key, name: (r) => r.summary, created: (r) => new Date(r.created) }).map((r) => (
                         <tr key={r.key} className="veqsio-table-row">
@@ -106,10 +108,10 @@ export default function ServiceDeskPage() {
                   </table>
                   {(requests.data.total ?? 0) > PAGE && (
                     <div className="flex items-center justify-between gap-2 px-3 py-2 border-t border-[var(--border)] text-sm">
-                      <span aria-live="polite">{start + 1}-{Math.min(start + PAGE, requests.data.total!)} of {requests.data.total}</span>
+                      <span aria-live="polite">{start + 1}-{Math.min(start + PAGE, requests.data.total!)} {tr('of')} {requests.data.total}</span>
                       <span className="flex gap-2">
-                        <button className="veqsio-btn-secondary" disabled={start === 0} onClick={() => setStart(Math.max(0, start - PAGE))}>Previous</button>
-                        <button className="veqsio-btn-secondary" disabled={start + PAGE >= requests.data.total!} onClick={() => setStart(start + PAGE)}>Next</button>
+                        <button className="veqsio-btn-secondary" disabled={start === 0} onClick={() => setStart(Math.max(0, start - PAGE))}>{tr('Previous')}</button>
+                        <button className="veqsio-btn-secondary" disabled={start + PAGE >= requests.data.total!} onClick={() => setStart(start + PAGE)}>{tr('Next')}</button>
                       </span>
                     </div>
                   )}
@@ -125,41 +127,41 @@ export default function ServiceDeskPage() {
             {report.data && (
               <>
                 <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-                  <Stat label="Total requests" value={report.data.total} />
-                  <Stat label="Open" value={report.data.open} />
-                  <Stat label="Resolved" value={report.data.resolved} />
-                  <Stat label="CSAT" value={report.data.csat.average === null ? '—' : `${report.data.csat.average.toFixed(1)} / 5`} hint={`${report.data.csat.responses} responses`} />
+                  <Stat label={tr('Total requests')} value={report.data.total} />
+                  <Stat label={tr('Open')} value={report.data.open} />
+                  <Stat label={tr('Resolved')} value={report.data.resolved} />
+                  <Stat label={tr('CSAT')} value={report.data.csat.average === null ? '—' : `${report.data.csat.average.toFixed(1)} / 5`} hint={`${report.data.csat.responses} responses`} />
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-[var(--text-secondary)]">Period:</span>
+                  <span className="text-[var(--text-secondary)]">{tr('Period:')}</span>
                   {[7, 30, 90].map((d) => (
                     <button key={d} onClick={() => setDays(d)}
                       className={`px-2 py-1 rounded ${days === d ? 'bg-[var(--surface-3)] font-semibold' : 'text-[var(--text-secondary)]'}`}>
-                      {d} days
+                      {d} {tr('days')}
                     </button>
                   ))}
                 </div>
                 <div className="veqsio-card p-4">
-                  <h2 className="text-heading-3 mb-3">Created vs resolved</h2>
+                  <h2 className="text-heading-3 mb-3">{tr('Created vs resolved')}</h2>
                   <CreatedResolvedChart data={report.data.daily} />
                 </div>
                 <div className="grid gap-4 lg:grid-cols-2">
                   <div className="veqsio-card p-4">
-                    <h2 className="text-heading-3 mb-3">Workload per agent</h2>
-                    {report.data.workload.length === 0 && <p className="text-[var(--text-tertiary)]">No assigned requests.</p>}
+                    <h2 className="text-heading-3 mb-3">{tr('Workload per agent')}</h2>
+                    {report.data.workload.length === 0 && <p className="text-[var(--text-tertiary)]">{tr('No assigned requests.')}</p>}
                     <table className="w-full text-sm">
                       <tbody>
                         {report.data.workload.map((w) => (
                           <tr key={w.userId ?? 'none'} className="border-t border-[var(--surface-3)] first:border-t-0">
                             <td className="py-2">{w.name}</td>
-                            <td className="py-2 text-right text-[var(--text-secondary)]">{w.open} open · {w.resolved} resolved</td>
+                            <td className="py-2 text-right text-[var(--text-secondary)]">{w.open} {tr('open ·')} {w.resolved} {tr('resolved')}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
                   <div className="veqsio-card p-4">
-                    <h2 className="text-heading-3 mb-3">CSAT distribution</h2>
+                    <h2 className="text-heading-3 mb-3">{tr('CSAT distribution')}</h2>
                     {report.data.csatDistribution.map((d) => {
                       const max = Math.max(1, ...report.data!.csatDistribution.map((x) => x.count))
                       return (
@@ -175,13 +177,13 @@ export default function ServiceDeskPage() {
                   </div>
                 </div>
                 <div className="veqsio-card p-4">
-                  <h2 className="text-heading-3 mb-3">SLA compliance</h2>
-                  {report.data.sla.length === 0 && <p className="text-[var(--text-tertiary)]">No SLAs configured.</p>}
+                  <h2 className="text-heading-3 mb-3">{tr('SLA compliance')}</h2>
+                  {report.data.sla.length === 0 && <p className="text-[var(--text-tertiary)]">{tr('No SLAs configured.')}</p>}
                   {report.data.sla.map((s) => (
                     <div key={s.slaId} className="flex items-center justify-between py-2 border-t border-[var(--surface-3)] first:border-t-0">
                       <span>{s.name}</span>
                       <span className="text-sm text-[var(--text-secondary)]">
-                        {s.met} met · {s.breached} breached · {s.running} running ·{' '}
+                        {s.met} {tr('met ·')} {s.breached} {tr('breached ·')} {s.running} {tr('running ·')}{' '}
                         <strong>{s.compliance === null ? '—' : `${Math.round(s.compliance * 100)}%`}</strong>
                       </span>
                     </div>

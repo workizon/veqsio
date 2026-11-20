@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import Link from 'next/link'
 import {
@@ -29,6 +31,8 @@ import type { WorkflowScheme, WorkflowSchemeItem } from '@/hooks/use-admin'
 import { confirmDialog } from '@/components/dialogs'
 
 export function WorkflowSchemeEditor() {
+  const { tr } = useI18n();
+
   const [createOpen, setCreateOpen] = useState(false)
   const [editingScheme, setEditingScheme] = useState<WorkflowScheme | null>(null)
   const [assignScheme, setAssignScheme] = useState<WorkflowScheme | null>(null)
@@ -47,21 +51,21 @@ export function WorkflowSchemeEditor() {
         name: fd.get('name') as string,
         description: (fd.get('description') as string) || undefined,
       })
-      toast('Workflow scheme created', 'success')
+      toast(tr('Workflow scheme created'), 'success')
       setCreateOpen(false)
       e.currentTarget.reset()
     } catch (err: any) {
-      toast(err.message || 'Failed to create scheme', 'error')
+      toast(err.message || tr('Failed to create scheme'), 'error')
     }
   }
 
   async function handleDelete(id: number, name: string) {
-    if (!(await confirmDialog(`Delete workflow scheme "${name}"?`))) return
+    if (!(await confirmDialog(tr('Delete workflow scheme "{name}"?', { name })))) return
     try {
       await deleteScheme.mutateAsync(id)
-      toast('Scheme deleted', 'success')
+      toast(tr('Scheme deleted'), 'success')
     } catch (err: any) {
-      toast(err.message || 'Failed to delete scheme', 'error')
+      toast(err.message || tr('Failed to delete scheme'), 'error')
     }
   }
 
@@ -69,13 +73,12 @@ export function WorkflowSchemeEditor() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-heading-2 text-[var(--text-primary)]">Workflow schemes</h2>
-          <Link href="/admin/workflows" className="text-sm text-[var(--brand-600)] hover:underline">Open the workflow designer to create or edit workflows</Link>
+          <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('Workflow schemes')}</h2>
+          <Link href="/admin/workflows" className="text-sm text-[var(--brand-600)] hover:underline">{tr('Open the workflow designer to create or edit workflows')}</Link>
         </div>
         <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          Create Scheme
-        </button>
+          {tr('Create Scheme')} </button>
       </div>
 
       {isLoading ? (
@@ -85,13 +88,12 @@ export function WorkflowSchemeEditor() {
       ) : schemes.length === 0 ? (
         <EmptyState
           icon="folder"
-          title="No workflow schemes found"
-          description="Create a scheme to assign workflows to issue types."
+          title={tr('No workflow schemes found')}
+          description={tr('Create a scheme to assign workflows to issue types.')}
           action={
             <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              Create Scheme
-            </button>
+              {tr('Create Scheme')} </button>
           }
         />
       ) : (
@@ -109,7 +111,7 @@ export function WorkflowSchemeEditor() {
                       <div className="text-xs text-[var(--text-tertiary)]">{s.description}</div>
                     )}
                     <div className="text-xs text-[var(--text-tertiary)] mt-0.5">
-                      {s.items.length} mapping{s.items.length !== 1 ? 's' : ''}
+                      {s.items.length !== 1 ? tr('{n} mappings', { n: s.items.length }) : tr('{n} mapping', { n: s.items.length })}
                     </div>
                     {s.projects.length > 0 && (
                       <div className="text-xs text-[var(--text-tertiary)] mt-0.5 flex items-center gap-1">
@@ -124,8 +126,7 @@ export function WorkflowSchemeEditor() {
                     onClick={(e) => { e.stopPropagation(); setAssignScheme(s) }}
                     className="veqsio-btn-secondary text-sm"
                   >
-                    Assign to Project
-                  </button>
+                    {tr('Assign to Project')} </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); setEditingScheme(s) }}
                     className="veqsio-btn-ghost p-1.5"
@@ -145,30 +146,30 @@ export function WorkflowSchemeEditor() {
         </div>
       )}
 
-      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title="Create workflow scheme">
+      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title={tr('Create workflow scheme')}>
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Name</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Name')}</label>
             <input name="name" type="text" required className="veqsio-input w-full" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Description</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Description')}</label>
             <input name="description" type="text" className="veqsio-input w-full" />
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={() => setCreateOpen(false)} className="veqsio-btn-secondary">Cancel</button>
+            <button type="button" onClick={() => setCreateOpen(false)} className="veqsio-btn-secondary">{tr('Cancel')}</button>
             <button type="submit" disabled={createScheme.isPending} className="veqsio-btn-primary">
-              {createScheme.isPending ? 'Creating...' : 'Create'}
+              {createScheme.isPending ? tr('Creating...') : tr('Create')}
             </button>
           </div>
         </form>
       </Modal>
 
-      <Modal isOpen={!!editingScheme} onClose={() => setEditingScheme(null)} title={editingScheme?.name || 'Edit Scheme'} size="lg">
+      <Modal isOpen={!!editingScheme} onClose={() => setEditingScheme(null)} title={editingScheme?.name || tr('Edit Scheme')} size="lg">
         {editingScheme && <SchemeEditPanel scheme={editingScheme} onClose={() => setEditingScheme(null)} />}
       </Modal>
 
-      <Modal isOpen={!!assignScheme} onClose={() => setAssignScheme(null)} title="Assign to Project">
+      <Modal isOpen={!!assignScheme} onClose={() => setAssignScheme(null)} title={tr('Assign to Project')}>
         {assignScheme && <AssignPanel scheme={assignScheme} onClose={() => setAssignScheme(null)} />}
       </Modal>
     </div>
@@ -176,6 +177,8 @@ export function WorkflowSchemeEditor() {
 }
 
 function SchemeEditPanel({ scheme, onClose }: { scheme: WorkflowScheme; onClose: () => void }) {
+  const { tr } = useI18n();
+
   const updateScheme = useUpdateWorkflowScheme()
   const { data: workflowsData } = useWorkflows()
   const { data: typesData } = useIssueTypes()
@@ -197,10 +200,10 @@ function SchemeEditPanel({ scheme, onClose }: { scheme: WorkflowScheme; onClose:
         description: description || undefined,
         items,
       })
-      toast('Scheme updated', 'success')
+      toast(tr('Scheme updated'), 'success')
       onClose()
     } catch (err: any) {
-      toast(err.message || 'Failed to update scheme', 'error')
+      toast(err.message || tr('Failed to update scheme'), 'error')
     }
   }
 
@@ -226,26 +229,25 @@ function SchemeEditPanel({ scheme, onClose }: { scheme: WorkflowScheme; onClose:
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Name</label>
+          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Name')}</label>
           <input value={name} onChange={e => setName(e.target.value)} className="veqsio-input w-full" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Description</label>
+          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Description')}</label>
           <input value={description} onChange={e => setDescription(e.target.value)} className="veqsio-input w-full" />
         </div>
       </div>
 
       <div className="flex items-center justify-between">
-        <div className="text-sm text-[var(--text-secondary)]">{items.length} mapping{items.length !== 1 ? 's' : ''} <Link href="/admin/workflows" className="ml-2 text-[var(--brand-600)] hover:underline">Edit workflows</Link></div>
+        <div className="text-sm text-[var(--text-secondary)]">{items.length !== 1 ? tr('{n} mappings', { n: items.length }) : tr('{n} mapping', { n: items.length })} <Link href="/admin/workflows" className="ml-2 text-[var(--brand-600)] hover:underline">{tr('Edit workflows')}</Link></div>
         <button onClick={addMapping} className="veqsio-btn-secondary flex items-center gap-1.5 text-sm">
           <Plus className="w-4 h-4" />
-          Add Mapping
-        </button>
+          {tr('Add Mapping')} </button>
       </div>
 
       <div className="border border-[var(--surface-3)] rounded-lg divide-y divide-[var(--surface-3)] max-h-72 overflow-auto">
         {items.length === 0 && (
-          <div className="p-4 text-sm text-[var(--text-tertiary)] text-center">No mappings configured</div>
+          <div className="p-4 text-sm text-[var(--text-tertiary)] text-center">{tr('No mappings configured')}</div>
         )}
         {items.map((item, idx) => (
           <div key={idx} className="flex items-center gap-2 px-3 py-2">
@@ -279,10 +281,10 @@ function SchemeEditPanel({ scheme, onClose }: { scheme: WorkflowScheme; onClose:
       </div>
 
       <div className="flex justify-end gap-2 pt-2">
-        <button onClick={onClose} className="veqsio-btn-secondary">Cancel</button>
+        <button onClick={onClose} className="veqsio-btn-secondary">{tr('Cancel')}</button>
         <button onClick={handleSave} disabled={updateScheme.isPending} className="veqsio-btn-primary flex items-center gap-1.5">
           <Save className="w-4 h-4" />
-          {updateScheme.isPending ? 'Saving...' : 'Save'}
+          {updateScheme.isPending ? tr('Saving...') : tr('Save')}
         </button>
       </div>
     </div>
@@ -290,6 +292,8 @@ function SchemeEditPanel({ scheme, onClose }: { scheme: WorkflowScheme; onClose:
 }
 
 function AssignPanel({ scheme, onClose }: { scheme: WorkflowScheme; onClose: () => void }) {
+  const { tr } = useI18n();
+
   const { data: projectsData } = useProjects()
   const assign = useAssignWorkflowScheme()
   const projects = projectsData || []
@@ -297,16 +301,16 @@ function AssignPanel({ scheme, onClose }: { scheme: WorkflowScheme; onClose: () 
   async function handleAssign(projectId: number) {
     try {
       await assign.mutateAsync({ schemeId: scheme.id, projectId })
-      toast('Scheme assigned to project', 'success')
+      toast(tr('Scheme assigned to project'), 'success')
       onClose()
     } catch (err: any) {
-      toast(err.message || 'Failed to assign scheme', 'error')
+      toast(err.message || tr('Failed to assign scheme'), 'error')
     }
   }
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-[var(--text-secondary)]">Assign "{scheme.name}" to a project:</p>
+      <p className="text-sm text-[var(--text-secondary)]">{tr('Assign "')}{scheme.name}{tr('" to a project:')}</p>
       <div className="border border-[var(--surface-3)] rounded-lg divide-y divide-[var(--surface-3)] max-h-72 overflow-auto">
         {projects.map(p => (
           <div key={p.id} className="flex items-center justify-between px-3 py-2">
@@ -317,13 +321,12 @@ function AssignPanel({ scheme, onClose }: { scheme: WorkflowScheme; onClose: () 
               className="veqsio-btn-secondary text-sm flex items-center gap-1"
             >
               <Check className="w-3 h-3" />
-              Assign
-            </button>
+              {tr('Assign')} </button>
           </div>
         ))}
       </div>
       <div className="flex justify-end pt-2">
-        <button onClick={onClose} className="veqsio-btn-secondary">Close</button>
+        <button onClick={onClose} className="veqsio-btn-secondary">{tr('Close')}</button>
       </div>
     </div>
   )

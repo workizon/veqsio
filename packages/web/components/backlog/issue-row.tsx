@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { IssueTypeGlyph } from '@/components/issue-type-glyph'
 import { useRouter } from 'next/navigation'
@@ -38,6 +40,8 @@ interface IssueRowProps {
 }
 
 export const IssueRow = memo(function IssueRow({ issue, containerId, selected, onToggleSelect, moveOptions, onMove, ghost, onPeek }: IssueRowProps) {
+  const { tr } = useI18n();
+
   const router = useRouter()
   const drag = useDraggable({ id: issueDragId(issue.key), data: { key: issue.key, containerId } })
   const drop = useDroppable({ id: `row:${issue.key}`, data: { key: issue.key, containerId } })
@@ -67,7 +71,7 @@ export const IssueRow = memo(function IssueRow({ issue, containerId, selected, o
         {...drag.listeners}
         {...drag.attributes}
         type="button"
-        aria-label={`Drag ${issue.key}. Press space to pick up, arrow keys to move, space to drop.`}
+        aria-label={tr('Drag {key}. Press space to pick up, arrow keys to move, space to drop.', { key: issue.key })}
         className="shrink-0 p-0.5 rounded text-[var(--text-tertiary)] hover:text-[var(--text-primary)] cursor-grab active:cursor-grabbing touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]"
       >
         <GripVertical className="w-4 h-4" aria-hidden="true" />
@@ -76,14 +80,14 @@ export const IssueRow = memo(function IssueRow({ issue, containerId, selected, o
         type="checkbox"
         checked={selected}
         onChange={() => onToggleSelect(issue.key)}
-        aria-label={`Select ${issue.key}`}
+        aria-label={tr('Select {key}', { key: issue.key })}
         className="shrink-0 w-4 h-4 accent-[var(--brand-600)]"
       />
       <IssueTypeGlyph name={issue.typeName || issue.type} />
       <Link href={`/issues/${issue.key}`} className="shrink-0 py-2 sm:py-0 text-caption font-medium text-[var(--text-secondary)] hover:text-[var(--brand-600)] hover:underline w-20 truncate">
         {issue.key}
       </Link>
-      {issue.flagged && <Flag className="shrink-0 w-3.5 h-3.5 text-[var(--warning)]" aria-label="Flagged" />}
+      {issue.flagged && <Flag className="shrink-0 w-3.5 h-3.5 text-[var(--warning)]" aria-label={tr('Flagged')} />}
       <Link href={`/issues/${issue.key}`} className="order-last basis-full py-1.5 pl-1 text-body-sm text-[var(--text-primary)] hover:underline sm:order-none sm:basis-auto sm:flex-1 sm:min-w-0 sm:truncate sm:pl-0">
         {issue.summary}
       </Link>
@@ -92,8 +96,8 @@ export const IssueRow = memo(function IssueRow({ issue, containerId, selected, o
       <span className="hidden md:inline-flex shrink-0"><PriorityBadge priority={issue.priority} /></span>
       <span
         className="ml-auto sm:ml-0 shrink-0 min-w-[1.75rem] text-center rounded-full bg-[var(--surface-3)] text-[var(--text-secondary)] text-[11px] font-medium px-1.5 py-0.5"
-        aria-label={issue.storyPoints === null ? 'No story point estimate' : `${formatPoints(issue.storyPoints)} story points`}
-        title={issue.storyPoints === null ? 'No estimate' : `${formatPoints(issue.storyPoints)} story points`}
+        aria-label={issue.storyPoints === null ? tr('No story point estimate') : tr('{points} story points', { points: formatPoints(issue.storyPoints) })}
+        title={issue.storyPoints === null ? tr('No estimate') : tr('{points} story points', { points: formatPoints(issue.storyPoints) })}
       >
         {issue.storyPoints === null ? '–' : formatPoints(issue.storyPoints)}
       </span>
@@ -101,7 +105,7 @@ export const IssueRow = memo(function IssueRow({ issue, containerId, selected, o
         {issue.assignee ? (
           <Avatar name={issue.assignee.name} initials={issue.assignee.initials} size="sm" />
         ) : (
-          <span className="w-5 h-5 rounded-full border border-dashed border-[var(--surface-4)]" title="Unassigned" aria-label="Unassigned" />
+          <span className="w-5 h-5 rounded-full border border-dashed border-[var(--surface-4)]" title={tr('Unassigned')} aria-label={tr('Unassigned')} />
         )}
       </span>
       <MoveMenu

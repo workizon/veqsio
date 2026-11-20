@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useState } from 'react'
 import {
   Search,
@@ -25,6 +27,8 @@ import {
 } from '@/hooks/use-admin'
 
 export function UserManager() {
+  const { tr } = useI18n();
+
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [createOpen, setCreateOpen] = useState(false)
@@ -68,7 +72,7 @@ export function UserManager() {
         active: fd.get('active') === 'on',
         avatarUrl: (fd.get('avatarUrl') as string) || undefined,
       })
-      toast('User created successfully', 'success')
+      toast(tr('User created successfully'), 'success')
       setCreateOpen(false)
       form.reset()
     } catch (err: any) {
@@ -89,7 +93,7 @@ export function UserManager() {
         active: fd.get('active') === 'on',
         avatarUrl: (fd.get('avatarUrl') as string) || undefined,
       })
-      toast('User updated successfully', 'success')
+      toast(tr('User updated successfully'), 'success')
       setEditUser(null)
     } catch (err: any) {
       toast(err.message || 'Failed to update user', 'error')
@@ -116,7 +120,7 @@ export function UserManager() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
           <input
             type="text"
-            placeholder="Search users..."
+            placeholder={tr('Search users...')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="veqsio-input w-full pl-9"
@@ -127,8 +131,7 @@ export function UserManager() {
         </span>
         <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          Create User
-        </button>
+          {tr('Create User')} </button>
       </div>
 
       {/* Table */}
@@ -136,10 +139,10 @@ export function UserManager() {
         <table className="w-full text-sm">
           <thead>
             <tr className="veqsio-table-header">
-              <SortableTh {...ms.th('name')} className="text-left">User</SortableTh>
-              <SortableTh {...ms.th('email')} className="text-left hidden sm:table-cell">Email</SortableTh>
-              <SortableTh {...ms.th('status')} className="text-left">Status</SortableTh>
-              <th className="text-right">Actions</th>
+              <SortableTh {...ms.th('name')} className="text-left">{tr('User')}</SortableTh>
+              <SortableTh {...ms.th('email')} className="text-left hidden sm:table-cell">{tr('Email')}</SortableTh>
+              <SortableTh {...ms.th('status')} className="text-left">{tr('Status')}</SortableTh>
+              <th className="text-right">{tr('Actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -160,8 +163,7 @@ export function UserManager() {
                       !search && (
                         <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
                           <Plus className="w-4 h-4" />
-                          Create User
-                        </button>
+                          {tr('Create User')} </button>
                       )
                     }
                   />
@@ -188,9 +190,9 @@ export function UserManager() {
                   <td className="px-4 py-3 text-[var(--text-secondary)] hidden sm:table-cell">{u.emailAddress}</td>
                   <td className="px-4 py-3">
                     {u.active ? (
-                      <span className="veqsio-badge veqsio-badge-status-done">Active</span>
+                      <span className="veqsio-badge veqsio-badge-status-done">{tr('Active')}</span>
                     ) : (
-                      <span className="veqsio-badge veqsio-badge-status-todo">Inactive</span>
+                      <span className="veqsio-badge veqsio-badge-status-todo">{tr('Inactive')}</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -206,7 +208,7 @@ export function UserManager() {
                           })
                         }
                         className="veqsio-btn-ghost p-1.5"
-                        title="Edit"
+                        title={tr('Edit')}
                       >
                         <Edit className="w-4 h-4" />
                       </button>
@@ -233,36 +235,35 @@ export function UserManager() {
       <Pager startAt={startAt} pageSize={pageSize} total={total} shown={users.length} onPage={(n) => setPage(Math.floor(n / pageSize) + 1)} />
 
       {/* Create Modal */}
-      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title="Create user">
+      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title={tr('Create user')}>
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Username</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Username')}</label>
             <input name="username" type="text" required className="veqsio-input w-full" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Email</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Email')}</label>
             <input name="email" type="email" required className="veqsio-input w-full" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Display name</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Display name')}</label>
             <input name="displayName" type="text" required className="veqsio-input w-full" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Password</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Password')}</label>
             <input name="password" type="password" required minLength={6} className="veqsio-input w-full" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Avatar URL</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Avatar URL')}</label>
             <input name="avatarUrl" type="url" className="veqsio-input w-full" />
           </div>
           <div className="flex items-center gap-2">
             <input id="active" name="active" type="checkbox" defaultChecked className="w-4 h-4 rounded border-[var(--surface-4)] text-[var(--brand-500)]" />
-            <label htmlFor="active" className="text-sm text-[var(--text-secondary)]">Active</label>
+            <label htmlFor="active" className="text-sm text-[var(--text-secondary)]">{tr('Active')}</label>
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" onClick={() => setCreateOpen(false)} className="veqsio-btn-secondary">
-              Cancel
-            </button>
+              {tr('Cancel')} </button>
             <button type="submit" disabled={createUser.isPending} className="veqsio-btn-primary">
               {createUser.isPending ? 'Creating...' : 'Create'}
             </button>
@@ -271,11 +272,11 @@ export function UserManager() {
       </Modal>
 
       {/* Edit Modal */}
-      <Modal isOpen={!!editUser} onClose={() => setEditUser(null)} title="Edit user">
+      <Modal isOpen={!!editUser} onClose={() => setEditUser(null)} title={tr('Edit user')}>
         {editUser && (
           <form onSubmit={handleUpdate} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Display name</label>
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Display name')}</label>
               <input
                 name="displayName"
                 type="text"
@@ -285,11 +286,11 @@ export function UserManager() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Email</label>
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Email')}</label>
               <input name="email" type="email" defaultValue={editUser.email} required className="veqsio-input w-full" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Avatar URL</label>
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Avatar URL')}</label>
               <input
                 name="avatarUrl"
                 type="url"
@@ -305,12 +306,11 @@ export function UserManager() {
                 defaultChecked={editUser.active}
                 className="w-4 h-4 rounded border-[var(--surface-4)] text-[var(--brand-500)]"
               />
-              <label htmlFor="edit-active" className="text-sm text-[var(--text-secondary)]">Active</label>
+              <label htmlFor="edit-active" className="text-sm text-[var(--text-secondary)]">{tr('Active')}</label>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <button type="button" onClick={() => setEditUser(null)} className="veqsio-btn-secondary">
-                Cancel
-              </button>
+                {tr('Cancel')} </button>
               <button type="submit" disabled={updateUser.isPending} className="veqsio-btn-primary">
                 {updateUser.isPending ? 'Saving...' : 'Save'}
               </button>

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useDroppable } from '@dnd-kit/core'
@@ -13,6 +15,8 @@ interface BoardColumnProps {
 }
 
 export function BoardColumn({ id, name, count, children }: BoardColumnProps) {
+  const { tr } = useI18n();
+
   const { setNodeRef: setDroppableRef } = useDroppable({ id })
   const {
     setNodeRef: setSortableRef,
@@ -42,7 +46,7 @@ export function BoardColumn({ id, name, count, children }: BoardColumnProps) {
             {count}
           </span>
         </div>
-        <button className="veqsio-btn-ghost p-1" title="Add issue">
+        <button className="veqsio-btn-ghost p-1" title={tr('Add issue')}>
           <Plus className="w-4 h-4 text-[var(--text-tertiary)]" />
         </button>
       </div>

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Spinner } from '@/components/spinner'
@@ -41,6 +43,8 @@ function cleanField(f: FieldDef): FieldDef {
 }
 
 export default function RequestTypeBuilderPage() {
+  const { tr } = useI18n();
+
   const params = useParams<{ id: string; rtId: string }>()
   const id = Number(params.id)
   const rtId = Number(params.rtId)
@@ -139,7 +143,7 @@ export default function RequestTypeBuilderPage() {
       const d = toDraft(saved)
       setDraft(d); setFields(saved.fields)
       setBaseline(JSON.stringify({ d, f: saved.fields.map(cleanField) }))
-      toast('Request type saved', 'success')
+      toast(tr('Request type saved'), 'success')
     } catch (e) {
       setServerError((e as Error).message)
     }
@@ -166,14 +170,14 @@ export default function RequestTypeBuilderPage() {
             {(rt.data?.requestCount ?? 0) > 0 && ` · ${rt.data?.requestCount} existing requests keep their stored answers`}
           </p>
         </div>
-        <div role="group" aria-label="View" className="flex gap-1">
+        <div role="group" aria-label={tr('View')} className="flex gap-1">
           {(['edit', 'preview'] as Mode[]).map((m) => (
             <button key={m} type="button" aria-pressed={mode === m} onClick={() => setMode(m)} className={mode === m ? 'veqsio-btn-primary' : 'veqsio-btn-secondary'}>{m === 'edit' ? 'Edit form' : 'Preview'}</button>
           ))}
         </div>
         {!readOnly && (
           <>
-            <button type="button" className="veqsio-btn-secondary" onClick={discard} disabled={!dirty || update.isPending}>Discard</button>
+            <button type="button" className="veqsio-btn-secondary" onClick={discard} disabled={!dirty || update.isPending}>{tr('Discard')}</button>
             <button type="button" className="veqsio-btn-primary" onClick={save} disabled={!dirty || update.isPending}>{update.isPending ? 'Saving…' : 'Save'}</button>
           </>
         )}
@@ -188,10 +192,10 @@ export default function RequestTypeBuilderPage() {
           {mode === 'edit' ? (
             <div className="veqsio-card p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-[var(--text-secondary)]">Form fields</h3>
+                <h3 className="text-sm font-semibold text-[var(--text-secondary)]">{tr('Form fields')}</h3>
                 <span className="text-xs text-[var(--text-tertiary)]">{fields.length} / 50</span>
               </div>
-              <p className="text-xs text-[var(--text-tertiary)]">The summary and description inputs are added automatically unless a field is mapped to them.</p>
+              <p className="text-xs text-[var(--text-tertiary)]">{tr('The summary and description inputs are added automatically unless a field is mapped to them.')}</p>
               <FormCanvas
                 fields={fields} selected={selected} problems={problems} readOnly={readOnly}
                 onSelect={select} onMove={move} onDuplicate={duplicate} onRemove={remove}
@@ -203,8 +207,8 @@ export default function RequestTypeBuilderPage() {
         </section>
 
         {/* right: palette and properties */}
-        <aside aria-label="Field palette and properties" className="veqsio-card p-4 h-fit space-y-3 xl:sticky xl:top-4">
-          <div role="tablist" aria-label="Builder panels" className="flex gap-1 border-b border-[var(--surface-3)] -mx-1 px-1">
+        <aside aria-label={tr('Field palette and properties')} className="veqsio-card p-4 h-fit space-y-3 xl:sticky xl:top-4">
+          <div role="tablist" aria-label={tr('Builder panels')} className="flex gap-1 border-b border-[var(--surface-3)] -mx-1 px-1">
             {tabs.map(([t, label]) => (
               <button
                 key={t} role="tab" id={`tab-${t}`} aria-selected={tab === t} aria-controls={`panel-${t}`}
@@ -233,6 +237,8 @@ export default function RequestTypeBuilderPage() {
 
 /** Live preview: the same component the portal renders, with the draft form. */
 function Preview({ draft, fields }: { draft: TypeDraft; fields: FieldDef[] }) {
+  const { tr } = useI18n();
+
   const [values, setValues] = useState<Record<string, unknown>>({})
   const [files, setFiles] = useState<Record<string, File[]>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -246,15 +252,15 @@ function Preview({ draft, fields }: { draft: TypeDraft; fields: FieldDef[] }) {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm text-[var(--text-secondary)]">This is how customers see the form in the portal. Try it: conditions and validation work.</p>
-        <button type="button" className="veqsio-btn-ghost text-sm" onClick={() => { setValues({}); setFiles({}); setErrors({}) }}>Reset preview</button>
+        <p className="text-sm text-[var(--text-secondary)]">{tr('This is how customers see the form in the portal. Try it: conditions and validation work.')}</p>
+        <button type="button" className="veqsio-btn-ghost text-sm" onClick={() => { setValues({}); setFiles({}); setErrors({}) }}>{tr('Reset preview')}</button>
       </div>
       <form noValidate onSubmit={(e) => { e.preventDefault(); setErrors(validateValues(fields, effective, files)) }} className="veqsio-card p-5 space-y-4 bg-[var(--surface-0)]">
         <h3 className="text-heading-2">{draft.name || 'Untitled request type'}</h3>
         {draft.helpText && <p className="text-sm text-[var(--text-secondary)]">{draft.helpText}</p>}
         {!summaryMapped && (
           <div className="space-y-1">
-            <label htmlFor="pv-summary" className="text-sm font-medium">Summary <span aria-hidden className="text-[var(--error)]">*</span></label>
+            <label htmlFor="pv-summary" className="text-sm font-medium">{tr('Summary')} <span aria-hidden className="text-[var(--error)]">*</span></label>
             <input id="pv-summary" className="veqsio-input w-full" />
           </div>
         )}
@@ -264,14 +270,14 @@ function Preview({ draft, fields }: { draft: TypeDraft; fields: FieldDef[] }) {
         />
         {!descriptionMapped && (
           <div className="space-y-1">
-            <label htmlFor="pv-desc" className="text-sm font-medium">Description</label>
+            <label htmlFor="pv-desc" className="text-sm font-medium">{tr('Description')}</label>
             <textarea id="pv-desc" rows={4} className="veqsio-input w-full" />
           </div>
         )}
-        <button type="submit" className="veqsio-btn-primary">Send request</button>
-        <p className="text-xs text-[var(--text-tertiary)]">Preview only: nothing is sent. “Send request” runs the form checks.</p>
+        <button type="submit" className="veqsio-btn-primary">{tr('Send request')}</button>
+        <p className="text-xs text-[var(--text-tertiary)]">{tr('Preview only: nothing is sent. “Send request” runs the form checks.')}</p>
       </form>
-      {internalCount > 0 && <p className="text-xs text-[var(--text-tertiary)]">{internalCount} internal field{internalCount === 1 ? ' is' : 's are'} hidden from customers and not shown here.</p>}
+      {internalCount > 0 && <p className="text-xs text-[var(--text-tertiary)]">{internalCount} {tr('internal field')}{internalCount === 1 ? ' is' : 's are'} {tr('hidden from customers and not shown here.')}</p>}
     </div>
   )
 }

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useId, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -18,6 +20,8 @@ import { useMultiSort } from '@/lib/table-sort'
 const errMsg = (e: unknown) => (e instanceof Error ? e.message : 'Something went wrong')
 
 export default function AdminWorkflowsPage() {
+  const { tr } = useI18n();
+
   const ms = useMultiSort()
   const router = useRouter()
   const { data, isLoading, error } = useAdminWorkflows()
@@ -35,7 +39,7 @@ export default function AdminWorkflowsPage() {
       confirmLabel: 'Delete workflow',
       danger: true,
       onConfirm: async () => {
-        try { await m.deleteWorkflow.mutateAsync(w.id); toast('Workflow deleted', 'success') } catch (e) { toast(errMsg(e), 'error') }
+        try { await m.deleteWorkflow.mutateAsync(w.id); toast(tr('Workflow deleted'), 'success') } catch (e) { toast(errMsg(e), 'error') }
       },
     })
   }
@@ -43,25 +47,25 @@ export default function AdminWorkflowsPage() {
   return (
     <AppLayout>
       <div className="space-y-4">
-        <PageHeader title="Workflows" description={<>Design statuses and transitions visually. Assign workflows to projects through <Link href="/admin" className="text-[var(--brand-600)] hover:underline">workflow schemes</Link>.</>}
-          actions={<><button className="veqsio-btn-primary flex items-center gap-2" onClick={() => setCreateOpen(true)}><Plus className="w-4 h-4" /> Create workflow</button></>} />
+        <PageHeader title={tr('Workflows')} description={<>{tr('Design statuses and transitions visually. Assign workflows to projects through')} <Link href="/admin" className="text-[var(--brand-600)] hover:underline">{tr('workflow schemes')}</Link>.</>}
+          actions={<><button className="veqsio-btn-primary flex items-center gap-2" onClick={() => setCreateOpen(true)}><Plus className="w-4 h-4" /> {tr('Create workflow')}</button></>} />
 
         {isLoading && <div className="flex justify-center py-12"><Spinner /></div>}
         {error && <p role="alert" className="text-[var(--error)]">{errMsg(error)}</p>}
         {data && workflows.length === 0 && (
-          <EmptyState icon="folder" title="No workflows yet" description="Create a workflow to define how issues move between statuses." action={<button className="veqsio-btn-primary" onClick={() => setCreateOpen(true)}>Create workflow</button>} />
+          <EmptyState icon="folder" title={tr('No workflows yet')} description={tr('Create a workflow to define how issues move between statuses.')} action={<button className="veqsio-btn-primary" onClick={() => setCreateOpen(true)}>{tr('Create workflow')}</button>} />
         )}
 
         {workflows.length > 0 && (
           <div className="overflow-x-auto rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)]">
             <table className="w-full text-sm">
-              <caption className="sr-only">Workflows</caption>
+              <caption className="sr-only">{tr('Workflows')}</caption>
               <thead>
                 <tr className="veqsio-table-header text-left">
-                  <SortableTh {...ms.th('name')} className="px-4 py-2.5">Name</SortableTh>
-                  <SortableTh {...ms.th('transitions')} className="px-4 py-2.5">Transitions</SortableTh>
-                  <th scope="col" className="px-4 py-2.5">Used by</th>
-                  <th scope="col" className="px-4 py-2.5"><span className="sr-only">Actions</span></th>
+                  <SortableTh {...ms.th('name')} className="px-4 py-2.5">{tr('Name')}</SortableTh>
+                  <SortableTh {...ms.th('transitions')} className="px-4 py-2.5">{tr('Transitions')}</SortableTh>
+                  <th scope="col" className="px-4 py-2.5">{tr('Used by')}</th>
+                  <th scope="col" className="px-4 py-2.5"><span className="sr-only">{tr('Actions')}</span></th>
                 </tr>
               </thead>
               <tbody>
@@ -71,7 +75,7 @@ export default function AdminWorkflowsPage() {
                       <Link href={`/admin/workflows/${w.id}`} className="font-medium text-[var(--text-primary)] hover:text-[var(--brand-600)] inline-flex items-center gap-2">
                         <Network className="w-4 h-4 text-[var(--text-tertiary)]" aria-hidden /> {w.name}
                       </Link>
-                      {w.isDefault && <span className="veqsio-badge ml-2">Default</span>}
+                      {w.isDefault && <span className="veqsio-badge ml-2">{tr('Default')}</span>}
                       {w.description && <p className="text-xs font-normal text-[var(--text-tertiary)] mt-0.5">{w.description}</p>}
                     </th>
                     <td className="px-4 py-3 text-[var(--text-secondary)]">{w.transitionCount}</td>
@@ -80,8 +84,8 @@ export default function AdminWorkflowsPage() {
                         <span className="text-[var(--text-tertiary)]">{w.isDefault ? 'Projects without a scheme' : 'Not in use'}</span>
                       ) : (
                         <>
-                          {w.schemes.length > 0 && <div>Schemes: {w.schemes.map((s) => s.name).join(', ')}</div>}
-                          {w.projects.length > 0 && <div className="text-xs text-[var(--text-tertiary)]">Projects: {w.projects.map((p) => p.key).join(', ')}</div>}
+                          {w.schemes.length > 0 && <div>{tr('Schemes:')} {w.schemes.map((s) => s.name).join(', ')}</div>}
+                          {w.projects.length > 0 && <div className="text-xs text-[var(--text-tertiary)]">{tr('Projects:')} {w.projects.map((p) => p.key).join(', ')}</div>}
                         </>
                       )}
                     </td>
@@ -136,6 +140,8 @@ function CreateForm({ workflows, initialClone, initialName, pending, onCreate, o
   workflows: WorkflowSummary[]; initialClone?: number; initialName: string; pending: boolean
   onCreate: (d: { name: string; description?: string; cloneFromId?: number }) => Promise<void>; onCancel: () => void
 }) {
+  const { tr } = useI18n();
+
   const [name, setName] = useState(initialName)
   const [description, setDescription] = useState('')
   const [clone, setClone] = useState<string>(initialClone ? String(initialClone) : '')
@@ -143,22 +149,22 @@ function CreateForm({ workflows, initialClone, initialName, pending, onCreate, o
   return (
     <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); if (name.trim()) onCreate({ name: name.trim(), description: description.trim() || undefined, cloneFromId: clone ? Number(clone) : undefined }) }}>
       <div>
-        <label htmlFor={nameId} className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Name</label>
+        <label htmlFor={nameId} className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Name')}</label>
         <input id={nameId} className="veqsio-input w-full" value={name} maxLength={255} onChange={(e) => setName(e.target.value)} required autoFocus />
       </div>
       <div>
-        <label htmlFor={descId} className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Description <span className="font-normal text-[var(--text-tertiary)]">(optional)</span></label>
+        <label htmlFor={descId} className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Description')} <span className="font-normal text-[var(--text-tertiary)]">{tr('(optional)')}</span></label>
         <textarea id={descId} className="veqsio-input w-full min-h-[64px]" value={description} maxLength={2000} onChange={(e) => setDescription(e.target.value)} />
       </div>
       <div>
-        <label htmlFor={cloneId} className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Start from</label>
+        <label htmlFor={cloneId} className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Start from')}</label>
         <select id={cloneId} className="veqsio-input w-full" value={clone} onChange={(e) => setClone(e.target.value)}>
-          <option value="">Blank workflow</option>
-          {workflows.map((w) => <option key={w.id} value={w.id}>Copy of “{w.name}”</option>)}
+          <option value="">{tr('Blank workflow')}</option>
+          {workflows.map((w) => <option key={w.id} value={w.id}>{tr('Copy of “')}{w.name}”</option>)}
         </select>
       </div>
       <div className="flex justify-end gap-2">
-        <button type="button" className="veqsio-btn-secondary" onClick={onCancel}>Cancel</button>
+        <button type="button" className="veqsio-btn-secondary" onClick={onCancel}>{tr('Cancel')}</button>
         <button type="submit" className="veqsio-btn-primary" disabled={!name.trim() || pending}>{pending ? 'Creating…' : initialClone || clone ? 'Clone' : 'Create'}</button>
       </div>
     </form>

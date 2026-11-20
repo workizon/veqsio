@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { AlertTriangle, ArrowRight } from 'lucide-react'
 import { Select } from './select'
@@ -26,6 +28,8 @@ const resolutionOptions = [
 ]
 
 export function MigrationConflicts({ conflicts, onResolve, onContinue }: MigrationConflictsProps) {
+  const { tr } = useI18n();
+
   const [resolutions, setResolutions] = useState<Record<string, string>>(
     () => {
       const initial: Record<string, string> = {}
@@ -53,8 +57,7 @@ export function MigrationConflicts({ conflicts, onResolve, onContinue }: Migrati
       <div className="flex items-center gap-2">
         <AlertTriangle className="w-5 h-5 text-[var(--warning)]" />
         <h3 className="text-heading-2 text-[var(--text-primary)]">
-          {conflicts.length} Conflict{conflicts.length !== 1 ? 's' : ''} Detected
-        </h3>
+          {conflicts.length} {tr('Conflict')}{conflicts.length !== 1 ? 's' : ''} {tr('Detected')} </h3>
       </div>
 
       <div className="space-y-4">
@@ -68,10 +71,10 @@ export function MigrationConflicts({ conflicts, onResolve, onContinue }: Migrati
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="veqsio-table-header">
-                      <th className="text-left px-4 py-2">Entity</th>
-                      <th className="text-left px-4 py-2">Key / ID</th>
-                      <th className="text-left px-4 py-2">Issue</th>
-                      <th className="text-left px-4 py-2">Resolution</th>
+                      <th className="text-left px-4 py-2">{tr('Entity')}</th>
+                      <th className="text-left px-4 py-2">{tr('Key / ID')}</th>
+                      <th className="text-left px-4 py-2">{tr('Issue')}</th>
+                      <th className="text-left px-4 py-2">{tr('Resolution')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -110,7 +113,7 @@ export function MigrationConflicts({ conflicts, onResolve, onContinue }: Migrati
           onClick={onContinue}
           className="veqsio-btn-primary flex items-center gap-2"
         >
-          <span>Continue with Migration</span>
+          <span>{tr('Continue with Migration')}</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>

@@ -1,5 +1,8 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
+import { useDismiss } from '@/hooks/use-dismiss'
 import { useEffect, useState } from 'react'
 import {
   Plus,
@@ -38,6 +41,8 @@ function useDebounced<T>(value: T, ms = 300): T {
 }
 
 export function GroupManager() {
+  const { tr } = useI18n();
+
   const [createOpen, setCreateOpen] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
   const [memberSearch, setMemberSearch] = useState('')
@@ -63,7 +68,7 @@ export function GroupManager() {
         name: fd.get('name') as string,
         description: (fd.get('description') as string) || undefined,
       })
-      toast('Group created successfully', 'success')
+      toast(tr('Group created successfully'), 'success')
       setCreateOpen(false)
       e.currentTarget.reset()
     } catch (err: any) {
@@ -75,7 +80,7 @@ export function GroupManager() {
     if (!(await confirmDialog(`Delete group "${name}"?`))) return
     try {
       await deleteGroup.mutateAsync(name)
-      toast('Group deleted', 'success')
+      toast(tr('Group deleted'), 'success')
       if (selectedGroup === name) setSelectedGroup(null)
     } catch (err: any) {
       toast(err.message || 'Failed to delete group', 'error')
@@ -85,11 +90,10 @@ export function GroupManager() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-heading-2 text-[var(--text-primary)]">Groups</h2>
+        <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('Groups')}</h2>
         <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          Create Group
-        </button>
+          {tr('Create Group')} </button>
       </div>
 
       <div className="relative">
@@ -98,8 +102,8 @@ export function GroupManager() {
           type="search"
           value={groupSearch}
           onChange={(e) => setGroupSearch(e.target.value)}
-          placeholder="Search groups by name..."
-          aria-label="Search groups"
+          placeholder={tr('Search groups by name...')}
+          aria-label={tr('Search groups')}
           className="veqsio-input w-full pl-9"
         />
       </div>
@@ -116,20 +120,19 @@ export function GroupManager() {
           action={groupQuery ? undefined : (
             <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              Create Group
-            </button>
+              {tr('Create Group')} </button>
           )}
         />
       ) : (
         <div className={`border border-[var(--surface-3)] rounded-lg overflow-hidden transition-opacity ${groupsFetching ? 'opacity-70' : ''}`}>
           <table className="w-full text-sm">
-            <caption className="sr-only">Groups</caption>
+            <caption className="sr-only">{tr('Groups')}</caption>
             <thead>
               <tr className="veqsio-table-header text-left">
-                <SortableTh {...groupSort.th('name')} className="px-4 py-2">Name</SortableTh>
-                <SortableTh {...groupSort.th('description')} className="px-4 py-2 hidden md:table-cell">Description</SortableTh>
-                <SortableTh {...groupSort.th('members')} className="px-4 py-2 text-right">Members</SortableTh>
-                <th scope="col" className="px-4 py-2"><span className="sr-only">Actions</span></th>
+                <SortableTh {...groupSort.th('name')} className="px-4 py-2">{tr('Name')}</SortableTh>
+                <SortableTh {...groupSort.th('description')} className="px-4 py-2 hidden md:table-cell">{tr('Description')}</SortableTh>
+                <SortableTh {...groupSort.th('members')} className="px-4 py-2 text-right">{tr('Members')}</SortableTh>
+                <th scope="col" className="px-4 py-2"><span className="sr-only">{tr('Actions')}</span></th>
               </tr>
             </thead>
             <tbody>
@@ -151,7 +154,7 @@ export function GroupManager() {
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDeleteGroup(g.name) }}
                       className="veqsio-btn-ghost p-1.5 text-[var(--error)] hover:bg-[var(--error)]/10"
-                      title="Delete"
+                      title={tr('Delete')}
                       aria-label={`Delete ${g.name}`}
                     >
                       <Trash2 className="w-4 h-4" />
@@ -180,20 +183,19 @@ export function GroupManager() {
       </Modal>
 
       {/* Create Group Modal */}
-      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title="Create group">
+      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title={tr('Create group')}>
         <form onSubmit={handleCreateGroup} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Name</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Name')}</label>
             <input name="name" type="text" required className="veqsio-input w-full" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Description</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Description')}</label>
             <input name="description" type="text" className="veqsio-input w-full" />
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" onClick={() => setCreateOpen(false)} className="veqsio-btn-secondary">
-              Cancel
-            </button>
+              {tr('Cancel')} </button>
             <button type="submit" disabled={createGroup.isPending} className="veqsio-btn-primary">
               {createGroup.isPending ? 'Creating...' : 'Create'}
             </button>
@@ -213,6 +215,8 @@ function GroupMemberPanel({
   search: string
   onSearchChange: (v: string) => void
 }) {
+  const { tr } = useI18n();
+
   const [start, setStart] = useState(0)
   const query = useDebounced(search.trim())
   useEffect(() => { setStart(0) }, [query, groupName])
@@ -220,6 +224,8 @@ function GroupMemberPanel({
   const addMember = useAddGroupMember()
   const removeMember = useRemoveGroupMember()
   const [addQuery, setAddQuery] = useState('')
+  const [addListOpen, setAddListOpen] = useState(true)
+  const addRef = useDismiss<HTMLDivElement>(addListOpen, () => setAddListOpen(false))
   const { data: searchResults } = useUserSearch(addQuery)
 
   const filtered = data?.values || []
@@ -246,18 +252,19 @@ function GroupMemberPanel({
   return (
     <div className="space-y-4">
       {/* Add member */}
-      <div className="relative">
+      <div className="relative" ref={addRef}>
         <div className="flex items-center gap-2">
           <Search className="w-4 h-4 text-[var(--text-tertiary)]" />
           <input
             type="text"
-            placeholder="Search users to add..."
+            placeholder={tr('Search users to add...')}
             value={addQuery}
-            onChange={(e) => setAddQuery(e.target.value)}
+            onChange={(e) => { setAddQuery(e.target.value); setAddListOpen(true) }}
+            onFocus={() => setAddListOpen(true)}
             className="veqsio-input flex-1"
           />
         </div>
-        {searchResults && searchResults.length > 0 && addQuery && (
+        {addListOpen && searchResults && searchResults.length > 0 && addQuery && (
           <div className="absolute z-50 w-full mt-1 bg-[var(--surface-0)] border border-[var(--surface-3)] rounded-lg shadow-lg py-1 max-h-48 overflow-auto">
             {searchResults.map((u) => (
               <button
@@ -279,7 +286,7 @@ function GroupMemberPanel({
       <div className="flex items-center gap-2">
         <input
           type="text"
-          placeholder="Search members by name, username or e-mail..."
+          placeholder={tr('Search members by name, username or e-mail...')}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           className="veqsio-input flex-1"
@@ -290,9 +297,9 @@ function GroupMemberPanel({
         <table className="w-full text-sm">
           <thead>
             <tr className="veqsio-table-header">
-              <th className="text-left">User</th>
-              <th className="text-left hidden sm:table-cell">Email</th>
-              <th className="text-right">Actions</th>
+              <th className="text-left">{tr('User')}</th>
+              <th className="text-left hidden sm:table-cell">{tr('Email')}</th>
+              <th className="text-right">{tr('Actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -324,7 +331,7 @@ function GroupMemberPanel({
                     <button
                       onClick={() => handleRemove(m.username)}
                       className="veqsio-btn-ghost p-1.5 text-[var(--error)] hover:bg-[var(--error)]/10"
-                      title="Remove"
+                      title={tr('Remove')}
                     >
                       <UserMinus className="w-4 h-4" />
                     </button>

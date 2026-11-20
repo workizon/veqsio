@@ -2178,6 +2178,23 @@ export const pushSubscriptions = pgTable('push_subscriptions', {
 }));
 
 /**
+ * In-app inbox (the bell in the header): one row per person per event. Written next to the e-mail/push senders, which have
+ * already applied issue security, so a row never names an issue its owner cannot see. Old rows are pruned by the API.
+ */
+export const inboxNotifications = pgTable('inbox_notifications', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  kind: varchar('kind', { length: 32 }).notNull(),
+  title: varchar('title', { length: 255 }).notNull(),
+  body: text('body').notNull().default(''),
+  link: varchar('link', { length: 500 }),
+  readAt: timestamp('read_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (t) => ({
+  userCreatedIdx: index('inbox_notifications_user_created_idx').on(t.userId, t.createdAt),
+}));
+
+/**
  * What a person wants pushed to their browsers and when. `events` holds only the switches that were changed (a missing key means on);
  * quiet hours silence everything except on-call pages, in the person's own time zone.
  */

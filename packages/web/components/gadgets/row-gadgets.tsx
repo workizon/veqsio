@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { RichText } from '@/components/rich-text'
 import { useGadgetData } from '@/hooks/use-dashboards'
@@ -31,14 +33,18 @@ function Bars({ buckets, unit }: { buckets: { name: string; value: number }[]; u
 const unitOf = (c: Config) => (c.metric === 'estimate' || c.metric === 'spent' ? ' h' : '')
 
 function Buckets({ type, config }: { type: 'issue-statistics' | 'workload'; config: Config }) {
+  const { tr } = useI18n();
+
   const q = useGadgetData<{ buckets: { name: string; value: number }[]; total: number }>(type, config)
   if (q.isLoading) return <ChartSkeleton />
   if (q.error) return <Failed error={q.error as Error} />
-  if (!q.data?.buckets.length) return <EmptyState icon="inbox" title="No matching issues" />
+  if (!q.data?.buckets.length) return <EmptyState icon="inbox" title={tr('No matching issues')} />
   return <Bars buckets={q.data.buckets} unit={unitOf(config)} />
 }
 
 function Stat({ config }: { config: Config }) {
+  const { tr } = useI18n();
+
   const q = useGadgetData<{ total: number; current?: number; previous?: number; delta?: number; truncated: boolean }>('stat', config)
   if (q.isLoading) return <ChartSkeleton />
   if (q.error) return <Failed error={q.error as Error} />
@@ -49,28 +55,29 @@ function Stat({ config }: { config: Config }) {
       <Kpi value={String(d.total)} caption={String(config.label || 'matching issues')} />
       {d.delta !== undefined && (
         <p className="text-body-sm text-[var(--text-secondary)]">
-          <span className={d.delta > 0 ? 'text-[var(--warning)]' : d.delta < 0 ? 'text-[var(--success)]' : ''}>{d.delta > 0 ? '+' : ''}{d.delta}</span> created versus the previous {days} days ({d.current} now, {d.previous} before)
-        </p>
+          <span className={d.delta > 0 ? 'text-[var(--warning)]' : d.delta < 0 ? 'text-[var(--success)]' : ''}>{d.delta > 0 ? '+' : ''}{d.delta}</span> {tr('created versus the previous')} {days} {tr('days (')}{d.current} {tr('now,')} {d.previous} {tr('before)')} </p>
       )}
     </div>
   )
 }
 
 function Table({ config }: { config: Config }) {
+  const { tr } = useI18n();
+
   const q = useGadgetData<{ columns: string[]; rows: { name: string; cells: number[]; total: number }[]; totals: number[]; total: number }>('two-dimensional', config)
   if (q.isLoading) return <ChartSkeleton />
   if (q.error) return <Failed error={q.error as Error} />
   const d = q.data!
-  if (!d.rows.length) return <EmptyState icon="inbox" title="No matching issues" />
+  if (!d.rows.length) return <EmptyState icon="inbox" title={tr('No matching issues')} />
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-body-sm">
-        <thead><tr className="text-left text-[var(--text-secondary)]"><th className="py-1 pr-2 font-medium" /> {d.columns.map((c) => <th key={c} className="py-1 px-2 font-medium text-right">{c}</th>)}<th className="py-1 pl-2 font-medium text-right">Total</th></tr></thead>
+        <thead><tr className="text-left text-[var(--text-secondary)]"><th className="py-1 pr-2 font-medium" /> {d.columns.map((c) => <th key={c} className="py-1 px-2 font-medium text-right">{c}</th>)}<th className="py-1 pl-2 font-medium text-right">{tr('Total')}</th></tr></thead>
         <tbody className="divide-y divide-[var(--surface-3)]">
           {d.rows.map((r) => (
             <tr key={r.name}><th scope="row" className="py-1 pr-2 text-left font-normal">{r.name}</th>{r.cells.map((n, i) => <td key={i} className="py-1 px-2 text-right tabular-nums">{n || <span className="text-[var(--text-tertiary)]">·</span>}</td>)}<td className="py-1 pl-2 text-right tabular-nums font-medium">{r.total}</td></tr>
           ))}
-          <tr className="font-medium"><th scope="row" className="py-1 pr-2 text-left">Total</th>{d.totals.map((n, i) => <td key={i} className="py-1 px-2 text-right tabular-nums">{n}</td>)}<td className="py-1 pl-2 text-right tabular-nums">{d.total}</td></tr>
+          <tr className="font-medium"><th scope="row" className="py-1 pr-2 text-left">{tr('Total')}</th>{d.totals.map((n, i) => <td key={i} className="py-1 px-2 text-right tabular-nums">{n}</td>)}<td className="py-1 pl-2 text-right tabular-nums">{d.total}</td></tr>
         </tbody>
       </table>
     </div>
@@ -78,10 +85,12 @@ function Table({ config }: { config: Config }) {
 }
 
 function Recent({ config }: { config: Config }) {
+  const { tr } = useI18n();
+
   const q = useGadgetData<{ issues: { key: string; summary: string; status: string; assignee: string | null }[]; total: number }>('recently-created', config)
   if (q.isLoading) return <ChartSkeleton />
   if (q.error) return <Failed error={q.error as Error} />
-  if (!q.data?.issues.length) return <EmptyState icon="inbox" title="No matching issues" />
+  if (!q.data?.issues.length) return <EmptyState icon="inbox" title={tr('No matching issues')} />
   return (
     <ul className="divide-y divide-[var(--surface-3)] text-body-sm">
       {q.data.issues.map((i) => (
@@ -93,11 +102,13 @@ function Recent({ config }: { config: Config }) {
 
 /** Calendar heat map: one square per day, weeks as columns (Monday on top), darker = more issues. Counts are also in each square's title. */
 function Heatmap({ config }: { config: Config }) {
+  const { tr } = useI18n();
+
   const q = useGadgetData<{ field: string; days: { date: string; count: number }[]; max: number; total: number }>('created-heatmap', config)
   if (q.isLoading) return <ChartSkeleton />
   if (q.error) return <Failed error={q.error as Error} />
   const d = q.data!
-  if (!d.total) return <EmptyState icon="inbox" title="No activity in this period" />
+  if (!d.total) return <EmptyState icon="inbox" title={tr('No activity in this period')} />
   const dow = (iso: string) => (new Date(iso + 'T00:00:00Z').getUTCDay() + 6) % 7 // Monday = 0
   const lead = dow(d.days[0].date)
   const cells: ({ date: string; count: number } | null)[] = [...Array(lead).fill(null), ...d.days]
@@ -116,16 +127,18 @@ function Heatmap({ config }: { config: Config }) {
           </div>
         ))}
       </div>
-      <p className="text-caption text-[var(--text-tertiary)] mt-1">{d.total} issues {d.field} in {d.days.length} days · busiest day {d.max}</p>
+      <p className="text-caption text-[var(--text-tertiary)] mt-1">{d.total} issues {d.field} in {d.days.length} {tr('days · busiest day')} {d.max}</p>
     </div>
   )
 }
 
 function DueCalendar({ config }: { config: Config }) {
+  const { tr } = useI18n();
+
   const q = useGadgetData<{ days: { date: string; issues: { key: string; summary: string; overdue: boolean; done: boolean }[] }[] }>('due-date-calendar', config)
   if (q.isLoading) return <ChartSkeleton />
   if (q.error) return <Failed error={q.error as Error} />
-  if (!q.data?.days.length) return <EmptyState icon="inbox" title="Nothing due soon" />
+  if (!q.data?.days.length) return <EmptyState icon="inbox" title={tr('Nothing due soon')} />
   return (
     <ul className="space-y-2 text-body-sm">
       {q.data.days.map((d) => (
@@ -141,6 +154,8 @@ function DueCalendar({ config }: { config: Config }) {
 }
 
 export function RowGadget({ type, config }: { type: string; config: Config }) {
+  const { tr } = useI18n();
+
   switch (type) {
     case 'issue-statistics': return <Buckets type="issue-statistics" config={config} />
     case 'workload': return <Buckets type="workload" config={config} />
@@ -151,7 +166,7 @@ export function RowGadget({ type, config }: { type: string; config: Config }) {
     case 'due-date-calendar': return <DueCalendar config={config} />
     case 'notes': return String(config.text ?? '')
       ? <RichText value={String(config.text)} format="markdown" className="text-body-sm break-words" />
-      : <p className="text-body-sm text-[var(--text-tertiary)]">Empty note. Edit the gadget to add text.</p>
+      : <p className="text-body-sm text-[var(--text-tertiary)]">{tr('Empty note. Edit the gadget to add text.')}</p>
     default: return null
   }
 }

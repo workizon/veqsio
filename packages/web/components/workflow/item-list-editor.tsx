@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useId } from 'react'
 import { Plus, Trash2, AlertTriangle } from 'lucide-react'
 import { newItem, missingParams, type TypeDef, type ParamDef, type Lookups } from '@/lib/workflow-graph'
@@ -20,6 +22,8 @@ const OPTION_LOOKUPS = new Set(['role', 'group', 'resolution', 'user', 'screen']
 
 /** Form for a list of conditions / validators / post-functions, driven entirely by the server's type catalogue. */
 export function ItemListEditor({ label, hint, defs, lookups, items, onChange }: Props) {
+  const { tr } = useI18n();
+
   const addId = useId()
 
   const update = (i: number, next: Item) => onChange(items.map((it, idx) => (idx === i ? next : it)))
@@ -30,7 +34,7 @@ export function ItemListEditor({ label, hint, defs, lookups, items, onChange }: 
       <legend className="text-sm font-medium text-[var(--text-primary)]">{label}s</legend>
       {hint && <p className="text-xs text-[var(--text-tertiary)]">{hint}</p>}
 
-      {items.length === 0 && <p className="text-xs text-[var(--text-tertiary)]">None configured.</p>}
+      {items.length === 0 && <p className="text-xs text-[var(--text-tertiary)]">{tr('None configured.')}</p>}
 
       <ul className="space-y-2">
         {items.map((item, i) => {
@@ -49,7 +53,7 @@ export function ItemListEditor({ label, hint, defs, lookups, items, onChange }: 
                 ) : (
                   <p className="flex-1 flex items-center gap-1.5 text-xs text-[var(--warning)]">
                     <AlertTriangle className="w-3.5 h-3.5 shrink-0" aria-hidden />
-                    <span>Unsupported type <code>{String(item.type)}</code>: the workflow engine ignores it. Remove it to save this transition.</span>
+                    <span>{tr('Unsupported type')} <code>{String(item.type)}</code>{tr(': the workflow engine ignores it. Remove it to save this transition.')}</span>
                   </p>
                 )}
                 <button type="button" className="veqsio-btn-ghost p-1.5" onClick={() => remove(i)} aria-label={`Remove ${label.toLowerCase()} ${i + 1}`}>
@@ -71,21 +75,21 @@ export function ItemListEditor({ label, hint, defs, lookups, items, onChange }: 
                   }}
                 />
               ))}
-              {missing.length > 0 && <p className="text-xs text-[var(--error)]" role="status">Required: {missing.join(', ')}</p>}
+              {missing.length > 0 && <p className="text-xs text-[var(--error)]" role="status">{tr('Required:')} {missing.join(', ')}</p>}
             </li>
           )
         })}
       </ul>
 
       <div className="flex items-center gap-2">
-        <label htmlFor={addId} className="sr-only">Add {label.toLowerCase()}</label>
+        <label htmlFor={addId} className="sr-only">{tr('Add')} {label.toLowerCase()}</label>
         <select
           id={addId}
           className="veqsio-input flex-1 text-sm"
           value=""
           onChange={(e) => { const d = defs.find((x) => x.type === e.target.value); if (d) onChange([...items, newItem(d) as Item]) }}
         >
-          <option value="">+ Add {label.toLowerCase()}…</option>
+          <option value="">{tr('+ Add')} {label.toLowerCase()}…</option>
           {defs.map((d) => <option key={d.type} value={d.type}>{d.label}</option>)}
         </select>
         <Plus className="w-4 h-4 text-[var(--text-tertiary)] shrink-0" aria-hidden />
@@ -107,6 +111,8 @@ function TypeSelect({ label, value, defs, onChange }: { label: string; value: st
 }
 
 function ParamField({ param, value, lookups, onChange }: { param: ParamDef; value: unknown; lookups: Lookups; onChange: (v: unknown) => void }) {
+  const { tr } = useI18n();
+
   const id = useId()
   const label = (
     <label htmlFor={id} className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
@@ -128,8 +134,8 @@ function ParamField({ param, value, lookups, onChange }: { param: ParamDef; valu
           required={param.required}
           onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))}
         >
-          <option value="">{param.required ? 'Choose…' : param.type === 'user' ? 'Person running the transition' : 'None'}</option>
-          {!known && typeof value === 'number' && <option value={value}>#{value} (not found)</option>}
+          <option value="">{param.required ? tr('Choose…') : param.type === 'user' ? tr('Person running the transition') : tr('None')}</option>
+          {!known && typeof value === 'number' && <option value={value}>#{value} {tr('(not found)')}</option>}
           {opts.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
         </select>
         {help}
@@ -141,7 +147,7 @@ function ParamField({ param, value, lookups, onChange }: { param: ParamDef; valu
       <div>
         {label}
         <select id={id} className="veqsio-input w-full text-sm" value={String(value ?? '')} required={param.required} onChange={(e) => onChange(e.target.value || undefined)}>
-          <option value="">Choose…</option>
+          <option value="">{tr('Choose…')}</option>
           {(param.options ?? []).map((o) => <option key={o} value={o}>{o}</option>)}
         </select>
         {help}

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
@@ -58,6 +60,8 @@ function SchemaView({ schema, schemas, depth = 0 }: { schema: Json; schemas: Rec
 }
 
 function Operation({ path, method, op, schemas }: { path: string; method: string; op: Json; schemas: Record<string, Json> }) {
+  const { tr } = useI18n();
+
   const open = op.security?.length === 0 ? 'Public' : op.security?.[0]?.metricsToken ? 'Metrics token' : op.security?.[0]?.webhookSignature ? 'Signature' : 'Signed in'
   return (
     <details className="rounded border border-[var(--surface-3)] bg-[var(--surface-0)]">
@@ -71,8 +75,8 @@ function Operation({ path, method, op, schemas }: { path: string; method: string
         {op.description && <p className="whitespace-pre-line">{op.description}</p>}
         {op.parameters?.length > 0 && (
           <table className="w-full">
-            <caption className="text-left font-medium">Parameters</caption>
-            <thead className="sr-only"><tr><th scope="col">Name</th><th scope="col">In</th><th scope="col">Type</th><th scope="col">Description</th></tr></thead>
+            <caption className="text-left font-medium">{tr('Parameters')}</caption>
+            <thead className="sr-only"><tr><th scope="col">{tr('Name')}</th><th scope="col">{tr('In')}</th><th scope="col">{tr('Type')}</th><th scope="col">{tr('Description')}</th></tr></thead>
             <tbody>
               {op.parameters.map((p: Json) => (
                 <tr key={p.in + p.name} className="border-t border-[var(--surface-3)] align-top">
@@ -86,10 +90,10 @@ function Operation({ path, method, op, schemas }: { path: string; method: string
           </table>
         )}
         {op.requestBody && (
-          <div><h4 className="font-medium">Request body (JSON)</h4><SchemaView schema={op.requestBody.content?.['application/json']?.schema} schemas={schemas} /></div>
+          <div><h4 className="font-medium">{tr('Request body (JSON)')}</h4><SchemaView schema={op.requestBody.content?.['application/json']?.schema} schemas={schemas} /></div>
         )}
         <div>
-          <h4 className="font-medium">Responses</h4>
+          <h4 className="font-medium">{tr('Responses')}</h4>
           <ul className="space-y-1">
             {Object.entries<Json>(op.responses ?? {}).map(([code, r]) => (
               <li key={code}><span className="font-mono">{code}</span> {r.description}
@@ -104,6 +108,8 @@ function Operation({ path, method, op, schemas }: { path: string; method: string
 }
 
 export default function ApiDocsPage() {
+  const { tr } = useI18n();
+
   const b = useBranding()
   const [filter, setFilter] = useState('')
   const [onlyTag, setOnlyTag] = useState('')
@@ -142,13 +148,13 @@ export default function ApiDocsPage() {
       <header className="border-b border-[var(--surface-3)] bg-[var(--surface-0)]">
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
           <Link href="/" className="flex items-center" aria-label={b.siteName}><BrandLockup height={24} /></Link>
-          <span className="text-[var(--text-secondary)]">REST API reference</span>
-          <a href="/rest/api/2/openapi.json" className="ml-auto text-sm text-[var(--brand-600)] hover:underline">Download openapi.json</a>
+          <span className="text-[var(--text-secondary)]">{tr('REST API reference')}</span>
+          <a href="/rest/api/2/openapi.json" className="ml-auto text-sm text-[var(--brand-600)] hover:underline">{tr('Download openapi.json')}</a>
         </div>
       </header>
       <main className="mx-auto w-full max-w-5xl space-y-4 px-4 py-6">
         {isLoading && <Spinner />}
-        {error && <p role="alert" className="text-[var(--error)]">Could not load the API description: {(error as Error).message}</p>}
+        {error && <p role="alert" className="text-[var(--error)]">{tr('Could not load the API description:')} {(error as Error).message}</p>}
         {data && (
           <>
             <div>
@@ -157,19 +163,19 @@ export default function ApiDocsPage() {
             </div>
             <div className="flex flex-wrap gap-3">
               <label className="flex-1 min-w-[16rem]">
-                <span className="sr-only">Filter endpoints</span>
-                <input type="search" className="veqsio-input w-full" placeholder="Filter by path, method or summary" value={filter} onChange={(e) => setFilter(e.target.value)} />
+                <span className="sr-only">{tr('Filter endpoints')}</span>
+                <input type="search" className="veqsio-input w-full" placeholder={tr('Filter by path, method or summary')} value={filter} onChange={(e) => setFilter(e.target.value)} />
               </label>
               <label>
-                <span className="sr-only">Tag</span>
+                <span className="sr-only">{tr('Tag')}</span>
                 <select className="veqsio-input" value={onlyTag} onChange={(e) => setOnlyTag(e.target.value)}>
-                  <option value="">All tags</option>
+                  <option value="">{tr('All tags')}</option>
                   {data.tags.map((t) => <option key={t.name} value={t.name}>{t.name}</option>)}
                 </select>
               </label>
             </div>
             <p className="text-sm text-[var(--text-secondary)]" aria-live="polite">{total} endpoint{total === 1 ? '' : 's'}</p>
-            {groups.length === 0 && <p className="text-[var(--text-secondary)]">No endpoint matches the filter.</p>}
+            {groups.length === 0 && <p className="text-[var(--text-secondary)]">{tr('No endpoint matches the filter.')}</p>}
             {groups.map(([tag, ops]) => (
               <section key={tag} aria-labelledby={`tag-${tag}`} className="space-y-2">
                 <h2 id={`tag-${tag}`} className="text-heading-2">{tag} <span className="text-sm font-normal text-[var(--text-tertiary)]">({ops.length})</span></h2>
@@ -177,7 +183,7 @@ export default function ApiDocsPage() {
               </section>
             ))}
             <section aria-labelledby="schemas-h" className="space-y-2">
-              <h2 id="schemas-h" className="text-heading-2">Schemas</h2>
+              <h2 id="schemas-h" className="text-heading-2">{tr('Schemas')}</h2>
               {Object.entries(data.components.schemas).map(([name, s]) => (
                 <details key={name} className="rounded border border-[var(--surface-3)] bg-[var(--surface-0)]">
                   <summary className="cursor-pointer px-3 py-2 font-mono text-sm">{name}</summary>

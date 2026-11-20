@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { ArrowRight, GitFork, AlertCircle } from 'lucide-react'
 import { Modal } from '@/components/modal'
@@ -30,6 +32,8 @@ export const StatusButton = forwardRef<StatusButtonHandle, {
   issueKey: string
   status: { name: string; category?: string | null }
 }>(function StatusButton({ issueKey, status }, ref) {
+  const { tr } = useI18n();
+
   const [open, setOpen] = useState(false)
   const [workflowOpen, setWorkflowOpen] = useState(false)
   const [pending, setPending] = useState<ApiTransition | null>(null)
@@ -55,7 +59,7 @@ export const StatusButton = forwardRef<StatusButtonHandle, {
       await transition.mutateAsync({ key: issueKey, transitionId: t.id })
       await offerUndo(issueKey, status.name, t)
     } catch (err: any) {
-      toast(err?.message || 'Transition failed', 'error')
+      toast(err?.message || tr('Transition failed'), 'error')
     }
   }
 
@@ -76,14 +80,14 @@ export const StatusButton = forwardRef<StatusButtonHandle, {
       <Popover
         open={open}
         onOpenChange={setOpen}
-        label="Available transitions"
+        label={tr('Available transitions')}
         haspopup="menu"
         panelClassName="min-w-[20rem] max-w-[calc(100vw-2rem)] py-1"
         trigger={(p) => (
           <button
             type="button"
             {...p}
-            aria-label={`Status: ${status.name}. Change status`}
+            aria-label={tr('Status: {name}. Change status', { name: status.name })}
             className="rounded-md border border-[var(--surface-4)] bg-[var(--surface-0)] px-2 py-1.5 hover:bg-[var(--surface-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)] transition-colors"
           >
             <StatusLozenge name={status.name} category={status.category} caret className="!bg-transparent" />
@@ -97,9 +101,9 @@ export const StatusButton = forwardRef<StatusButtonHandle, {
               <Skeleton className="h-5 w-3/4" />
             </div>
           ) : isError ? (
-            <p className="px-3 py-2 text-body-sm text-[var(--error)]">Could not load transitions.</p>
+            <p className="px-3 py-2 text-body-sm text-[var(--error)]">{tr('Could not load transitions.')}</p>
           ) : transitions.length === 0 ? (
-            <p className="px-3 py-2 text-body-sm text-[var(--text-tertiary)]">No transitions available from this status.</p>
+            <p className="px-3 py-2 text-body-sm text-[var(--text-tertiary)]">{tr('No transitions available from this status.')}</p>
           ) : (
             transitions.map((t) => (
               <button
@@ -124,8 +128,7 @@ export const StatusButton = forwardRef<StatusButtonHandle, {
               onClick={() => { setOpen(false); setWorkflowOpen(true) }}
               className="w-full flex items-center gap-2 px-3 py-2 text-left text-body-sm text-[var(--brand-500)] hover:bg-[var(--surface-2)] focus-visible:bg-[var(--surface-2)] focus-visible:outline-none"
             >
-              <GitFork className="w-4 h-4" aria-hidden="true" /> View workflow
-            </button>
+              <GitFork className="w-4 h-4" aria-hidden="true" /> {tr('View workflow')} </button>
           </div>
         </div>
       </Popover>
@@ -136,8 +139,7 @@ export const StatusButton = forwardRef<StatusButtonHandle, {
         className="flex items-center gap-1 text-body-sm text-[var(--brand-500)] hover:underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]"
       >
         <GitFork className="w-4 h-4" aria-hidden="true" />
-        Workflow
-      </button>
+        {tr('Workflow')} </button>
 
       <WorkflowDialog
         isOpen={workflowOpen}
@@ -171,19 +173,21 @@ function WorkflowDialog({
   loading: boolean
   onPick: (t: ApiTransition) => void
 }) {
+  const { tr } = useI18n();
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Workflow" size="md">
+    <Modal isOpen={isOpen} onClose={onClose} title={tr('Workflow')} size="md">
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <span className="text-caption text-[var(--text-tertiary)]">Current status</span>
+          <span className="text-caption text-[var(--text-tertiary)]">{tr('Current status')}</span>
           <StatusLozenge name={status.name} category={status.category} />
         </div>
         {loading ? (
           <Skeleton className="h-24 w-full" />
         ) : transitions.length === 0 ? (
-          <p className="text-body-sm text-[var(--text-tertiary)]">No transitions are available to you from this status.</p>
+          <p className="text-body-sm text-[var(--text-tertiary)]">{tr('No transitions are available to you from this status.')}</p>
         ) : (
-          <ul className="space-y-2" aria-label="Transitions from the current status">
+          <ul className="space-y-2" aria-label={tr('Transitions from the current status')}>
             {transitions.map((t) => {
               const needs: string[] = []
               if (t.requiresResolution) needs.push('resolution')
@@ -203,7 +207,7 @@ function WorkflowDialog({
                     </span>
                     <StatusLozenge name={t.to.name} category={transitionCategory(t)} />
                     {needs.length > 0 && (
-                      <span className="ml-auto text-caption text-[var(--text-tertiary)]">asks for {needs.join(', ')}</span>
+                      <span className="ml-auto text-caption text-[var(--text-tertiary)]">{tr('asks for')} {needs.join(', ')}</span>
                     )}
                   </button>
                 </li>
@@ -211,7 +215,7 @@ function WorkflowDialog({
             })}
           </ul>
         )}
-        <p className="text-caption text-[var(--text-tertiary)]">Only transitions you are allowed to run are listed. Pick one to run it.</p>
+        <p className="text-caption text-[var(--text-tertiary)]">{tr('Only transitions you are allowed to run are listed. Pick one to run it.')}</p>
       </div>
     </Modal>
   )
@@ -226,6 +230,8 @@ export function TransitionDialog({
   transition: ApiTransition
   onClose: () => void
 }) {
+  const { tr } = useI18n();
+
   const { data: resolutions, isLoading: resolutionsLoading } = useResolutions()
   const mutation = useTransitionIssue()
   const { data: issue } = useIssue(issueKey)
@@ -264,11 +270,11 @@ export function TransitionDialog({
     try {
       const base = buildTransitionPayload(transition, form)
       await mutation.mutateAsync({ key: issueKey, transitionId: base.transitionId, fields: { ...base.fields, ...buildScreenPayload(screenGeneral, values) } })
-      toast(`Moved to ${transition.to.name}`, 'success')
+      toast(tr('Moved to {name}', { name: transition.to.name }), 'success')
       onClose()
     } catch (err: any) {
       // The server validates again: its per-field errors show inline, the rest in the list on top.
-      const split = splitServerErrors(screen, err?.fieldErrors, err?.validationErrors?.length ? err.validationErrors : [err?.message || 'Transition failed'])
+      const split = splitServerErrors(screen, err?.fieldErrors, err?.validationErrors?.length ? err.validationErrors : [err?.message || tr('Transition failed')])
       setFieldErrors(split.byField)
       setErrors(split.general)
     }
@@ -282,7 +288,7 @@ export function TransitionDialog({
         noValidate
       >
         <div className="flex items-center gap-2 flex-wrap text-body-sm text-[var(--text-secondary)]">
-          <span>Status</span>
+          <span>{tr('Status')}</span>
           <StatusLozenge name={fromStatus.name} category={fromStatus.category} />
           <ArrowRight className="w-4 h-4 text-[var(--text-tertiary)]" aria-hidden="true" />
           <StatusLozenge name={transition.to.name} category={transitionCategory(transition)} />
@@ -300,7 +306,7 @@ export function TransitionDialog({
         {showResolution && (
           <div>
             <label htmlFor="transition-resolution" className="text-caption font-medium text-[var(--text-secondary)] block mb-1">
-              Resolution {needsResolution ? <span className="text-[var(--error)]" aria-hidden="true">*</span> : <span className="text-[var(--text-tertiary)]">(optional)</span>}
+              {tr('Resolution')} {needsResolution ? <span className="text-[var(--error)]" aria-hidden="true">*</span> : <span className="text-[var(--text-tertiary)]">{tr('(optional)')}</span>}
             </label>
             {resolutionsLoading ? (
               <Skeleton className="h-9 w-full" />
@@ -313,7 +319,7 @@ export function TransitionDialog({
                 aria-required={needsResolution || undefined}
                 className="veqsio-input w-full"
               >
-                <option value="">Select a resolution</option>
+                <option value="">{tr('Select a resolution')}</option>
                 {(resolutions || []).map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
               </select>
             )}
@@ -349,10 +355,10 @@ export function TransitionDialog({
 
         <div>
           <span className="text-caption font-medium text-[var(--text-secondary)] block mb-1">
-            Comment {commentRequired ? <span className="text-[var(--error)]" aria-hidden="true">*</span> : <span className="text-[var(--text-tertiary)]">(optional)</span>}
+            {tr('Comment')} {commentRequired ? <span className="text-[var(--error)]" aria-hidden="true">*</span> : <span className="text-[var(--text-tertiary)]">{tr('(optional)')}</span>}
           </span>
           <RichTextEditor
-            label="Comment"
+            label={tr('Comment')}
             rows={4}
             value={form.comment}
             onChange={(v) => setForm((f) => ({ ...f, comment: v }))}
@@ -364,7 +370,7 @@ export function TransitionDialog({
         </div>
 
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={onClose} className="veqsio-btn-secondary">Cancel</button>
+          <button type="button" onClick={onClose} className="veqsio-btn-secondary">{tr('Cancel')}</button>
           <button type="submit" disabled={mutation.isPending} className="veqsio-btn-primary flex items-center gap-2 disabled:opacity-50">
             {mutation.isPending && <Spinner size="sm" />}
             {transition.name}

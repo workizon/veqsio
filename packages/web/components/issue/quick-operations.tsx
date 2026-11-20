@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useMemo, useState } from 'react'
 import { Modal } from '@/components/modal'
 
@@ -12,6 +14,8 @@ export interface QuickOperation {
 
 /** The "." dialog from Jira: type to filter, Enter runs the highlighted operation. */
 export function QuickOperations({ isOpen, onClose, operations }: { isOpen: boolean; onClose: () => void; operations: QuickOperation[] }) {
+  const { tr } = useI18n();
+
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
 
@@ -34,9 +38,9 @@ export function QuickOperations({ isOpen, onClose, operations }: { isOpen: boole
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Operations" size="sm">
+    <Modal isOpen={isOpen} onClose={onClose} title={tr('Operations')} size="sm">
       <div className="space-y-2">
-        <label htmlFor="quick-ops-input" className="sr-only">Filter operations</label>
+        <label htmlFor="quick-ops-input" className="sr-only">{tr('Filter operations')}</label>
         <input
           id="quick-ops-input"
           autoFocus
@@ -51,11 +55,11 @@ export function QuickOperations({ isOpen, onClose, operations }: { isOpen: boole
             if (e.key === 'ArrowUp') { e.preventDefault(); setActive((a) => Math.max(a - 1, 0)) }
             if (e.key === 'Enter') { e.preventDefault(); run(filtered[active]) }
           }}
-          placeholder="Start typing to find an operation"
+          placeholder={tr('Start typing to find an operation')}
           className="veqsio-input w-full"
         />
-        <ul id="quick-ops-list" role="listbox" aria-label="Operations" className="max-h-72 overflow-y-auto">
-          {filtered.length === 0 && <li className="px-3 py-2 text-body-sm text-[var(--text-tertiary)]">No matching operations</li>}
+        <ul id="quick-ops-list" role="listbox" aria-label={tr('Operations')} className="max-h-72 overflow-y-auto">
+          {filtered.length === 0 && <li className="px-3 py-2 text-body-sm text-[var(--text-tertiary)]">{tr('No matching operations')}</li>}
           {filtered.map((op, i) => (
             <li key={op.id} id={`quick-op-${op.id}`} role="option" aria-selected={i === active}>
               <button

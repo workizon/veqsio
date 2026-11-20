@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -38,15 +40,17 @@ async function api<T>(url: string, init?: RequestInit): Promise<T> {
   return res.json()
 }
 
-function describe(r: Rule): string {
+function describe(r: Rule, tr: (k: string, v?: Record<string, string | number>) => string): string {
   const t = TRIGGERS.find((x) => x.id === r.trigger)
-  const cond = r.conditions && (r.conditions.contains?.length || r.conditions.channel || r.conditions.requestTypeId) ? ` (${[r.conditions.contains?.length ? `mentions ${r.conditions.contains.join(' / ')}` : '', r.conditions.channel ? `via ${r.conditions.channel}` : ''].filter(Boolean).join(', ') || 'with conditions'})` : ''
-  const when = r.trigger === 'request_created' ? `When a new request arrives${cond}` : r.trigger === 'sla_percent' ? `When ${r.threshold}% of an SLA is used` : r.trigger === 'waiting_days' ? `When a request has waited ${r.threshold} day(s) for the customer` : t?.label ?? r.trigger
-  const what = r.action === 'transition' ? `move to "${r.params.status}"` : r.action === 'comment' ? 'add a comment' : r.action === 'label' ? `add labels ${r.params.labels?.join(', ')}` : r.action === 'request_type' ? 'set the request type' : ACTIONS.find((a) => a.id === r.action)?.label.toLowerCase() ?? r.action
+  const cond = r.conditions && (r.conditions.contains?.length || r.conditions.channel || r.conditions.requestTypeId) ? ` (${[r.conditions.contains?.length ? tr('mentions {words}', { words: r.conditions.contains.join(' / ') }) : '', r.conditions.channel ? tr('via {channel}', { channel: r.conditions.channel }) : ''].filter(Boolean).join(', ') || tr('with conditions')})` : ''
+  const when = r.trigger === 'request_created' ? tr('When a new request arrives{cond}', { cond }) : r.trigger === 'sla_percent' ? tr('When {n}% of an SLA is used', { n: r.threshold ?? '' }) : r.trigger === 'waiting_days' ? tr('When a request has waited {n} day(s) for the customer', { n: r.threshold ?? '' }) : t ? tr(t.label) : r.trigger
+  const what = r.action === 'transition' ? tr('move to "{status}"', { status: r.params.status ?? '' }) : r.action === 'comment' ? tr('add a comment') : r.action === 'label' ? tr('add labels {labels}', { labels: r.params.labels?.join(', ') ?? '' }) : r.action === 'request_type' ? tr('set the request type') : tr(ACTIONS.find((a) => a.id === r.action)?.label ?? r.action).toLowerCase()
   return `${when}: ${what}`
 }
 
 export default function DeskAutomationPage() {
+  const { tr } = useI18n();
+
   const id = Number(useParams<{ id: string }>().id)
   const qc = useQueryClient()
   const desks = useDesks()
@@ -57,7 +61,7 @@ export default function DeskAutomationPage() {
   const rules = useQuery({ queryKey: key, queryFn: () => api<{ values: Rule[] }>(`/rest/servicedeskapi/servicedesk/${id}/automation`) })
   const refresh = () => qc.invalidateQueries({ queryKey: key })
   const onError = (e: unknown) => toast((e as Error).message, 'error')
-  const create = useMutation({ mutationFn: (b: object) => api(`/rest/servicedeskapi/servicedesk/${id}/automation`, { method: 'POST', body: JSON.stringify(b) }), onSuccess: () => { refresh(); toast('Rule created', 'success') }, onError })
+  const create = useMutation({ mutationFn: (b: object) => api(`/rest/servicedeskapi/servicedesk/${id}/automation`, { method: 'POST', body: JSON.stringify(b) }), onSuccess: () => { refresh(); toast(tr('Rule created'), 'success') }, onError })
   const toggle = useMutation({ mutationFn: (r: Rule) => api(`/rest/servicedeskapi/servicedesk/${id}/automation/${r.id}`, { method: 'PUT', body: JSON.stringify({ name: r.name, trigger: r.trigger, threshold: r.threshold, action: r.action, params: r.params, enabled: !r.enabled }) }), onSuccess: refresh, onError })
   const del = useMutation({ mutationFn: (rid: number) => api(`/rest/servicedeskapi/servicedesk/${id}/automation/${rid}`, { method: 'DELETE' }), onSuccess: refresh, onError })
 
@@ -99,25 +103,24 @@ export default function DeskAutomationPage() {
   return (
     <>
       <div className="space-y-6">
-        <PageHeader title="Automation" actions={<><Link href={`/servicedesk/${id}`} className="veqsio-btn-secondary">Back to service desk</Link></>} />
+        <PageHeader title={tr('Automation')} actions={<><Link href={`/servicedesk/${id}`} className="veqsio-btn-secondary">{tr('Back to service desk')}</Link></>} />
         <p className="text-body text-[var(--text-secondary)]">
-          Rules run once per request, a minute after their condition is met (a reply to a resolved request acts at once). They act as the person who saved them, so workflow rules still apply.
-          Close a request that waits too long by moving it to a status such as Resolved; reopen on a reply with a transition to the status you use for reopening. Text placeholders: <code>{'{{issue.key}}'}</code>, <code>{'{{days}}'}</code>.
+          {tr('Rules run once per request, a minute after their condition is met (a reply to a resolved request acts at once). They act as the person who saved them, so workflow rules still apply. Close a request that waits too long by moving it to a status such as Resolved; reopen on a reply with a transition to the status you use for reopening. Text placeholders:')} <code>{'{{issue.key}}'}</code>, <code>{'{{days}}'}</code>.
         </p>
 
         {rules.isLoading && <Spinner />}
         <ul className="space-y-2">
-          {rules.data?.values.length === 0 && <li className="text-[var(--text-tertiary)]">No rules yet.</li>}
+          {rules.data?.values.length === 0 && <li className="text-[var(--text-tertiary)]">{tr('No rules yet.')}</li>}
           {rules.data?.values.map((r) => (
             <li key={r.id} className="veqsio-card flex flex-wrap items-center gap-3 p-3">
               <div className="flex-1 min-w-0">
-                <div className="font-medium">{r.name} {!r.enabled && <span className="text-caption text-[var(--text-tertiary)]">(off)</span>}</div>
-                <div className="text-body-sm text-[var(--text-secondary)]">{describe(r)} · ran {r.runs} time(s)</div>
+                <div className="font-medium">{r.name} {!r.enabled && <span className="text-caption text-[var(--text-tertiary)]">{tr('(off)')}</span>}</div>
+                <div className="text-body-sm text-[var(--text-secondary)]">{describe(r, tr)} {tr('· ran')} {r.runs} {tr('time(s)')}</div>
               </div>
               {isAdmin && (
                 <div className="flex gap-2">
-                  <button type="button" className="veqsio-btn-secondary text-sm" disabled={toggle.isPending} onClick={() => toggle.mutate(r)}>{r.enabled ? 'Turn off' : 'Turn on'}</button>
-                  <button type="button" className="veqsio-btn-secondary text-sm" disabled={del.isPending} onClick={async () => { if ((await confirmDialog(`Delete "${r.name}"?`))) del.mutate(r.id) }}>Delete<span className="sr-only"> {r.name}</span></button>
+                  <button type="button" className="veqsio-btn-secondary text-sm" disabled={toggle.isPending} onClick={() => toggle.mutate(r)}>{r.enabled ? tr('Turn off') : tr('Turn on')}</button>
+                  <button type="button" className="veqsio-btn-secondary text-sm" disabled={del.isPending} onClick={async () => { if ((await confirmDialog(tr('Delete "{name}"?', { name: r.name })))) del.mutate(r.id) }}>{tr('Delete')}<span className="sr-only"> {r.name}</span></button>
                 </div>
               )}
             </li>
@@ -125,44 +128,35 @@ export default function DeskAutomationPage() {
         </ul>
 
         {isAdmin ? (
-          <form onSubmit={submit} className="veqsio-card grid gap-3 p-4 sm:grid-cols-2" aria-label="New rule">
-            <h2 className="sm:col-span-2 text-heading-3">New rule</h2>
-            <label className="text-sm sm:col-span-2">Name<input className="veqsio-input mt-1 w-full" required maxLength={200} value={name} onChange={(e) => setName(e.target.value)} /></label>
-            <label className="text-sm">When
-              <select className="veqsio-input mt-1 w-full" value={trigger} onChange={(e) => { setTrigger(e.target.value); if (e.target.value === 'customer_reply') setAction('transition') }}>
-                {TRIGGERS.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+          <form onSubmit={submit} className="veqsio-card grid gap-3 p-4 sm:grid-cols-2" aria-label={tr('New rule')}>
+            <h2 className="sm:col-span-2 text-heading-3">{tr('New rule')}</h2>
+            <label className="text-sm sm:col-span-2">{tr('Name')}<input className="veqsio-input mt-1 w-full" required maxLength={200} value={name} onChange={(e) => setName(e.target.value)} /></label>
+            <label className="text-sm">{tr('When')} <select className="veqsio-input mt-1 w-full" value={trigger} onChange={(e) => { setTrigger(e.target.value); if (e.target.value === 'customer_reply') setAction('transition') }}>
+                {TRIGGERS.map((t) => <option key={t.id} value={t.id}>{tr(t.label)}</option>)}
               </select>
             </label>
             {trigger === 'request_created' && (
               <>
-                <label className="text-sm">Mentions any of these words (optional, comma separated)
-                  <input className="veqsio-input mt-1 w-full" placeholder="printer, scanner" value={keywords} onChange={(e) => setKeywords(e.target.value)} /></label>
-                <label className="text-sm">Arrives by (optional)
-                  <select className="veqsio-input mt-1 w-full" value={channel} onChange={(e) => setChannel(e.target.value)}><option value="">Any channel</option><option value="portal">Portal</option><option value="email">E-mail</option><option value="agent">Raised by an agent</option></select></label>
+                <label className="text-sm">{tr('Mentions any of these words (optional, comma separated)')} <input className="veqsio-input mt-1 w-full" placeholder={tr('printer, scanner')} value={keywords} onChange={(e) => setKeywords(e.target.value)} /></label>
+                <label className="text-sm">{tr('Arrives by (optional)')} <select className="veqsio-input mt-1 w-full" value={channel} onChange={(e) => setChannel(e.target.value)}><option value="">{tr('Any channel')}</option><option value="portal">{tr('Portal')}</option><option value="email">{tr('E-mail')}</option><option value="agent">{tr('Raised by an agent')}</option></select></label>
               </>
             )}
-            {needs && <label className="text-sm">{needs === 'percent' ? 'Percent of the SLA time (1 to 99)' : 'Days (1 to 365)'}
+            {needs && <label className="text-sm">{needs === 'percent' ? tr('Percent of the SLA time (1 to 99)') : tr('Days (1 to 365)')}
               <input type="number" className="veqsio-input mt-1 w-full" min={1} max={needs === 'percent' ? 99 : 365} value={threshold} onChange={(e) => setThreshold(Number(e.target.value))} /></label>}
-            <label className="text-sm">Then
-              <select className="veqsio-input mt-1 w-full" value={action} onChange={(e) => setAction(e.target.value)}>
-                {allowedActions.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}
+            <label className="text-sm">{tr('Then')} <select className="veqsio-input mt-1 w-full" value={action} onChange={(e) => setAction(e.target.value)}>
+                {allowedActions.map((a) => <option key={a.id} value={a.id}>{tr(a.label)}</option>)}
               </select>
             </label>
-            {action === 'reassign' && <label className="text-sm">Person
-              <select className="veqsio-input mt-1 w-full" required value={userId} onChange={(e) => setUserId(e.target.value)}><option value="">Choose…</option>{users.data?.map((u) => <option key={u.id} value={u.id}>{u.displayName}</option>)}</select></label>}
-            {action === 'priority' && <label className="text-sm">Priority
-              <select className="veqsio-input mt-1 w-full" required value={priorityId} onChange={(e) => setPriorityId(e.target.value)}><option value="">Choose…</option>{priorities.data?.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>}
-            {action === 'label' && <label className="text-sm">Labels (separated by spaces or commas)
-              <input className="veqsio-input mt-1 w-full" required value={labels} onChange={(e) => setLabels(e.target.value)} /></label>}
-            {action === 'request_type' && <label className="text-sm">Request type
-              <select className="veqsio-input mt-1 w-full" required value={requestTypeId} onChange={(e) => setRequestTypeId(e.target.value)}><option value="">Choose…</option>{types.data?.values.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>}
-            {action === 'transition' && <label className="text-sm">Status name
-              <input className="veqsio-input mt-1 w-full" required maxLength={100} placeholder="Resolved" value={status} onChange={(e) => setStatus(e.target.value)} /></label>}
-            {(action === 'comment' || action === 'transition') && <label className="text-sm sm:col-span-2">{action === 'comment' ? 'Comment text' : 'Comment added with the move (optional)'}
+            {action === 'reassign' && <label className="text-sm">{tr('Person')} <select className="veqsio-input mt-1 w-full" required value={userId} onChange={(e) => setUserId(e.target.value)}><option value="">{tr('Choose…')}</option>{users.data?.map((u) => <option key={u.id} value={u.id}>{u.displayName}</option>)}</select></label>}
+            {action === 'priority' && <label className="text-sm">{tr('Priority')} <select className="veqsio-input mt-1 w-full" required value={priorityId} onChange={(e) => setPriorityId(e.target.value)}><option value="">{tr('Choose…')}</option>{priorities.data?.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>}
+            {action === 'label' && <label className="text-sm">{tr('Labels (separated by spaces or commas)')} <input className="veqsio-input mt-1 w-full" required value={labels} onChange={(e) => setLabels(e.target.value)} /></label>}
+            {action === 'request_type' && <label className="text-sm">{tr('Request type')} <select className="veqsio-input mt-1 w-full" required value={requestTypeId} onChange={(e) => setRequestTypeId(e.target.value)}><option value="">{tr('Choose…')}</option>{types.data?.values.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>}
+            {action === 'transition' && <label className="text-sm">{tr('Status name')} <input className="veqsio-input mt-1 w-full" required maxLength={100} placeholder={tr('Resolved')} value={status} onChange={(e) => setStatus(e.target.value)} /></label>}
+            {(action === 'comment' || action === 'transition') && <label className="text-sm sm:col-span-2">{action === 'comment' ? tr('Comment text') : tr('Comment added with the move (optional)')}
               <textarea className="veqsio-input mt-1 w-full" rows={2} maxLength={2000} required={action === 'comment'} value={text} onChange={(e) => setText(e.target.value)} /></label>}
-            <div className="sm:col-span-2"><button type="submit" className="veqsio-btn-primary" disabled={create.isPending}>Create rule</button></div>
+            <div className="sm:col-span-2"><button type="submit" className="veqsio-btn-primary" disabled={create.isPending}>{tr('Create rule')}</button></div>
           </form>
-        ) : <p className="text-body-sm text-[var(--text-secondary)]">Only service desk administrators can change rules.</p>}
+        ) : <p className="text-body-sm text-[var(--text-secondary)]">{tr('Only service desk administrators can change rules.')}</p>}
       </div>
     </>
   )

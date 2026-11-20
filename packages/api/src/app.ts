@@ -38,6 +38,7 @@ import brandingRoutes from './routes/branding';
 import adminSchemeRoutes from './routes/admin-schemes';
 import prioritySchemeRoutes from './routes/priority-schemes';
 import pushRoutes from './routes/push';
+import inboxRoutes from './routes/inbox';
 import projectSchemeRoutes from './routes/project-schemes';
 import oncallRoutes from './routes/oncall';
 import oncallAlertRoutes from './routes/oncall-alerts';
@@ -106,6 +107,7 @@ import { issueSecurityGuard } from './security/guard';
 import { demoMode } from './middleware/demo-mode';
 import { cloudMode } from './cloud/mode';
 import cloudRoutes from './routes/cloud';
+import telemetryRoutes from './routes/telemetry';
 import adminIssueSecurityRoutes from './routes/admin-issue-security';
 
 const app = new Hono<AppContext>();
@@ -152,6 +154,7 @@ app.route('/', brandingRoutes);
 app.route('/', adminSchemeRoutes);
 app.route('/', prioritySchemeRoutes);
 app.route('/', pushRoutes);
+app.route('/', inboxRoutes);
 app.route('/', projectSchemeRoutes);
 app.route('/', oncallRoutes);
 app.route('/', oncallAlertRoutes);
@@ -231,6 +234,7 @@ app.route('/', issueTemplateRoutes);
 app.route('/', recurringIssueRoutes);
 app.route('/', opsRoutes);
 app.route('/', cloudRoutes);
+app.route('/', telemetryRoutes);
 
 // 404 handler
 app.notFound((c) => c.json({ errorMessages: ['Resource not found'] }, 404));

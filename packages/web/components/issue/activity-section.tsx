@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { AgentBadge } from '@/components/agent-badge'
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 import { ArrowDownUp, CornerDownRight, History, MessageSquare, X } from 'lucide-react'
@@ -49,6 +51,8 @@ export const ActivitySection = forwardRef<ActivityHandle, {
   issueKey: string
   resolveAttachment: (name: string) => string | null
 }>(function ActivitySection({ issueKey, resolveAttachment }, ref) {
+  const { tr } = useI18n();
+
   const [tab, setTab] = useState<TabId>('all')
   const [newestFirst, setNewestFirst] = useState(true)
   const [composerOpen, setComposerOpen] = useState(false)
@@ -126,7 +130,7 @@ export const ActivitySection = forwardRef<ActivityHandle, {
         internal: (internalNote || !!replyingTo?.internal) && staff,
         parentId: replyingTo?.rootId,
       })
-      toast('Comment added', 'success')
+      toast(tr('Comment added'), 'success')
       draft.clear()
       setText('')
       setReplyingTo(null)
@@ -146,7 +150,7 @@ export const ActivitySection = forwardRef<ActivityHandle, {
   const saveEdit = async (commentId: string) => {
     try {
       await updateComment.mutateAsync({ key: issueKey, commentId, body: editBody })
-      toast('Comment updated', 'success')
+      toast(tr('Comment updated'), 'success')
       setEditId(null)
       setEditBody('')
     } catch (err: any) {
@@ -157,7 +161,7 @@ export const ActivitySection = forwardRef<ActivityHandle, {
   const remove = async (commentId: string) => {
     try {
       await deleteComment.mutateAsync({ key: issueKey, commentId })
-      toast('Comment deleted', 'success')
+      toast(tr('Comment deleted'), 'success')
     } catch (err: any) {
       toast(err?.message || 'Failed to delete comment', 'error')
     }
@@ -180,22 +184,22 @@ export const ActivitySection = forwardRef<ActivityHandle, {
             {c.author?.isAgent && <AgentBadge />}
             <RelativeTime date={c.created} className="text-caption text-[var(--text-tertiary)]" />
             {c.internal && (
-              <span className="text-xs rounded bg-[var(--surface-2)] text-[var(--warning)] px-2 py-0.5 font-medium">Internal</span>
+              <span className="text-xs rounded bg-[var(--surface-2)] text-[var(--warning)] px-2 py-0.5 font-medium">{tr('Internal')}</span>
             )}
-            {c.updated !== c.created && <span className="text-caption text-[var(--text-tertiary)]">(edited)</span>}
+            {c.updated !== c.created && <span className="text-caption text-[var(--text-tertiary)]">{tr('(edited)')}</span>}
           </div>
           {editing ? (
             <div className="mt-2 space-y-2">
-              <RichTextEditor label="Edit comment" rows={4} value={editBody} onChange={setEditBody} issueKey={issueKey} maxLength={100000} onSubmit={() => void saveEdit(c.id)} />
+              <RichTextEditor label={tr('Edit comment')} rows={4} value={editBody} onChange={setEditBody} issueKey={issueKey} maxLength={100000} onSubmit={() => void saveEdit(c.id)} />
               <div className="flex items-center gap-2">
-                <button type="button" onClick={() => void saveEdit(c.id)} disabled={updateComment.isPending} className="veqsio-btn-primary text-sm">Save</button>
-                <button type="button" onClick={() => { setEditId(null); setEditBody('') }} className="veqsio-btn-secondary text-sm">Cancel</button>
+                <button type="button" onClick={() => void saveEdit(c.id)} disabled={updateComment.isPending} className="veqsio-btn-primary text-sm">{tr('Save')}</button>
+                <button type="button" onClick={() => { setEditId(null); setEditBody('') }} className="veqsio-btn-secondary text-sm">{tr('Cancel')}</button>
               </div>
             </div>
           ) : (
             <>
               <RichText className="mt-1" value={c.body} resolveAttachment={resolveAttachment} />
-              {isEnabled('reactions') && <div className="flex items-center gap-1.5 mt-1.5 flex-wrap" role="group" aria-label="Reactions">
+              {isEnabled('reactions') && <div className="flex items-center gap-1.5 mt-1.5 flex-wrap" role="group" aria-label={tr('Reactions')}>
                 {(c.reactions ?? []).map((r) => (
                   <button
                     key={r.emoji}
@@ -209,7 +213,7 @@ export const ActivitySection = forwardRef<ActivityHandle, {
                   </button>
                 ))}
                 <details className="relative">
-                  <summary className="list-none cursor-pointer text-caption text-[var(--text-tertiary)] hover:text-[var(--brand-500)] rounded border border-transparent px-1" aria-label="Add reaction">☺ +</summary>
+                  <summary className="list-none cursor-pointer text-caption text-[var(--text-tertiary)] hover:text-[var(--brand-500)] rounded border border-transparent px-1" aria-label={tr('Add reaction')}>☺ +</summary>
                   <div className="absolute z-10 mt-1 flex gap-1 rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)] p-1 shadow-md">
                     {['👍', '👎', '❤️', '🎉', '😄', '👀', '🚀'].map((e) => (
                       <button
@@ -233,12 +237,11 @@ export const ActivitySection = forwardRef<ActivityHandle, {
                   }}
                   className="text-caption text-[var(--text-tertiary)] hover:text-[var(--brand-500)] flex items-center gap-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]"
                 >
-                  <CornerDownRight className="w-3 h-3" aria-hidden="true" /> Reply
-                </button>
+                  <CornerDownRight className="w-3 h-3" aria-hidden="true" /> {tr('Reply')} </button>
                 {own && (
                   <>
-                    <button type="button" onClick={() => { setEditId(c.id); setEditBody(c.body) }} className="text-caption text-[var(--text-tertiary)] hover:text-[var(--brand-500)] rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]">Edit</button>
-                    <button type="button" onClick={() => void remove(c.id)} className="text-caption text-[var(--text-tertiary)] hover:text-[var(--error)] rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]">Delete</button>
+                    <button type="button" onClick={() => { setEditId(c.id); setEditBody(c.body) }} className="text-caption text-[var(--text-tertiary)] hover:text-[var(--brand-500)] rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]">{tr('Edit')}</button>
+                    <button type="button" onClick={() => void remove(c.id)} className="text-caption text-[var(--text-tertiary)] hover:text-[var(--error)] rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]">{tr('Delete')}</button>
                   </>
                 )}
               </div>
@@ -276,7 +279,7 @@ export const ActivitySection = forwardRef<ActivityHandle, {
   return (
     <section aria-labelledby="issue-activity-heading" id="issue-activity" className="space-y-4">
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <h2 id="issue-activity-heading" className="text-heading-3 text-[var(--text-primary)]">Activity</h2>
+        <h2 id="issue-activity-heading" className="text-heading-3 text-[var(--text-primary)]">{tr('Activity')}</h2>
         {tab !== 'worklog' && tab !== 'transitions' && (
           <button
             type="button"
@@ -289,7 +292,7 @@ export const ActivitySection = forwardRef<ActivityHandle, {
         )}
       </div>
 
-      <div role="tablist" aria-label="Activity" className="flex items-center gap-1 border-b border-[var(--surface-3)] overflow-x-auto">
+      <div role="tablist" aria-label={tr('Activity')} className="flex items-center gap-1 border-b border-[var(--surface-3)] overflow-x-auto">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -330,18 +333,16 @@ export const ActivitySection = forwardRef<ActivityHandle, {
                         onClick={focusComposer}
                         className="w-full text-left veqsio-input text-[var(--text-tertiary)] hover:border-[var(--brand-500)]"
                       >
-                        Add a comment...
-                      </button>
+                        {tr('Add a comment...')} </button>
                       <p className="text-caption text-[var(--text-tertiary)]">
-                        <strong>Pro tip:</strong> press <kbd className="px-1 rounded border border-[var(--surface-4)] bg-[var(--surface-2)] font-mono text-[11px]">M</kbd> to comment
-                      </p>
+                        <strong>{tr('Pro tip:')}</strong> press <kbd className="px-1 rounded border border-[var(--surface-4)] bg-[var(--surface-2)] font-mono text-[11px]">M</kbd> {tr('to comment')} </p>
                     </>
                   ) : (
                     <>
                       {replyingTo && (
                         <div className="flex items-center justify-between bg-[var(--surface-2)] px-3 py-2 rounded-lg text-sm">
-                          <span className="text-[var(--text-secondary)]">Replying to <strong>{replyingTo.author}</strong></span>
-                          <button type="button" onClick={() => setReplyingTo(null)} aria-label="Cancel reply" className="text-[var(--text-tertiary)] hover:text-[var(--error)]">
+                          <span className="text-[var(--text-secondary)]">{tr('Replying to')} <strong>{replyingTo.author}</strong></span>
+                          <button type="button" onClick={() => setReplyingTo(null)} aria-label={tr('Cancel reply')} className="text-[var(--text-tertiary)] hover:text-[var(--error)]">
                             <X className="w-4 h-4" aria-hidden="true" />
                           </button>
                         </div>
@@ -349,8 +350,8 @@ export const ActivitySection = forwardRef<ActivityHandle, {
                       <DraftNotice savedAt={draft.restored?.savedAt ?? null} onDiscard={draft.discard} />
                       <RichTextEditor
                         id="comment-textarea"
-                        label="Add a comment"
-                        placeholder="Add a comment... (Markdown supported, @ to mention)"
+                        label={tr('Add a comment')}
+                        placeholder={tr('Add a comment... (Markdown supported, @ to mention)')}
                         value={text}
                         onChange={(v) => { setText(v); if (v) notifyTyping() }}
                         issueKey={issueKey}
@@ -367,7 +368,7 @@ export const ActivitySection = forwardRef<ActivityHandle, {
                       />
                       <p className="text-caption text-[var(--text-tertiary)] min-h-[1.25rem]" aria-live="polite">{typingLabel(typers)}</p>
                       {!text.trim() && (
-                        <div className="flex flex-wrap gap-1.5" aria-label="Quick replies">
+                        <div className="flex flex-wrap gap-1.5" aria-label={tr('Quick replies')}>
                           {QUICK_REPLIES.map((q) => (
                             <button
                               key={q}
@@ -384,7 +385,7 @@ export const ActivitySection = forwardRef<ActivityHandle, {
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <label className="flex items-center gap-2 text-sm">
                             <input type="checkbox" checked={internalNote} onChange={(e) => setInternalNote(e.target.checked)} />
-                            Internal note <span className="text-[var(--text-tertiary)]">(hidden from the customer)</span>
+                            {tr('Internal note')} <span className="text-[var(--text-tertiary)]">{tr('(hidden from the customer)')}</span>
                           </label>
                           <div className="flex flex-wrap gap-1">{requestMeta.data?.sla?.map((x) => <SlaBadge key={x.slaId} sla={x} />)}</div>
                         </div>
@@ -394,8 +395,8 @@ export const ActivitySection = forwardRef<ActivityHandle, {
                           {addComment.isPending && <Spinner size="sm" />}
                           {replyingTo ? 'Reply' : 'Save'}
                         </button>
-                        <button type="button" onClick={cancelComposer} className="veqsio-btn-secondary text-sm">Cancel</button>
-                        <span className="hidden sm:inline text-caption text-[var(--text-tertiary)]">Ctrl/Cmd+Enter to save</span>
+                        <button type="button" onClick={cancelComposer} className="veqsio-btn-secondary text-sm">{tr('Cancel')}</button>
+                        <span className="hidden sm:inline text-caption text-[var(--text-tertiary)]">{tr('Ctrl/Cmd+Enter to save')}</span>
                       </div>
                     </>
                   )}
@@ -404,7 +405,7 @@ export const ActivitySection = forwardRef<ActivityHandle, {
             )}
 
             {loading ? (
-              <div className="space-y-4" aria-busy="true" aria-label="Loading activity">
+              <div className="space-y-4" aria-busy="true" aria-label={tr('Loading activity')}>
                 {[0, 1, 2].map((i) => (
                   <div key={i} className="flex gap-3">
                     <Skeleton className="h-7 w-7 rounded-full" />

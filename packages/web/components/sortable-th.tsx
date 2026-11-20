@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import type { MouseEvent, ReactNode } from 'react'
 import { ArrowDown, ArrowUp } from 'lucide-react'
 import type { SortDir } from '@/lib/table-sort'
@@ -17,12 +19,14 @@ interface Props {
 
 /** A column header that sorts the table when clicked. Shift+click adds it as a further sort column. */
 export function SortableTh({ dir, onToggle, rank, className, scope = 'col', children }: Props) {
+  const { tr } = useI18n();
+
   return (
     <th scope={scope} className={className} aria-sort={dir === 'asc' ? 'ascending' : dir === 'desc' ? 'descending' : undefined}>
       <button
         type="button"
         onClick={onToggle}
-        title="Click to sort. Shift+click to sort by several columns."
+        title={tr('Click to sort. Shift+click to sort by several columns.')}
         className="inline-flex items-center gap-1 font-inherit hover:text-[var(--text-primary)]"
       >
         {children}

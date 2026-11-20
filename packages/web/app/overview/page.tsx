@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import { AppLayout } from '@/components/app-layout'
@@ -72,6 +74,8 @@ function IssueSkeleton() {
 }
 
 export default function DashboardPage() {
+  const { tr } = useI18n();
+
   const open = useDashboardStat(
     'status not in (Done, Closed, Resolved)'
   )
@@ -99,11 +103,11 @@ export default function DashboardPage() {
       <div className="space-y-8 py-2 sm:py-4">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-caption text-[var(--text-tertiary)] mb-2">WORKSPACE OVERVIEW</p>
-            <h1 className="text-heading-1 text-[var(--text-primary)]">Your work, at a glance</h1>
-            <p className="text-sm text-[var(--text-secondary)] mt-2">Keep track of progress and find your next focus.</p>
+            <p className="text-caption text-[var(--text-tertiary)] mb-2">{tr('WORKSPACE OVERVIEW')}</p>
+            <h1 className="text-heading-1 text-[var(--text-primary)]">{tr('Your work, at a glance')}</h1>
+            <p className="text-sm text-[var(--text-secondary)] mt-2">{tr('Keep track of progress and find your next focus.')}</p>
           </div>
-          <Link href="/issues" className="veqsio-btn-secondary">Browse issues <ArrowUpRight className="w-4 h-4" aria-hidden="true" /></Link>
+          <Link href="/issues" className="veqsio-btn-secondary">{tr('Browse issues')} <ArrowUpRight className="w-4 h-4" aria-hidden="true" /></Link>
         </div>
 
         {/* Stats cards */}
@@ -111,11 +115,11 @@ export default function DashboardPage() {
           {stats.map(({ label, hint, icon: Icon, query, color }) => query.isLoading ? <StatSkeleton key={label} /> : (
             <div key={label} className="veqsio-card p-4 sm:p-5">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-medium text-[var(--text-secondary)]">{label}</p>
+                <p className="text-sm font-medium text-[var(--text-secondary)]">{tr(label)}</p>
                 <Icon className="w-4 h-4" style={{ color }} aria-hidden="true" />
               </div>
               <p className="text-4xl font-semibold tracking-tight tabular-nums mt-5" style={{ color }}>{query.isError ? '—' : query.data?.total ?? 0}</p>
-              {query.isError ? <button onClick={() => void query.refetch()} className="text-xs text-[var(--error)] mt-3 hover:underline">Unable to load · Retry</button> : <p className="text-xs text-[var(--text-tertiary)] mt-3">{hint}</p>}
+              {query.isError ? <button onClick={() => void query.refetch()} className="text-xs text-[var(--error)] mt-3 hover:underline">{tr('Unable to load · Retry')}</button> : <p className="text-xs text-[var(--text-tertiary)] mt-3">{tr(hint)}</p>}
             </div>
           ))}
         </div>
@@ -128,7 +132,7 @@ export default function DashboardPage() {
           ].map(({ href, icon: Icon, title, description }) => (
             <Link key={href} href={href} className="group flex items-center gap-3 rounded-xl border border-[var(--surface-3)] p-4 hover:bg-[var(--surface-0)] hover:border-[var(--surface-4)] transition-colors">
               <div className="p-2 rounded-lg bg-[var(--surface-2)]"><Icon className="w-5 h-5 text-[var(--text-secondary)]" aria-hidden="true" /></div>
-              <div className="min-w-0 flex-1"><p className="text-sm font-medium text-[var(--text-primary)]">{title}</p><p className="text-xs text-[var(--text-tertiary)] mt-1">{description}</p></div>
+              <div className="min-w-0 flex-1"><p className="text-sm font-medium text-[var(--text-primary)]">{tr(title)}</p><p className="text-xs text-[var(--text-tertiary)] mt-1">{tr(description)}</p></div>
               <ArrowUpRight className="w-4 h-4 text-[var(--text-tertiary)] group-hover:text-[var(--brand-600)]" aria-hidden="true" />
             </Link>
           ))}
@@ -137,8 +141,8 @@ export default function DashboardPage() {
         {/* Recent issues */}
         <div className="veqsio-card">
           <div className="flex flex-wrap justify-between items-center gap-3 mb-5">
-            <div><h2 className="text-heading-2 text-[var(--text-primary)]">Recently updated</h2><p className="text-xs text-[var(--text-tertiary)] mt-1">The latest activity across your workspace.</p></div>
-            <Link href="/issues" className="text-sm font-medium text-[var(--brand-600)] hover:underline">View all issues</Link>
+            <div><h2 className="text-heading-2 text-[var(--text-primary)]">{tr('Recently updated')}</h2><p className="text-xs text-[var(--text-tertiary)] mt-1">{tr('The latest activity across your workspace.')}</p></div>
+            <Link href="/issues" className="text-sm font-medium text-[var(--brand-600)] hover:underline">{tr('View all issues')}</Link>
           </div>
 
           {recentLoading && (
@@ -154,15 +158,14 @@ export default function DashboardPage() {
           {!recentLoading && recentError && (
             <EmptyState
               icon="frown"
-              title="Unable to load recent issues"
-              description="Check your connection and try again."
+              title={tr('Unable to load recent issues')}
+              description={tr('Check your connection and try again.')}
               action={
                 <button
                   onClick={() => window.location.reload()}
                   className="veqsio-btn-primary"
                 >
-                  Retry
-                </button>
+                  {tr('Retry')} </button>
               }
             />
           )}
@@ -170,8 +173,8 @@ export default function DashboardPage() {
           {!recentLoading && !recentError && !recentData?.issues?.length && (
             <EmptyState
               icon="inbox"
-              title="No recent issues"
-              description="Issues will appear here once they are created or updated."
+              title={tr('No recent issues')}
+              description={tr('Issues will appear here once they are created or updated.')}
             />
           )}
 

@@ -12,6 +12,7 @@ import { BRANDING_KEY } from '@/hooks/use-branding'
 import type { Branding } from '@/lib/branding'
 import { PwaRegister } from '@/components/pwa-register'
 import { KeyboardShortcuts } from '@/components/keyboard-shortcuts'
+import { ModuleI18nBridge } from '@/components/module-i18n-bridge'
 
 export function Providers({ children, branding }: { children: React.ReactNode; branding?: Branding }) {
   const [queryClient] = useState(() => {
@@ -31,6 +32,7 @@ export function Providers({ children, branding }: { children: React.ReactNode; b
   return (
     <QueryClientProvider client={queryClient}>
       <AccentStyle />
+      <ModuleI18nBridge />
       <PwaRegister />
       {children}
       <ToastContainer />

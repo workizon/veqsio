@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core'
@@ -56,6 +58,8 @@ class MousePointerSensor extends PointerSensor {
 }
 
 export default function BoardPage() {
+  const { tr } = useI18n();
+
   const { t } = useTerm()
   const peek = usePeek()
   const { data: boardsData, isLoading: boardsLoading } = useBoards()
@@ -73,8 +77,8 @@ export default function BoardPage() {
   const updateIssue = useUpdateIssue()
   const toggleFlag = (key: string, flagged: boolean) => {
     updateIssue.mutate({ key, fields: { flagged } }, {
-      onSuccess: () => toast(flagged ? `${key} flagged` : `Flag removed from ${key}`, 'success'),
-      onError: (e: any) => toast(e?.message || 'Could not change the flag', 'error'),
+      onSuccess: () => toast(flagged ? tr('{key} flagged', { key }) : tr('Flag removed from {key}', { key }), 'success'),
+      onError: (e: any) => toast(e?.message || tr('Could not change the flag'), 'error'),
     })
   }
 
@@ -318,14 +322,14 @@ export default function BoardPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
-            <Breadcrumb items={[{ label: 'Boards' }]} />
+            <Breadcrumb items={[{ label: tr('Boards') }]} />
             <div className="flex items-center gap-3 mt-2">
-              <h1 className="text-heading-1 text-[var(--text-primary)]">Board</h1>
+              <h1 className="text-heading-1 text-[var(--text-primary)]">{tr('Board')}</h1>
               <PresenceAvatars users={boardViewers} />
               {boards.length > 0 && (
                 <div className="relative">
                   <select
-                    aria-label="Board"
+                    aria-label={tr('Board')}
                     value={selectedBoardId || ''}
                     onChange={(e) => setSelectedBoardId(e.target.value || null)}
                     className="veqsio-input text-sm pr-8 appearance-none"
@@ -347,8 +351,7 @@ export default function BoardPage() {
               className={`veqsio-btn-secondary flex items-center gap-2 ${activeFilterCount > 0 ? 'border-[var(--brand-500)] text-[var(--brand-500)]' : ''}`}
             >
               <ListFilter className="w-4 h-4" />
-              Filters
-              {activeFilterCount > 0 && (
+              {tr('Filters')} {activeFilterCount > 0 && (
                 <span className="bg-[var(--brand-500)] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                   {activeFilterCount}
                 </span>
@@ -357,25 +360,23 @@ export default function BoardPage() {
             <button
               onClick={() => setShowBoardSettings(true)}
               className="veqsio-btn-secondary flex items-center gap-2"
-              title="Board settings"
+              title={tr('Board settings')}
             >
               <Settings className="w-4 h-4" />
-              Settings
-            </button>
+              {tr('Settings')} </button>
             <button
               type="button"
               onClick={() => useCommandLineStore.getState().openBar()}
               className="veqsio-btn-secondary flex items-center gap-2"
-              title="Command line for the selected cards (Ctrl/Cmd+Alt+J)"
+              title={tr('Command line for the selected cards (Ctrl/Cmd+Alt+J)')}
               aria-keyshortcuts="Control+Alt+J Meta+Alt+J"
             >
               <Terminal className="w-4 h-4" aria-hidden="true" />
-              Command{selectedKeys.size > 0 ? ` (${selectedKeys.size})` : ''}
+              {tr('Command')}{selectedKeys.size > 0 ? ` (${selectedKeys.size})` : ''}
             </button>
             <Link href="/issues/create" className="veqsio-btn-primary flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              Create issue
-            </Link>
+              {tr('Create issue')} </Link>
           </div>
         </div>
 
@@ -384,14 +385,12 @@ export default function BoardPage() {
           <div className="veqsio-card p-6 flex items-center gap-4">
             <Layout className="w-8 h-8 text-[var(--brand-500)]" />
             <div className="flex-1">
-              <h3 className="text-heading-3 text-[var(--text-primary)]">No boards yet</h3>
+              <h3 className="text-heading-3 text-[var(--text-primary)]">{tr('No boards yet')}</h3>
               <p className="text-body-sm text-[var(--text-secondary)]">
-                Create a board in a project to organize issues into columns.
-              </p>
+                {tr('Create a board in a project to organize issues into columns.')} </p>
             </div>
             <Link href="/projects" className="veqsio-btn-primary">
-              Go to Projects
-            </Link>
+              {tr('Go to Projects')} </Link>
           </div>
         )}
 
@@ -405,7 +404,7 @@ export default function BoardPage() {
               type="text"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Search issues on this board..."
+              placeholder={tr('Search issues on this board...')}
               className="veqsio-input w-full pl-10 pr-10"
             />
             {searchText && (
@@ -429,8 +428,7 @@ export default function BoardPage() {
                       : 'bg-[var(--surface-2)] text-[var(--text-secondary)] hover:bg-[var(--surface-3)]'
                   }`}
                 >
-                  <Flag className="w-3.5 h-3.5" aria-hidden="true" /> Only flagged
-                </button>
+                  <Flag className="w-3.5 h-3.5" aria-hidden="true" /> {tr('Only flagged')} </button>
                 {(board.quickFilters ?? [])
                   .sort((a, b) => a.sortOrder - b.sortOrder)
                   .map((qf) => {
@@ -454,8 +452,7 @@ export default function BoardPage() {
                     onClick={clearQuickFilters}
                     className="text-caption text-[var(--brand-500)] hover:underline ml-2"
                   >
-                    Clear
-                  </button>
+                    {tr('Clear')} </button>
                 )}
               </div>
             )}
@@ -465,30 +462,27 @@ export default function BoardPage() {
             <div className="veqsio-card space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-body-sm font-medium text-[var(--text-primary)] flex items-center gap-2">
-                  <Filter className="w-4 h-4" /> Quick Filters
-                </span>
+                  <Filter className="w-4 h-4" /> {tr('Quick Filters')} </span>
                 {activeFilterCount > 0 && (
                   <button
                     onClick={clearFilters}
                     className="text-caption text-[var(--brand-500)] hover:underline"
                   >
-                    Clear all
-                  </button>
+                    {tr('Clear all')} </button>
                 )}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {/* Assignee filter */}
                 <div>
                   <label className="text-caption text-[var(--text-tertiary)] flex items-center gap-1 mb-1">
-                    <User className="w-3 h-3" /> Assignee
-                  </label>
+                    <User className="w-3 h-3" /> {tr('Assignee')} </label>
                   <select
                     value={filterAssignee || ''}
                     onChange={(e) => setFilterAssignee(e.target.value || null)}
                     className="veqsio-input w-full text-sm"
                   >
-                    <option value="">All assignees</option>
-                    <option value="unassigned">Unassigned</option>
+                    <option value="">{tr('All assignees')}</option>
+                    <option value="unassigned">{tr('Unassigned')}</option>
                     {users.map((u) => (
                       <option key={u.id} value={u.displayName || u.name}>
                         {u.displayName || u.name}
@@ -500,14 +494,13 @@ export default function BoardPage() {
                 {/* Priority filter */}
                 <div>
                   <label className="text-caption text-[var(--text-tertiary)] flex items-center gap-1 mb-1">
-                    <Flag className="w-3 h-3" /> Priority
-                  </label>
+                    <Flag className="w-3 h-3" /> {tr('Priority')} </label>
                   <select
                     value={filterPriority || ''}
                     onChange={(e) => setFilterPriority(e.target.value || null)}
                     className="veqsio-input w-full text-sm"
                   >
-                    <option value="">All priorities</option>
+                    <option value="">{tr('All priorities')}</option>
                     {priorities.map((p) => (
                       <option key={p.id} value={p.name}>{p.name}</option>
                     ))}
@@ -517,14 +510,13 @@ export default function BoardPage() {
                 {/* Label filter */}
                 <div>
                   <label className="text-caption text-[var(--text-tertiary)] flex items-center gap-1 mb-1">
-                    <Tag className="w-3 h-3" /> Label
-                  </label>
+                    <Tag className="w-3 h-3" /> {tr('Label')} </label>
                   <select
                     value={filterLabel || ''}
                     onChange={(e) => setFilterLabel(e.target.value || null)}
                     className="veqsio-input w-full text-sm"
                   >
-                    <option value="">All labels</option>
+                    <option value="">{tr('All labels')}</option>
                     {allLabels.map((l) => (
                       <option key={l} value={l}>{l}</option>
                     ))}
@@ -536,8 +528,8 @@ export default function BoardPage() {
         </div>
 
         {legend.length > 0 && (
-          <ul className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-[var(--text-secondary)]" aria-label={`Card colours by ${cardColour.by}`} data-testid="card-colour-legend">
-            <li className="text-[var(--text-tertiary)]">Colour by {cardColour.by === 'issuetype' ? 'issue type' : cardColour.by === 'rules' ? 'rules' : cardColour.by}:</li>
+          <ul className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-[var(--text-secondary)]" aria-label={tr('Card colours by {by}', { by: cardColour.by })} data-testid="card-colour-legend">
+            <li className="text-[var(--text-tertiary)]">{tr('Colour by')} {cardColour.by === 'issuetype' ? 'issue type' : cardColour.by === 'rules' ? 'rules' : cardColour.by}:</li>
             {legend.map((l) => (
               <li key={`${l.token}-${l.label}`} className="inline-flex items-center gap-1.5">
                 <span className="h-3 w-1 rounded-sm" style={{ background: `var(--label-${l.token}-dot)` }} aria-hidden="true" />
@@ -548,7 +540,7 @@ export default function BoardPage() {
         )}
 
         {isLoading && (
-          <div className="flex gap-4 overflow-x-auto pb-4" role="status" aria-busy="true" aria-label="Loading board">
+          <div className="flex gap-4 overflow-x-auto pb-4" role="status" aria-busy="true" aria-label={tr('Loading board')}>
             {[3, 2, 1].map((n, c) => (
               <div key={c} className="flex-shrink-0 w-80 bg-[var(--surface-1)] rounded-lg border border-[var(--surface-3)] p-3 space-y-2">
                 <Skeleton className="h-5 w-28" />
@@ -561,16 +553,16 @@ export default function BoardPage() {
         {noActiveSprint && !isLoading && (
           <EmptyState
             icon="folder"
-            title="No active sprint"
+            title={tr('No active sprint')}
             description={t('A Scrum board shows the issues of its active sprint. Start a sprint from the backlog to see work here.')}
-            action={<Link href="/backlog" className="veqsio-btn-primary inline-block">Plan a sprint</Link>}
+            action={<Link href="/backlog" className="veqsio-btn-primary inline-block">{tr('Plan a sprint')}</Link>}
           />
         )}
 
         {issuesError && (
           <div className="flex items-center justify-center py-16 px-4 text-center">
             <div className="text-[var(--error)] text-body">
-              {issuesError.message || 'Failed to load board data'}
+              {issuesError.message || tr('Failed to load board data')}
             </div>
           </div>
         )}
@@ -581,7 +573,7 @@ export default function BoardPage() {
             {selectedBoardId && boardColumns.length > 0 ? (
               <DndContext sensors={sensors} onDragStart={(e: DragStartEvent) => setDragKey(String(e.active.id))} onDragCancel={() => setDragKey(null)} onDragEnd={onDragEnd}>
               {/* Phones: a strip of column names to jump to; the columns snap into place when swiping */}
-              <nav aria-label="Board columns" className="sm:hidden flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
+              <nav aria-label={tr('Board columns')} className="sm:hidden flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
                 {boardColumns.map((column) => (
                   <button
                     key={column.id}
@@ -624,8 +616,8 @@ export default function BoardPage() {
                             <span
                               title={
                                 isOverWip
-                                  ? `WIP limit exceeded (${colIssues.length}/${column.max})`
-                                  : `Below minimum WIP (${colIssues.length}/${column.min})`
+                                  ? tr('WIP limit exceeded ({n}/{max})', { n: colIssues.length, max: column.max })
+                                  : tr('Below minimum WIP ({n}/{min})', { n: colIssues.length, min: column.min })
                               }
                               className={`flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
                                 isOverWip
@@ -647,16 +639,15 @@ export default function BoardPage() {
                       <DroppableColumn columnId={column.id} className="p-2 space-y-2 max-h-[calc(100vh-280px)] min-h-24 overflow-y-auto rounded-b-lg">
                         {colIssues.length === 0 && (
                           <div className="text-center py-6 text-caption text-[var(--text-tertiary)]">
-                            No issues
-                          </div>
+                            {tr('No issues')} </div>
                         )}
                         {colIssues.map((issue) => {
                           const colIdx = boardColumns.indexOf(column)
                           const prevCol = colIdx > 0 ? boardColumns[colIdx - 1] : undefined
                           const nextCol = colIdx >= 0 ? boardColumns[colIdx + 1] : undefined
                           const moves = [
-                            ...(nextCol ? [{ label: `Move to ${nextCol.name}`, onSelect: () => moveIssueToColumn(issue, nextCol) }] : []),
-                            ...(prevCol ? [{ label: `Move to ${prevCol.name}`, onSelect: () => moveIssueToColumn(issue, prevCol) }] : []),
+                            ...(nextCol ? [{ label: tr('Move to {name}', { name: nextCol.name }), onSelect: () => moveIssueToColumn(issue, nextCol) }] : []),
+                            ...(prevCol ? [{ label: tr('Move to {name}', { name: prevCol.name }), onSelect: () => moveIssueToColumn(issue, prevCol) }] : []),
                           ]
                           return (
                           <div key={issue.id} className="group/peek relative">
@@ -671,8 +662,7 @@ export default function BoardPage() {
                         })}
                         <Link href={`/issues/create?status=${encodeURIComponent(statusObj?.name || column.name)}`} className="block no-underline">
                           <button className="w-full py-2 text-caption text-[var(--text-tertiary)] hover:bg-[var(--surface-2)] rounded-lg transition-colors flex items-center justify-center gap-1">
-                            <Plus className="w-3 h-3" /> Add issue
-                          </button>
+                            <Plus className="w-3 h-3" /> {tr('Add issue')} </button>
                         </Link>
                       </DroppableColumn>
                     </div>
@@ -693,7 +683,7 @@ export default function BoardPage() {
                     description={
                       issues.length === 0
                         ? t('There are no issues to display on the board.')
-                        : 'Try adjusting your search or filters.'
+                        : tr('Try adjusting your search or filters.')
                     }
                   />
                 ) : (
@@ -734,8 +724,7 @@ export default function BoardPage() {
                             ))}
                             <Link href={`/issues/create?status=${encodeURIComponent(col)}`} className="block no-underline">
                               <button className="w-full py-2 text-caption text-[var(--text-tertiary)] hover:bg-[var(--surface-2)] rounded-lg transition-colors flex items-center justify-center gap-1">
-                                <Plus className="w-3 h-3" /> Add issue
-                              </button>
+                                <Plus className="w-3 h-3" /> {tr('Add issue')} </button>
                             </Link>
                           </div>
                         </div>

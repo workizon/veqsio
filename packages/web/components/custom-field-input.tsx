@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 export interface MetaOption { id: string; name?: string; value?: string; color?: string | null }
 export interface MetaField { name: string; key: string; required?: boolean; defaultValue?: string; description?: string; schema?: { type?: string; customId?: number }; allowedValues?: MetaOption[] }
 export interface MetaType { id: string; name: string; subtask: boolean; fields?: Record<string, MetaField> }
@@ -8,6 +10,8 @@ export interface MetaProject { id: string; key: string; name: string; issuetypes
 
 /** One custom field, drawn by its type (text, number, date, single or multiple choice, checkbox, URL). */
 export function CustomFieldInput({ field, value, onChange }: { field: MetaField; value: unknown; onChange: (v: unknown) => void }) {
+  const { tr } = useI18n();
+
   const type = field.schema?.type ?? 'text'
   const options = field.allowedValues ?? []
   const label = field.name
@@ -24,7 +28,7 @@ export function CustomFieldInput({ field, value, onChange }: { field: MetaField;
     case 'radio':
       return (
         <select aria-label={label} className="veqsio-input max-w-xs w-full" value={(value as string) ?? ''} onChange={(e) => onChange(e.target.value)}>
-          <option value="">None</option>
+          <option value="">{tr('None')}</option>
           {options.map((o) => <option key={o.id} value={o.value}>{o.value}</option>)}
         </select>
       )

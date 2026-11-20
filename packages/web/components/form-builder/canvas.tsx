@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import {
   DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors,
   type DragEndEvent, type Announcements,
@@ -29,6 +31,8 @@ const indexOf = (id: string | number) => Number(String(id).replace('field-', '')
  * Space to lift, arrow keys to move, Space to drop) and by the explicit up/down buttons.
  */
 export function FormCanvas({ fields, selected, problems, readOnly, onSelect, onMove, onDuplicate, onRemove }: CanvasProps) {
+  const { tr } = useI18n();
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -49,7 +53,7 @@ export function FormCanvas({ fields, selected, problems, readOnly, onSelect, onM
   if (fields.length === 0) {
     return (
       <div className="rounded-lg border-2 border-dashed border-[var(--surface-4)] p-10 text-center text-sm text-[var(--text-tertiary)]">
-        This form has no fields yet. {readOnly ? '' : 'Pick a field type on the right to add it.'}
+        {tr('This form has no fields yet.')} {readOnly ? '' : 'Pick a field type on the right to add it.'}
       </div>
     )
   }
@@ -57,7 +61,7 @@ export function FormCanvas({ fields, selected, problems, readOnly, onSelect, onM
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd} accessibility={{ announcements }}>
       <SortableContext items={fields.map((_, i) => idOf(i))} strategy={verticalListSortingStrategy}>
-        <ul className="space-y-2" aria-label="Form fields">
+        <ul className="space-y-2" aria-label={tr('Form fields')}>
           {fields.map((f, i) => (
             <CanvasItem
               key={idOf(i)} id={idOf(i)} field={f} index={i} total={fields.length} selected={selected === i}
@@ -77,6 +81,8 @@ interface ItemProps {
 }
 
 function CanvasItem({ id, field, index, total, selected, problems, readOnly, onSelect, onMove, onDuplicate, onRemove }: ItemProps) {
+  const { tr } = useI18n();
+
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id, disabled: readOnly })
   const style = { transform: CSS.Transform.toString(transform), transition }
   const layout = isLayout(field.type)
@@ -106,10 +112,10 @@ function CanvasItem({ id, field, index, total, selected, problems, readOnly, onS
             <span className="text-xs text-[var(--text-tertiary)]">{typeLabel(field.type)}</span>
           </div>
           <div className="mt-1 flex flex-wrap gap-1.5 text-[11px]">
-            {field.internal && <Badge icon={<EyeOff className="w-3 h-3" aria-hidden />}>Internal only</Badge>}
-            {field.visibleWhen && <Badge icon={<GitBranch className="w-3 h-3" aria-hidden />}>Conditional</Badge>}
+            {field.internal && <Badge icon={<EyeOff className="w-3 h-3" aria-hidden />}>{tr('Internal only')}</Badge>}
+            {field.visibleWhen && <Badge icon={<GitBranch className="w-3 h-3" aria-hidden />}>{tr('Conditional')}</Badge>}
             {field.mapping && field.mapping.target !== 'none' && <Badge>{`→ ${MAPPING_LABELS[field.mapping.target]}`}</Badge>}
-            {field.mapping?.target === 'none' && <Badge>Form only</Badge>}
+            {field.mapping?.target === 'none' && <Badge>{tr('Form only')}</Badge>}
             {problems?.length ? <span className="rounded px-1.5 py-0.5 bg-[var(--error)]/10 text-[var(--error)]" role="status">{problems.length} problem{problems.length === 1 ? '' : 's'}</span> : null}
           </div>
         </button>

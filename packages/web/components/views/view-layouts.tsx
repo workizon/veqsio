@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -25,11 +27,13 @@ export interface LayoutProps {
 const byIdMap = (issues: ApiIssue[]) => new Map(issues.map((i) => [i.id, i]))
 
 function Cell({ issue, col }: { issue: ApiIssue; col: ColumnId }) {
+  const { tr } = useI18n();
+
   switch (col) {
     case 'key': return <Link href={`/issues/${issue.key}`} className="font-medium text-[var(--brand-600)] hover:underline">{issue.key}</Link>
     case 'summary': return <span className="truncate" title={issue.fields.summary}>{issue.fields.summary}</span>
     case 'status': return <StatusBadge status={issue.fields.status.name} />
-    case 'priority': return issue.fields.priority ? <PriorityBadge priority={issue.fields.priority.name} /> : <span className="text-[var(--text-tertiary)]">None</span>
+    case 'priority': return issue.fields.priority ? <PriorityBadge priority={issue.fields.priority.name} /> : <span className="text-[var(--text-tertiary)]">{tr('None')}</span>
     default: return <span className="truncate">{cellText(issue, col) || <span className="text-[var(--text-tertiary)]">-</span>}</span>
   }
 }
@@ -66,11 +70,13 @@ function Grouped({ groups, config, issues, render }: { groups: ViewGroup[]; conf
 /* ------------------------------------------------------------------ */
 
 export function ListLayout(props: LayoutProps) {
+  const { tr } = useI18n();
+
   const { issues, groups, config } = props
-  if (issues.length === 0) return <EmptyState icon="search" title="No issues match this view" />
+  if (issues.length === 0) return <EmptyState icon="search" title={tr('No issues match this view')} />
   return (
     <Grouped groups={groups} config={config} issues={issues} render={(list, key) => (
-      list.length === 0 ? <p className="text-sm text-[var(--text-tertiary)]">No issues</p> : (
+      list.length === 0 ? <p className="text-sm text-[var(--text-tertiary)]">{tr('No issues')}</p> : (
         <ul key={key} className="divide-y divide-[var(--surface-3)] rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)]">
           {list.map((i) => (
             <li key={i.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 text-sm">
@@ -78,7 +84,7 @@ export function ListLayout(props: LayoutProps) {
               <span className="min-w-0 flex-1 truncate" title={i.fields.summary}>{i.fields.summary}</span>
               {config.columns.includes('status') && <StatusBadge status={i.fields.status.name} />}
               {config.columns.includes('priority') && i.fields.priority && <PriorityBadge priority={i.fields.priority.name} />}
-              {config.columns.includes('assignee') && <span className="w-32 truncate text-[var(--text-secondary)]">{i.fields.assignee?.displayName ?? 'Unassigned'}</span>}
+              {config.columns.includes('assignee') && <span className="w-32 truncate text-[var(--text-secondary)]">{i.fields.assignee?.displayName ?? tr('Unassigned')}</span>}
             </li>
           ))}
         </ul>
@@ -88,8 +94,10 @@ export function ListLayout(props: LayoutProps) {
 }
 
 export function TableLayout(props: LayoutProps) {
+  const { tr } = useI18n();
+
   const { issues, groups, config, onSort } = props
-  if (issues.length === 0) return <EmptyState icon="search" title="No issues match this view" />
+  if (issues.length === 0) return <EmptyState icon="search" title={tr('No issues match this view')} />
   const sort = config.sort[0]
   return (
     <Grouped groups={groups} config={config} issues={issues} render={(list, key) => (
@@ -113,7 +121,7 @@ export function TableLayout(props: LayoutProps) {
             </tr>
           </thead>
           <tbody>
-            {list.length === 0 && <tr><td colSpan={config.columns.length} className="px-3 py-3 text-[var(--text-tertiary)]">No issues</td></tr>}
+            {list.length === 0 && <tr><td colSpan={config.columns.length} className="px-3 py-3 text-[var(--text-tertiary)]">{tr('No issues')}</td></tr>}
             {list.map((i) => (
               <tr key={i.id} className="border-t border-[var(--surface-3)] hover:bg-[var(--surface-1)]">
                 {config.columns.map((c) => <td key={c} className={`px-3 py-2 ${c === 'summary' ? 'max-w-[28rem]' : 'whitespace-nowrap'}`}><Cell issue={i} col={c} /></td>)}
@@ -128,10 +136,12 @@ export function TableLayout(props: LayoutProps) {
 
 /** Board: one column per group (status by default), optional swimlanes for the sub-group. */
 export function BoardLayout({ issues, groups, config }: LayoutProps) {
+  const { tr } = useI18n();
+
   const byId = useMemo(() => byIdMap(issues), [issues])
-  if (issues.length === 0 && groups.length === 0) return <EmptyState icon="search" title="No issues match this view" />
+  if (issues.length === 0 && groups.length === 0) return <EmptyState icon="search" title={tr('No issues match this view')} />
   // Without a group-by the board falls back to one column holding everything.
-  const cols: ViewGroup[] = config.groupBy === 'none' ? [{ key: 'all', label: 'All issues', count: issues.length, issueIds: issues.map((i) => i.id) }] : groups
+  const cols: ViewGroup[] = config.groupBy === 'none' ? [{ key: 'all', label: tr('All issues'), count: issues.length, issueIds: issues.map((i) => i.id) }] : groups
   const lanes = cols.some((c) => c.subGroups) ? [...new Map(cols.flatMap((c) => c.subGroups ?? []).map((s) => [s.key, s.label])).entries()] : [['', ''] as [string, string]]
   return (
     <div className="space-y-4">
@@ -152,12 +162,12 @@ export function BoardLayout({ issues, groups, config }: LayoutProps) {
                       <li key={i.id} className="rounded-md border border-[var(--surface-3)] bg-[var(--surface-0)] p-2 text-sm">
                         <Link href={`/issues/${i.key}`} className="block hover:underline"><span className="mr-1 text-xs font-medium text-[var(--text-tertiary)]">{i.key}</span>{i.fields.summary}</Link>
                         <div className="mt-1.5 flex items-center justify-between gap-2 text-xs text-[var(--text-secondary)]">
-                          <span className="truncate">{i.fields.assignee?.displayName ?? 'Unassigned'}</span>
+                          <span className="truncate">{i.fields.assignee?.displayName ?? tr('Unassigned')}</span>
                           {i.fields.priority && <PriorityBadge priority={i.fields.priority.name} />}
                         </div>
                       </li>
                     ))}
-                    {list.length === 0 && <li className="px-1 text-xs text-[var(--text-tertiary)]">No issues</li>}
+                    {list.length === 0 && <li className="px-1 text-xs text-[var(--text-tertiary)]">{tr('No issues')}</li>}
                   </ul>
                 </section>
               )
@@ -171,6 +181,8 @@ export function BoardLayout({ issues, groups, config }: LayoutProps) {
 
 /** Month calendar of the configured date (due date, start date, created, updated) of the issues on this page. */
 export function CalendarLayout({ issues, config }: LayoutProps) {
+  const { tr } = useI18n();
+
   const now = new Date()
   const [ym, setYm] = useState({ year: now.getUTCFullYear(), month: now.getUTCMonth() })
   const weeks = useMemo(() => monthGrid(ym.year, ym.month), [ym])
@@ -181,30 +193,32 @@ export function CalendarLayout({ issues, config }: LayoutProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <button type="button" className="veqsio-btn-secondary" aria-label="Previous month" onClick={() => setYm((v) => shiftMonth(v.year, v.month, -1))}><ChevronLeft className="h-4 w-4" /></button>
+        <button type="button" className="veqsio-btn-secondary" aria-label={tr('Previous month')} onClick={() => setYm((v) => shiftMonth(v.year, v.month, -1))}><ChevronLeft className="h-4 w-4" /></button>
         <span className="min-w-[9rem] text-center font-medium" aria-live="polite">{title}</span>
-        <button type="button" className="veqsio-btn-secondary" aria-label="Next month" onClick={() => setYm((v) => shiftMonth(v.year, v.month, 1))}><ChevronRight className="h-4 w-4" /></button>
-        <button type="button" className="veqsio-btn-secondary" onClick={() => setYm({ year: now.getUTCFullYear(), month: now.getUTCMonth() })}>Today</button>
+        <button type="button" className="veqsio-btn-secondary" aria-label={tr('Next month')} onClick={() => setYm((v) => shiftMonth(v.year, v.month, 1))}><ChevronRight className="h-4 w-4" /></button>
+        <button type="button" className="veqsio-btn-secondary" onClick={() => setYm({ year: now.getUTCFullYear(), month: now.getUTCMonth() })}>{tr('Today')}</button>
       </div>
       <MonthCalendar weeks={weeks} title={title} byDay={byDay} today={isoDate(now)} />
-      {undated > 0 && <p className="text-sm text-[var(--text-secondary)]">{undated} issue{undated === 1 ? '' : 's'} without a date are not shown.</p>}
+      {undated > 0 && <p className="text-sm text-[var(--text-secondary)]">{undated === 1 ? tr('{n} issue without a date is not shown.', { n: undated }) : tr('{n} issues without a date are not shown.', { n: undated })}</p>}
     </div>
   )
 }
 
 /** Timeline bars from start date to due date (or one week from the start date when there is no due date). */
 export function TimelineLayout({ issues }: LayoutProps) {
+  const { tr } = useI18n();
+
   const { items, unscheduled } = useMemo(() => timelineItems(issues), [issues])
   const ppd = PX_PER_DAY.months
   const { startDay, endDay } = useMemo(() => computeWindow(items, []), [items])
   const ticks = useMemo(() => headerTicks(startDay, endDay, ppd, 'months'), [startDay, endDay, ppd])
   const width = (endDay - startDay + 1) * ppd
   const todayX = (dayOf(new Date()) - startDay) * ppd
-  if (issues.length === 0) return <EmptyState icon="search" title="No issues match this view" />
+  if (issues.length === 0) return <EmptyState icon="search" title={tr('No issues match this view')} />
   return (
     <div className="space-y-3">
       <div className="overflow-x-auto rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)]">
-        <div className="relative" style={{ width: width + 180 }} role="list" aria-label="Timeline">
+        <div className="relative" style={{ width: width + 180 }} role="list" aria-label={tr('Timeline')}>
           <div className="relative h-8 border-b border-[var(--surface-3)] bg-[var(--surface-1)]" style={{ marginLeft: 180 }} aria-hidden>
             {ticks.map((t) => <span key={t.x} className="absolute top-2 text-caption text-[var(--text-secondary)]" style={{ left: t.x }}>{t.label}</span>)}
           </div>
@@ -222,7 +236,7 @@ export function TimelineLayout({ issues }: LayoutProps) {
           {todayX >= 0 && todayX <= width && <span className="pointer-events-none absolute top-0 bottom-0 w-px bg-[var(--error)]" style={{ left: 180 + todayX }} aria-hidden />}
         </div>
       </div>
-      {unscheduled.length > 0 && <p className="text-sm text-[var(--text-secondary)]">{unscheduled.length} issue{unscheduled.length === 1 ? ' has' : 's have'} no start or due date and {unscheduled.length === 1 ? 'is' : 'are'} not shown.</p>}
+      {unscheduled.length > 0 && <p className="text-sm text-[var(--text-secondary)]">{unscheduled.length === 1 ? tr('{n} issue has no start or due date and is not shown.', { n: unscheduled.length }) : tr('{n} issues have no start or due date and are not shown.', { n: unscheduled.length })}</p>}
     </div>
   )
 }

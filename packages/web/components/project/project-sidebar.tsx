@@ -50,7 +50,7 @@ export function ProjectSidebar({ projectKey }: { projectKey: string }) {
       <div className="flex items-center gap-2 px-3">
         <ProjectAvatar projectKey={projectKey} name={project.data?.name ?? projectKey} src={project.data?.avatarUrls?.['48x48'] ?? null} size={28} />
         <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-[var(--text-primary)]">{project.data?.name ?? projectKey}</p><p className="text-[11px] text-[var(--text-tertiary)]">{projectKey}</p></div>
-        <button type="button" onClick={toggle} aria-label="Collapse the project menu" title="Collapse the project menu" className="hidden lg:inline-flex p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"><ChevronsLeft className="w-4 h-4" /></button>
+        <button type="button" onClick={toggle} aria-label={tr('Collapse the project menu')} title={tr('Collapse the project menu')} className="hidden lg:inline-flex p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"><ChevronsLeft className="w-4 h-4" /></button>
       </div>
       <ul>
         {work.map((l) => <li key={l.id}><Link href={l.href} aria-current={isActiveProjectLink(l, pathname, tab) ? 'page' : undefined} className={cls(isActiveProjectLink(l, pathname, tab))}>{tr(l.label)}</Link></li>)}
@@ -74,8 +74,8 @@ export function ProjectSidebar({ projectKey }: { projectKey: string }) {
     <>
       {collapsed ? (
         <aside className="hidden lg:flex flex-col items-center gap-2 w-9 shrink-0 self-start -mr-4 py-2 rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)] sticky top-[calc(var(--header-height,56px)+1.5rem)]">
-          <button type="button" onClick={toggle} aria-label="Expand the project menu" title="Expand the project menu" className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"><ChevronsRight className="w-4 h-4" /></button>
-          <button type="button" onClick={toggle} aria-label={`Show the ${project.data?.name ?? projectKey} menu`} title={`${project.data?.name ?? projectKey}: show the project menu`} className="rounded-md hover:bg-[var(--surface-2)] p-0.5">
+          <button type="button" onClick={toggle} aria-label={tr('Expand the project menu')} title={tr('Expand the project menu')} className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"><ChevronsRight className="w-4 h-4" /></button>
+          <button type="button" onClick={toggle} aria-label={tr('Show the {name} menu', { name: project.data?.name ?? projectKey })} title={tr('{name}: show the project menu', { name: project.data?.name ?? projectKey })} className="rounded-md hover:bg-[var(--surface-2)] p-0.5">
             <ProjectAvatar projectKey={projectKey} name={project.data?.name ?? projectKey} src={project.data?.avatarUrls?.['48x48'] ?? null} size={24} />
           </button>
         </aside>
@@ -83,7 +83,7 @@ export function ProjectSidebar({ projectKey }: { projectKey: string }) {
         <aside className="hidden lg:block w-56 shrink-0 self-start sticky top-[calc(var(--header-height,56px)+1.5rem)] max-h-[calc(100vh-6rem)] overflow-y-auto pr-2">{nav}</aside>
       )}
       <details className="lg:hidden mb-4 rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)] p-3">
-        <summary className="cursor-pointer text-sm font-medium">{project.data?.name ?? projectKey} menu</summary>
+        <summary className="cursor-pointer text-sm font-medium">{tr('{name} menu', { name: project.data?.name ?? projectKey })}</summary>
         <div className="mt-3">{nav}</div>
       </details>
     </>

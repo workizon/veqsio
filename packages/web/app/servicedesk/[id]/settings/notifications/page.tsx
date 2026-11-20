@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { Spinner } from '@/components/spinner'
@@ -9,6 +11,8 @@ import { useDesk } from '@/hooks/use-servicedesk-admin'
 
 /** Project settings > Notifications: what the customer is emailed, plus what the desk sends internally. */
 export default function DeskNotificationsPage() {
+  const { tr } = useI18n();
+
   const id = Number(useParams<{ id: string }>().id)
   const settings = useDeskNotificationSettings(id)
   const update = useUpdateDeskNotificationSettings(id)
@@ -39,14 +43,14 @@ export default function DeskNotificationsPage() {
   return (
     <div className="space-y-4 max-w-2xl">
       <section className="veqsio-card p-5 space-y-2" aria-labelledby="cust-h">
-        <h2 id="cust-h" className="text-heading-2">Customer emails</h2>
+        <h2 id="cust-h" className="text-heading-2">{tr('Customer emails')}</h2>
         <p className="text-sm text-[var(--text-secondary)]">
           Emails go to the requester and the request participants, are threaded per request, and link to the portal. Internal comments are never sent.
           Nothing is sent while no mail server is configured under System settings.
           {!isAdmin && ' Only desk administrators can change these switches.'}
         </p>
         {settings.isLoading && <Spinner />}
-        {settings.isError && <p role="alert" className="text-sm text-[var(--error)]">Could not load the settings.</p>}
+        {settings.isError && <p role="alert" className="text-sm text-[var(--error)]">{tr('Could not load the settings.')}</p>}
         {settings.data && (
           <ul className="divide-y divide-[var(--surface-3)] text-sm">
             {row('notifyCustomerComments', 'Agent replies', 'Email the customer when an agent adds a public comment.')}
@@ -56,11 +60,11 @@ export default function DeskNotificationsPage() {
       </section>
 
       <section className="veqsio-card p-5 space-y-3 text-sm" aria-labelledby="int-h">
-        <h2 id="int-h" className="text-heading-2">Always on</h2>
+        <h2 id="int-h" className="text-heading-2">{tr('Always on')}</h2>
         <ul className="space-y-3">
-          <li><strong>SLA breach</strong><br /><span className="text-[var(--text-secondary)]">An email goes out once per request and SLA when a goal is breached, and the <code>sla.breached</code> webhook fires. Goals are set under <Link className="text-[var(--brand-500)] hover:underline" href={`/servicedesk/${id}/sla`}>SLAs</Link>.</span></li>
-          <li><strong>Issue notifications</strong><br /><span className="text-[var(--text-secondary)]">Assignees and watchers are notified through the project&apos;s notification scheme, like any other project. Customers only get the emails above.</span></li>
-          <li><strong>Inbound email</strong><br /><span className="text-[var(--text-secondary)]">Gateway endpoint and mailbox polling are configured under <Link className="text-[var(--brand-500)] hover:underline" href={`/servicedesk/${id}/email`}>Email channel</Link>.</span></li>
+          <li><strong>{tr('SLA breach')}</strong><br /><span className="text-[var(--text-secondary)]">{tr('An email goes out once per request and SLA when a goal is breached, and the')} <code>sla.breached</code> {tr('webhook fires. Goals are set under')} <Link className="text-[var(--brand-500)] hover:underline" href={`/servicedesk/${id}/sla`}>{tr('SLAs')}</Link>.</span></li>
+          <li><strong>{tr('Issue notifications')}</strong><br /><span className="text-[var(--text-secondary)]">{tr('Assignees and watchers are notified through the project\'s notification scheme, like any other project. Customers only get the emails above.')}</span></li>
+          <li><strong>{tr('Inbound email')}</strong><br /><span className="text-[var(--text-secondary)]">{tr('Gateway endpoint and mailbox polling are configured under')} <Link className="text-[var(--brand-500)] hover:underline" href={`/servicedesk/${id}/email`}>{tr('Email channel')}</Link>.</span></li>
         </ul>
       </section>
     </div>

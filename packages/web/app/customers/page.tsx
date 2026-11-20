@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { SortableTh } from '@/components/sortable-th'
 import { useMultiSort } from '@/lib/table-sort'
 import Link from 'next/link'
@@ -22,6 +24,8 @@ async function api<T>(url: string, init?: RequestInit): Promise<T> {
 const money = (n: number | null, cur: string) => (n === null ? '—' : new Intl.NumberFormat(undefined, { style: 'currency', currency: cur, maximumFractionDigits: 0 }).format(n))
 
 export default function CustomersPage() {
+  const { tr } = useI18n();
+
   const router = useRouter()
   const [query, setQuery] = useState('')
   const ms = useMultiSort()
@@ -38,41 +42,39 @@ export default function CustomersPage() {
   return (
     <AppLayout>
       <div className="space-y-4">
-        <PageHeader breadcrumb={[{ label: 'Customers' }]} title="Customers" description="Link customers to issues to see who is waiting for what, and how much they matter." actions={<button className="veqsio-btn-primary" onClick={() => setOpen(true)}>New customer</button>} />
-        <input className="veqsio-input w-full sm:w-72" aria-label="Search customers" placeholder="Search customers" value={query} onChange={(e) => setQuery(e.target.value)} />
+        <PageHeader breadcrumb={[{ label: tr('Customers') }]} title={tr('Customers')} description={tr('Link customers to issues to see who is waiting for what, and how much they matter.')} actions={<button className="veqsio-btn-primary" onClick={() => setOpen(true)}>{tr('New customer')}</button>} />
+        <input className="veqsio-input w-full sm:w-72" aria-label={tr('Search customers')} placeholder={tr('Search customers')} value={query} onChange={(e) => setQuery(e.target.value)} />
         {list.isLoading ? <Spinner /> : list.error ? <p role="alert" className="text-sm text-[var(--error)]">{(list.error as Error).message}</p> : (
           <div className="veqsio-card overflow-x-auto">
             <table className="w-full text-sm">
-              <thead><tr className="text-left text-[var(--text-secondary)]"><SortableTh {...ms.th('name')} className="p-3 font-medium">Customer</SortableTh><SortableTh {...ms.th('importance')} className="p-3 font-medium">Importance</SortableTh><SortableTh {...ms.th('revenue')} className="p-3 font-medium">Annual revenue</SortableTh><SortableTh {...ms.th('issues')} className="p-3 font-medium">Linked issues</SortableTh></tr></thead>
+              <thead><tr className="text-left text-[var(--text-secondary)]"><SortableTh {...ms.th('name')} className="p-3 font-medium">{tr('Customer')}</SortableTh><SortableTh {...ms.th('importance')} className="p-3 font-medium">{tr('Importance')}</SortableTh><SortableTh {...ms.th('revenue')} className="p-3 font-medium">{tr('Annual revenue')}</SortableTh><SortableTh {...ms.th('issues')} className="p-3 font-medium">{tr('Linked issues')}</SortableTh></tr></thead>
               <tbody className="divide-y divide-[var(--surface-3)]">
                 {ms.sort(list.data ?? [], { name: (c) => c.name, importance: (c) => c.importance, revenue: (c) => c.annualRevenue, issues: (c) => c.linkedIssues }).map((c) => (
                   <tr key={c.id}>
                     <td className="p-3"><Link href={`/customers/${c.id}`}>{c.name}</Link></td>
-                    <td className="p-3 text-[var(--warning)]" aria-label={`${c.importance} of 5`}>{'★'.repeat(c.importance)}{'☆'.repeat(5 - c.importance)}</td>
+                    <td className="p-3 text-[var(--warning)]" aria-label={tr('{n} of 5', { n: c.importance })}>{'★'.repeat(c.importance)}{'☆'.repeat(5 - c.importance)}</td>
                     <td className="p-3 tabular-nums">{money(c.annualRevenue, c.currency)}</td>
                     <td className="p-3 tabular-nums">{c.linkedIssues}</td>
                   </tr>
                 ))}
-                {!list.data?.length && <tr><td colSpan={4} className="p-3 text-[var(--text-tertiary)]">No customers yet.</td></tr>}
+                {!list.data?.length && <tr><td colSpan={4} className="p-3 text-[var(--text-tertiary)]">{tr('No customers yet.')}</td></tr>}
               </tbody>
             </table>
           </div>
         )}
       </div>
-      <Modal isOpen={open} onClose={() => setOpen(false)} title="New customer">
+      <Modal isOpen={open} onClose={() => setOpen(false)} title={tr('New customer')}>
         <div className="space-y-3">
-          <input className="veqsio-input w-full" aria-label="Name" placeholder="Company or account name" value={name} onChange={(e) => setName(e.target.value)} maxLength={200} />
-          <label className="block text-sm">Importance
-            <select className="veqsio-input block mt-1" value={importance} onChange={(e) => setImportance(Number(e.target.value))}>
-              {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n} of 5{n === 5 ? ' (critical account)' : n === 1 ? ' (low)' : ''}</option>)}
+          <input className="veqsio-input w-full" aria-label={tr('Name')} placeholder={tr('Company or account name')} value={name} onChange={(e) => setName(e.target.value)} maxLength={200} />
+          <label className="block text-sm">{tr('Importance')} <select className="veqsio-input block mt-1" value={importance} onChange={(e) => setImportance(Number(e.target.value))}>
+              {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n} {tr('of 5')}{n === 5 ? ' ' + tr('(critical account)') : n === 1 ? ' ' + tr('(low)') : ''}</option>)}
             </select>
           </label>
-          <label className="block text-sm">Annual revenue (optional)
-            <input type="number" min={0} className="veqsio-input block mt-1 w-48" value={revenue} onChange={(e) => setRevenue(e.target.value)} />
+          <label className="block text-sm">{tr('Annual revenue (optional)')} <input type="number" min={0} className="veqsio-input block mt-1 w-48" value={revenue} onChange={(e) => setRevenue(e.target.value)} />
           </label>
           <div className="flex justify-end gap-2">
-            <button className="veqsio-btn-ghost" onClick={() => setOpen(false)}>Cancel</button>
-            <button className="veqsio-btn-primary" disabled={!name.trim() || create.isPending} onClick={() => create.mutate()}>Create</button>
+            <button className="veqsio-btn-ghost" onClick={() => setOpen(false)}>{tr('Cancel')}</button>
+            <button className="veqsio-btn-primary" disabled={!name.trim() || create.isPending} onClick={() => create.mutate()}>{tr('Create')}</button>
           </div>
         </div>
       </Modal>

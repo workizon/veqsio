@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { applySuggestion, getJqlContext, type JqlContext } from '@/lib/jql-autocomplete'
@@ -62,6 +64,8 @@ export interface JqlInputProps {
 }
 
 export function JqlInput({ value, onChange, onSubmit, placeholder, className }: JqlInputProps) {
+  const { tr } = useI18n();
+
   const inputRef = useRef<HTMLInputElement>(null)
   const [cursor, setCursor] = useState(value.length)
   const [open, setOpen] = useState(false)
@@ -231,7 +235,7 @@ export function JqlInput({ value, onChange, onSubmit, placeholder, className }: 
       <input
         ref={inputRef}
         type="text"
-        aria-label="JQL query"
+        aria-label={tr('JQL query')}
         role="combobox"
         aria-expanded={showList}
         aria-autocomplete="list"

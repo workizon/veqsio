@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 
 import { useFilterResults } from '@/hooks/use-dashboards'
@@ -16,6 +18,8 @@ interface FilterResultsGadgetProps {
 }
 
 export function FilterResultsGadget({ config }: FilterResultsGadgetProps) {
+  const { tr } = useI18n();
+
   const ms = useMultiSort()
   const filterId = config.filterId || ''
   const jql = config.jql || ''
@@ -30,7 +34,7 @@ export function FilterResultsGadget({ config }: FilterResultsGadgetProps) {
   }
 
   if (!data?.length) {
-    return <EmptyState icon="search" title="No issues found" description="Try adjusting your filter criteria." />
+    return <EmptyState icon="search" title={tr('No issues found')} description={tr('Try adjusting your filter criteria.')} />
   }
 
   return (
@@ -38,12 +42,12 @@ export function FilterResultsGadget({ config }: FilterResultsGadgetProps) {
       <table className="w-full text-left">
         <thead>
           <tr className="border-b border-[var(--surface-3)]">
-            <SortableTh {...ms.th('key')} className="veqsio-table-header">Key</SortableTh>
-            <SortableTh {...ms.th('name')} className="veqsio-table-header">Summary</SortableTh>
-            <SortableTh {...ms.th('status')} className="veqsio-table-header">Status</SortableTh>
-            <SortableTh {...ms.th('priority')} className="veqsio-table-header">Priority</SortableTh>
-            <SortableTh {...ms.th('assignee')} className="veqsio-table-header">Assignee</SortableTh>
-            <SortableTh {...ms.th('updated')} className="veqsio-table-header">Updated</SortableTh>
+            <SortableTh {...ms.th('key')} className="veqsio-table-header">{tr('Key')}</SortableTh>
+            <SortableTh {...ms.th('name')} className="veqsio-table-header">{tr('Summary')}</SortableTh>
+            <SortableTh {...ms.th('status')} className="veqsio-table-header">{tr('Status')}</SortableTh>
+            <SortableTh {...ms.th('priority')} className="veqsio-table-header">{tr('Priority')}</SortableTh>
+            <SortableTh {...ms.th('assignee')} className="veqsio-table-header">{tr('Assignee')}</SortableTh>
+            <SortableTh {...ms.th('updated')} className="veqsio-table-header">{tr('Updated')}</SortableTh>
           </tr>
         </thead>
         <tbody>

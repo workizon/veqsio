@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -12,6 +14,8 @@ import { usePublicSamlProviders } from '@/hooks/use-saml'
 import { ssoErrorMessage } from '@/lib/sso-forms'
 
 export function LoginForm() {
+  const { tr } = useI18n();
+
   const router = useRouter()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -45,7 +49,7 @@ export function LoginForm() {
       })
 
       if (res.ok) {
-        toast('Welcome back!', 'success')
+        toast(tr('Welcome back!'), 'success')
         const next = new URLSearchParams(window.location.search).get('next')
         router.push(next && next.startsWith('/') && !next.startsWith('//') && !next.includes('\\') && !/[\u0000-\u001f\u007f]/.test(next) ? next : '/dashboard')
       } else {
@@ -53,7 +57,7 @@ export function LoginForm() {
         toast(data.errorMessages?.[0] || 'Login failed', 'error')
       }
     } catch (err) {
-      toast('Network error', 'error')
+      toast(tr('Network error'), 'error')
     } finally {
       setLoading(false)
     }
@@ -63,30 +67,30 @@ export function LoginForm() {
     <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-5">
       <div className="mb-8">
         <BrandLogo size={40} className="mb-6 lg:hidden" />
-        <p className="text-caption text-[var(--text-tertiary)] mb-2">YOUR WORKSPACE, READY WHEN YOU ARE</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-[var(--text-primary)]">Welcome back</h1>
+        <p className="text-caption text-[var(--text-tertiary)] mb-2">{tr('YOUR WORKSPACE, READY WHEN YOU ARE')}</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--text-primary)]">{tr('Welcome back')}</h1>
         <p className="text-body-sm text-[var(--text-secondary)] mt-1">
-          Sign in to continue to {siteName}.
+          {tr('Sign in to continue to')} {siteName}.
         </p>
       </div>
 
       {isDemo && (
         <div className="rounded-lg border border-[var(--surface-3)] bg-[var(--surface-1)] px-4 py-3 text-sm text-[var(--text-secondary)]">
-          <p className="font-medium text-[var(--text-primary)] mb-1">Demo account</p>
-          <p>Username: <code>admin</code></p>
-          <p>Password: <code>demo12345</code></p>
+          <p className="font-medium text-[var(--text-primary)] mb-1">{tr('Demo account')}</p>
+          <p>{tr('Username:')} <code>admin</code></p>
+          <p>{tr('Password:')} <code>demo12345</code></p>
         </div>
       )}
 
       <div className="space-y-4">
-        <label htmlFor="username" className="block text-sm font-medium text-[var(--text-secondary)]">Username</label>
+        <label htmlFor="username" className="block text-sm font-medium text-[var(--text-secondary)]">{tr('Username')}</label>
         <div className="relative">
           <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
           <input
             type="text"
             id="username"
             autoComplete="username"
-            placeholder="Username"
+            placeholder={tr('Username')}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="veqsio-input w-full pl-10 h-11"
@@ -94,14 +98,14 @@ export function LoginForm() {
           />
         </div>
 
-        <label htmlFor="password" className="block text-sm font-medium text-[var(--text-secondary)]">Password</label>
+        <label htmlFor="password" className="block text-sm font-medium text-[var(--text-secondary)]">{tr('Password')}</label>
         <div className="relative">
           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
           <input
             type={showPassword ? 'text' : 'password'}
             id="password"
             autoComplete="current-password"
-            placeholder="Password"
+            placeholder={tr('Password')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="veqsio-input w-full pl-10 pr-12 h-11"
@@ -126,8 +130,7 @@ export function LoginForm() {
       {!isDemo && (
         <div className="text-right -mt-2">
           <Link href="/forgot-password" className="text-body-sm text-[var(--brand-500)] hover:underline">
-            Forgot password?
-          </Link>
+            {tr('Forgot password?')} </Link>
         </div>
       )}
 
@@ -137,7 +140,7 @@ export function LoginForm() {
         className="veqsio-btn-primary w-full h-11 flex items-center justify-center gap-2 disabled:opacity-60"
       >
         {loading ? (
-          <><span aria-hidden="true" className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Signing in…</>
+          <><span aria-hidden="true" className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{tr('Signing in…')}</>
         ) : (
           'Sign In'
         )}
@@ -167,8 +170,7 @@ export function LoginForm() {
           <path fill="#00A4EF" d="M0 12.5h11.5V24H0z"/>
           <path fill="#F25022" d="M12.5 12.5H24V24H12.5z"/>
         </svg>
-        Sign in with Microsoft
-      </button>
+        {tr('Sign in with Microsoft')} </button>
 
       {oidcProviders?.map((p) => (
         <button
@@ -178,7 +180,7 @@ export function LoginForm() {
           className="veqsio-btn-secondary w-full flex items-center justify-center gap-2"
         >
           <Lock className="w-4 h-4" />
-          Sign in with {p.name}
+          {tr('Sign in with')} {p.name}
         </button>
       ))}
 
@@ -190,7 +192,7 @@ export function LoginForm() {
           className="veqsio-btn-secondary w-full flex items-center justify-center gap-2"
         >
           <Lock className="w-4 h-4" />
-          Sign in with {p.name}
+          {tr('Sign in with')} {p.name}
         </button>
       ))}
         </>

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -48,13 +50,14 @@ import {
 } from 'lucide-react'
 
 function SystemInfoTab() {
+  const { tr } = useI18n();
+
   const { data, isLoading } = useServerInfo()
 
   if (isLoading || !data) {
     return (
       <div className="text-center py-12 text-[var(--text-secondary)]">
-        Loading system information...
-      </div>
+        {tr('Loading system information...')} </div>
     )
   }
 
@@ -72,37 +75,37 @@ function SystemInfoTab() {
   const infoCards = [
     {
       icon: Server,
-      label: 'Version',
+      label: tr('Version'),
       value: data.version,
       color: 'text-[var(--brand-500)]',
     },
     {
       icon: Clock,
-      label: 'Uptime',
+      label: tr('Uptime'),
       value: uptimeText,
       color: 'text-[var(--success)]',
     },
     {
       icon: Database,
-      label: 'Database',
-      value: data.dbStatus === 'connected' ? 'Connected' : 'Disconnected',
+      label: tr('Database'),
+      value: data.dbStatus === 'connected' ? tr('Connected') : tr('Disconnected'),
       color: data.dbStatus === 'connected' ? 'text-[var(--success)]' : 'text-[var(--error)]',
     },
     {
       icon: Activity,
-      label: 'Issues',
+      label: tr('Issues'),
       value: String(data.stats.issues),
       color: 'text-[var(--info)]',
     },
     {
       icon: FolderKanban,
-      label: 'Projects',
+      label: tr('Projects'),
       value: String(data.stats.projects),
       color: 'text-[var(--warning)]',
     },
     {
       icon: Users,
-      label: 'Users',
+      label: tr('Users'),
       value: String(data.stats.users),
       color: 'text-[var(--brand-500)]',
     },
@@ -127,34 +130,34 @@ function SystemInfoTab() {
       </div>
 
       <div className="veqsio-card space-y-3">
-        <h3 className="text-heading-2 text-[var(--text-primary)]">Server Details</h3>
+        <h3 className="text-heading-2 text-[var(--text-primary)]">{tr('Server Details')}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           <div className="flex justify-between py-2 border-b border-[var(--surface-3)]">
-            <span className="text-[var(--text-secondary)]">Base URL</span>
+            <span className="text-[var(--text-secondary)]">{tr('Base URL')}</span>
             <span className="text-[var(--text-primary)] font-mono">{data.baseUrl}</span>
           </div>
           <div className="flex justify-between py-2 border-b border-[var(--surface-3)]">
-            <span className="text-[var(--text-secondary)]">Server Title</span>
+            <span className="text-[var(--text-secondary)]">{tr('Server Title')}</span>
             <span className="text-[var(--text-primary)]">{data.serverTitle}</span>
           </div>
           <div className="flex justify-between py-2 border-b border-[var(--surface-3)]">
-            <span className="text-[var(--text-secondary)]">Build date</span>
+            <span className="text-[var(--text-secondary)]">{tr('Build date')}</span>
             <span className="text-[var(--text-primary)]">{data.buildDate}</span>
           </div>
           <div className="flex justify-between py-2 border-b border-[var(--surface-3)]">
-            <span className="text-[var(--text-secondary)]">Server Time</span>
+            <span className="text-[var(--text-secondary)]">{tr('Server Time')}</span>
             <span className="text-[var(--text-primary)] font-mono">
               {new Date(data.serverTime).toLocaleString()}
             </span>
           </div>
           <div className="flex justify-between py-2 border-b border-[var(--surface-3)]">
-            <span className="text-[var(--text-secondary)]">Start time</span>
+            <span className="text-[var(--text-secondary)]">{tr('Start time')}</span>
             <span className="text-[var(--text-primary)] font-mono">
               {new Date(data.startTime).toLocaleString()}
             </span>
           </div>
           <div className="flex justify-between py-2 border-b border-[var(--surface-3)]">
-            <span className="text-[var(--text-secondary)]">SCM Info</span>
+            <span className="text-[var(--text-secondary)]">{tr('SCM Info')}</span>
             <span className="text-[var(--text-primary)]">{data.scmInfo}</span>
           </div>
         </div>
@@ -164,12 +167,14 @@ function SystemInfoTab() {
 }
 
 function AdminHub() {
+  const { tr } = useI18n();
+
   const { data: modules = [] } = useActiveModules()
   const { isEnabled } = useFeatures()
   const sections = adminSections(modules.flatMap((m) => m.web.adminPages.map((a) => ({ label: a.title, href: `/m/${m.id}/${a.path}`, hint: a.description }))))
   return (
     <div className="space-y-6">
-      <PageHeader title="Administration" description="Everything an administrator can configure, grouped by what it is about. Use the menu or search." />
+      <PageHeader title={tr('Administration')} description={tr('Everything an administrator can configure, grouped by what it is about. Use the menu or search.')} />
       <AdminSearch />
       <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
         {sections.map((s) => (
@@ -190,74 +195,76 @@ function AdminHub() {
 }
 
 function AdminPageInner() {
+  const { tr } = useI18n();
+
   const params = useSearchParams()
   const tab = params.get('tab')
   if (!tab) return <AppLayout><AdminHub /></AppLayout>
   const tabs = [
-            { id: 'users', label: 'Users', content: <UserManager /> },
-            { id: 'groups', label: 'Groups', content: <GroupManager /> },
+            { id: 'users', label: tr('Users'), content: <UserManager /> },
+            { id: 'groups', label: tr('Groups'), content: <GroupManager /> },
             {
               id: 'permissions',
-              label: 'Permission Schemes',
+              label: tr('Permission Schemes'),
               content: <PermissionSchemeEditor />,
             },
             {
               id: 'issue-types',
-              label: 'Issue Type Schemes',
+              label: tr('Issue Type Schemes'),
               content: <IssueTypeSchemeEditor />,
               icon: <Tag className="w-4 h-4" />,
             },
             {
               id: 'screens',
-              label: 'Screens',
+              label: tr('Screens'),
               content: <ScreenSchemeEditor />,
               icon: <Monitor className="w-4 h-4" />,
             },
             {
               id: 'field-configs',
-              label: 'Field Configs',
+              label: tr('Field Configs'),
               content: <FieldConfigurationEditor />,
               icon: <SlidersHorizontal className="w-4 h-4" />,
             },
             {
               id: 'workflows',
-              label: 'Workflow Schemes',
+              label: tr('Workflow Schemes'),
               content: <WorkflowSchemeEditor />,
               icon: <Workflow className="w-4 h-4" />,
             },
             {
               id: 'roles',
-              label: 'Project Roles',
+              label: tr('Project Roles'),
               content: <ProjectRoleEditor />,
               icon: <Users className="w-4 h-4" />,
             },
             {
               id: 'custom-fields',
-              label: 'Custom Fields',
+              label: tr('Custom Fields'),
               content: <CustomFieldEditor />,
               icon: <Puzzle className="w-4 h-4" />,
             },
             {
               id: 'audit',
-              label: 'Audit Log',
+              label: tr('Audit Log'),
               content: <AuditLog />,
               icon: <ClipboardList className="w-4 h-4" />,
             },
-            { id: 'sso', label: 'SSO', content: <SSOAdminPage />, icon: <Shield className="w-4 h-4" /> },
-            { id: 'oidc', label: 'OIDC', content: <OidcAdminPage />, icon: <Shield className="w-4 h-4" /> },
-            { id: 'saml', label: 'SAML', content: <SamlAdminPage />, icon: <Shield className="w-4 h-4" /> },
-            { id: 'ldap', label: 'LDAP', content: <LdapAdminPage />, icon: <Users className="w-4 h-4" /> },
-            { id: 'scim', label: 'SCIM', content: <ScimAdminPage />, icon: <Users className="w-4 h-4" /> },
-            { id: 'apps', label: 'Application Links', content: <ApplicationLinksEditor />, icon: <Link2 className="w-4 h-4" /> },
-            { id: 'import', label: 'CSV Import', content: <CsvImportPage />, icon: <Upload className="w-4 h-4" /> },
-            { id: 'info', label: 'System Info', content: <SystemInfoTab /> },
+            { id: 'sso', label: tr('SSO'), content: <SSOAdminPage />, icon: <Shield className="w-4 h-4" /> },
+            { id: 'oidc', label: tr('OIDC'), content: <OidcAdminPage />, icon: <Shield className="w-4 h-4" /> },
+            { id: 'saml', label: tr('SAML'), content: <SamlAdminPage />, icon: <Shield className="w-4 h-4" /> },
+            { id: 'ldap', label: tr('LDAP'), content: <LdapAdminPage />, icon: <Users className="w-4 h-4" /> },
+            { id: 'scim', label: tr('SCIM'), content: <ScimAdminPage />, icon: <Users className="w-4 h-4" /> },
+            { id: 'apps', label: tr('Application Links'), content: <ApplicationLinksEditor />, icon: <Link2 className="w-4 h-4" /> },
+            { id: 'import', label: tr('CSV Import'), content: <CsvImportPage />, icon: <Upload className="w-4 h-4" /> },
+            { id: 'info', label: tr('System Info'), content: <SystemInfoTab /> },
   ]
   const current = tabs.find((t) => t.id === tab)
   return (
     <AppLayout>
       <div className="space-y-6">
-        <h1 className="text-heading-1 text-[var(--text-primary)]">{current?.label ?? 'Administration'}</h1>
-        {current ? current.content : <p className="text-[var(--text-secondary)]">This page does not exist. <Link className="text-[var(--brand-600)] hover:underline" href="/admin">Back to administration</Link></p>}
+        <h1 className="text-heading-1 text-[var(--text-primary)]">{current?.label ?? tr('Administration')}</h1>
+        {current ? current.content : <p className="text-[var(--text-secondary)]">{tr('This page does not exist.')} <Link className="text-[var(--brand-600)] hover:underline" href="/admin">{tr('Back to administration')}</Link></p>}
       </div>
     </AppLayout>
   )

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { GitMerge, Link2, Mail } from 'lucide-react'
@@ -19,6 +21,8 @@ const CHANNEL: Record<string, string> = { portal: 'Portal', email: 'Email', agen
 
 /** Customer panel of a service request in the agent's issue view, with the Merge and Link actions. */
 export function RequestActions({ issueKey, meta }: { issueKey: string; meta: RequestMeta }) {
+  const { tr } = useI18n();
+
   const [dialog, setDialog] = useState<'merge' | 'link' | null>(null)
   if (!meta.deskId) return null
   return (
@@ -30,14 +34,12 @@ export function RequestActions({ issueKey, meta }: { issueKey: string; meta: Req
             <p className="flex items-center gap-1.5 text-[var(--text-secondary)] break-all"><Mail aria-hidden className="w-3.5 h-3.5 shrink-0" />{meta.customer.email}</p>
           </div>
         )}
-        {meta.channel && <p className="text-caption text-[var(--text-tertiary)]">Channel: {CHANNEL[meta.channel] ?? meta.channel}</p>}
+        {meta.channel && <p className="text-caption text-[var(--text-tertiary)]">{tr('Channel:')} {CHANNEL[meta.channel] ? tr(CHANNEL[meta.channel]) : meta.channel}</p>}
         <div className="flex flex-wrap gap-2 pt-1">
           <button type="button" className="veqsio-btn-secondary inline-flex items-center gap-1.5 !px-3 !py-1.5 text-body-sm" onClick={() => setDialog('merge')}>
-            <GitMerge aria-hidden className="w-4 h-4" />Merge into…
-          </button>
+            <GitMerge aria-hidden className="w-4 h-4" />{tr('Merge into…')} </button>
           <button type="button" className="veqsio-btn-secondary inline-flex items-center gap-1.5 !px-3 !py-1.5 text-body-sm" onClick={() => setDialog('link')}>
-            <Link2 aria-hidden className="w-4 h-4" />Link request
-          </button>
+            <Link2 aria-hidden className="w-4 h-4" />{tr('Link request')} </button>
         </div>
       </div>
       {dialog === 'merge' && <MergeDialog deskId={meta.deskId} issueKey={issueKey} onClose={() => setDialog(null)} />}
@@ -48,6 +50,8 @@ export function RequestActions({ issueKey, meta }: { issueKey: string; meta: Req
 
 /** Search box + result list for a request of the same desk. Returns the chosen key through onPick. */
 function TargetPicker({ deskId, issueKey, value, onPick }: { deskId: number; issueKey: string; value: string | null; onPick: (key: string | null) => void }) {
+  const { tr } = useI18n();
+
   const [term, setTerm] = useState('')
   const typedKey = parseRequestKey(term)
   const search = useDeskRequestSearch(deskId, term, true)
@@ -55,15 +59,15 @@ function TargetPicker({ deskId, issueKey, value, onPick }: { deskId: number; iss
   const shown = mergeCandidates(all, issueKey, term)
   return (
     <div className="space-y-2">
-      <label htmlFor="target-search" className="block text-body-sm font-medium">Request in this service desk</label>
-      <input id="target-search" className="veqsio-input w-full" placeholder="Search by key or summary" autoComplete="off" value={term}
+      <label htmlFor="target-search" className="block text-body-sm font-medium">{tr('Request in this service desk')}</label>
+      <input id="target-search" className="veqsio-input w-full" placeholder={tr('Search by key or summary')} autoComplete="off" value={term}
         onChange={(e) => { setTerm(e.target.value); onPick(null) }} />
-      <ul role="listbox" aria-label="Matching requests" className="max-h-48 overflow-y-auto rounded-lg border border-[var(--surface-3)] divide-y divide-[var(--surface-3)]">
-        {search.isLoading && <li className="px-3 py-2 text-sm text-[var(--text-tertiary)]">Searching…</li>}
+      <ul role="listbox" aria-label={tr('Matching requests')} className="max-h-48 overflow-y-auto rounded-lg border border-[var(--surface-3)] divide-y divide-[var(--surface-3)]">
+        {search.isLoading && <li className="px-3 py-2 text-sm text-[var(--text-tertiary)]">{tr('Searching…')}</li>}
         {!search.isLoading && shown.length === 0 && (
           <li className="px-3 py-2 text-sm text-[var(--text-tertiary)]">
-            No open request matches.{typedKey && typedKey !== issueKey ? ' ' : ''}
-            {typedKey && typedKey !== issueKey && <button type="button" className="text-[var(--brand-500)] hover:underline" onClick={() => onPick(typedKey)}>Use {typedKey}</button>}
+            {tr('No open request matches.')}{typedKey && typedKey !== issueKey ? ' ' : ''}
+            {typedKey && typedKey !== issueKey && <button type="button" className="text-[var(--brand-500)] hover:underline" onClick={() => onPick(typedKey)}>{tr('Use')} {typedKey}</button>}
           </li>
         )}
         {shown.map((r) => (
@@ -75,12 +79,14 @@ function TargetPicker({ deskId, issueKey, value, onPick }: { deskId: number; iss
           </li>
         ))}
       </ul>
-      {value && <p role="status" className="text-body-sm">Selected: <strong>{value}</strong></p>}
+      {value && <p role="status" className="text-body-sm">{tr('Selected:')} <strong>{value}</strong></p>}
     </div>
   )
 }
 
 function MergeDialog({ deskId, issueKey, onClose }: { deskId: number; issueKey: string; onClose: () => void }) {
+  const { tr } = useI18n();
+
   const router = useRouter()
   const merge = useMergeRequest(deskId, issueKey)
   const [target, setTarget] = useState<string | null>(null)
@@ -99,25 +105,24 @@ function MergeDialog({ deskId, issueKey, onClose }: { deskId: number; issueKey: 
     <Modal isOpen onClose={onClose} title={`Merge ${issueKey} into another request`}>
       <div className="space-y-4">
         <p className="text-body-sm text-[var(--text-secondary)]">
-          Comments, attachments and participants of {issueKey} move to the request you pick. {issueKey} is linked as a duplicate, closed with the resolution Duplicate, and the customer is told by email.
-        </p>
+          {tr('Comments, attachments and participants of')} {issueKey} {tr('move to the request you pick.')} {issueKey} {tr('is linked as a duplicate, closed with the resolution Duplicate, and the customer is told by email.')} </p>
         <TargetPicker deskId={deskId} issueKey={issueKey} value={target} onPick={(k) => { setTarget(k); setConfirm(false) }} />
         <div className="space-y-1">
-          <label htmlFor="merge-note" className="block text-body-sm font-medium">Internal note (optional)</label>
+          <label htmlFor="merge-note" className="block text-body-sm font-medium">{tr('Internal note (optional)')}</label>
           <textarea id="merge-note" rows={2} maxLength={2000} className="veqsio-input w-full" value={note} onChange={(e) => setNote(e.target.value)} />
         </div>
         {merge.error && <p role="alert" className="text-body-sm text-[var(--error)]">{merge.error.message}</p>}
         {confirm && target && (
           <p role="alert" className="rounded-lg border border-[var(--warning)] px-3 py-2 text-body-sm">
-            This cannot be undone. Merge {issueKey} into <strong>{target}</strong>?
+            {tr('This cannot be undone. Merge')} {issueKey} {tr('into')} <strong>{target}</strong>?
           </p>
         )}
         <div className="flex justify-end gap-2">
-          <button type="button" className="veqsio-btn-secondary" onClick={onClose} disabled={merge.isPending}>Cancel</button>
+          <button type="button" className="veqsio-btn-secondary" onClick={onClose} disabled={merge.isPending}>{tr('Cancel')}</button>
           {!confirm ? (
-            <button type="button" className="veqsio-btn-primary" disabled={!target} onClick={() => setConfirm(true)}>Merge…</button>
+            <button type="button" className="veqsio-btn-primary" disabled={!target} onClick={() => setConfirm(true)}>{tr('Merge…')}</button>
           ) : (
-            <button type="button" className="veqsio-btn-primary" disabled={merge.isPending} onClick={run}>{merge.isPending ? 'Merging…' : `Merge into ${target}`}</button>
+            <button type="button" className="veqsio-btn-primary" disabled={merge.isPending} onClick={run}>{merge.isPending ? tr('Merging…') : tr('Merge into {target}', { target })}</button>
           )}
         </div>
       </div>
@@ -126,6 +131,8 @@ function MergeDialog({ deskId, issueKey, onClose }: { deskId: number; issueKey: 
 }
 
 function LinkDialog({ deskId, issueKey, onClose }: { deskId: number; issueKey: string; onClose: () => void }) {
+  const { tr } = useI18n();
+
   const link = useLinkRequest(deskId, issueKey)
   const types = useLinkTypes()
   const options = linkOptions(types.data?.issueLinkTypes ?? [])
@@ -152,8 +159,8 @@ function LinkDialog({ deskId, issueKey, onClose }: { deskId: number; issueKey: s
         <TargetPicker deskId={deskId} issueKey={issueKey} value={target} onPick={setTarget} />
         {link.error && <p role="alert" className="text-body-sm text-[var(--error)]">{link.error.message}</p>}
         <div className="flex justify-end gap-2">
-          <button type="button" className="veqsio-btn-secondary" onClick={onClose} disabled={link.isPending}>Cancel</button>
-          <button type="button" className="veqsio-btn-primary" disabled={!target || !chosen || link.isPending} onClick={run}>{link.isPending ? 'Linking…' : 'Link'}</button>
+          <button type="button" className="veqsio-btn-secondary" onClick={onClose} disabled={link.isPending}>{tr('Cancel')}</button>
+          <button type="button" className="veqsio-btn-primary" disabled={!target || !chosen || link.isPending} onClick={run}>{link.isPending ? tr('Linking…') : tr('Link')}</button>
         </div>
       </div>
     </Modal>

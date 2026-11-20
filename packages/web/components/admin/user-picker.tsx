@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useId, useRef, useState } from 'react'
 import { Search, X } from 'lucide-react'
 import { Avatar } from '../avatar'
@@ -9,6 +11,8 @@ interface ApiUser { id: number; key: string; name: string; emailAddress: string 
 
 /** Autocomplete over /rest/api/2/user/search. Controlled: `value` is the chosen user or null. */
 export function UserPicker({ label, value, onChange, hint }: { label: string; value: PickedUser | null; onChange: (u: PickedUser | null) => void; hint?: string }) {
+  const { tr } = useI18n();
+
   const id = useId()
   const [text, setText] = useState('')
   const [options, setOptions] = useState<PickedUser[]>([])
@@ -53,7 +57,7 @@ export function UserPicker({ label, value, onChange, hint }: { label: string; va
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" aria-hidden />
           <input
             id={id} role="combobox" aria-expanded={open} aria-controls={`${id}-list`} aria-autocomplete="list" autoComplete="off"
-            className="veqsio-input w-full !pl-9" placeholder="Search by name, username or e-mail" value={text}
+            className="veqsio-input w-full !pl-9" placeholder={tr('Search by name, username or e-mail')} value={text}
             onChange={(e) => { setText(e.target.value); setOpen(true) }}
             onFocus={() => setOpen(true)}
             onKeyDown={(e) => {
@@ -65,8 +69,8 @@ export function UserPicker({ label, value, onChange, hint }: { label: string; va
           />
           {open && (
             <ul id={`${id}-list`} role="listbox" aria-label={`${label} suggestions`} className="absolute z-30 mt-1 w-full max-h-64 overflow-auto rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)] shadow-lg py-1">
-              {loading && options.length === 0 && <li className="px-3 py-2 text-sm text-[var(--text-tertiary)]">Searching...</li>}
-              {!loading && options.length === 0 && <li className="px-3 py-2 text-sm text-[var(--text-tertiary)]">No users found</li>}
+              {loading && options.length === 0 && <li className="px-3 py-2 text-sm text-[var(--text-tertiary)]">{tr('Searching...')}</li>}
+              {!loading && options.length === 0 && <li className="px-3 py-2 text-sm text-[var(--text-tertiary)]">{tr('No users found')}</li>}
               {options.map((u, i) => (
                 <li key={u.id} role="option" aria-selected={i === active} onMouseDown={(e) => { e.preventDefault(); choose(u) }} onMouseEnter={() => setActive(i)}
                   className={`flex items-center gap-2 px-3 py-2 cursor-pointer text-sm ${i === active ? 'bg-[var(--surface-2)]' : ''}`}>

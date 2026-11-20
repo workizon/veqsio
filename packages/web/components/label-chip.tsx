@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { X } from 'lucide-react'
 import { describeLabel, labelChipProps } from '@/lib/label-colors'
 import type { LabelDetail } from '@/hooks/use-labels'
@@ -23,6 +25,8 @@ export function LabelChip({
   onRemove?: () => void
   className?: string
 }) {
+  const { tr } = useI18n();
+
   const props = labelChipProps(color)
   return (
     <span
@@ -33,7 +37,7 @@ export function LabelChip({
     >
       <span className="label-dot" aria-hidden="true" />
       <span className="truncate max-w-[12rem]">{name}</span>
-      {removeOnResolve && <span className="sr-only"> (removed when the issue is resolved)</span>}
+      {removeOnResolve && <span className="sr-only"> {tr('(removed when the issue is resolved)')}</span>}
       {onRemove && (
         <button
           type="button"

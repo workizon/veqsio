@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
@@ -47,6 +49,8 @@ function navItems(base: string): Array<{ heading: string; items: NavItem[] }> {
 }
 
 export default function DeskSettingsLayout({ children }: { children: React.ReactNode }) {
+  const { tr } = useI18n();
+
   const id = Number(useParams<{ id: string }>().id)
   const pathname = usePathname() ?? ''
   const desk = useDesk(id)
@@ -59,13 +63,11 @@ export default function DeskSettingsLayout({ children }: { children: React.React
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-3">
           <Link href={base} className="veqsio-btn-ghost inline-flex items-center gap-1 text-sm">
-            <ArrowLeft className="w-4 h-4" aria-hidden /> Back to queues
-          </Link>
+            <ArrowLeft className="w-4 h-4" aria-hidden /> {tr('Back to queues')} </Link>
           <div className="min-w-0">
             <h1 className="text-heading-1 text-[var(--text-primary)] truncate">{desk.data?.name ?? 'Service desk'}</h1>
             <p className="text-sm text-[var(--text-tertiary)]">
-              {desk.data?.projectKey ? <>Project key <span className="font-mono">{desk.data.projectKey}</span> · </> : null}Project settings
-              {desk.data && desk.data.role !== 'admin' && ' · read-only (desk administrators can edit)'}
+              {desk.data?.projectKey ? <>{tr('Project key')} <span className="font-mono">{desk.data.projectKey}</span> · </> : null}{tr('Project settings')} {desk.data && desk.data.role !== 'admin' && ' · read-only (desk administrators can edit)'}
             </p>
           </div>
         </div>
@@ -77,10 +79,9 @@ export default function DeskSettingsLayout({ children }: { children: React.React
           <div className={builder ? 'space-y-4' : 'grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]'}>
             {builder ? (
               <Link href={`${base}/settings/request-types`} className="inline-flex items-center gap-1 text-sm text-[var(--brand-500)] hover:underline">
-                <ArrowLeft className="w-4 h-4" aria-hidden /> All request types
-              </Link>
+                <ArrowLeft className="w-4 h-4" aria-hidden /> {tr('All request types')} </Link>
             ) : (
-              <nav aria-label="Service desk settings" className="veqsio-card p-2 h-fit space-y-3">
+              <nav aria-label={tr('Service desk settings')} className="veqsio-card p-2 h-fit space-y-3">
                 {navItems(base).map((group) => (
                   <div key={group.heading}>
                     <div className="px-3 pt-1 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">{group.heading}</div>

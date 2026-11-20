@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { X } from 'lucide-react'
@@ -46,6 +48,8 @@ export function ShortcutHelp({ sections }: { sections: HelpSection[] }) {
 }
 
 function ShortcutOverlay() {
+  const { tr } = useI18n();
+
   const { shortcutsOpen, setShortcutsOpen } = useUIStore()
   const dialogRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
@@ -69,8 +73,8 @@ function ShortcutOverlay() {
         onKeyDown={(e) => { if (e.key === 'Escape') { e.preventDefault(); close() } }}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--surface-3)]">
-          <h2 id="shortcut-overlay-title" className="text-heading-2 text-[var(--text-primary)]">Keyboard shortcuts</h2>
-          <button ref={closeRef} onClick={close} aria-label="Close" className="veqsio-btn-ghost p-1">
+          <h2 id="shortcut-overlay-title" className="text-heading-2 text-[var(--text-primary)]">{tr('Keyboard shortcuts')}</h2>
+          <button ref={closeRef} onClick={close} aria-label={tr('Close')} className="veqsio-btn-ghost p-1">
             <X className="w-5 h-5 text-[var(--text-tertiary)]" />
           </button>
         </div>
@@ -78,8 +82,7 @@ function ShortcutOverlay() {
           <ShortcutHelp sections={helpSections(undefined, mac)} />
         </div>
         <div className="px-6 py-3 border-t border-[var(--surface-3)] bg-[var(--surface-1)] rounded-b-2xl text-xs text-[var(--text-tertiary)]">
-          Shortcuts are ignored while you type in a field. Press <kbd className="veqsio-kbd">{mac ? '⌘' : 'Ctrl'}</kbd> <kbd className="veqsio-kbd">K</kbd> for the command palette.
-        </div>
+          {tr('Shortcuts are ignored while you type in a field. Press')} <kbd className="veqsio-kbd">{mac ? '⌘' : 'Ctrl'}</kbd> <kbd className="veqsio-kbd">K</kbd> {tr('for the command palette.')} </div>
       </div>
     </div>
   )

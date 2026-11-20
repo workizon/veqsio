@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 
 import { useMyIssues } from '@/hooks/use-dashboards'
@@ -15,6 +17,8 @@ interface AssignedToMeGadgetProps {
 }
 
 export function AssignedToMeGadget({ config }: AssignedToMeGadgetProps) {
+  const { tr } = useI18n();
+
   const { data, isLoading } = useMyIssues()
 
   if (isLoading) {
@@ -29,8 +33,8 @@ export function AssignedToMeGadget({ config }: AssignedToMeGadgetProps) {
     return (
       <EmptyState
         icon="inbox"
-        title="No open issues"
-        description="You have no issues assigned to you."
+        title={tr('No open issues')}
+        description={tr('You have no issues assigned to you.')}
       />
     )
   }

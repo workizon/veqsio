@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useState } from 'react'
 import { Check, Copy, Sparkles } from 'lucide-react'
 import { RichText } from '@/components/rich-text'
@@ -14,6 +16,8 @@ interface Review { review: string; containsInternal: boolean; truncated: boolean
  * Output is shown through the safe renderer and is always labelled as AI-generated.
  */
 export function AiIssuePanel({ issueKey }: { issueKey: string }) {
+  const { tr } = useI18n();
+
   const { enabled, features } = useAiFeatures()
   const [result, setResult] = useState<Summary | null>(null)
   const [loading, setLoading] = useState(false)
@@ -50,25 +54,23 @@ export function AiIssuePanel({ issueKey }: { issueKey: string }) {
   return (
     <div className="veqsio-card space-y-4" data-testid="ai-panel">
       <div className="flex items-center gap-2 text-caption font-semibold text-[var(--text-tertiary)] uppercase">
-        <Sparkles className="w-4 h-4" aria-hidden /> AI
-      </div>
+        <Sparkles className="w-4 h-4" aria-hidden /> {tr('AI')} </div>
 
       {enabled && features.summarize && (
         <div className="space-y-2">
           <button type="button" className="veqsio-btn-secondary text-body-sm" onClick={summarize} disabled={loading}>
-            {loading ? 'Summarizing…' : 'Summarize'}
+            {loading ? tr('Summarizing…') : tr('Summarize')}
           </button>
           {error && <p role="alert" className="text-caption text-[var(--error)]">{error}</p>}
           {result && (
             <div className="space-y-2">
               <RichText value={result.summary} className="text-body-sm" />
               <p className="text-caption text-[var(--text-tertiary)]">
-                AI-generated, check before use.
-                {result.containsInternal && <strong className="text-[var(--warning,#b45309)]"> Includes internal notes: do not share with customers.</strong>}
-                {result.truncated && ' Long threads were shortened; the oldest comments were left out.'}
+                {tr('AI-generated, check before use.')} {result.containsInternal && <strong className="text-[var(--warning,#b45309)]"> {tr('Includes internal notes: do not share with customers.')}</strong>}
+                {result.truncated && ' ' + tr('Long threads were shortened; the oldest comments were left out.')}
               </p>
               <button type="button" className="veqsio-btn-secondary text-caption flex items-center gap-1.5" onClick={copy}>
-                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />} {copied ? 'Copied' : 'Copy'}
+                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />} {copied ? tr('Copied') : tr('Copy')}
               </button>
             </div>
           )}
@@ -78,19 +80,18 @@ export function AiIssuePanel({ issueKey }: { issueKey: string }) {
       {enabled && features.review && (
         <div className="space-y-2">
           <button type="button" className="veqsio-btn-secondary text-body-sm" onClick={draftReview} disabled={reviewLoading}>
-            {reviewLoading ? 'Drafting…' : 'Draft post-incident review'}
+            {reviewLoading ? tr('Drafting…') : tr('Draft post-incident review')}
           </button>
           {reviewError && <p role="alert" className="text-caption text-[var(--error)]">{reviewError}</p>}
           {review && (
             <div className="space-y-2">
-              <textarea aria-label="Post-incident review draft" className="veqsio-input w-full font-mono text-xs" rows={14} value={review.review} onChange={(e) => setReview({ ...review, review: e.target.value })} />
+              <textarea aria-label={tr('Post-incident review draft')} className="veqsio-input w-full font-mono text-xs" rows={14} value={review.review} onChange={(e) => setReview({ ...review, review: e.target.value })} />
               <p className="text-caption text-[var(--text-tertiary)]">
-                AI-generated draft from this issue and its comments. Check every fact before you share it.
-                {review.containsInternal && <strong className="text-[var(--warning,#b45309)]"> Based on internal notes: do not share with customers.</strong>}
-                {review.truncated && ' Long threads were shortened; the oldest comments were left out.'}
+                {tr('AI-generated draft from this issue and its comments. Check every fact before you share it.')} {review.containsInternal && <strong className="text-[var(--warning,#b45309)]"> {tr('Based on internal notes: do not share with customers.')}</strong>}
+                {review.truncated && ' ' + tr('Long threads were shortened; the oldest comments were left out.')}
               </p>
               <button type="button" className="veqsio-btn-secondary text-caption flex items-center gap-1.5" onClick={async () => { await navigator.clipboard.writeText(review.review); setCopied(true); setTimeout(() => setCopied(false), 2000) }}>
-                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />} {copied ? 'Copied' : 'Copy Markdown'}
+                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />} {copied ? tr('Copied') : tr('Copy Markdown')}
               </button>
             </div>
           )}

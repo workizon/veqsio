@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
@@ -17,6 +19,8 @@ interface ProjectFeature { id: string; enabled: boolean }
 
 /** Project overview: current state (latest status update) with the update history, and links to the project areas. */
 export default function ProjectOverviewPage() {
+  const { tr } = useI18n();
+
   const key = String(useParams().key)
   const instance = useFeatures()
   const features = useQuery({
@@ -42,25 +46,25 @@ export default function ProjectOverviewPage() {
   return (
     <AppLayout>
       <div className="space-y-6">
-        <Breadcrumb items={[{ label: 'Projects', href: '/projects' }, { label: key }]} />
+        <Breadcrumb items={[{ label: tr('Projects'), href: '/projects' }, { label: key }]} />
         {project.isLoading && <Spinner />}
-        {project.error && <p role="alert" className="text-[var(--error)]">{(project.error as Error).message}</p>}
+        {project.error && <p role="alert" className="text-[var(--error)]">{tr((project.error as Error).message)}</p>}
         {project.data && (
           <>
             <div>
               <div className="flex flex-wrap items-center gap-3">
                 <h1 className="text-heading-1 text-[var(--text-primary)]">{project.data.name}</h1>
-                {updatesOn && latest.data?.latest && <StatusUpdateBadge state={latest.data.latest.state} title="Latest status update" />}
+                {updatesOn && latest.data?.latest && <StatusUpdateBadge state={latest.data.latest.state} title={tr('Latest status update')} />}
               </div>
               {project.data.description && <p className="text-body-sm text-[var(--text-secondary)] mt-1">{project.data.description}</p>}
-              <nav aria-label="Project areas" className="flex flex-wrap gap-4 mt-3 text-sm">
-                <Link className="text-[var(--brand-500)] hover:underline" href={`/issues?jql=${encodeURIComponent(`project = ${key}`)}`}>Issues</Link>
-                {instance.isEnabled('roadmap') && <Link className="text-[var(--brand-500)] hover:underline" href="/roadmap">Roadmap</Link>}
-                <Link className="text-[var(--brand-500)] hover:underline" href={`/projects/${key}/releases`}>Releases</Link>
-                <Link className="text-[var(--brand-500)] hover:underline" href={`/projects/${key}/settings`}>Settings</Link>
+              <nav aria-label={tr('Project areas')} className="flex flex-wrap gap-4 mt-3 text-sm">
+                <Link className="text-[var(--brand-500)] hover:underline" href={`/issues?jql=${encodeURIComponent(`project = ${key}`)}`}>{tr('Issues')}</Link>
+                {instance.isEnabled('roadmap') && <Link className="text-[var(--brand-500)] hover:underline" href="/roadmap">{tr('Roadmap')}</Link>}
+                <Link className="text-[var(--brand-500)] hover:underline" href={`/projects/${key}/releases`}>{tr('Releases')}</Link>
+                <Link className="text-[var(--brand-500)] hover:underline" href={`/projects/${key}/settings`}>{tr('Settings')}</Link>
               </nav>
             </div>
-            {updatesOn ? <StatusUpdatesPanel scope={key} /> : <p className="text-sm text-[var(--text-tertiary)]">Status updates are switched off for this project.</p>}
+            {updatesOn ? <StatusUpdatesPanel scope={key} /> : <p className="text-sm text-[var(--text-tertiary)]">{tr('Status updates are switched off for this project.')}</p>}
             {milestonesOn && <MilestonesSection project={key} />}
             <PluginPanels location="project.page" context={{ project: key }} />
           </>

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useProjectSecurity } from '@/hooks/use-issue-security'
 import { levelChoices } from '@/lib/issue-security'
 import { RichTextEditor } from '@/components/rich-text-editor'
@@ -55,6 +57,8 @@ const typeIcons: Record<string, typeof Bug> = {
 }
 
 export default function CreateIssuePage() {
+  const { tr } = useI18n();
+
   const router = useRouter()
   const { t } = useTerm()
   const [templateExtras, setTemplateExtras] = useState<{ components?: number[]; customFields?: Array<{ fieldId: number; value: unknown }> }>({})
@@ -134,20 +138,20 @@ export default function CreateIssuePage() {
       const defaultPriority = medium ?? prioData[0]
       if (defaultPriority) setPriorityId((cur) => cur || String(defaultPriority.id))
     } catch {
-      toast('Failed to load metadata', 'error')
+      toast(tr('Failed to load metadata'), 'error')
     }
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!summary.trim() || !projectId || !issueTypeId) {
-      toast('Please fill in required fields', 'error')
+      toast(tr('Please fill in required fields'), 'error')
       return
     }
 
     const points = storyPoints.trim() === '' ? undefined : Number(storyPoints)
     if (points !== undefined && (!Number.isFinite(points) || points < 0 || points > 1000 || Math.round(points * 100) / 100 !== points)) {
-      toast('Story points must be a number between 0 and 1000 with at most 2 decimals', 'error')
+      toast(tr('Story points must be a number between 0 and 1000 with at most 2 decimals'), 'error')
       return
     }
 
@@ -197,7 +201,7 @@ export default function CreateIssuePage() {
         toast(err.errorMessages?.[0] || t('Failed to create issue'), 'error')
       }
     } catch {
-      toast('Network error', 'error')
+      toast(tr('Network error'), 'error')
     } finally {
       setLoading(false)
     }
@@ -211,7 +215,7 @@ export default function CreateIssuePage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
-          <Link href="/issues" aria-label="Back to issues" className="veqsio-btn-ghost p-2">
+          <Link href="/issues" aria-label={tr('Back to issues')} className="veqsio-btn-ghost p-2">
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <h1 className="text-heading-1 text-[var(--text-primary)]">{t('Create issue')}</h1>
@@ -223,16 +227,15 @@ export default function CreateIssuePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1.5">
-                Project *
-              </label>
+                {tr('Project *')} </label>
               <select
-                aria-label="Project"
+                aria-label={tr('Project')}
                 value={projectId}
                 onChange={(e) => setProjectId(e.target.value)}
                 className="veqsio-input w-full"
                 required
               >
-                <option value="">Select project</option>
+                <option value="">{tr('Select project')}</option>
                 {projects.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name} ({p.key})
@@ -247,13 +250,13 @@ export default function CreateIssuePage() {
               </label>
               <div className="relative">
                 <select
-                  aria-label="Issue type"
+                  aria-label={tr('Issue type')}
                   value={issueTypeId}
                   onChange={(e) => setIssueTypeId(e.target.value)}
                   className="veqsio-input w-full pl-10"
                   required
                 >
-                  <option value="">Select type</option>
+                  <option value="">{tr('Select type')}</option>
                   {issueTypes.map((t) => (
                     <option key={t.id} value={t.id}>
                       {t.name}
@@ -285,13 +288,12 @@ export default function CreateIssuePage() {
           {/* Summary */}
           <div>
             <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1.5">
-              Summary *
-            </label>
+              {tr('Summary *')} </label>
             <input
               type="text"
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
-              placeholder="What needs to be done?"
+              placeholder={tr('What needs to be done?')}
               className="veqsio-input w-full"
               required
             />
@@ -301,11 +303,10 @@ export default function CreateIssuePage() {
           {/* Description */}
           <div>
             <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1.5">
-              Description
-            </label>
+              {tr('Description')} </label>
             <RichTextEditor
-              label="Description"
-              placeholder="Add a description... (Markdown supported, @ to mention)"
+              label={tr('Description')}
+              placeholder={tr('Add a description... (Markdown supported, @ to mention)')}
               rows={7}
               maxLength={100000}
               value={description}
@@ -322,15 +323,14 @@ export default function CreateIssuePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1.5">
-                Priority
-              </label>
+                {tr('Priority')} </label>
               <select
-                aria-label="Priority"
+                aria-label={tr('Priority')}
                 value={priorityId}
                 onChange={(e) => setPriorityId(e.target.value)}
                 className="veqsio-input w-full"
               >
-                <option value="">Select priority</option>
+                <option value="">{tr('Select priority')}</option>
                 {priorities.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
@@ -341,15 +341,14 @@ export default function CreateIssuePage() {
 
             <div>
               <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1.5">
-                Assignee
-              </label>
+                {tr('Assignee')} </label>
               <select
-                aria-label="Assignee"
+                aria-label={tr('Assignee')}
                 value={assigneeId}
                 onChange={(e) => setAssigneeId(e.target.value)}
                 className="veqsio-input w-full"
               >
-                <option value="">Unassigned</option>
+                <option value="">{tr('Unassigned')}</option>
                 {users.map((u) => (
                   <option key={u.id} value={u.id}>
                     {u.displayName}
@@ -361,7 +360,7 @@ export default function CreateIssuePage() {
 
           {offerSecurity && (
             <div>
-              <label htmlFor="create-security" className="text-caption font-medium text-[var(--text-secondary)] block mb-1.5">Security level</label>
+              <label htmlFor="create-security" className="text-caption font-medium text-[var(--text-secondary)] block mb-1.5">{tr('Security level')}</label>
               <select
                 id="create-security"
                 value={securityId ?? (projectSecurity!.defaultLevelId ? String(projectSecurity!.defaultLevelId) : '')}
@@ -370,7 +369,7 @@ export default function CreateIssuePage() {
               >
                 {levelChoices(projectSecurity!.levels, projectSecurity!.defaultLevelId).map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
               </select>
-              <p className="text-caption text-[var(--text-tertiary)] mt-1">Only members of the level can see the issue.</p>
+              <p className="text-caption text-[var(--text-tertiary)] mt-1">{tr('Only members of the level can see the issue.')}</p>
             </div>
           )}
 
@@ -378,24 +377,22 @@ export default function CreateIssuePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1.5">
-                Labels
-              </label>
+                {tr('Labels')} </label>
               <input
                 type="text"
                 value={labels}
                 onChange={(e) => setLabels(e.target.value)}
-                placeholder="bug, frontend, urgent"
+                placeholder={tr('bug, frontend, urgent')}
                 className="veqsio-input w-full"
               />
-              <p className="text-caption text-[var(--text-tertiary)] mt-1">Separate labels with commas</p>
+              <p className="text-caption text-[var(--text-tertiary)] mt-1">{tr('Separate labels with commas')}</p>
             </div>
 
             <div>
               <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1.5">
-                Due Date
-              </label>
+                {tr('Due Date')} </label>
               <input
-                aria-label="Due date"
+                aria-label={tr('Due date')}
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
@@ -408,8 +405,7 @@ export default function CreateIssuePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="create-story-points" className="text-caption font-medium text-[var(--text-secondary)] block mb-1.5">
-                Story Points
-              </label>
+                {tr('Story Points')} </label>
               <input
                 id="create-story-points"
                 type="number"
@@ -434,13 +430,12 @@ export default function CreateIssuePage() {
                 onChange={(e) => setCreateAnother(e.target.checked)}
                 className="w-4 h-4 rounded border-[var(--surface-4)] text-[var(--brand-500)] focus:ring-[var(--brand-500)]"
               />
-              <span className="text-body-sm text-[var(--text-secondary)]">Create another</span>
+              <span className="text-body-sm text-[var(--text-secondary)]">{tr('Create another')}</span>
             </label>
 
             <div className="flex items-center gap-3">
               <Link href="/issues" className="veqsio-btn-secondary">
-                Cancel
-              </Link>
+                {tr('Cancel')} </Link>
               <button
                 type="submit"
                 disabled={loading}

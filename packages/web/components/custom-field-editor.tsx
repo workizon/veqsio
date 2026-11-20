@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import {
   Plus,
@@ -47,6 +49,8 @@ const FIELD_TYPES = [
 ]
 
 export function CustomFieldEditor() {
+  const { tr } = useI18n();
+
   const [createOpen, setCreateOpen] = useState(false)
   const [editingField, setEditingField] = useState<AdminCustomField | null>(null)
 
@@ -66,32 +70,31 @@ export function CustomFieldEditor() {
         description: (fd.get('description') as string) || undefined,
         isGlobal: fd.get('isGlobal') === 'on',
       })
-      toast('Custom field created', 'success')
+      toast(tr('Custom field created'), 'success')
       setCreateOpen(false)
       e.currentTarget.reset()
     } catch (err: any) {
-      toast(err.message || 'Failed to create custom field', 'error')
+      toast(err.message || tr('Failed to create custom field'), 'error')
     }
   }
 
   async function handleDelete(id: number, name: string) {
-    if (!(await confirmDialog(`Delete custom field "${name}"?`))) return
+    if (!(await confirmDialog(tr('Delete custom field "{name}"?', { name })))) return
     try {
       await deleteField.mutateAsync(id)
-      toast('Custom field deleted', 'success')
+      toast(tr('Custom field deleted'), 'success')
     } catch (err: any) {
-      toast(err.message || 'Failed to delete custom field', 'error')
+      toast(err.message || tr('Failed to delete custom field'), 'error')
     }
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-heading-2 text-[var(--text-primary)]">Custom fields</h2>
+        <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('Custom fields')}</h2>
         <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          Create Field
-        </button>
+          {tr('Create Field')} </button>
       </div>
 
       {isLoading ? (
@@ -101,13 +104,12 @@ export function CustomFieldEditor() {
       ) : fields.length === 0 ? (
         <EmptyState
           icon="folder"
-          title="No custom fields found"
-          description="Create custom fields to capture additional issue data."
+          title={tr('No custom fields found')}
+          description={tr('Create custom fields to capture additional issue data.')}
           action={
             <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              Create Field
-            </button>
+              {tr('Create Field')} </button>
           }
         />
       ) : (
@@ -122,8 +124,8 @@ export function CustomFieldEditor() {
                   <div>
                     <div className="font-medium text-[var(--text-primary)]">{f.name}</div>
                     <div className="text-xs text-[var(--text-tertiary)]">
-                      Type: {FIELD_TYPES.find(t => t.key === f.fieldType)?.label || f.fieldType}
-                      {f.isGlobal ? ' · Global' : ` · ${f.contexts.length} context${f.contexts.length !== 1 ? 's' : ''}`}
+                      {tr('Type:')} {(() => { const ft = FIELD_TYPES.find(t => t.key === f.fieldType); return ft ? tr(ft.label) : f.fieldType })()}
+                      {f.isGlobal ? ` · ${tr('Global')}` : ` · ${f.contexts.length === 1 ? tr('{n} context', { n: f.contexts.length }) : tr('{n} contexts', { n: f.contexts.length })}`}
                       {['select', 'multiselect', 'checkbox', 'radio'].includes(f.fieldType) &&
                         ` · ${f.options.length} option${f.options.length !== 1 ? 's' : ''}`}
                     </div>
@@ -149,39 +151,39 @@ export function CustomFieldEditor() {
         </div>
       )}
 
-      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title="Create custom field">
+      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title={tr('Create custom field')}>
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Name</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Name')}</label>
             <input name="name" type="text" required className="veqsio-input w-full" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Type</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Type')}</label>
             <select name="fieldType" required className="veqsio-input w-full">
-              <option value="">Select type...</option>
+              <option value="">{tr('Select type...')}</option>
               {FIELD_TYPES.map(t => (
-                <option key={t.key} value={t.key}>{t.label}</option>
+                <option key={t.key} value={t.key}>{tr(t.label)}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Description</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Description')}</label>
             <input name="description" type="text" className="veqsio-input w-full" />
           </div>
           <div className="flex items-center gap-2">
             <input id="isGlobal" name="isGlobal" type="checkbox" defaultChecked className="w-4 h-4 rounded border-[var(--surface-4)] text-[var(--brand-500)]" />
-            <label htmlFor="isGlobal" className="text-sm text-[var(--text-secondary)]">Global (available in all projects)</label>
+            <label htmlFor="isGlobal" className="text-sm text-[var(--text-secondary)]">{tr('Global (available in all projects)')}</label>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={() => setCreateOpen(false)} className="veqsio-btn-secondary">Cancel</button>
+            <button type="button" onClick={() => setCreateOpen(false)} className="veqsio-btn-secondary">{tr('Cancel')}</button>
             <button type="submit" disabled={createField.isPending} className="veqsio-btn-primary">
-              {createField.isPending ? 'Creating...' : 'Create'}
+              {createField.isPending ? tr('Creating...') : tr('Create')}
             </button>
           </div>
         </form>
       </Modal>
 
-      <Modal isOpen={!!editingField} onClose={() => setEditingField(null)} title={editingField?.name || 'Edit Field'} size="lg">
+      <Modal isOpen={!!editingField} onClose={() => setEditingField(null)} title={editingField?.name || tr('Edit Field')} size="lg">
         {editingField && <FieldEditPanel field={editingField} onClose={() => setEditingField(null)} />}
       </Modal>
     </div>
@@ -189,6 +191,8 @@ export function CustomFieldEditor() {
 }
 
 function FieldEditPanel({ field, onClose }: { field: AdminCustomField; onClose: () => void }) {
+  const { tr } = useI18n();
+
   const updateField = useUpdateCustomField()
   const addContext = useAddCustomFieldContext()
   const removeContext = useRemoveCustomFieldContext()
@@ -207,28 +211,28 @@ function FieldEditPanel({ field, onClose }: { field: AdminCustomField; onClose: 
   async function handleSave() {
     try {
       await updateField.mutateAsync({ id: field.id, name, description: description || undefined })
-      toast('Field updated', 'success')
+      toast(tr('Field updated'), 'success')
       onClose()
     } catch (err: any) {
-      toast(err.message || 'Failed to update field', 'error')
+      toast(err.message || tr('Failed to update field'), 'error')
     }
   }
 
   async function handleAddContext(projectId?: number, issueTypeId?: number) {
     try {
       await addContext.mutateAsync({ fieldId: field.id, projectId, issueTypeId })
-      toast('Context added', 'success')
+      toast(tr('Context added'), 'success')
     } catch (err: any) {
-      toast(err.message || 'Failed to add context', 'error')
+      toast(err.message || tr('Failed to add context'), 'error')
     }
   }
 
   async function handleRemoveContext(contextId: number) {
     try {
       await removeContext.mutateAsync({ fieldId: field.id, contextId })
-      toast('Context removed', 'success')
+      toast(tr('Context removed'), 'success')
     } catch (err: any) {
-      toast(err.message || 'Failed to remove context', 'error')
+      toast(err.message || tr('Failed to remove context'), 'error')
     }
   }
 
@@ -239,19 +243,19 @@ function FieldEditPanel({ field, onClose }: { field: AdminCustomField; onClose: 
     if (!optionValue.trim() || !optionContextId) return
     try {
       await addOption.mutateAsync({ fieldId: field.id, contextId: Number(optionContextId), value: optionValue.trim() })
-      toast('Option added', 'success')
+      toast(tr('Option added'), 'success')
       setOptionValue('')
     } catch (err: any) {
-      toast(err.message || 'Failed to add option', 'error')
+      toast(err.message || tr('Failed to add option'), 'error')
     }
   }
 
   async function handleRemoveOption(optionId: number) {
     try {
       await removeOption.mutateAsync({ fieldId: field.id, optionId })
-      toast('Option removed', 'success')
+      toast(tr('Option removed'), 'success')
     } catch (err: any) {
-      toast(err.message || 'Failed to remove option', 'error')
+      toast(err.message || tr('Failed to remove option'), 'error')
     }
   }
 
@@ -261,27 +265,26 @@ function FieldEditPanel({ field, onClose }: { field: AdminCustomField; onClose: 
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Name</label>
+          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Name')}</label>
           <input value={name} onChange={e => setName(e.target.value)} className="veqsio-input w-full" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Description</label>
+          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Description')}</label>
           <input value={description} onChange={e => setDescription(e.target.value)} className="veqsio-input w-full" />
         </div>
       </div>
       <div className="flex justify-end gap-2">
-        <button onClick={onClose} className="veqsio-btn-secondary">Cancel</button>
+        <button onClick={onClose} className="veqsio-btn-secondary">{tr('Cancel')}</button>
         <button onClick={handleSave} disabled={updateField.isPending} className="veqsio-btn-primary flex items-center gap-1.5">
           <Save className="w-4 h-4" />
-          Save
-        </button>
+          {tr('Save')} </button>
       </div>
 
       <hr className="border-[var(--surface-3)]" />
 
       {!field.isGlobal && (
         <div className="space-y-3">
-          <h3 className="text-heading-2 text-[var(--text-primary)]">Contexts</h3>
+          <h3 className="text-heading-2 text-[var(--text-primary)]">{tr('Contexts')}</h3>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
             <select
               onChange={e => {
@@ -294,29 +297,29 @@ function FieldEditPanel({ field, onClose }: { field: AdminCustomField; onClose: 
               }}
               className="veqsio-input flex-1 w-full"
             >
-              <option value="">Add context...</option>
-              <optgroup label="Projects">
+              <option value="">{tr('Add context...')}</option>
+              <optgroup label={tr('Projects')}>
                 {projects.map(p => (
-                  <option key={`project:${p.id}`} value={`project:${p.id}`}>Project: {p.name}</option>
+                  <option key={`project:${p.id}`} value={`project:${p.id}`}>{tr('Project:')} {p.name}</option>
                 ))}
               </optgroup>
-              <optgroup label="Issue types">
+              <optgroup label={tr('Issue types')}>
                 {allTypes.map(t => (
-                  <option key={`issueType:${t.id}`} value={`issueType:${t.id}`}>Issue Type: {t.name}</option>
+                  <option key={`issueType:${t.id}`} value={`issueType:${t.id}`}>{tr('Issue Type:')} {t.name}</option>
                 ))}
               </optgroup>
             </select>
           </div>
           <div className="border border-[var(--surface-3)] rounded-lg divide-y divide-[var(--surface-3)]">
             {field.contexts.length === 0 && (
-              <div className="p-3 text-sm text-[var(--text-tertiary)] text-center">No contexts defined</div>
+              <div className="p-3 text-sm text-[var(--text-tertiary)] text-center">{tr('No contexts defined')}</div>
             )}
             {field.contexts.map(ctx => (
               <div key={ctx.id} className="flex items-center justify-between px-3 py-2">
                 <span className="text-sm text-[var(--text-primary)]">
-                  {ctx.projectId ? `Project: ${projects.find(p => p.id === ctx.projectId)?.name || ctx.projectId}` : ''}
+                  {ctx.projectId ? tr('Project: {name}', { name: projects.find(p => p.id === ctx.projectId)?.name || ctx.projectId }) : ''}
                   {ctx.projectId && ctx.issueTypeId ? ' · ' : ''}
-                  {ctx.issueTypeId ? `Issue Type: ${allTypes.find(t => t.id === ctx.issueTypeId)?.name || ctx.issueTypeId}` : 'Global'}
+                  {ctx.issueTypeId ? tr('Issue Type: {name}', { name: allTypes.find(t => t.id === ctx.issueTypeId)?.name || ctx.issueTypeId }) : tr('Global')}
                 </span>
                 <button
                   onClick={() => handleRemoveContext(ctx.id)}
@@ -333,25 +336,24 @@ function FieldEditPanel({ field, onClose }: { field: AdminCustomField; onClose: 
       {hasOptions && (
         <div className="space-y-3">
           <h3 className="text-heading-2 text-[var(--text-primary)] flex items-center gap-2">
-            <List className="w-4 h-4" /> Options
-          </h3>
+            <List className="w-4 h-4" /> {tr('Options')} </h3>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
             <select
               value={optionContextId}
               onChange={e => setOptionContextId(Number(e.target.value) || '')}
               className="veqsio-input"
             >
-              <option value="">Select context...</option>
+              <option value="">{tr('Select context...')}</option>
               {(field.isGlobal ? [{ id: 0, label: 'Global' }] : field.contexts).map(ctx => (
                 <option key={ctx.id} value={ctx.id}>
-                  {ctx.id === 0 ? 'Global' : `Context ${ctx.id}`}
+                  {ctx.id === 0 ? tr('Global') : tr('Context {id}', { id: ctx.id })}
                 </option>
               ))}
             </select>
             <input
               value={optionValue}
               onChange={e => setOptionValue(e.target.value)}
-              placeholder="Option value..."
+              placeholder={tr('Option value...')}
               className="veqsio-input flex-1 w-full"
               onKeyDown={e => { if (e.key === 'Enter') handleAddOption() }}
             />
@@ -361,33 +363,32 @@ function FieldEditPanel({ field, onClose }: { field: AdminCustomField; onClose: 
               className="veqsio-btn-secondary flex items-center gap-1.5"
             >
               <Plus className="w-4 h-4" />
-              Add
-            </button>
+              {tr('Add')} </button>
           </div>
           <div className="border border-[var(--surface-3)] rounded-lg divide-y divide-[var(--surface-3)]">
             {field.options.length === 0 && (
-              <div className="p-3 text-sm text-[var(--text-tertiary)] text-center">No options defined</div>
+              <div className="p-3 text-sm text-[var(--text-tertiary)] text-center">{tr('No options defined')}</div>
             )}
             {field.options.map(opt => (
               <div key={opt.id} className={`flex flex-wrap items-center gap-2 px-3 py-2 ${opt.archived ? 'opacity-60' : ''}`}>
                 <input
-                  type="color" aria-label={`Colour of ${opt.value}`} className="h-7 w-7 cursor-pointer rounded border border-[var(--surface-3)] bg-transparent p-0"
+                  type="color" aria-label={tr('Colour of {name}', { name: opt.value })} className="h-7 w-7 cursor-pointer rounded border border-[var(--surface-3)] bg-transparent p-0"
                   value={opt.color ?? '#9ca3af'}
                   onChange={(e) => updateOption.mutate({ fieldId: field.id, optionId: opt.id, patch: { color: e.target.value } })}
                 />
-                <span className="text-sm text-[var(--text-primary)]">{opt.value}{opt.archived && <span className="ml-2 text-caption text-[var(--text-tertiary)]">archived</span>}</span>
+                <span className="text-sm text-[var(--text-primary)]">{opt.value}{opt.archived && <span className="ml-2 text-caption text-[var(--text-tertiary)]">{tr('archived')}</span>}</span>
                 <input
-                  aria-label={`Description of ${opt.value}`} placeholder="Description" maxLength={500}
+                  aria-label={tr('Description of {name}', { name: opt.value })} placeholder={tr('Description')} maxLength={500}
                   className="veqsio-input !py-1 flex-1 min-w-[10rem] text-sm" defaultValue={opt.description ?? ''}
                   onBlur={(e) => { if ((e.target.value || null) !== (opt.description ?? null)) updateOption.mutate({ fieldId: field.id, optionId: opt.id, patch: { description: e.target.value || null } }) }}
                 />
                 <button type="button" onClick={() => updateOption.mutate({ fieldId: field.id, optionId: opt.id, patch: { archived: !opt.archived } })} className="veqsio-btn-ghost text-caption px-2">
-                  {opt.archived ? 'Restore' : 'Archive'}
+                  {opt.archived ? tr('Restore') : tr('Archive')}
                 </button>
                 <button
                   onClick={() => handleRemoveOption(opt.id)}
                   className="veqsio-btn-ghost p-1.5 text-[var(--error)] hover:bg-[var(--error)]/10"
-                  title="Delete (archived instead when issues use it)"
+                  title={tr('Delete (archived instead when issues use it)')}
                 >
                   <Trash2 className="w-3 h-3" />
                 </button>

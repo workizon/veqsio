@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import type { CalendarDay } from '@/lib/calendar-grid'
 
@@ -10,6 +12,8 @@ export interface CalendarIssue { key: string; fields: { summary: string } }
 
 /** The month grid shared by the Calendar page and the calendar layout of saved views. */
 export function MonthCalendar({ weeks, title, byDay, today }: { weeks: CalendarDay[][]; title: string; byDay: Map<string, CalendarIssue[]>; today: string }) {
+  const { tr } = useI18n();
+
   const days = weeks.flat().filter((d) => d.inMonth && (byDay.get(d.date)?.length ?? 0) > 0)
   return (
     <>
@@ -33,7 +37,7 @@ export function MonthCalendar({ weeks, title, byDay, today }: { weeks: CalendarD
                       </Link>
                     </li>
                   ))}
-                  {items.length > MAX_PER_DAY && <li className="px-1.5 text-caption text-[var(--text-tertiary)]">+{items.length - MAX_PER_DAY} more</li>}
+                  {items.length > MAX_PER_DAY && <li className="px-1.5 text-caption text-[var(--text-tertiary)]">{tr('+{n} more', { n: items.length - MAX_PER_DAY })}</li>}
                 </ul>
               </div>
             )
@@ -43,7 +47,7 @@ export function MonthCalendar({ weeks, title, byDay, today }: { weeks: CalendarD
     </div>
     {/* a phone has no room for titles in a month grid: the same issues as a list by day */}
     <div className="sm:hidden mt-4 space-y-3" aria-label={`${title}, by day`}>
-      {days.length === 0 && <p className="text-sm text-[var(--text-tertiary)]">Nothing scheduled this month.</p>}
+      {days.length === 0 && <p className="text-sm text-[var(--text-tertiary)]">{tr('Nothing scheduled this month.')}</p>}
       {days.map((d) => (
         <section key={d.date} className="rounded-xl border border-[var(--surface-3)] bg-[var(--surface-0)] p-3">
           <h3 className="mb-1.5 text-xs font-semibold text-[var(--text-secondary)]">{d.date}</h3>

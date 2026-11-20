@@ -1,11 +1,15 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useDevData } from '@/hooks/use-application-links'
 import { Spinner } from './spinner'
 import { EmptyState } from './empty-state'
 import { GitCommit, GitBranch, GitPullRequest, ExternalLink, RefreshCw, Code } from 'lucide-react'
 
 export function DevelopmentPanel({ issueKey }: { issueKey: string }) {
+  const { tr } = useI18n();
+
   const { data, isLoading } = useDevData(issueKey)
 
   if (isLoading) {
@@ -26,11 +30,10 @@ export function DevelopmentPanel({ issueKey }: { issueKey: string }) {
     return (
       <EmptyState
         icon={Code}
-        title="No development data"
+        title={tr('No development data')}
         description={
           <>
-            Configure <strong>Application links</strong> in System Administration to connect with GitHub, GitLab, or Bitbucket and see commits, branches, and pull requests here.
-          </>
+            {tr('Configure')} <strong>{tr('Application links')}</strong> {tr('in System Administration to connect with GitHub, GitLab, or Bitbucket and see commits, branches, and pull requests here.')} </>
         }
       />
     )
@@ -43,7 +46,7 @@ export function DevelopmentPanel({ issueKey }: { issueKey: string }) {
         <div>
           <h3 className="text-body-sm font-medium text-[var(--text-primary)] flex items-center gap-2 mb-3">
             <GitCommit className="w-4 h-4 text-[var(--text-tertiary)]" />
-            Commits ({commits.length})
+            {tr('Commits (')}{commits.length})
           </h3>
           <div className="border border-[var(--surface-3)] rounded-lg overflow-hidden divide-y divide-[var(--surface-3)]">
             {commits.map((commit) => (
@@ -77,7 +80,7 @@ export function DevelopmentPanel({ issueKey }: { issueKey: string }) {
         <div>
           <h3 className="text-body-sm font-medium text-[var(--text-primary)] flex items-center gap-2 mb-3">
             <GitBranch className="w-4 h-4 text-[var(--text-tertiary)]" />
-            Branches ({branches.length})
+            {tr('Branches (')}{branches.length})
           </h3>
           <div className="border border-[var(--surface-3)] rounded-lg overflow-hidden divide-y divide-[var(--surface-3)]">
             {branches.map((branch) => (
@@ -85,7 +88,7 @@ export function DevelopmentPanel({ issueKey }: { issueKey: string }) {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-body-sm font-medium text-[var(--text-primary)]">{branch.name}</span>
-                    {branch.isDefault && <span className="text-caption px-1.5 py-0.5 bg-[var(--brand-500)] text-white rounded-full">default</span>}
+                    {branch.isDefault && <span className="text-caption px-1.5 py-0.5 bg-[var(--brand-500)] text-white rounded-full">{tr('default')}</span>}
                   </div>
                   {(branch.aheadBy || branch.behindBy) && (
                     <div className="text-caption text-[var(--text-tertiary)] mt-0.5">
@@ -111,7 +114,7 @@ export function DevelopmentPanel({ issueKey }: { issueKey: string }) {
         <div>
           <h3 className="text-body-sm font-medium text-[var(--text-primary)] flex items-center gap-2 mb-3">
             <GitPullRequest className="w-4 h-4 text-[var(--text-tertiary)]" />
-            Pull Requests ({prs.length})
+            {tr('Pull Requests (')}{prs.length})
           </h3>
           <div className="border border-[var(--surface-3)] rounded-lg overflow-hidden divide-y divide-[var(--surface-3)]">
             {prs.map((pr) => (
@@ -135,7 +138,7 @@ export function DevelopmentPanel({ issueKey }: { issueKey: string }) {
                         <span>{pr.sourceBranch} → {pr.targetBranch}</span>
                       )}
                       {pr.updatedAt && (
-                        <span>Updated {new Date(pr.updatedAt).toLocaleDateString()}</span>
+                        <span>{tr('Updated')} {new Date(pr.updatedAt).toLocaleDateString()}</span>
                       )}
                     </div>
                   </div>

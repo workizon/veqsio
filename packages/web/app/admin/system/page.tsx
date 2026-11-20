@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { AppLayout } from '@/components/app-layout'
 import { usePublicSettings } from '@/hooks/use-instance-settings'
 import { PageHeader } from '@/components/page-header'
@@ -22,13 +24,15 @@ import {
 } from 'lucide-react'
 
 export default function AdminSystemPage() {
+  const { tr } = useI18n();
+
   const cloud = !!usePublicSettings().data?.cloud
   // managed tenant: licence, backup and mail server belong to the platform (the API refuses writes there too)
   const selfHostOnly = new Set(['license', 'backup', 'mail'])
   return (
     <AppLayout>
       <div className="space-y-6">
-        <PageHeader title="System administration" description={<>Configure global system settings, users, groups, and infrastructure.{' '} {!cloud && <><a href="/admin/health" className="text-[var(--brand-500)] hover:underline">Run a configuration health check</a>{' · '} </>}<a href="/admin/audit" className="text-[var(--brand-500)] hover:underline">Admin audit log</a>{' · '} <a href="/admin/ai" className="text-[var(--brand-500)] hover:underline">AI assist</a>{' · '} <a href="/admin/plugins" className="text-[var(--brand-500)] hover:underline">Manage plugins</a>{' · '} <a href="/admin/license" className="text-[var(--brand-500)] hover:underline">Licence</a></>} />
+        <PageHeader title={tr('System administration')} description={<>{tr('Configure global system settings, users, groups, and infrastructure.')}{' '} {!cloud && <><a href="/admin/health" className="text-[var(--brand-500)] hover:underline">{tr('Run a configuration health check')}</a>{' · '} </>}<a href="/admin/audit" className="text-[var(--brand-500)] hover:underline">{tr('Admin audit log')}</a>{' · '} <a href="/admin/ai" className="text-[var(--brand-500)] hover:underline">{tr('AI assist')}</a>{' · '} <a href="/admin/plugins" className="text-[var(--brand-500)] hover:underline">{tr('Manage plugins')}</a>{' · '} <a href="/admin/license" className="text-[var(--brand-500)] hover:underline">{tr('Licence')}</a></>} />
 
         <Tabs
           tabs={([

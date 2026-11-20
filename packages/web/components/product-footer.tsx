@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { useBranding } from '@/hooks/use-branding'
 import { useLicenseStatus } from '@/hooks/use-license'
@@ -22,6 +24,8 @@ export function footerLinks(b: { docsUrl: string | null; supportUrl: string | nu
  * `signedIn` is false on the sign-in page, where the licence state is not available.
  */
 export function ProductFooter({ signedIn = true, className = '' }: { signedIn?: boolean; className?: string }) {
+  const { tr } = useI18n();
+
   const b = useBranding()
   const license = useLicenseStatus(signedIn)
   const links = footerLinks(b)
@@ -29,14 +33,14 @@ export function ProductFooter({ signedIn = true, className = '' }: { signedIn?: 
   const link = 'hover:text-[var(--text-primary)] hover:underline underline-offset-2'
   const ext = { target: '_blank', rel: 'noopener noreferrer' } as const
   return (
-    <footer role="contentinfo" aria-label="Product information" className={`border-t border-[var(--surface-3)] px-4 lg:px-6 py-3 text-caption text-[var(--text-tertiary)] flex flex-wrap items-center gap-x-4 gap-y-1 ${className}`}>
+    <footer role="contentinfo" aria-label={tr('Product information')} className={`border-t border-[var(--surface-3)] px-4 lg:px-6 py-3 text-caption text-[var(--text-tertiary)] flex flex-wrap items-center gap-x-4 gap-y-1 ${className}`}>
       <span data-testid="footer-version">{text}</span>
-      <nav aria-label="Footer" className="flex flex-wrap items-center gap-x-4 gap-y-1">
-        <a href={links.docs} className={link} {...ext}>Documentation</a>
-        <a href={links.api} className={link} {...ext}>API docs</a>
-        <a href={links.support} className={link} {...ext}>Support</a>
-        <Link href="/about" className={link}>Licence notices</Link>
-        <a href={b.sourceUrl} className={link} {...ext}>Source code</a>
+      <nav aria-label={tr('Footer')} className="flex flex-wrap items-center gap-x-4 gap-y-1">
+        <a href={links.docs} className={link} {...ext}>{tr('Documentation')}</a>
+        <a href={links.api} className={link} {...ext}>{tr('API docs')}</a>
+        <a href={links.support} className={link} {...ext}>{tr('Support')}</a>
+        <Link href="/about" className={link}>{tr('Licence notices')}</Link>
+        <a href={b.sourceUrl} className={link} {...ext}>{tr('Source code')}</a>
       </nav>
       {showCredit(b.hideCredit) && <PoweredBy className="sm:ml-auto" />}
     </footer>

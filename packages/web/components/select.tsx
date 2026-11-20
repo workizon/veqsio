@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 import { ChevronDown, Check } from 'lucide-react'
 
 interface SelectOption {
@@ -18,7 +19,8 @@ interface SelectProps {
   size?: 'sm' | 'md'
 }
 
-export function Select({ value, options, onChange, placeholder = 'Select...', disabled, size = 'md' }: SelectProps) {
+export function Select({ value, options, onChange, placeholder, disabled, size = 'md' }: SelectProps) {
+  const { tr } = useI18n()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const selected = options.find((o) => o.value === value)
@@ -47,7 +49,7 @@ export function Select({ value, options, onChange, placeholder = 'Select...', di
       >
         <div className="flex items-center gap-2">
           {selected?.icon}
-          <span>{selected?.label || placeholder}</span>
+          <span>{selected?.label || placeholder || tr('Select...')}</span>
         </div>
         <ChevronDown className={`w-4 h-4 text-[var(--text-tertiary)] transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useState } from 'react'
 import { usePublicSettings } from '@/hooks/use-instance-settings'
 
@@ -25,6 +27,8 @@ export function formatCountdown(ms: number): string {
 
 /** Public demo: states that the data is reset on a schedule and counts down to the next reset. */
 function DemoBanner({ minutes }: { minutes: number }) {
+  const { tr } = useI18n();
+
   const [offset, setOffset] = useState(0) // server clock minus this browser's clock
   const [now, setNow] = useState<number | null>(null) // set after mount, so that the server and the first client render agree
   useEffect(() => {
@@ -53,24 +57,25 @@ function DemoBanner({ minutes }: { minutes: number }) {
     <div role="status" className={`relative py-2 pl-4 pr-11 text-center text-sm font-medium ${soon || resetting ? 'bg-amber-100 text-amber-900' : STYLE.info}`}>
       <button
         type="button"
-        aria-label="Dismiss"
+        aria-label={tr('Dismiss')}
         onClick={() => { setDismissed(true); try { sessionStorage.setItem('demo-banner-dismissed', '1') } catch { /* ignore */ } }}
         className="absolute right-2 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-md text-lg leading-none opacity-70 hover:opacity-100 hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-400)]"
       >
         ×
       </button>
-      Public demo: the data is reset every {minutes === 60 ? 'hour' : `${minutes} minutes`}. {resetting
-        ? 'The demo is being reset right now, the page reloads by itself.'
-        : <>Next reset in <strong className="tabular-nums" data-testid="demo-reset-countdown">{formatCountdown(left)}</strong>.</>}
-      {' '}E-mail, webhooks, imports and other outgoing integrations are switched off.
-    </div>
+      {tr('Public demo: the data is reset every')} {minutes === 60 ? tr('hour') : tr('{n} minutes', { n: minutes })}. {resetting
+        ? tr('The demo is being reset right now, the page reloads by itself.')
+        : <>{tr('Next reset in')} <strong className="tabular-nums" data-testid="demo-reset-countdown">{formatCountdown(left)}</strong>.</>}
+      {' '}{tr('E-mail, webhooks, imports and other outgoing integrations are switched off.')} </div>
   )
 }
 
 /** Administrator announcement, rendered as plain text above the page (the demo banner replaces it on a public demo). */
 export function AnnouncementBanner() {
+  const { tr } = useI18n();
+
   const { data } = usePublicSettings()
-  if (data?.maintenance) return <div role="alert" className={`px-4 py-2 text-center text-sm font-medium ${STYLE.critical}`}>Maintenance mode is on: only administrators can work right now. {data.maintenance.message}</div>
+  if (data?.maintenance) return <div role="alert" className={`px-4 py-2 text-center text-sm font-medium ${STYLE.critical}`}>{tr('Maintenance mode is on: only administrators can work right now.')} {data.maintenance.message}</div>
   if (data?.demo) return <DemoBanner minutes={data.demo.resetEveryMinutes} />
   const a = data?.announcement
   if (!a) return null

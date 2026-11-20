@@ -9,6 +9,7 @@ import { runDueDirectorySyncs } from '../auth/ldap-service';
 import { runDueRecurring } from '../recurring/service';
 import { runOncallEscalation } from '../oncall/escalation';
 import { runAuditRetention } from '../audit/retention';
+import { runUsageReport } from '../telemetry/report';
 import { defineJob, type JobDef } from './jobs';
 
 /**
@@ -37,6 +38,8 @@ export function coreJobs(): JobDef<any>[] {
       describe: (r) => (r.created > 0 || r.failed > 0) && `[recurring] ${r.created} issue(s) created, ${r.skipped} skipped, ${r.failed} failed` }),
     defineJob({ name: 'audit-retention', everyMs: 6 * 3_600_000, run: () => runAuditRetention(),
       describe: (n) => n > 0 && `[audit] ${n} audit entr${n === 1 ? 'y' : 'ies'} past the retention period deleted` }),
+    defineJob({ name: 'usage-stats', everyMs: 6 * 3_600_000, run: () => runUsageReport(),
+      describe: (r) => r === 'sent' && '[usage-stats] anonymous usage report sent' }),
     defineJob({ name: 'oncall-escalation', everyMs: 60_000, run: () => runOncallEscalation(),
       describe: (n) => n > 0 && `[oncall] ${n} unacknowledged alert(s) escalated` }),
   ];

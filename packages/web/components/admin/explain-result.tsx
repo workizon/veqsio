@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { CheckCircle2, Info, XCircle } from 'lucide-react'
 
@@ -7,8 +9,10 @@ export interface ExplainReason { kind: string; granted: boolean; decisive: boole
 
 /** Shared result card of the admin helpers: a big verdict lozenge and the ordered reasons as a checklist. */
 export function ExplainResult({ verdict, positive, title, subtitle, reasons }: { verdict: string; positive: boolean; title: string; subtitle?: string; reasons: ExplainReason[] }) {
+  const { tr } = useI18n();
+
   return (
-    <section aria-live="polite" aria-label="Result" className="rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)] p-5 space-y-4">
+    <section aria-live="polite" aria-label={tr('Result')} className="rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)] p-5 space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <span
           data-testid="verdict"
@@ -24,7 +28,7 @@ export function ExplainResult({ verdict, positive, title, subtitle, reasons }: {
         </div>
       </div>
       <div>
-        <h2 className="text-heading-3 text-[var(--text-primary)] mb-2">Why</h2>
+        <h2 className="text-heading-3 text-[var(--text-primary)] mb-2">{tr('Why')}</h2>
         <ol className="space-y-2">
           {reasons.map((r, i) => {
             const Icon = !r.decisive ? Info : r.granted ? CheckCircle2 : XCircle
@@ -34,9 +38,9 @@ export function ExplainResult({ verdict, positive, title, subtitle, reasons }: {
                 <Icon className={`w-5 h-5 mt-0.5 shrink-0 ${color}`} aria-hidden />
                 <div className="min-w-0 flex-1">
                   <p className="text-body text-[var(--text-primary)]">
-                    <span className="sr-only">{!r.decisive ? 'Note: ' : r.granted ? 'Grants: ' : 'Does not grant: '}</span>{r.text}
+                    <span className="sr-only">{!r.decisive ? tr('Note:') : r.granted ? tr('Grants:') : tr('Does not grant:')}</span>{r.text}
                   </p>
-                  {r.link && <Link href={r.link} className="text-caption text-[var(--brand-500)] hover:underline">Open the setting</Link>}
+                  {r.link && <Link href={r.link} className="text-caption text-[var(--brand-500)] hover:underline">{tr('Open the setting')}</Link>}
                 </div>
               </li>
             )

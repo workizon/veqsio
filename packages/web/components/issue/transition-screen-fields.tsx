@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { AssigneeField, ComponentsField, DueDateField, LabelsField, PriorityField, VersionsField } from './details-panel'
 import { useMyself } from '@/hooks/use-issues'
@@ -28,11 +30,13 @@ export function TransitionScreenFields({ fields, values, onChange, errors, proje
 }
 
 function FieldBlock({ field, error, children }: { field: ScreenField; error?: string; children: React.ReactNode }) {
+  const { tr } = useI18n();
+
   const id = `tf-${field.key}`
   return (
     <div data-testid={`transition-field-${field.key}`}>
       <label htmlFor={id} className="text-caption font-medium text-[var(--text-secondary)] block mb-1">
-        {field.name} {field.required ? <span className="text-[var(--error)]" aria-hidden="true">*</span> : <span className="text-[var(--text-tertiary)]">(optional)</span>}
+        {field.name} {field.required ? <span className="text-[var(--error)]" aria-hidden="true">*</span> : <span className="text-[var(--text-tertiary)]">{tr('(optional)')}</span>}
       </label>
       <div className={error ? 'rounded-md ring-1 ring-[var(--error)] px-1.5' : 'rounded-md border border-transparent px-1.5'}>{children}</div>
       {error && <p id={`${id}-error`} role="alert" className="text-caption text-[var(--error)] mt-1">{error}</p>}
@@ -47,6 +51,8 @@ function Editor({ field, values, onChange, projectKey, error }: {
   projectKey: string
   error?: string
 }) {
+  const { tr } = useI18n();
+
   const id = `tf-${field.key}`
   const v = values[field.key]
   const { data: myself } = useMyself()
@@ -59,12 +65,12 @@ function Editor({ field, values, onChange, projectKey, error }: {
       case 'select':
         return (
           <select id={id} className="veqsio-input w-full" value={String(v ?? '')} onChange={(e) => onChange(field.key, e.target.value)} {...aria}>
-            <option value="">{field.required ? 'Select an option' : 'None'}</option>
+            <option value="">{field.required ? tr('Select an option') : tr('None')}</option>
             {(field.options ?? []).map((o) => <option key={o} value={o}>{o}</option>)}
           </select>
         )
       case 'boolean':
-        return <label className="flex items-center gap-2 py-1.5 text-body-sm"><input id={id} type="checkbox" checked={v === 'true'} onChange={(e) => onChange(field.key, e.target.checked ? 'true' : '')} {...aria} /> Yes</label>
+        return <label className="flex items-center gap-2 py-1.5 text-body-sm"><input id={id} type="checkbox" checked={v === 'true'} onChange={(e) => onChange(field.key, e.target.checked ? 'true' : '')} {...aria} /> {tr('Yes')}</label>
       case 'textarea':
         return <textarea id={id} rows={3} className="veqsio-input w-full" value={String(v ?? '')} onChange={(e) => onChange(field.key, e.target.value)} maxLength={500} {...aria} />
       case 'number':
@@ -94,7 +100,7 @@ function Editor({ field, values, onChange, projectKey, error }: {
             />
           </div>
           {myself && a?.id !== myself.id && (
-            <button type="button" onClick={() => onChange('assignee', { id: myself.id, displayName: myself.displayName || myself.name })} className="text-caption text-[var(--brand-500)] hover:underline">Assign to me</button>
+            <button type="button" onClick={() => onChange('assignee', { id: myself.id, displayName: myself.displayName || myself.name })} className="text-caption text-[var(--brand-500)] hover:underline">{tr('Assign to me')}</button>
           )}
         </div>
       )
@@ -104,7 +110,7 @@ function Editor({ field, values, onChange, projectKey, error }: {
     case 'labels':
       return <LabelsField id={id} open={labelsOpen} onOpenChange={setLabelsOpen} labels={(v as string[] | undefined) ?? []} onChange={(labels) => onChange('labels', labels)} />
     case 'fixVersions':
-      return <VersionsField id={id} label="Fix versions" projectKey={projectKey} selected={(v as RefValue[] | undefined) ?? []} onChange={(_ids, all) => onChange('fixVersions', all.filter((x) => _ids.includes(x.id)))} />
+      return <VersionsField id={id} label={tr('Fix versions')} projectKey={projectKey} selected={(v as RefValue[] | undefined) ?? []} onChange={(_ids, all) => onChange('fixVersions', all.filter((x) => _ids.includes(x.id)))} />
     case 'components':
       return <ComponentsField id={id} projectKey={projectKey} selected={(v as RefValue[] | undefined) ?? []} onChange={(_ids, all) => onChange('components', all.filter((x) => _ids.includes(x.id)))} />
     case 'duedate':

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import Link from 'next/link'
@@ -89,6 +91,8 @@ function StatTile({ label, value, loading, icon: Icon, tone, href }: {
 }
 
 function IssueLine({ issue, showAssignee }: { issue: SearchIssue; showAssignee?: boolean }) {
+  const { tr } = useI18n();
+
   return (
     <Link
       href={`/issues/${issue.key}`}
@@ -101,7 +105,7 @@ function IssueLine({ issue, showAssignee }: { issue: SearchIssue; showAssignee?:
       <span className="hidden sm:inline-flex"><StatusBadge status={issue.fields.status?.name || 'Unknown'} category={issue.fields.status?.category as never} /></span>
       {showAssignee && (issue.fields.assignee
         ? <Avatar name={issue.fields.assignee.displayName} size="sm" />
-        : <span className="w-5 h-5 rounded-full border border-dashed border-[var(--surface-4)]" title="Unassigned" />)}
+        : <span className="w-5 h-5 rounded-full border border-dashed border-[var(--surface-4)]" title={tr('Unassigned')} />)}
       <span className="hidden lg:block w-14 text-right text-[12px] text-[var(--text-tertiary)] tabular-nums">{timeAgo(issue.fields.updated)}</span>
     </Link>
   )
@@ -111,11 +115,13 @@ function ListCard({ title, action, loading, error, issues, empty, showAssignee }
   title: string; action?: { href: string; label: string }; loading: boolean; error: Error | null
   issues: SearchIssue[] | undefined; empty: { title: string; hint: string }; showAssignee?: boolean
 }) {
+  const { tr } = useI18n();
+
   return (
     <section className="veqsio-card !p-0 overflow-hidden">
       <header className="flex items-center justify-between px-4 py-3 border-b border-[var(--surface-3)]">
         <h2 className="text-heading-3 text-[var(--text-primary)]">{title}</h2>
-        {action && <Link href={action.href} className="text-[12px] font-medium text-[var(--brand-600)] hover:underline">{action.label}</Link>}
+        {action && <Link href={action.href} className="text-[12px] font-medium text-[var(--brand-600)] hover:underline">{tr(action.label)}</Link>}
       </header>
       {loading && Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="flex items-center gap-3 px-4 py-2.5 border-b border-[var(--surface-3)] last:border-b-0 animate-pulse">
@@ -123,12 +129,12 @@ function ListCard({ title, action, loading, error, issues, empty, showAssignee }
           <span className="h-3 flex-1 max-w-[320px] rounded bg-[var(--surface-2)]" /><span className="h-4 w-16 rounded-full bg-[var(--surface-2)] ml-auto" />
         </div>
       ))}
-      {!loading && error && <p role="alert" className="px-4 py-6 text-[13px] text-[var(--error)]">Could not load this list: {error.message}</p>}
+      {!loading && error && <p role="alert" className="px-4 py-6 text-[13px] text-[var(--error)]">{tr('Could not load this list:')} {error.message}</p>}
       {!loading && !error && !issues?.length && (
         <div className="px-4 py-8 text-center">
           <Inbox className="w-6 h-6 mx-auto text-[var(--text-tertiary)]" aria-hidden="true" />
-          <p className="mt-2 text-[13px] font-medium text-[var(--text-primary)]">{empty.title}</p>
-          <p className="text-[12px] text-[var(--text-tertiary)]">{empty.hint}</p>
+          <p className="mt-2 text-[13px] font-medium text-[var(--text-primary)]">{tr(empty.title)}</p>
+          <p className="text-[12px] text-[var(--text-tertiary)]">{tr(empty.hint)}</p>
         </div>
       )}
       {!loading && !error && issues?.map((i) => <IssueLine key={i.id} issue={i} showAssignee={showAssignee} />)}
@@ -137,6 +143,8 @@ function ListCard({ title, action, loading, error, issues, empty, showAssignee }
 }
 
 export default function YourWorkPage() {
+  const { tr } = useI18n();
+
   // A default dashboard (chosen on the dashboards page) opens instead of Home; Home itself stays at /dashboard?home=1.
   const router = useRouter()
   const wantsHome = useSearchParams()?.get('home') === '1'
@@ -167,32 +175,32 @@ export default function YourWorkPage() {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-heading-1 text-[var(--text-primary)]">
-              {greeting()}{name ? `, ${name}` : ''}
+              {tr(greeting())}{name ? `, ${name}` : ''}
             </h1>
             <p className="text-body text-[var(--text-secondary)] mt-0.5">
               {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
               {mine.data ? ` · ${mine.data.total} open ${mine.data.total === 1 ? 'issue' : 'issues'} assigned to you` : ''}
             </p>
           </div>
-          <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary"><Plus className="w-4 h-4" />Create issue</button>
+          <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary"><Plus className="w-4 h-4" />{tr('Create issue')}</button>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatTile label="Open issues" value={open.data?.total} loading={open.isLoading} icon={CircleDot} tone="var(--text-secondary)" href={q(OPEN)} />
-          <StatTile label="In progress" value={inProgress.data?.total} loading={inProgress.isLoading} icon={Timer} tone="var(--brand-500)" href={q('status = "In Progress"')} />
-          <StatTile label="Done this week" value={done.data?.total} loading={done.isLoading} icon={CheckCircle2} tone="var(--success)" href={q('status in (Done, Closed, Resolved) AND updated >= -7d')} />
-          <StatTile label="Overdue" value={overdue.data?.total} loading={overdue.isLoading} icon={AlertTriangle} tone="var(--error)" href={q(`duedate < now() AND ${OPEN}`)} />
+          <StatTile label={tr('Open issues')} value={open.data?.total} loading={open.isLoading} icon={CircleDot} tone="var(--text-secondary)" href={q(OPEN)} />
+          <StatTile label={tr('In progress')} value={inProgress.data?.total} loading={inProgress.isLoading} icon={Timer} tone="var(--brand-500)" href={q('status = "In Progress"')} />
+          <StatTile label={tr('Done this week')} value={done.data?.total} loading={done.isLoading} icon={CheckCircle2} tone="var(--success)" href={q('status in (Done, Closed, Resolved) AND updated >= -7d')} />
+          <StatTile label={tr('Overdue')} value={overdue.data?.total} loading={overdue.isLoading} icon={AlertTriangle} tone="var(--error)" href={q(`duedate < now() AND ${OPEN}`)} />
         </div>
 
         <div className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div className="space-y-4 min-w-0">
             <ListCard
-              title="Assigned to me" action={{ href: q(`assignee = currentUser() AND ${OPEN}`), label: 'View all' }}
+              title={tr('Assigned to me')} action={{ href: q(`assignee = currentUser() AND ${OPEN}`), label: 'View all' }}
               loading={mine.isLoading} error={mine.error} issues={mine.data?.issues}
               empty={{ title: 'Nothing assigned to you', hint: 'Issues assigned to you will show up here.' }}
             />
             <ListCard
-              title="Recently updated" action={{ href: '/issues', label: 'All issues' }}
+              title={tr('Recently updated')} action={{ href: '/issues', label: 'All issues' }}
               loading={recent.isLoading} error={recent.error} issues={recent.data?.issues} showAssignee
               empty={{ title: 'No issues yet', hint: 'Create the first issue to get started.' }}
             />
@@ -201,11 +209,11 @@ export default function YourWorkPage() {
           <div className="space-y-4 min-w-0">
             <section className="veqsio-card !p-0 overflow-hidden">
               <header className="flex items-center justify-between px-4 py-3 border-b border-[var(--surface-3)]">
-                <h2 className="text-heading-3 text-[var(--text-primary)]">Projects</h2>
-                <Link href="/projects" className="text-[12px] font-medium text-[var(--brand-600)] hover:underline">View all</Link>
+                <h2 className="text-heading-3 text-[var(--text-primary)]">{tr('Projects')}</h2>
+                <Link href="/projects" className="text-[12px] font-medium text-[var(--brand-600)] hover:underline">{tr('View all')}</Link>
               </header>
               {projects.isLoading && <div className="px-4 py-3"><span className="block h-4 w-40 rounded bg-[var(--surface-2)] animate-pulse" /></div>}
-              {!projects.isLoading && !projects.data?.length && <p className="px-4 py-6 text-[13px] text-[var(--text-tertiary)]">No projects yet.</p>}
+              {!projects.isLoading && !projects.data?.length && <p className="px-4 py-6 text-[13px] text-[var(--text-tertiary)]">{tr('No projects yet.')}</p>}
               {projects.data?.slice(0, 6).map((p) => (
                 <Link key={p.id} href={`/projects/${p.key}`} className="flex items-center gap-3 px-4 py-2.5 border-b border-[var(--surface-3)] last:border-b-0 hover:bg-[var(--surface-1)] transition-colors">
                   <span className="w-7 h-7 rounded-md bg-[var(--brand-50)] text-[var(--brand-700)] text-[11px] font-bold flex items-center justify-center shrink-0">{p.key.slice(0, 2)}</span>
@@ -215,7 +223,7 @@ export default function YourWorkPage() {
             </section>
 
             <section className="veqsio-card !p-0 overflow-hidden">
-              <header className="px-4 py-3 border-b border-[var(--surface-3)]"><h2 className="text-heading-3 text-[var(--text-primary)]">Jump to</h2></header>
+              <header className="px-4 py-3 border-b border-[var(--surface-3)]"><h2 className="text-heading-3 text-[var(--text-primary)]">{tr('Jump to')}</h2></header>
               {([
                 { href: '/boards', label: 'Board', hint: 'Active sprint', Icon: KanbanSquare },
                 { href: '/backlog', label: 'Backlog', hint: 'Plan sprints', Icon: ListTodo },
@@ -223,8 +231,8 @@ export default function YourWorkPage() {
               ] as const).map(({ href, label, hint, Icon }) => (
                 <Link key={href} href={href} className="group flex items-center gap-3 px-4 py-2.5 border-b border-[var(--surface-3)] last:border-b-0 hover:bg-[var(--surface-1)] transition-colors">
                   <Icon className="w-4 h-4 text-[var(--text-tertiary)]" aria-hidden="true" />
-                  <span className="text-[13px] font-medium text-[var(--text-primary)]">{label}</span>
-                  <span className="text-[12px] text-[var(--text-tertiary)]">{hint}</span>
+                  <span className="text-[13px] font-medium text-[var(--text-primary)]">{tr(label)}</span>
+                  <span className="text-[12px] text-[var(--text-tertiary)]">{tr(hint)}</span>
                   <ArrowRight className="w-3.5 h-3.5 ml-auto text-[var(--text-tertiary)] opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
                 </Link>
               ))}

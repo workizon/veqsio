@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { ImageLightbox } from '@/components/image-lightbox'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Download, FileText, LayoutGrid, List, Trash2, Upload } from 'lucide-react'
@@ -37,6 +39,8 @@ export type AttachmentUploader = ReturnType<typeof useAttachmentUpload>
 type ViewMode = 'grid' | 'list'
 
 export function AttachmentsSection({ issueKey, uploader }: { issueKey: string; uploader: AttachmentUploader }) {
+  const { tr } = useI18n();
+
   const { data, isLoading } = useIssueAttachments(issueKey)
   const del = useDeleteAttachment()
   const [view, setView] = useState<ViewMode>('grid')
@@ -64,7 +68,7 @@ export function AttachmentsSection({ issueKey, uploader }: { issueKey: string; u
   const remove = async (a: ApiAttachment) => {
     try {
       await del.mutateAsync({ key: issueKey, id: a.id })
-      toast('Attachment deleted', 'success')
+      toast(tr('Attachment deleted'), 'success')
       if (preview?.id === a.id) setPreview(null)
     } catch (err: any) {
       toast(err?.message || 'Failed to delete attachment', 'error')
@@ -89,14 +93,14 @@ export function AttachmentsSection({ issueKey, uploader }: { issueKey: string; u
     >
       <div className="flex items-center justify-between gap-2">
         <h2 id="issue-attachments-heading" className="text-heading-3 text-[var(--text-primary)]">
-          Attachments {attachments.length > 0 && <span className="text-[var(--text-tertiary)] font-normal">({attachments.length})</span>}
+          {tr('Attachments')} {attachments.length > 0 && <span className="text-[var(--text-tertiary)] font-normal">({attachments.length})</span>}
         </h2>
         <div className="flex items-center gap-1">
-          <div className="flex rounded-md border border-[var(--surface-3)] overflow-hidden" role="group" aria-label="Attachment layout">
-            <button type="button" aria-pressed={view === 'grid'} aria-label="Grid view" onClick={() => changeView('grid')} className={`p-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand-500)] ${view === 'grid' ? 'bg-[var(--surface-3)] text-[var(--text-primary)]' : 'text-[var(--text-tertiary)] hover:bg-[var(--surface-2)]'}`}>
+          <div className="flex rounded-md border border-[var(--surface-3)] overflow-hidden" role="group" aria-label={tr('Attachment layout')}>
+            <button type="button" aria-pressed={view === 'grid'} aria-label={tr('Grid view')} onClick={() => changeView('grid')} className={`p-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand-500)] ${view === 'grid' ? 'bg-[var(--surface-3)] text-[var(--text-primary)]' : 'text-[var(--text-tertiary)] hover:bg-[var(--surface-2)]'}`}>
               <LayoutGrid className="w-4 h-4" aria-hidden="true" />
             </button>
-            <button type="button" aria-pressed={view === 'list'} aria-label="List view" onClick={() => changeView('list')} className={`p-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand-500)] ${view === 'list' ? 'bg-[var(--surface-3)] text-[var(--text-primary)]' : 'text-[var(--text-tertiary)] hover:bg-[var(--surface-2)]'}`}>
+            <button type="button" aria-pressed={view === 'list'} aria-label={tr('List view')} onClick={() => changeView('list')} className={`p-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand-500)] ${view === 'list' ? 'bg-[var(--surface-3)] text-[var(--text-primary)]' : 'text-[var(--text-tertiary)] hover:bg-[var(--surface-2)]'}`}>
               <List className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
@@ -116,7 +120,7 @@ export function AttachmentsSection({ issueKey, uploader }: { issueKey: string; u
           onClick={uploader.open}
           className="w-full rounded-lg border border-dashed border-[var(--surface-4)] px-4 py-6 text-body-sm text-[var(--text-tertiary)] hover:border-[var(--brand-500)] hover:text-[var(--text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)] transition-colors"
         >
-          Drop files to attach, or <span className="text-[var(--brand-500)]">browse</span>
+          {tr('Drop files to attach, or')} <span className="text-[var(--brand-500)]">browse</span>
         </button>
       ) : view === 'grid' ? (
         <ul className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -129,12 +133,12 @@ export function AttachmentsSection({ issueKey, uploader }: { issueKey: string; u
               ) : isPdfAttachment(a) ? (
                 <button type="button" onClick={() => setPreview(a)} aria-label={`Preview ${a.filename}`} className="flex w-full flex-col items-center justify-center aspect-[4/3] bg-[var(--surface-2)] p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand-500)]">
                   <FileText className="w-8 h-8 text-[var(--error)] mb-1" aria-hidden="true" />
-                  <span className="text-xs font-medium text-[var(--text-secondary)]">Preview PDF</span>
+                  <span className="text-xs font-medium text-[var(--text-secondary)]">{tr('Preview PDF')}</span>
                 </button>
               ) : (
                 <a href={a.content} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center aspect-[4/3] bg-[var(--surface-2)] p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand-500)]">
                   <FileText className="w-8 h-8 text-[var(--text-tertiary)] mb-1" aria-hidden="true" />
-                  <span className="sr-only">Open {a.filename}</span>
+                  <span className="sr-only">{tr('Open')} {a.filename}</span>
                 </a>
               )}
               <div className="p-2 border-t border-[var(--surface-3)] flex items-center gap-2">
@@ -195,11 +199,11 @@ export function AttachmentsSection({ issueKey, uploader }: { issueKey: string; u
               <div className="flex items-center gap-2">
                 {images.length > 1 && (
                   <>
-                    <button type="button" className="veqsio-btn-secondary text-sm" onClick={() => { const i = images.findIndex((x) => x.id === preview.id); setPreview(images[(i - 1 + images.length) % images.length]) }}>Previous</button>
-                    <button type="button" className="veqsio-btn-secondary text-sm" onClick={() => { const i = images.findIndex((x) => x.id === preview.id); setPreview(images[(i + 1) % images.length]) }}>Next</button>
+                    <button type="button" className="veqsio-btn-secondary text-sm" onClick={() => { const i = images.findIndex((x) => x.id === preview.id); setPreview(images[(i - 1 + images.length) % images.length]) }}>{tr('Previous')}</button>
+                    <button type="button" className="veqsio-btn-secondary text-sm" onClick={() => { const i = images.findIndex((x) => x.id === preview.id); setPreview(images[(i + 1) % images.length]) }}>{tr('Next')}</button>
                   </>
                 )}
-                <a href={preview.content} download={preview.filename} className="veqsio-btn-secondary text-sm flex items-center gap-1"><Download className="w-4 h-4" aria-hidden="true" /> Download</a>
+                <a href={preview.content} download={preview.filename} className="veqsio-btn-secondary text-sm flex items-center gap-1"><Download className="w-4 h-4" aria-hidden="true" /> {tr('Download')}</a>
               </div>
             </div>
           </div>

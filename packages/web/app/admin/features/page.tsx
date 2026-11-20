@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { AppLayout } from '@/components/app-layout'
 import { PageHeader } from '@/components/page-header'
 import { Spinner } from '@/components/spinner'
@@ -19,19 +21,21 @@ function Switch({ checked, label, disabled, onChange }: { checked: boolean; labe
 }
 
 export default function FeaturesPage() {
+  const { tr } = useI18n();
+
   const features = useAdminFeatures()
   const modules = useAdminModules()
   const toggleFeature = useToggleFeature()
   const toggleModule = useToggleModule()
-  const fail = (e: unknown) => toast((e as Error).message || 'Failed to save', 'error')
+  const fail = (e: unknown) => toast((e as Error).message || tr('Failed to save'), 'error')
 
   return (
     <AppLayout>
       <div className="space-y-8">
-        <PageHeader title="Features and modules" description="Switch parts of Veqsio on or off for the whole instance. A switched-off feature disappears from the menus and its API answers 404; no data is deleted, so switching it back on restores everything." />
+        <PageHeader title={tr('Features and modules')} description={tr('Switch parts of Veqsio on or off for the whole instance. A switched-off feature disappears from the menus and its API answers 404; no data is deleted, so switching it back on restores everything.')} />
 
         <section aria-labelledby="core-heading" className="space-y-3">
-          <h2 id="core-heading" className="text-heading-3">Core features</h2>
+          <h2 id="core-heading" className="text-heading-3">{tr('Core features')}</h2>
           {features.isLoading ? <Spinner /> : (
             <ul className="divide-y divide-[var(--surface-3)] rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)]">
               {(features.data ?? []).map((f) => (
@@ -40,7 +44,7 @@ export default function FeaturesPage() {
                     <div className="text-body font-medium text-[var(--text-primary)]">{f.name}</div>
                     <div className="text-body-sm text-[var(--text-secondary)]">{f.description}{f.note ? ` ${f.note}` : ''}</div>
                   </div>
-                  <Switch checked={f.enabled} label={`${f.name} enabled`} disabled={toggleFeature.isPending} onChange={(enabled) => toggleFeature.mutate({ id: f.id, enabled }, { onError: fail })} />
+                  <Switch checked={f.enabled} label={tr('{name} enabled', { name: f.name })} disabled={toggleFeature.isPending} onChange={(enabled) => toggleFeature.mutate({ id: f.id, enabled }, { onError: fail })} />
                 </li>
               ))}
             </ul>
@@ -48,16 +52,16 @@ export default function FeaturesPage() {
         </section>
 
         <section aria-labelledby="modules-heading" className="space-y-3">
-          <h2 id="modules-heading" className="text-heading-3">Modules</h2>
-          {modules.isLoading ? <Spinner /> : (modules.data ?? []).length === 0 ? <p className="text-body-sm text-[var(--text-secondary)]">No modules are installed.</p> : (
+          <h2 id="modules-heading" className="text-heading-3">{tr('Modules')}</h2>
+          {modules.isLoading ? <Spinner /> : (modules.data ?? []).length === 0 ? <p className="text-body-sm text-[var(--text-secondary)]">{tr('No modules are installed.')}</p> : (
             <ul className="divide-y divide-[var(--surface-3)] rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)]">
               {(modules.data ?? []).map((m) => (
                 <li key={m.id} className="flex items-center gap-4 p-4">
                   <div className="flex-1 min-w-0">
                     <div className="text-body font-medium text-[var(--text-primary)]">{m.name} <span className="text-caption text-[var(--text-tertiary)]">v{m.version} · {m.edition}</span></div>
-                    <div className="text-body-sm text-[var(--text-secondary)]">{m.description}{!m.licensed ? ' Needs a licence: it stays inactive until one that includes it is installed.' : ''}</div>
+                    <div className="text-body-sm text-[var(--text-secondary)]">{m.description}{!m.licensed ? ' ' + tr('Needs a licence: it stays inactive until one that includes it is installed.') : ''}</div>
                   </div>
-                  <Switch checked={m.enabled} label={`${m.name} enabled`} disabled={toggleModule.isPending} onChange={(enabled) => toggleModule.mutate({ id: m.id, enabled }, { onError: fail })} />
+                  <Switch checked={m.enabled} label={tr('{name} enabled', { name: m.name })} disabled={toggleModule.isPending} onChange={(enabled) => toggleModule.mutate({ id: m.id, enabled }, { onError: fail })} />
                 </li>
               ))}
             </ul>

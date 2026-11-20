@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
@@ -132,6 +134,8 @@ function StatCard({ label, value }: { label: string; value: number }) {
 }
 
 export default function MigrationPage() {
+  const { tr } = useI18n();
+
   const queryClient = useQueryClient()
 
   const [step, setStep] = useState<Step>('upload')
@@ -174,7 +178,7 @@ export default function MigrationPage() {
     },
     onSuccess: (data) => {
       setBackupPath(data.path)
-      toast('Backup uploaded successfully', 'success')
+      toast(tr('Backup uploaded successfully'), 'success')
       analyzeMutation.mutate(data.path)
     },
     onError: (err: Error) => {
@@ -255,7 +259,7 @@ export default function MigrationPage() {
     onSuccess: (data) => {
       setSessionId(data.sessionId)
       setStep('run')
-      toast('Migration started', 'success')
+      toast(tr('Migration started'), 'success')
       queryClient.invalidateQueries({ queryKey: ['migration', data.sessionId] })
     },
     onError: (err: Error) => {
@@ -273,7 +277,7 @@ export default function MigrationPage() {
       return res.json()
     },
     onSuccess: () => {
-      toast('Migration paused', 'info')
+      toast(tr('Migration paused'), 'info')
       queryClient.invalidateQueries({ queryKey: ['migration', sessionId] })
     },
   })
@@ -288,7 +292,7 @@ export default function MigrationPage() {
       return res.json()
     },
     onSuccess: () => {
-      toast('Migration resumed', 'success')
+      toast(tr('Migration resumed'), 'success')
       queryClient.invalidateQueries({ queryKey: ['migration', sessionId] })
     },
   })
@@ -339,7 +343,7 @@ export default function MigrationPage() {
       a.click()
       URL.revokeObjectURL(url)
     } catch {
-      toast('Failed to download report', 'error')
+      toast(tr('Failed to download report'), 'error')
     }
   }, [])
 
@@ -356,18 +360,17 @@ export default function MigrationPage() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
-            <a href="/admin/migration" className="text-sm text-[var(--brand-500)] hover:underline">← Import from other tools</a>
-            <h1 className="text-heading-1 text-[var(--text-primary)]">Import a Jira backup file</h1>
+            <a href="/admin/migration" className="text-sm text-[var(--brand-500)] hover:underline">{tr('← Import from other tools')}</a>
+            <h1 className="text-heading-1 text-[var(--text-primary)]">{tr('Import a Jira backup file')}</h1>
             <p className="text-body-sm text-[var(--text-secondary)] mt-1">
-              Import a Jira Data Center XML backup into Veqsio, or{' '}
+              {tr('Import a Jira Data Center XML backup into Veqsio, or')}{' '}
               <a href="/admin/migration/jira" className="text-[var(--brand-500)] hover:underline">
-                import directly from a live Jira (Cloud or Server/DC) over REST
-              </a>
+                {tr('import directly from a live Jira (Cloud or Server/DC) over REST')} </a>
             </p>
           </div>
           <div className="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
             <Database className="w-4 h-4" />
-            <span>Max 2GB</span>
+            <span>{tr('Max 2GB')}</span>
           </div>
         </div>
 
@@ -413,14 +416,14 @@ export default function MigrationPage() {
             {uploadMutation.isPending && (
               <div className="flex items-center justify-center gap-2 text-sm text-[var(--text-secondary)]">
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Uploading backup... {uploadPct}%</span>
+                <span>{tr('Uploading backup...')} {uploadPct}%</span>
               </div>
             )}
 
             {analyzeMutation.isPending && (
               <div className="flex items-center justify-center gap-2 text-sm text-[var(--text-secondary)]">
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Analyzing backup contents...</span>
+                <span>{tr('Analyzing backup contents...')}</span>
               </div>
             )}
           </div>
@@ -433,9 +436,8 @@ export default function MigrationPage() {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                 <h2 className="text-heading-2 text-[var(--text-primary)] flex items-center gap-2">
                   <BarChart3 className="w-5 h-5 text-[var(--brand-500)]" />
-                  Analysis Results
-                </h2>
-                <span className="text-sm text-[var(--text-tertiary)]">{totalCount.toLocaleString()} total entities</span>
+                  {tr('Analysis Results')} </h2>
+                <span className="text-sm text-[var(--text-tertiary)]">{totalCount.toLocaleString()} {tr('total entities')}</span>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -457,7 +459,7 @@ export default function MigrationPage() {
               <div className="veqsio-card p-6 flex flex-col items-center gap-4">
                 <ShieldAlert className="w-10 h-10 text-[var(--warning)]" />
                 <div className="text-center">
-                  <p className="text-sm font-medium text-[var(--text-primary)]">Ready to migrate</p>
+                  <p className="text-sm font-medium text-[var(--text-primary)]">{tr('Ready to migrate')}</p>
                   <p className="text-xs text-[var(--text-secondary)] mt-1">
                     {conflicts.length > 0
                       ? `${conflicts.length} conflict${conflicts.length !== 1 ? 's' : ''} will be skipped.`
@@ -490,7 +492,7 @@ export default function MigrationPage() {
         {step === 'run' && progressData?.status === 'completed' && (
           <div className="veqsio-card p-6 text-center space-y-3">
             <CheckCircle2 className="w-10 h-10 text-[var(--success)] mx-auto" />
-            <p className="text-sm font-medium text-[var(--text-primary)]">Migration completed successfully!</p>
+            <p className="text-sm font-medium text-[var(--text-primary)]">{tr('Migration completed successfully!')}</p>
             <div className="flex justify-center gap-2">
               <button
                 onClick={() => {
@@ -503,8 +505,7 @@ export default function MigrationPage() {
                 }}
                 className="veqsio-btn-secondary"
               >
-                Migrate Another Backup
-              </button>
+                {tr('Migrate Another Backup')} </button>
             </div>
           </div>
         )}

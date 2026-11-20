@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { AlertTriangle, CheckCircle2, HelpCircle, Info } from 'lucide-react'
@@ -88,26 +90,30 @@ const btnPrimary = 'veqsio-btn-primary'
 const btnDanger = 'inline-flex items-center justify-center rounded-lg bg-[var(--error)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--error)] focus-visible:ring-offset-2'
 
 function ConfirmView({ r, done }: { r: Extract<Request, { kind: 'confirm' }>; done: () => void }) {
+  const { tr } = useI18n()
   const text = typeof r.opts.message === 'string' ? r.opts.message : ''
   const inferred = infer(text)
   const tone = r.opts.tone ?? inferred.tone
   const title = r.opts.title ?? (typeof r.opts.message === 'string' ? inferred.title : 'Please confirm')
+  const shownTitle = tr(title)
   const label = r.opts.confirmLabel ?? inferred.label
   const answer = (v: boolean) => { r.resolve(v); done() }
   const cancel = useRef<HTMLButtonElement>(null)
   useEffect(() => { cancel.current?.focus() }, [])
   return (
-    <Shell tone={tone} title={title} onCancel={() => answer(false)} labelledBy="dialog-title">
+    <Shell tone={tone} title={shownTitle} onCancel={() => answer(false)} labelledBy="dialog-title">
       <div className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{r.opts.message}</div>
       <div className="mt-6 flex justify-end gap-2">
-        <button ref={cancel} type="button" className="veqsio-btn-secondary" onClick={() => answer(false)}>{r.opts.cancelLabel ?? 'Cancel'}</button>
-        <button type="button" className={tone === 'danger' ? btnDanger : btnPrimary} onClick={() => answer(true)} autoFocus={tone !== 'danger'}>{label}</button>
+        <button ref={cancel} type="button" className="veqsio-btn-secondary" onClick={() => answer(false)}>{r.opts.cancelLabel ?? tr('Cancel')}</button>
+        <button type="button" className={tone === 'danger' ? btnDanger : btnPrimary} onClick={() => answer(true)} autoFocus={tone !== 'danger'}>{tr(label)}</button>
       </div>
     </Shell>
   )
 }
 
 function PromptView({ r, done }: { r: Extract<Request, { kind: 'prompt' }>; done: () => void }) {
+  const { tr } = useI18n();
+
   const [value, setValue] = useState(r.opts.defaultValue ?? '')
   const answer = (v: string | null) => { r.resolve(v); done() }
   const ok = r.opts.required === false || value.trim().length > 0
@@ -118,7 +124,7 @@ function PromptView({ r, done }: { r: Extract<Request, { kind: 'prompt' }>; done
         {r.opts.message ? <p className="mb-3 text-sm text-[var(--text-secondary)]">{r.opts.message}</p> : r.opts.title ? <p className="mb-3 text-sm text-[var(--text-secondary)]">{r.label}</p> : null}
         <input autoFocus aria-label={r.label} className="veqsio-input w-full" value={value} placeholder={r.opts.placeholder} onChange={(e) => setValue(e.target.value)} onFocus={(e) => e.currentTarget.select()} />
         <div className="mt-6 flex justify-end gap-2">
-          <button type="button" className="veqsio-btn-secondary" onClick={() => answer(null)}>Cancel</button>
+          <button type="button" className="veqsio-btn-secondary" onClick={() => answer(null)}>{tr('Cancel')}</button>
           <button type="submit" className={`${btnPrimary} disabled:opacity-50`} disabled={!ok}>{r.opts.confirmLabel ?? 'OK'}</button>
         </div>
       </form>
@@ -127,12 +133,13 @@ function PromptView({ r, done }: { r: Extract<Request, { kind: 'prompt' }>; done
 }
 
 function AlertView({ r, done }: { r: Extract<Request, { kind: 'alert' }>; done: () => void }) {
+  const { tr } = useI18n()
   const tone = r.opts.tone ?? 'info'
   const close = () => { r.resolve(); done() }
   return (
-    <Shell tone={tone} title={r.opts.title ?? (tone === 'danger' ? 'Something went wrong' : 'Notice')} onCancel={close} labelledBy="dialog-title">
+    <Shell tone={tone} title={r.opts.title ?? (tone === 'danger' ? tr('Something went wrong') : tr('Notice'))} onCancel={close} labelledBy="dialog-title">
       <div className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{r.message}</div>
-      <div className="mt-6 flex justify-end"><button type="button" className={btnPrimary} autoFocus onClick={close}>{r.opts.okLabel ?? 'OK'}</button></div>
+      <div className="mt-6 flex justify-end"><button type="button" className={btnPrimary} autoFocus onClick={close}>{r.opts.okLabel ?? tr('OK')}</button></div>
     </Shell>
   )
 }

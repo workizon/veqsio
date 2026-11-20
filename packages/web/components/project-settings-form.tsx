@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { PROJECT_AVATAR_PRESETS, ProjectAvatar, projectAvatarPresetUrl } from '@/components/project-avatar'
 import { useState, useRef, useCallback } from 'react'
 import { Check, Upload } from 'lucide-react'
@@ -30,6 +32,8 @@ export function ProjectSettingsForm({
   isUpdating,
   isUploading,
 }: ProjectSettingsFormProps) {
+  const { tr } = useI18n();
+
   const [form, setForm] = useState({
     name: project.name,
     description: project.description || '',
@@ -66,11 +70,11 @@ export function ProjectSettingsForm({
       const file = e.target.files?.[0]
       if (!file) return
       if (!file.type.startsWith('image/')) {
-        toast('Only image files are allowed', 'error')
+        toast(tr('Only image files are allowed'), 'error')
         return
       }
       if (file.size > 5 * 1024 * 1024) {
-        toast('Image must be under 5MB', 'error')
+        toast(tr('Image must be under 5MB'), 'error')
         return
       }
       onUploadAvatar(file)
@@ -79,7 +83,7 @@ export function ProjectSettingsForm({
   )
 
   const userOptions = [
-    { value: '', label: 'Unassigned' },
+    { value: '', label: tr('Unassigned') },
     ...users.map((u) => ({ value: String(u.id), label: u.displayName })),
   ]
 
@@ -105,8 +109,7 @@ export function ProjectSettingsForm({
             className="veqsio-btn-secondary flex items-center gap-2"
           >
             <Upload className="w-4 h-4" />
-            Upload avatar
-          </button>
+            {tr('Upload avatar')} </button>
           <input
             ref={fileRef}
             type="file"
@@ -114,17 +117,17 @@ export function ProjectSettingsForm({
             className="hidden"
             onChange={handleFileChange}
           />
-          <p className="mt-1 text-xs text-[var(--text-tertiary)]">JPG, PNG or GIF up to 5MB</p>
+          <p className="mt-1 text-xs text-[var(--text-tertiary)]">{tr('JPG, PNG or GIF up to 5MB')}</p>
         </div>
       </div>
 
       <fieldset>
-        <legend className="text-sm font-medium text-[var(--text-primary)] mb-2">Preset gallery</legend>
+        <legend className="text-sm font-medium text-[var(--text-primary)] mb-2">{tr('Preset gallery')}</legend>
         <div className="grid grid-cols-5 gap-2 sm:grid-cols-9">
           <button
             type="button"
-            title="Generated initials"
-            aria-label="Use generated initials"
+            title={tr('Generated initials')}
+            aria-label={tr('Use generated initials')}
             aria-pressed={!project.avatarUrl}
             disabled={isUpdating || isUploading}
             onClick={() => onUpdate({ avatarUrl: '' })}
@@ -140,8 +143,8 @@ export function ProjectSettingsForm({
               <button
                 key={preset.id}
                 type="button"
-                title={preset.label}
-                aria-label={`Use ${preset.label} avatar`}
+                title={tr(preset.label)}
+                aria-label={tr('Use {name} avatar', { name: tr(preset.label) })}
                 aria-pressed={selected}
                 disabled={isUpdating || isUploading}
                 onClick={() => onUpdate({ avatarUrl: url })}
@@ -153,64 +156,64 @@ export function ProjectSettingsForm({
             )
           })}
         </div>
-        <p className="mt-2 text-xs text-[var(--text-tertiary)]">Choose a polished preset, keep generated initials, or upload your own image.</p>
+        <p className="mt-2 text-xs text-[var(--text-tertiary)]">{tr('Choose a polished preset, keep generated initials, or upload your own image.')}</p>
       </fieldset>
 
       {/* Name */}
       <div>
-        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Project name</label>
+        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">{tr('Project name')}</label>
         <input
           type="text"
           value={form.name}
           onChange={(e) => handleChange('name', e.target.value)}
           className="veqsio-input w-full"
-          placeholder="Project name"
+          placeholder={tr('Project name')}
         />
       </div>
 
       {/* Key (read-only) */}
       <div>
-        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Key</label>
+        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">{tr('Key')}</label>
         <input
           type="text"
           value={project.key}
           disabled
           className="veqsio-input w-full opacity-60 cursor-not-allowed"
         />
-        <p className="mt-1 text-xs text-[var(--text-tertiary)]">The project key cannot be changed.</p>
+        <p className="mt-1 text-xs text-[var(--text-tertiary)]">{tr('The project key cannot be changed.')}</p>
       </div>
 
       {/* Description */}
       <div>
-        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Description</label>
+        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">{tr('Description')}</label>
         <textarea
           value={form.description}
           onChange={(e) => handleChange('description', e.target.value)}
           className="veqsio-input w-full min-h-[100px] resize-y"
-          placeholder="Describe this project"
+          placeholder={tr('Describe this project')}
         />
       </div>
 
       {/* Lead */}
       <div>
-        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Project lead</label>
+        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">{tr('Project lead')}</label>
         <Select
           value={String(form.leadId)}
           options={userOptions}
           onChange={(v) => handleChange('leadId', v)}
-          placeholder="Select a lead"
+          placeholder={tr('Select a lead')}
         />
       </div>
 
       {/* Category */}
       <div>
-        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Category</label>
+        <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">{tr('Category')}</label>
         <input
           type="text"
           value={form.category}
           onChange={(e) => handleChange('category', e.target.value)}
           className="veqsio-input w-full"
-          placeholder="e.g. Software, Marketing"
+          placeholder={tr('e.g. Software, Marketing')}
         />
       </div>
 
@@ -221,7 +224,7 @@ export function ProjectSettingsForm({
           disabled={!hasChanges || isUpdating}
           className="veqsio-btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isUpdating ? 'Saving...' : 'Save changes'}
+          {isUpdating ? tr('Saving...') : tr('Save changes')}
         </button>
         {hasChanges && (
           <button
@@ -237,8 +240,7 @@ export function ProjectSettingsForm({
             }}
             className="veqsio-btn-ghost"
           >
-            Cancel
-          </button>
+            {tr('Cancel')} </button>
         )}
       </div>
     </form>

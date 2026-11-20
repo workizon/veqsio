@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { SprintAutomationDialog } from '@/components/backlog/sprint-automation-dialog'
 import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -72,8 +74,10 @@ function ErrorPanel({ title, message, onRetry, retrying }: { title: string; mess
 }
 
 function PlanningSkeleton() {
+  const { tr } = useI18n();
+
   return (
-    <div className="space-y-4" aria-busy="true" aria-label="Loading backlog">
+    <div className="space-y-4" aria-busy="true" aria-label={tr('Loading backlog')}>
       {[3, 2, 4].map((rows, i) => (
         <div key={i} className="rounded-lg border border-[var(--surface-3)] overflow-hidden">
           <div className="p-3 bg-[var(--surface-1)] flex items-center gap-3">
@@ -102,6 +106,8 @@ import { useTerm } from '@/hooks/use-term'
 import { Portal } from '@/components/portal'
 
 export default function BacklogPage() {
+  const { tr } = useI18n();
+
   const { t } = useTerm()
   const peek = usePeek()
   const qc = useQueryClient()
@@ -191,7 +197,7 @@ export default function BacklogPage() {
             const groups = new Map<string, { target: MoveTarget; keys: string[] }>()
             for (const [k, o] of origins) groups.set(o.sig, { target: o.target, keys: [...(groups.get(o.sig)?.keys ?? []), k] })
             for (const g of groups.values()) await move.mutateAsync({ keys: g.keys, target: g.target, beforeKey: null })
-            toast('Move undone', 'success')
+            toast(tr('Move undone'), 'success')
           },
         })
       },
@@ -268,7 +274,7 @@ export default function BacklogPage() {
       throw new Error(body.errorMessages?.[0] || (res.status === 403 ? 'You need the Administer Projects permission to create boards' : `HTTP ${res.status}`))
     }
     await qc.invalidateQueries({ queryKey: ['boards'] })
-    toast('Board created', 'success')
+    toast(tr('Board created'), 'success')
     setDialog(null)
   }
 
@@ -276,21 +282,20 @@ export default function BacklogPage() {
 
   const header = (
     <PageHeader
-      title="Backlog"
-      description="Plan sprints and manage your product backlog."
+      title={tr('Backlog')}
+      description={tr('Plan sprints and manage your product backlog.')}
       actions={data && (
         <>
           {scrumBoards.length > 1 ? (
-            <select aria-label="Board" value={boardId ?? ''} onChange={(e) => pickBoard(e.target.value)} className="veqsio-input !w-auto">
+            <select aria-label={tr('Board')} value={boardId ?? ''} onChange={(e) => pickBoard(e.target.value)} className="veqsio-input !w-auto">
               {scrumBoards.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           ) : (
             <span className="text-body-sm text-[var(--text-secondary)] inline-flex items-center gap-1.5"><Layout className="w-4 h-4" aria-hidden="true" />{data.board.name}</span>
           )}
-          <button type="button" onClick={() => setAutomationOpen(true)} className="veqsio-btn-secondary inline-flex items-center gap-2" title="Create the next sprint automatically">Automation</button>
+          <button type="button" onClick={() => setAutomationOpen(true)} className="veqsio-btn-secondary inline-flex items-center gap-2" title={tr('Create the next sprint automatically')}>{tr('Automation')}</button>
           <button type="button" onClick={() => setDialog({ kind: 'create-sprint' })} className="veqsio-btn-primary inline-flex items-center gap-2">
-            <Plus className="w-4 h-4" aria-hidden="true" /> Create sprint
-          </button>
+            <Plus className="w-4 h-4" aria-hidden="true" /> {tr('Create sprint')} </button>
         </>
       )}
     />
@@ -301,7 +306,7 @@ export default function BacklogPage() {
   if (boardsQ.isLoading || (boardId && planningQ.isLoading)) {
     body = <PlanningSkeleton />
   } else if (boardsQ.error) {
-    body = <ErrorPanel title="Could not load boards" message={boardsQ.error.message} onRetry={() => boardsQ.refetch()} retrying={boardsQ.isFetching} />
+    body = <ErrorPanel title={tr('Could not load boards')} message={boardsQ.error.message} onRetry={() => boardsQ.refetch()} retrying={boardsQ.isFetching} />
   } else if (!boardId) {
     const hasOtherBoards = (boardsQ.data?.values.length ?? 0) > 0
     body = (
@@ -309,17 +314,16 @@ export default function BacklogPage() {
         <EmptyState
           icon="folder"
           title={hasOtherBoards ? 'No Scrum board yet' : 'No boards yet'}
-          description="Sprints live on Scrum boards. Create a board for one of your projects to start planning."
+          description={tr('Sprints live on Scrum boards. Create a board for one of your projects to start planning.')}
           action={
             <button type="button" onClick={() => setDialog({ kind: 'create-board' })} className="veqsio-btn-primary inline-flex items-center gap-2">
-              <Plus className="w-4 h-4" aria-hidden="true" /> Create Scrum board
-            </button>
+              <Plus className="w-4 h-4" aria-hidden="true" /> {tr('Create Scrum board')} </button>
           }
         />
       </div>
     )
   } else if (planningQ.error || !data) {
-    body = <ErrorPanel title="Could not load the backlog" message={planningQ.error?.message ?? 'Unknown error'} onRetry={() => planningQ.refetch()} retrying={planningQ.isFetching} />
+    body = <ErrorPanel title={tr('Could not load the backlog')} message={planningQ.error?.message ?? 'Unknown error'} onRetry={() => planningQ.refetch()} retrying={planningQ.isFetching} />
   } else {
     const backlogShown = filterIssues(data.backlog.issues, filters)
     body = (
@@ -330,20 +334,20 @@ export default function BacklogPage() {
             <Search className="w-4 h-4 text-[var(--text-tertiary)]" aria-hidden="true" />
             <input
               type="search"
-              placeholder="Search by key or summary"
+              placeholder={tr('Search by key or summary')}
               aria-label={t('Search issues in all sprints and the backlog')}
               value={filters.text}
               onChange={(e) => setFilters((f) => ({ ...f, text: e.target.value }))}
               className="bg-transparent flex-1 text-body-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none"
             />
           </div>
-          <select aria-label="Filter by assignee" value={filters.assignee ?? ''} onChange={(e) => setFilters((f) => ({ ...f, assignee: e.target.value || null }))} className="veqsio-input !w-auto !min-h-0 py-1 text-body-sm">
-            <option value="">All assignees</option>
-            <option value="unassigned">Unassigned</option>
+          <select aria-label={tr('Filter by assignee')} value={filters.assignee ?? ''} onChange={(e) => setFilters((f) => ({ ...f, assignee: e.target.value || null }))} className="veqsio-input !w-auto !min-h-0 py-1 text-body-sm">
+            <option value="">{tr('All assignees')}</option>
+            <option value="unassigned">{tr('Unassigned')}</option>
             {assignees.map((a) => <option key={a} value={a}>{a}</option>)}
           </select>
           <select aria-label={t('Filter by issue type')} value={filters.type ?? ''} onChange={(e) => setFilters((f) => ({ ...f, type: (e.target.value || null) as IssueKind | null }))} className="veqsio-input !w-auto !min-h-0 py-1 text-body-sm">
-            <option value="">All types</option>
+            <option value="">{tr('All types')}</option>
             {(['story', 'task', 'bug', 'epic', 'sub-task'] as const).map((t) => <option key={t} value={t}>{t === 'sub-task' ? 'Sub-task' : t[0].toUpperCase() + t.slice(1)}</option>)}
           </select>
           {me?.displayName && (
@@ -353,23 +357,20 @@ export default function BacklogPage() {
               onClick={() => setFilters((f) => ({ ...f, onlyMine: f.onlyMine ? null : me.displayName }))}
               className={`text-xs px-2.5 py-1 rounded-full border ${filters.onlyMine ? 'bg-[var(--brand-600)] text-white border-[var(--brand-600)]' : 'border-[var(--surface-4)] text-[var(--text-secondary)] hover:bg-[var(--surface-2)]'}`}
             >
-              Only my issues
-            </button>
+              {tr('Only my issues')} </button>
           )}
           {filtered && (
             <button type="button" onClick={() => setFilters(emptyFilters)} className="veqsio-btn-ghost text-xs inline-flex items-center gap-1">
-              <X className="w-3 h-3" aria-hidden="true" /> Clear filters
-            </button>
+              <X className="w-3 h-3" aria-hidden="true" /> {tr('Clear filters')} </button>
           )}
         </div>
 
         {openSprints.length === 0 && (
           <div className="rounded-lg border border-dashed border-[var(--surface-4)] bg-[var(--surface-0)] p-6 text-center">
-            <h2 className="text-heading-3 text-[var(--text-primary)]">Plan your first sprint</h2>
-            <p className="text-body-sm text-[var(--text-secondary)] mt-1 mb-4">Create a sprint, then move issues from the backlog into it.</p>
+            <h2 className="text-heading-3 text-[var(--text-primary)]">{tr('Plan your first sprint')}</h2>
+            <p className="text-body-sm text-[var(--text-secondary)] mt-1 mb-4">{tr('Create a sprint, then move issues from the backlog into it.')}</p>
             <button type="button" onClick={() => setDialog({ kind: 'create-sprint' })} className="veqsio-btn-primary inline-flex items-center gap-2">
-              <Plus className="w-4 h-4" aria-hidden="true" /> Create sprint
-            </button>
+              <Plus className="w-4 h-4" aria-hidden="true" /> {tr('Create sprint')} </button>
           </div>
         )}
 
@@ -402,7 +403,7 @@ export default function BacklogPage() {
 
         <PlanningSection
           onPeek={peek.open}
-          title="Backlog"
+          title={tr('Backlog')}
           issues={backlogShown}
           totalCount={data.backlog.total}
           totalPoints={data.backlog.storyPoints}
@@ -430,7 +431,7 @@ export default function BacklogPage() {
               className="w-full flex items-center gap-2 p-3 bg-[var(--surface-1)] rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]"
             >
               <ChevronDown className={`w-4 h-4 text-[var(--text-tertiary)] transition-transform ${collapsed.has('completed') ? '-rotate-90' : ''}`} aria-hidden="true" />
-              <h3 id="completed-title" className="text-heading-3 text-[var(--text-primary)]">Completed sprints</h3>
+              <h3 id="completed-title" className="text-heading-3 text-[var(--text-primary)]">{tr('Completed sprints')}</h3>
               <span className="text-caption text-[var(--text-tertiary)]">{closedSprints.length}</span>
             </button>
             {!collapsed.has('completed') && (
@@ -440,7 +441,7 @@ export default function BacklogPage() {
                     <span className="font-medium text-[var(--text-primary)]">{s.name}</span>
                     <span className="text-caption text-[var(--text-tertiary)]">{formatSprintDates(s.startDate, s.endDate)}</span>
                     <span className="text-caption text-[var(--text-tertiary)]">{t(pluralize(s.issueCount, 'issue'))} · {formatPoints(s.storyPoints)} points</span>
-                    <Link href="/reports" className="ml-auto text-caption text-[var(--brand-600)] hover:underline">View reports</Link>
+                    <Link href="/reports" className="ml-auto text-caption text-[var(--brand-600)] hover:underline">{tr('View reports')}</Link>
                   </li>
                 ))}
               </ul>
@@ -449,12 +450,12 @@ export default function BacklogPage() {
         )}
 
         {liveSelection.size > 0 && (
-          <div role="region" aria-label="Bulk actions" className="sticky bottom-4 z-30 mx-auto w-fit max-w-full flex flex-wrap items-center gap-3 rounded-xl border border-[var(--surface-4)] bg-[var(--surface-0)] shadow-[var(--shadow-lg)] px-4 py-2">
+          <div role="region" aria-label={tr('Bulk actions')} className="sticky bottom-4 z-30 mx-auto w-fit max-w-full flex flex-wrap items-center gap-3 rounded-xl border border-[var(--surface-4)] bg-[var(--surface-0)] shadow-[var(--shadow-lg)] px-4 py-2">
             <span className="text-body-sm text-[var(--text-primary)]">
-              {t(pluralize(liveSelection.size, 'issue'))} selected · {formatPoints(sumPoints([...liveSelection].map((k) => issueByKey.get(k)!).filter(Boolean)))} points
+              {t(pluralize(liveSelection.size, 'issue'))} {tr('selected ·')} {formatPoints(sumPoints([...liveSelection].map((k) => issueByKey.get(k)!).filter(Boolean)))} points
             </span>
             <MoveMenu label={`Move ${liveSelection.size} selected issues to…`} text="Move to…" options={bulkOptions} onSelect={(t) => doMove([...liveSelection], t)} className="border border-[var(--surface-4)]" />
-            <button type="button" onClick={() => setSelected(new Set())} className="veqsio-btn-ghost text-xs">Clear selection</button>
+            <button type="button" onClick={() => setSelected(new Set())} className="veqsio-btn-ghost text-xs">{tr('Clear selection')}</button>
           </div>
         )}
 

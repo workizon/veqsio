@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import {
   Plus,
@@ -26,6 +28,8 @@ import type { FieldConfiguration } from '@/hooks/use-admin'
 import { confirmDialog } from '@/components/dialogs'
 
 export function FieldConfigurationEditor() {
+  const { tr } = useI18n();
+
   const [createOpen, setCreateOpen] = useState(false)
   const [editingConfig, setEditingConfig] = useState<FieldConfiguration | null>(null)
 
@@ -43,7 +47,7 @@ export function FieldConfigurationEditor() {
         name: fd.get('name') as string,
         description: (fd.get('description') as string) || undefined,
       })
-      toast('Field configuration created', 'success')
+      toast(tr('Field configuration created'), 'success')
       setCreateOpen(false)
       e.currentTarget.reset()
     } catch (err: any) {
@@ -55,7 +59,7 @@ export function FieldConfigurationEditor() {
     if (!(await confirmDialog(`Delete field configuration "${name}"?`))) return
     try {
       await deleteConfig.mutateAsync(id)
-      toast('Configuration deleted', 'success')
+      toast(tr('Configuration deleted'), 'success')
     } catch (err: any) {
       toast(err.message || 'Failed to delete configuration', 'error')
     }
@@ -64,11 +68,10 @@ export function FieldConfigurationEditor() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-heading-2 text-[var(--text-primary)]">Field configurations</h2>
+        <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('Field configurations')}</h2>
         <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          Create Configuration
-        </button>
+          {tr('Create Configuration')} </button>
       </div>
 
       {isLoading ? (
@@ -78,13 +81,12 @@ export function FieldConfigurationEditor() {
       ) : configs.length === 0 ? (
         <EmptyState
           icon="folder"
-          title="No field configurations found"
-          description="Create a configuration to define field visibility and requiredness."
+          title={tr('No field configurations found')}
+          description={tr('Create a configuration to define field visibility and requiredness.')}
           action={
             <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              Create Configuration
-            </button>
+              {tr('Create Configuration')} </button>
           }
         />
       ) : (
@@ -132,20 +134,19 @@ export function FieldConfigurationEditor() {
         </div>
       )}
 
-      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title="Create field configuration">
+      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title={tr('Create field configuration')}>
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Name</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Name')}</label>
             <input name="name" type="text" required className="veqsio-input w-full" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Description</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Description')}</label>
             <input name="description" type="text" className="veqsio-input w-full" />
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" onClick={() => setCreateOpen(false)} className="veqsio-btn-secondary">
-              Cancel
-            </button>
+              {tr('Cancel')} </button>
             <button type="submit" disabled={createConfig.isPending} className="veqsio-btn-primary">
               {createConfig.isPending ? 'Creating...' : 'Create'}
             </button>
@@ -161,6 +162,8 @@ export function FieldConfigurationEditor() {
 }
 
 function ConfigEditPanel({ config, onClose }: { config: FieldConfiguration; onClose: () => void }) {
+  const { tr } = useI18n();
+
   const updateConfig = useUpdateFieldConfiguration()
   const { data: fieldsData } = useFieldList()
   const allFields = fieldsData || []
@@ -185,7 +188,7 @@ function ConfigEditPanel({ config, onClose }: { config: FieldConfiguration; onCl
           renderer: i.renderer || undefined,
         })),
       })
-      toast('Configuration updated', 'success')
+      toast(tr('Configuration updated'), 'success')
       onClose()
     } catch (err: any) {
       toast(err.message || 'Failed to update configuration', 'error')
@@ -242,7 +245,7 @@ function ConfigEditPanel({ config, onClose }: { config: FieldConfiguration; onCl
           }}
           className="veqsio-input flex-1 w-full"
         >
-          <option value="">Add field...</option>
+          <option value="">{tr('Add field...')}</option>
           {allFields.map(f => {
             const key = `${f.id}:${f.custom ? 'custom' : 'system'}`
             if (usedKeys.has(key)) return null
@@ -259,17 +262,17 @@ function ConfigEditPanel({ config, onClose }: { config: FieldConfiguration; onCl
         <table className="w-full text-sm">
           <thead>
             <tr className="veqsio-table-header">
-              <th className="text-left">Field</th>
-              <th className="text-left">Visible</th>
-              <th className="text-left">Required</th>
-              <th className="text-right">Actions</th>
+              <th className="text-left">{tr('Field')}</th>
+              <th className="text-left">{tr('Visible')}</th>
+              <th className="text-left">{tr('Required')}</th>
+              <th className="text-right">{tr('Actions')}</th>
             </tr>
           </thead>
           <tbody>
             {items.length === 0 ? (
               <tr>
                 <td colSpan={4} className="p-0">
-                  <EmptyState icon="folder" title="No fields configured" description="Add fields to configure their behavior." />
+                  <EmptyState icon="folder" title={tr('No fields configured')} description={tr('Add fields to configure their behavior.')} />
                 </td>
               </tr>
             ) : (
@@ -277,7 +280,7 @@ function ConfigEditPanel({ config, onClose }: { config: FieldConfiguration; onCl
                 <tr key={`${item.fieldId}-${item.isCustomField}`} className="veqsio-table-row">
                   <td className="px-4 py-2">
                     <div className="font-medium text-[var(--text-primary)]">{item.fieldName}</div>
-                    {item.isCustomField && <div className="text-xs text-[var(--text-tertiary)]">Custom</div>}
+                    {item.isCustomField && <div className="text-xs text-[var(--text-tertiary)]">{tr('Custom')}</div>}
                   </td>
                   <td className="px-4 py-2">
                     <button
@@ -311,7 +314,7 @@ function ConfigEditPanel({ config, onClose }: { config: FieldConfiguration; onCl
       </div>
 
       <div className="flex justify-end gap-2 pt-2">
-        <button onClick={onClose} className="veqsio-btn-secondary">Cancel</button>
+        <button onClick={onClose} className="veqsio-btn-secondary">{tr('Cancel')}</button>
         <button onClick={handleSave} disabled={updateConfig.isPending} className="veqsio-btn-primary flex items-center gap-1.5">
           <Save className="w-4 h-4" />
           {updateConfig.isPending ? 'Saving...' : 'Save'}

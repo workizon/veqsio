@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { usePathname } from 'next/navigation'
 import { AppLayout } from '@/components/app-layout'
 import { useState } from 'react'
@@ -45,6 +47,8 @@ function Field({ label, children, wide }: { label: string; children: React.React
 }
 
 function CopyRow({ label, value }: { label: string; value: string }) {
+  const { tr } = useI18n();
+
   return (
     <div className="flex items-center gap-2 min-w-0">
       <span className="text-caption text-[var(--text-secondary)] w-32 shrink-0">{label}</span>
@@ -54,7 +58,7 @@ function CopyRow({ label, value }: { label: string; value: string }) {
         className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
         title={`Copy ${label}`}
         aria-label={`Copy ${label}`}
-        onClick={() => navigator.clipboard?.writeText(value).then(() => toast('Copied', 'success'), () => toast('Copy failed', 'error'))}
+        onClick={() => navigator.clipboard?.writeText(value).then(() => toast(tr('Copied'), 'success'), () => toast(tr('Copy failed'), 'error'))}
       >
         <Copy className="w-4 h-4" />
       </button>
@@ -65,6 +69,8 @@ function CopyRow({ label, value }: { label: string; value: string }) {
 const tone = { ok: 'text-[var(--text-secondary)]', warn: 'text-amber-600 dark:text-amber-400', bad: 'text-red-600 dark:text-red-400' }
 
 function SamlAdminPageBody() {
+  const { tr } = useI18n();
+
   const { data: providers, isLoading } = useSamlProviders()
   const save = useSaveSamlProvider()
   const remove = useDeleteSamlProvider()
@@ -82,39 +88,39 @@ function SamlAdminPageBody() {
   const submit = async () => {
     if (!form) return
     const problem = samlProblem(form)
-    if (problem) return toast(problem, 'error')
+    if (problem) return toast(tr(problem), 'error')
     try {
       await save.mutateAsync({ id: form.id, data: samlPayload(form) })
-      toast('Provider saved', 'success')
+      toast(tr('Provider saved'), 'success')
       setForm(null)
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Failed to save provider', 'error')
+      toast(e instanceof Error ? e.message : tr('Failed to save provider'), 'error')
     }
   }
 
   const onDelete = async (p: SamlProvider) => {
-    if (!(await confirmDialog(`Delete "${p.name}"? Users who signed in through it keep their accounts but can no longer use this provider.`))) return
+    if (!(await confirmDialog(tr('Delete "{name}"? Users who signed in through it keep their accounts but can no longer use this provider.', { name: p.name })))) return
     try {
       await remove.mutateAsync(p.id)
-      toast('Provider deleted', 'success')
+      toast(tr('Provider deleted'), 'success')
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Failed to delete', 'error')
+      toast(e instanceof Error ? e.message : tr('Failed to delete'), 'error')
     }
   }
 
   const onTest = async (p: SamlProvider) => {
     try {
       const r = await test.mutateAsync(p.id)
-      toast(r.ok ? 'Configuration looks good' : r.problems.join('; '), r.ok ? 'success' : 'error')
+      toast(r.ok ? tr('Configuration looks good') : r.problems.join('; '), r.ok ? 'success' : 'error')
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Test failed', 'error')
+      toast(e instanceof Error ? e.message : tr('Test failed'), 'error')
     }
   }
 
   const sp = form ? draftSp(form.slug) : null
 
   return (
-    <FeatureGate feature="sso_saml" label="SAML single sign-on" mode="banner">
+    <FeatureGate feature="sso_saml" label={tr('SAML single sign-on')} mode="banner">
       <div className="space-y-6">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -122,97 +128,96 @@ function SamlAdminPageBody() {
               <ShieldCheck className="w-5 h-5 text-[var(--brand-500)]" />
             </div>
             <div>
-              <h2 className="text-heading-2 text-[var(--text-primary)]">SAML 2.0 providers</h2>
-              <p className="text-body-sm text-[var(--text-secondary)]">Entra ID, Okta, ADFS, Keycloak, Google Workspace or any SAML 2.0 identity provider (SP-initiated sign-in).</p>
+              <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('SAML 2.0 providers')}</h2>
+              <p className="text-body-sm text-[var(--text-secondary)]">{tr('Entra ID, Okta, ADFS, Keycloak, Google Workspace or any SAML 2.0 identity provider (SP-initiated sign-in).')}</p>
             </div>
           </div>
           {!form && (
             <button className="veqsio-btn-primary flex items-center gap-1.5 shrink-0" onClick={() => setForm({ ...emptySamlForm })}>
-              <Plus className="w-4 h-4" /> Add provider
-            </button>
+              <Plus className="w-4 h-4" /> {tr('Add provider')} </button>
           )}
         </div>
 
         {form && sp && (
           <div className="veqsio-card space-y-5">
-            <h3 className="text-heading-3 text-[var(--text-primary)]">{form.id ? `Edit ${form.name}` : 'New SAML provider'}</h3>
+            <h3 className="text-heading-3 text-[var(--text-primary)]">{form.id ? tr('Edit {name}', { name: form.name }) : tr('New SAML provider')}</h3>
 
             <div className="rounded-lg bg-[var(--surface-2)] p-3 space-y-2">
-              <p className="text-body-sm font-medium text-[var(--text-primary)]">Give these values to your identity provider</p>
-              <CopyRow label="Entity ID (audience)" value={sp.entityId} />
-              <CopyRow label="ACS URL (POST)" value={sp.acsUrl} />
+              <p className="text-body-sm font-medium text-[var(--text-primary)]">{tr('Give these values to your identity provider')}</p>
+              <CopyRow label={tr('Entity ID (audience)')} value={sp.entityId} />
+              <CopyRow label={tr('ACS URL (POST)')} value={sp.acsUrl} />
               <div className="flex items-center gap-2">
-                <span className="text-caption text-[var(--text-secondary)] w-32 shrink-0">SP metadata</span>
+                <span className="text-caption text-[var(--text-secondary)] w-32 shrink-0">{tr('SP metadata')}</span>
                 <a className="text-caption text-[var(--brand-500)] hover:underline inline-flex items-center gap-1" href={sp.metadataUrl} target="_blank" rel="noreferrer">
-                  Open metadata XML <ExternalLink className="w-3 h-3" />
+                  {tr('Open metadata XML')} <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field label="Display name"><input className="veqsio-input w-full" value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="Company SSO" /></Field>
-              <Field label="Slug (cannot be changed later)"><input className="veqsio-input w-full" value={form.slug} disabled={!!form.id} onChange={(e) => set('slug', e.target.value.toLowerCase())} placeholder="company" /></Field>
-              <Field label="IdP entity ID (issuer)" wide><input className="veqsio-input w-full" value={form.idpEntityId} onChange={(e) => set('idpEntityId', e.target.value)} placeholder="https://sts.windows.net/<tenant>/" /></Field>
-              <Field label="IdP single sign-on URL (HTTP-Redirect)" wide><input className="veqsio-input w-full" value={form.idpSsoUrl} onChange={(e) => set('idpSsoUrl', e.target.value)} placeholder="https://login.example.com/saml2" /></Field>
-              <Field label="IdP signing certificate(s), PEM. Add the next certificate too before a key rollover." wide>
+              <Field label={tr('Display name')}><input className="veqsio-input w-full" value={form.name} onChange={(e) => set('name', e.target.value)} placeholder={tr('Company SSO')} /></Field>
+              <Field label={tr('Slug (cannot be changed later)')}><input className="veqsio-input w-full" value={form.slug} disabled={!!form.id} onChange={(e) => set('slug', e.target.value.toLowerCase())} placeholder="company" /></Field>
+              <Field label={tr('IdP entity ID (issuer)')} wide><input className="veqsio-input w-full" value={form.idpEntityId} onChange={(e) => set('idpEntityId', e.target.value)} placeholder="https://sts.windows.net/<tenant>/" /></Field>
+              <Field label={tr('IdP single sign-on URL (HTTP-Redirect)')} wide><input className="veqsio-input w-full" value={form.idpSsoUrl} onChange={(e) => set('idpSsoUrl', e.target.value)} placeholder="https://login.example.com/saml2" /></Field>
+              <Field label={tr('IdP signing certificate(s), PEM. Add the next certificate too before a key rollover.')} wide>
                 <textarea className="veqsio-input w-full font-mono text-caption h-32" spellCheck={false} value={form.idpCertificates} onChange={(e) => set('idpCertificates', e.target.value)} placeholder={'-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----'} />
               </Field>
-              <Field label="NameID format">
+              <Field label={tr('NameID format')}>
                 <select className="veqsio-input w-full" value={form.nameIdFormat} onChange={(e) => set('nameIdFormat', e.target.value)}>
                   {NAMEID_FORMATS.map((n) => <option key={n.value} value={n.value}>{n.label}</option>)}
                 </select>
               </Field>
-              <Field label="Allowed email domains (comma separated, empty = any)"><input className="veqsio-input w-full" value={form.allowedDomains} onChange={(e) => set('allowedDomains', e.target.value)} placeholder="example.com, example.org" /></Field>
+              <Field label={tr('Allowed email domains (comma separated, empty = any)')}><input className="veqsio-input w-full" value={form.allowedDomains} onChange={(e) => set('allowedDomains', e.target.value)} placeholder={tr('example.com, example.org')} /></Field>
             </div>
 
             <div className="space-y-2 border-t border-[var(--surface-3)] pt-4">
-              <h4 className="text-body-sm font-medium text-[var(--text-primary)]">Attribute mapping</h4>
-              <p className="text-caption text-[var(--text-secondary)]">Leave a field empty to try the usual names (email, mail, displayName, givenName + surname, groups, memberOf and the Microsoft claim URIs).</p>
+              <h4 className="text-body-sm font-medium text-[var(--text-primary)]">{tr('Attribute mapping')}</h4>
+              <p className="text-caption text-[var(--text-secondary)]">{tr('Leave a field empty to try the usual names (email, mail, displayName, givenName + surname, groups, memberOf and the Microsoft claim URIs).')}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label="Email attribute"><input className="veqsio-input w-full" value={form.emailAttribute} onChange={(e) => set('emailAttribute', e.target.value)} placeholder="email" /></Field>
-                <Field label="Display name attribute"><input className="veqsio-input w-full" value={form.displayNameAttribute} onChange={(e) => set('displayNameAttribute', e.target.value)} placeholder="displayName" /></Field>
-                <Field label="Username attribute"><input className="veqsio-input w-full" value={form.usernameAttribute} onChange={(e) => set('usernameAttribute', e.target.value)} placeholder="uid (default: part of the email before @)" /></Field>
-                <Field label="Groups attribute"><input className="veqsio-input w-full" value={form.groupsAttribute} onChange={(e) => set('groupsAttribute', e.target.value)} placeholder="groups" /></Field>
-                <Field label="Default groups for new users (comma separated, existing groups only)" wide><input className="veqsio-input w-full" value={form.defaultGroups} onChange={(e) => set('defaultGroups', e.target.value)} placeholder="veqsio-users" /></Field>
+                <Field label={tr('Email attribute')}><input className="veqsio-input w-full" value={form.emailAttribute} onChange={(e) => set('emailAttribute', e.target.value)} placeholder="email" /></Field>
+                <Field label={tr('Display name attribute')}><input className="veqsio-input w-full" value={form.displayNameAttribute} onChange={(e) => set('displayNameAttribute', e.target.value)} placeholder="displayName" /></Field>
+                <Field label={tr('Username attribute')}><input className="veqsio-input w-full" value={form.usernameAttribute} onChange={(e) => set('usernameAttribute', e.target.value)} placeholder={tr('uid (default: part of the email before @)')} /></Field>
+                <Field label={tr('Groups attribute')}><input className="veqsio-input w-full" value={form.groupsAttribute} onChange={(e) => set('groupsAttribute', e.target.value)} placeholder="groups" /></Field>
+                <Field label={tr('Default groups for new users (comma separated, existing groups only)')} wide><input className="veqsio-input w-full" value={form.defaultGroups} onChange={(e) => set('defaultGroups', e.target.value)} placeholder="veqsio-users" /></Field>
               </div>
             </div>
 
             <div className="space-y-3 border-t border-[var(--surface-3)] pt-4">
-              <Toggle label="Enabled" hint="Show the sign-in button and accept logins." checked={form.enabled} onChange={(v) => set('enabled', v)} />
-              <Toggle label="Create accounts on first sign-in (JIT provisioning)" hint="Subject to the domain list and the licence seat limit." checked={form.autoProvision} onChange={(v) => set('autoProvision', v)} />
-              <Toggle label="Link existing accounts by email" hint="Off by default: a matching local account is otherwise refused so nobody can take it over through the IdP." checked={form.linkByEmail} onChange={(v) => set('linkByEmail', v)} />
-              <Toggle label="Synchronise groups" hint="Memberships come from the groups attribute at each sign-in. Only memberships added by this provider are ever removed." checked={form.syncGroups} onChange={(v) => set('syncGroups', v)} />
-              <Toggle label="Enforce SSO for these domains" hint="Disable password login for users covered by the domain list (everyone if it is empty). System administrators stay exempt as break-glass." checked={form.enforceSso} onChange={(v) => set('enforceSso', v)} />
-              <Toggle label="Sign authentication requests" hint="Only needed when the IdP requires signed AuthnRequests. The SP certificate is published in the metadata." checked={form.signRequests} onChange={(v) => set('signRequests', v)} />
+              <Toggle label={tr('Enabled')} hint={tr('Show the sign-in button and accept logins.')} checked={form.enabled} onChange={(v) => set('enabled', v)} />
+              <Toggle label={tr('Create accounts on first sign-in (JIT provisioning)')} hint={tr('Subject to the domain list and the licence seat limit.')} checked={form.autoProvision} onChange={(v) => set('autoProvision', v)} />
+              <Toggle label={tr('Link existing accounts by email')} hint={tr('Off by default: a matching local account is otherwise refused so nobody can take it over through the IdP.')} checked={form.linkByEmail} onChange={(v) => set('linkByEmail', v)} />
+              <Toggle label={tr('Synchronise groups')} hint={tr('Memberships come from the groups attribute at each sign-in. Only memberships added by this provider are ever removed.')} checked={form.syncGroups} onChange={(v) => set('syncGroups', v)} />
+              <Toggle label={tr('Enforce SSO for these domains')} hint={tr('Disable password login for users covered by the domain list (everyone if it is empty). System administrators stay exempt as break-glass.')} checked={form.enforceSso} onChange={(v) => set('enforceSso', v)} />
+              <Toggle label={tr('Sign authentication requests')} hint={tr('Only needed when the IdP requires signed AuthnRequests. The SP certificate is published in the metadata.')} checked={form.signRequests} onChange={(v) => set('signRequests', v)} />
             </div>
 
             {form.signRequests && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label={`SP private key (PEM) ${form.hasSigningKey ? '(stored encrypted, leave empty to keep)' : ''}`}>
+                <Field label={form.hasSigningKey ? tr('SP private key (PEM) (stored encrypted, leave empty to keep)') : tr('SP private key (PEM)')}>
                   <textarea className="veqsio-input w-full font-mono text-caption h-28" spellCheck={false} autoComplete="off" value={form.spSigningKey} onChange={(e) => set('spSigningKey', e.target.value)} placeholder={form.hasSigningKey ? '••••••••' : '-----BEGIN PRIVATE KEY-----'} />
                 </Field>
-                <Field label="SP certificate (PEM)">
-                  <textarea className="veqsio-input w-full font-mono text-caption h-28" spellCheck={false} value={form.spSigningCertificate} onChange={(e) => set('spSigningCertificate', e.target.value)} placeholder="-----BEGIN CERTIFICATE-----" />
+                <Field label={tr('SP certificate (PEM)')}>
+                  <textarea className="veqsio-input w-full font-mono text-caption h-28" spellCheck={false} value={form.spSigningCertificate} onChange={(e) => set('spSigningCertificate', e.target.value)} placeholder={tr('-----BEGIN CERTIFICATE-----')} />
                 </Field>
               </div>
             )}
 
             <p className="text-caption text-[var(--text-secondary)]">
-              To try it, save the provider and open <code className="font-mono">{origin}/rest/auth/1/saml/{form.slug || '<slug>'}/login</code> in a private window (or use the button on the sign-in page).
-              A response is accepted only when it is signed by one of the certificates above, is addressed to the entity ID and ACS URL shown here, answers this request and has not been used before.
+              {tr('To try it, save the provider and open')} <code className="font-mono">{origin}/rest/auth/1/saml/{form.slug || '<slug>'}/login</code> {tr('in a private window (or use the button on the sign-in page).')}
+              {' '}{tr('A response is accepted only when it is signed by one of the certificates above, is addressed to the entity ID and ACS URL shown here, answers this request and has not been used before.')}
             </p>
 
             <div className="flex justify-end gap-2">
-              <button className="veqsio-btn-secondary" onClick={() => setForm(null)}>Cancel</button>
-              <button className="veqsio-btn-primary" disabled={save.isPending} onClick={submit}>Save</button>
+              <button className="veqsio-btn-secondary" onClick={() => setForm(null)}>{tr('Cancel')}</button>
+              <button className="veqsio-btn-primary" disabled={save.isPending} onClick={submit}>{tr('Save')}</button>
             </div>
           </div>
         )}
 
         {isLoading ? (
-          <div className="text-center py-8 text-[var(--text-secondary)]">Loading providers...</div>
+          <div className="text-center py-8 text-[var(--text-secondary)]">{tr('Loading providers...')}</div>
         ) : !providers?.length ? (
-          <div className="text-center py-8 text-[var(--text-secondary)]">No SAML providers configured.</div>
+          <div className="text-center py-8 text-[var(--text-secondary)]">{tr('No SAML providers configured.')}</div>
         ) : (
           <div className="border border-[var(--surface-3)] rounded-lg overflow-hidden divide-y divide-[var(--surface-3)]">
             {providers.map((p) => (
@@ -221,23 +226,23 @@ function SamlAdminPageBody() {
                   <div className="min-w-0">
                     <div className="text-body-sm font-medium text-[var(--text-primary)]">
                       {p.name} <span className="text-caption text-[var(--text-tertiary)]">({p.slug})</span>
-                      {!p.enabled && <span className="ml-2 text-caption text-[var(--text-tertiary)]">disabled</span>}
-                      {p.enforceSso && <span className="ml-2 text-caption text-[var(--brand-500)]">SSO enforced</span>}
+                      {!p.enabled && <span className="ml-2 text-caption text-[var(--text-tertiary)]">{tr('disabled')}</span>}
+                      {p.enforceSso && <span className="ml-2 text-caption text-[var(--brand-500)]">{tr('SSO enforced')}</span>}
                     </div>
                     <div className="text-caption text-[var(--text-secondary)] truncate">{p.idpEntityId}</div>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">
-                    <button className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]" title="Check configuration" aria-label="Check configuration" onClick={() => onTest(p)}><TestTube className="w-4 h-4" /></button>
-                    <button className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]" title="Edit" aria-label="Edit" onClick={() => setForm(fromProvider(p))}><Pencil className="w-4 h-4" /></button>
-                    <button className="p-1 text-[var(--text-tertiary)] hover:text-red-500" title="Delete" aria-label="Delete" onClick={() => onDelete(p)}><Trash2 className="w-4 h-4" /></button>
+                    <button className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]" title={tr('Check configuration')} aria-label={tr('Check configuration')} onClick={() => onTest(p)}><TestTube className="w-4 h-4" /></button>
+                    <button className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]" title={tr('Edit')} aria-label={tr('Edit')} onClick={() => setForm(fromProvider(p))}><Pencil className="w-4 h-4" /></button>
+                    <button className="p-1 text-[var(--text-tertiary)] hover:text-red-500" title={tr('Delete')} aria-label={tr('Delete')} onClick={() => onDelete(p)}><Trash2 className="w-4 h-4" /></button>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 gap-1">
-                  <CopyRow label="Entity ID" value={p.sp.entityId} />
-                  <CopyRow label="ACS URL" value={p.sp.acsUrl} />
+                  <CopyRow label={tr('Entity ID')} value={p.sp.entityId} />
+                  <CopyRow label={tr('ACS URL')} value={p.sp.acsUrl} />
                   {p.certificates.map((c, i) => {
                     const s = certificateStatus(c)
-                    return <div key={i} className={`text-caption ${tone[s.tone]}`}>Certificate {i + 1}: {c?.subject ?? 'unreadable'} ({s.label})</div>
+                    return <div key={i} className={`text-caption ${tone[s.tone]}`}>{tr('Certificate')} {i + 1}: {c?.subject ?? 'unreadable'} ({s.label})</div>
                   })}
                 </div>
               </div>

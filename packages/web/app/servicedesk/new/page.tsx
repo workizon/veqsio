@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -15,6 +17,8 @@ const STEPS = ['Choose a template', 'Name and project', 'Who can raise requests'
 
 /** Create a service desk project: template, name/key/project, customer access. */
 export default function NewServiceDeskPage() {
+  const { tr } = useI18n();
+
   const router = useRouter()
   const create = useCreateDesk()
   const projects = useProjects()
@@ -59,7 +63,7 @@ export default function NewServiceDeskPage() {
         projectKey: mode === 'new' ? key : existingKey, createProject: mode === 'new', name: name.trim(), slug,
         description: description.trim() || undefined, publicSignup, template,
       })
-      toast('Service desk created', 'success')
+      toast(tr('Service desk created'), 'success')
       router.push(`/servicedesk/${desk.id}/settings`)
     } catch (e) {
       setServerError((e as Error).message)
@@ -71,9 +75,9 @@ export default function NewServiceDeskPage() {
   return (
     <AppLayout>
       <div className="space-y-5">
-        <PageHeader title="Create service desk" description="A service desk project gives your customers a portal and your agents queues, request types and SLAs." />
+        <PageHeader title={tr('Create service desk')} description={tr('A service desk project gives your customers a portal and your agents queues, request types and SLAs.')} />
 
-        <ol className="flex flex-wrap gap-2" aria-label="Progress">
+        <ol className="flex flex-wrap gap-2" aria-label={tr('Progress')}>
           {STEPS.map((label, i) => {
             const n = (i + 1) as Step
             const state = n === step ? 'current' : n < step ? 'done' : 'todo'
@@ -89,7 +93,7 @@ export default function NewServiceDeskPage() {
 
         {step === 1 && (
           <fieldset className="space-y-3">
-            <legend className="sr-only">Template</legend>
+            <legend className="sr-only">{tr('Template')}</legend>
             <div className="grid gap-3 sm:grid-cols-2">
               {templateOptions.map((t) => (
                 <label key={t.id} className={`veqsio-card p-4 cursor-pointer space-y-1 focus-within:ring-2 focus-within:ring-[var(--brand-500)] ${template === t.id ? 'border-[var(--brand-500)] ring-1 ring-[var(--brand-500)]' : ''}`}>
@@ -102,45 +106,45 @@ export default function NewServiceDeskPage() {
                 </label>
               ))}
             </div>
-            <p className="text-xs text-[var(--text-tertiary)]">Templates add request types, queues and SLAs you can change afterwards.</p>
+            <p className="text-xs text-[var(--text-tertiary)]">{tr('Templates add request types, queues and SLAs you can change afterwards.')}</p>
           </fieldset>
         )}
 
         {step === 2 && (
           <div className="veqsio-card p-5 space-y-4">
             <label className="block space-y-1">
-              <span className="text-sm font-medium">Name</span>
+              <span className="text-sm font-medium">{tr('Name')}</span>
               <input autoFocus maxLength={255} className="veqsio-input w-full" value={name} onChange={(e) => onName(e.target.value)} aria-invalid={err('name') ? true : undefined} />
               {err('name') && <span role="alert" className="block text-xs text-[var(--error)]">{err('name')}</span>}
             </label>
 
             <fieldset className="space-y-2">
-              <legend className="text-sm font-medium">Project</legend>
+              <legend className="text-sm font-medium">{tr('Project')}</legend>
               <label className="flex items-start gap-2 text-sm">
                 <input type="radio" name="mode" className="mt-1" checked={mode === 'new'} onChange={() => setMode('new')} />
-                <span><span className="font-medium">Create a new project</span><br /><span className="text-[var(--text-secondary)]">Requests become issues in a new project with the default schemes.</span></span>
+                <span><span className="font-medium">{tr('Create a new project')}</span><br /><span className="text-[var(--text-secondary)]">{tr('Requests become issues in a new project with the default schemes.')}</span></span>
               </label>
               <label className="flex items-start gap-2 text-sm">
                 <input type="radio" name="mode" className="mt-1" checked={mode === 'existing'} onChange={() => setMode('existing')} />
-                <span><span className="font-medium">Use an existing project</span><br /><span className="text-[var(--text-secondary)]">Requests become issues in a project you administer.</span></span>
+                <span><span className="font-medium">{tr('Use an existing project')}</span><br /><span className="text-[var(--text-secondary)]">{tr('Requests become issues in a project you administer.')}</span></span>
               </label>
             </fieldset>
 
             {mode === 'new' ? (
               <label className="block space-y-1 max-w-xs">
-                <span className="text-sm font-medium">Project key</span>
+                <span className="text-sm font-medium">{tr('Project key')}</span>
                 <input
                   maxLength={10} className="veqsio-input w-full font-mono uppercase" value={key} aria-invalid={err('key') ? true : undefined} aria-describedby="key-help"
                   onChange={(e) => { setKeyTouched(true); setKey(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')) }}
                 />
-                <span id="key-help" className="block text-xs text-[var(--text-tertiary)]">Issue keys will look like {key || 'KEY'}-1. Cannot be changed later.</span>
+                <span id="key-help" className="block text-xs text-[var(--text-tertiary)]">{tr('Issue keys will look like')} {key || 'KEY'}{tr('-1. Cannot be changed later.')}</span>
                 {err('key') && <span role="alert" className="block text-xs text-[var(--error)]">{err('key')}</span>}
               </label>
             ) : (
               <label className="block space-y-1 max-w-sm">
-                <span className="text-sm font-medium">Existing project</span>
+                <span className="text-sm font-medium">{tr('Existing project')}</span>
                 <select className="veqsio-input w-full" value={existingKey} onChange={(e) => setExistingKey(e.target.value)} aria-invalid={err('existingKey') ? true : undefined}>
-                  <option value="">Select a project…</option>
+                  <option value="">{tr('Select a project…')}</option>
                   {projects.data?.map((p) => <option key={p.id} value={p.key}>{p.name} ({p.key})</option>)}
                 </select>
                 {err('existingKey') && <span role="alert" className="block text-xs text-[var(--error)]">{err('existingKey')}</span>}
@@ -148,7 +152,7 @@ export default function NewServiceDeskPage() {
             )}
 
             <label className="block space-y-1 max-w-sm">
-              <span className="text-sm font-medium">Portal address</span>
+              <span className="text-sm font-medium">{tr('Portal address')}</span>
               <div className="flex items-center gap-1">
                 <span className="text-sm text-[var(--text-tertiary)]">/portal/</span>
                 <input
@@ -160,7 +164,7 @@ export default function NewServiceDeskPage() {
             </label>
 
             <label className="block space-y-1">
-              <span className="text-sm font-medium">Description <span className="font-normal text-[var(--text-tertiary)]">(optional)</span></span>
+              <span className="text-sm font-medium">{tr('Description')} <span className="font-normal text-[var(--text-tertiary)]">{tr('(optional)')}</span></span>
               <textarea rows={2} maxLength={5000} className="veqsio-input w-full" value={description} onChange={(e) => setDescription(e.target.value)} />
             </label>
           </div>
@@ -169,32 +173,32 @@ export default function NewServiceDeskPage() {
         {step === 3 && (
           <div className="space-y-4">
             <fieldset className="veqsio-card p-5 space-y-3">
-              <legend className="px-1 text-sm font-medium">Who can raise requests?</legend>
+              <legend className="px-1 text-sm font-medium">{tr('Who can raise requests?')}</legend>
               <label className="flex items-start gap-2 text-sm">
                 <input type="radio" name="access" className="mt-1" checked={!publicSignup} onChange={() => setPublicSignup(false)} />
-                <span><span className="font-medium">Invited customers only</span><br /><span className="text-[var(--text-secondary)]">You add customers by email in the desk settings.</span></span>
+                <span><span className="font-medium">{tr('Invited customers only')}</span><br /><span className="text-[var(--text-secondary)]">{tr('You add customers by email in the desk settings.')}</span></span>
               </label>
               <label className="flex items-start gap-2 text-sm">
                 <input type="radio" name="access" className="mt-1" checked={publicSignup} onChange={() => setPublicSignup(true)} />
-                <span><span className="font-medium">Anyone with an account can sign up</span><br /><span className="text-[var(--text-secondary)]">Signed-in users become customers the first time they open the portal.</span></span>
+                <span><span className="font-medium">{tr('Anyone with an account can sign up')}</span><br /><span className="text-[var(--text-secondary)]">{tr('Signed-in users become customers the first time they open the portal.')}</span></span>
               </label>
             </fieldset>
             <dl className="veqsio-card p-5 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
-              <dt className="text-[var(--text-tertiary)]">Template</dt><dd>{templateOptions.find((t) => t.id === template)?.title}</dd>
-              <dt className="text-[var(--text-tertiary)]">Name</dt><dd>{name}</dd>
-              <dt className="text-[var(--text-tertiary)]">Project</dt><dd>{mode === 'new' ? `New project ${key}` : `Existing project ${existingKey}`}</dd>
-              <dt className="text-[var(--text-tertiary)]">Portal</dt><dd className="font-mono">/portal/{slug}</dd>
+              <dt className="text-[var(--text-tertiary)]">{tr('Template')}</dt><dd>{templateOptions.find((t) => t.id === template)?.title}</dd>
+              <dt className="text-[var(--text-tertiary)]">{tr('Name')}</dt><dd>{name}</dd>
+              <dt className="text-[var(--text-tertiary)]">{tr('Project')}</dt><dd>{mode === 'new' ? `New project ${key}` : `Existing project ${existingKey}`}</dd>
+              <dt className="text-[var(--text-tertiary)]">{tr('Portal')}</dt><dd className="font-mono">/portal/{slug}</dd>
             </dl>
             {serverError && <p role="alert" className="text-sm text-[var(--error)]">{serverError}</p>}
           </div>
         )}
 
         <div className="flex items-center justify-between">
-          <Link href="/servicedesk" className="veqsio-btn-ghost">Cancel</Link>
+          <Link href="/servicedesk" className="veqsio-btn-ghost">{tr('Cancel')}</Link>
           <div className="flex gap-2">
-            {step > 1 && <button type="button" className="veqsio-btn-secondary" onClick={() => setStep((s) => (s - 1) as Step)}>Back</button>}
+            {step > 1 && <button type="button" className="veqsio-btn-secondary" onClick={() => setStep((s) => (s - 1) as Step)}>{tr('Back')}</button>}
             {step < 3
-              ? <button type="button" className="veqsio-btn-primary" onClick={next}>Next</button>
+              ? <button type="button" className="veqsio-btn-primary" onClick={next}>{tr('Next')}</button>
               : <button type="button" className="veqsio-btn-primary" disabled={create.isPending} onClick={submit}>{create.isPending ? 'Creating…' : 'Create service desk'}</button>}
           </div>
         </div>

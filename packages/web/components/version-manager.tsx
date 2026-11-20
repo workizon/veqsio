@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState, useCallback } from 'react'
 import { Plus, Pencil, Trash2, Archive, ArchiveRestore, Tag, BarChart3 } from 'lucide-react'
 import { Modal } from '@/components/modal'
@@ -44,6 +46,8 @@ export function VersionManager({
   isMutating,
   reportHref,
 }: VersionManagerProps) {
+  const { tr } = useI18n();
+
   const ms = useMultiSort()
   const [isOpen, setIsOpen] = useState(false)
   const [editing, setEditing] = useState<Version | null>(null)
@@ -80,7 +84,7 @@ export function VersionManager({
     (e: React.FormEvent) => {
       e.preventDefault()
       if (!form.name.trim()) {
-        toast('Name is required', 'error')
+        toast(tr('Name is required'), 'error')
         return
       }
       const payload = {
@@ -140,11 +144,10 @@ export function VersionManager({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-[var(--text-primary)]">Versions</h3>
+        <h3 className="text-lg font-semibold text-[var(--text-primary)]">{tr('Versions')}</h3>
         <button onClick={openCreate} className="veqsio-btn-primary flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          Add version
-        </button>
+          {tr('Add version')} </button>
       </div>
 
       {isLoading ? (
@@ -156,20 +159,20 @@ export function VersionManager({
       ) : versions.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-[var(--text-secondary)]">
           <Tag className="w-10 h-10 mb-3 text-[var(--text-tertiary)]" />
-          <p className="text-sm">No versions yet.</p>
-          <p className="text-xs mt-1">Versions represent milestones or releases in your project.</p>
+          <p className="text-sm">{tr('No versions yet.')}</p>
+          <p className="text-xs mt-1">{tr('Versions represent milestones or releases in your project.')}</p>
         </div>
       ) : (
         <div className="border border-[var(--surface-3)] rounded-lg overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="veqsio-table-header">
-                <SortableTh {...ms.th('name')} className="text-left px-4 py-2">Name</SortableTh>
-                <SortableTh {...ms.th('description')} className="text-left px-4 py-2">Description</SortableTh>
-                <SortableTh {...ms.th('start')} className="text-left px-4 py-2">Start date</SortableTh>
-                <SortableTh {...ms.th('release')} className="text-left px-4 py-2">Release date</SortableTh>
-                <SortableTh {...ms.th('status')} className="text-left px-4 py-2">Status</SortableTh>
-                <th className="text-right px-4 py-2">Actions</th>
+                <SortableTh {...ms.th('name')} className="text-left px-4 py-2">{tr('Name')}</SortableTh>
+                <SortableTh {...ms.th('description')} className="text-left px-4 py-2">{tr('Description')}</SortableTh>
+                <SortableTh {...ms.th('start')} className="text-left px-4 py-2">{tr('Start date')}</SortableTh>
+                <SortableTh {...ms.th('release')} className="text-left px-4 py-2">{tr('Release date')}</SortableTh>
+                <SortableTh {...ms.th('status')} className="text-left px-4 py-2">{tr('Status')}</SortableTh>
+                <th className="text-right px-4 py-2">{tr('Actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -182,12 +185,12 @@ export function VersionManager({
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       {ver.released ? (
-                        <span className="veqsio-badge veqsio-badge-status-done">Released</span>
+                        <span className="veqsio-badge veqsio-badge-status-done">{tr('Released')}</span>
                       ) : (
-                        <span className="veqsio-badge veqsio-badge-status-inprogress">Unreleased</span>
+                        <span className="veqsio-badge veqsio-badge-status-inprogress">{tr('Unreleased')}</span>
                       )}
                       {ver.archived && (
-                        <span className="veqsio-badge veqsio-badge-status-todo">Archived</span>
+                        <span className="veqsio-badge veqsio-badge-status-todo">{tr('Archived')}</span>
                       )}
                     </div>
                   </td>
@@ -197,8 +200,8 @@ export function VersionManager({
                         <a
                           href={reportHref(ver.id)!}
                           className="p-1.5 hover:bg-[var(--surface-2)] rounded transition-colors"
-                          title="Version report"
-                          aria-label={`Version report for ${ver.name}`}
+                          title={tr('Version report')}
+                          aria-label={tr('Version report for {name}', { name: ver.name })}
                         >
                           <BarChart3 className="w-4 h-4 text-[var(--brand-500)]" />
                         </a>
@@ -207,7 +210,7 @@ export function VersionManager({
                         <button
                           onClick={() => handleRelease(ver)}
                           className="p-1.5 hover:bg-[var(--surface-2)] rounded transition-colors"
-                          title="Release"
+                          title={tr('Release')}
                         >
                           <Archive className="w-4 h-4 text-[var(--success)]" />
                         </button>
@@ -215,7 +218,7 @@ export function VersionManager({
                         <button
                           onClick={() => handleUnrelease(ver)}
                           className="p-1.5 hover:bg-[var(--surface-2)] rounded transition-colors"
-                          title="Unrelease"
+                          title={tr('Unrelease')}
                         >
                           <ArchiveRestore className="w-4 h-4 text-[var(--text-secondary)]" />
                         </button>
@@ -224,7 +227,7 @@ export function VersionManager({
                         <button
                           onClick={() => handleArchive(ver)}
                           className="p-1.5 hover:bg-[var(--surface-2)] rounded transition-colors"
-                          title="Archive"
+                          title={tr('Archive')}
                         >
                           <Archive className="w-4 h-4 text-[var(--text-tertiary)]" />
                         </button>
@@ -232,7 +235,7 @@ export function VersionManager({
                         <button
                           onClick={() => handleUnarchive(ver)}
                           className="p-1.5 hover:bg-[var(--surface-2)] rounded transition-colors"
-                          title="Unarchive"
+                          title={tr('Unarchive')}
                         >
                           <ArchiveRestore className="w-4 h-4 text-[var(--text-tertiary)]" />
                         </button>
@@ -240,14 +243,14 @@ export function VersionManager({
                       <button
                         onClick={() => openEdit(ver)}
                         className="p-1.5 hover:bg-[var(--surface-2)] rounded transition-colors"
-                        title="Edit"
+                        title={tr('Edit')}
                       >
                         <Pencil className="w-4 h-4 text-[var(--text-secondary)]" />
                       </button>
                       <button
                         onClick={() => setConfirmDelete(ver.id)}
                         className="p-1.5 hover:bg-[var(--surface-2)] rounded transition-colors"
-                        title="Delete"
+                        title={tr('Delete')}
                       >
                         <Trash2 className="w-4 h-4 text-[var(--error)]" />
                       </button>
@@ -264,33 +267,33 @@ export function VersionManager({
       <Modal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title={editing ? 'Edit version' : 'Create version'}
+        title={editing ? tr('Edit version') : tr('Create version')}
         size="md"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Name *</label>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">{tr('Name *')}</label>
             <input
               type="text"
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               className="veqsio-input w-full"
-              placeholder="Version name"
+              placeholder={tr('Version name')}
               autoFocus
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Description</label>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">{tr('Description')}</label>
             <textarea
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               className="veqsio-input w-full min-h-[80px] resize-y"
-              placeholder="Short description"
+              placeholder={tr('Short description')}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Start date</label>
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">{tr('Start date')}</label>
               <input
                 type="date"
                 value={form.startDate}
@@ -299,7 +302,7 @@ export function VersionManager({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Release date</label>
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">{tr('Release date')}</label>
               <input
                 type="date"
                 value={form.releaseDate}
@@ -316,8 +319,7 @@ export function VersionManager({
                 onChange={(e) => setForm((f) => ({ ...f, released: e.target.checked }))}
                 className="w-4 h-4"
               />
-              Released
-            </label>
+              {tr('Released')} </label>
             <label className="flex items-center gap-2 text-sm text-[var(--text-primary)]">
               <input
                 type="checkbox"
@@ -325,15 +327,13 @@ export function VersionManager({
                 onChange={(e) => setForm((f) => ({ ...f, archived: e.target.checked }))}
                 className="w-4 h-4"
               />
-              Archived
-            </label>
+              {tr('Archived')} </label>
           </div>
           <div className="flex items-center justify-end gap-3 pt-2">
             <button type="button" onClick={() => setIsOpen(false)} className="veqsio-btn-secondary">
-              Cancel
-            </button>
+              {tr('Cancel')} </button>
             <button type="submit" disabled={isMutating} className="veqsio-btn-primary">
-              {isMutating ? 'Saving...' : editing ? 'Save' : 'Create'}
+              {isMutating ? tr('Saving...') : editing ? tr('Save') : tr('Create')}
             </button>
           </div>
         </form>
@@ -343,23 +343,21 @@ export function VersionManager({
       <Modal
         isOpen={confirmDelete !== null}
         onClose={() => setConfirmDelete(null)}
-        title="Delete version"
+        title={tr('Delete version')}
         size="sm"
       >
         <div className="space-y-4">
           <p className="text-sm text-[var(--text-secondary)]">
-            Are you sure you want to delete this version? This action cannot be undone.
-          </p>
+            {tr('Are you sure you want to delete this version? This action cannot be undone.')} </p>
           <div className="flex items-center justify-end gap-3">
             <button onClick={() => setConfirmDelete(null)} className="veqsio-btn-secondary">
-              Cancel
-            </button>
+              {tr('Cancel')} </button>
             <button
               onClick={() => confirmDelete !== null && handleDelete(confirmDelete)}
               disabled={isMutating}
               className="veqsio-btn-primary bg-[var(--error)] hover:bg-[var(--error)]/90"
             >
-              {isMutating ? 'Deleting...' : 'Delete'}
+              {isMutating ? tr('Deleting...') : tr('Delete')}
             </button>
           </div>
         </div>

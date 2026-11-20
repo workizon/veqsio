@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { toast } from './toast'
 import { Modal } from './modal'
@@ -36,6 +38,8 @@ const TYPE_LABELS: Record<string, string> = {
 }
 
 export function ApplicationLinksEditor() {
+  const { tr } = useI18n();
+
   const { data, isLoading } = useApplicationLinks()
   const createLink = useCreateApplicationLink()
   const updateLink = useUpdateApplicationLink()
@@ -101,11 +105,11 @@ export function ApplicationLinksEditor() {
         isPrimary: form.isPrimary,
         active: form.active,
       })
-      toast('Application link created', 'success')
+      toast(tr('Application link created'), 'success')
       setShowCreate(false)
       resetForm()
     } catch (e: any) {
-      toast(e.message || 'Failed to create link', 'error')
+      toast(e.message || tr('Failed to create link'), 'error')
     }
   }
 
@@ -134,30 +138,30 @@ export function ApplicationLinksEditor() {
         isPrimary: form.isPrimary,
         active: form.active,
       })
-      toast('Application link updated', 'success')
+      toast(tr('Application link updated'), 'success')
       setEditingLink(null)
       resetForm()
     } catch (e: any) {
-      toast(e.message || 'Failed to update link', 'error')
+      toast(e.message || tr('Failed to update link'), 'error')
     }
   }
 
   const handleDelete = async (id: number) => {
-    if (!(await confirmDialog('Delete this application link?'))) return
+    if (!(await confirmDialog(tr('Delete this application link?')))) return
     try {
       await deleteLink.mutateAsync(id)
-      toast('Application link deleted', 'success')
+      toast(tr('Application link deleted'), 'success')
     } catch (e: any) {
-      toast(e.message || 'Failed to delete link', 'error')
+      toast(e.message || tr('Failed to delete link'), 'error')
     }
   }
 
   const handleSync = async (id: number) => {
     try {
       await syncDev.mutateAsync(id)
-      toast('Development data synced', 'success')
+      toast(tr('Development data synced'), 'success')
     } catch (e: any) {
-      toast(e.message || 'Sync failed', 'error')
+      toast(e.message || tr('Sync failed'), 'error')
     }
   }
 
@@ -183,7 +187,7 @@ export function ApplicationLinksEditor() {
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">Name</label>
+          <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">{tr('Name')}</label>
           <input
             type="text"
             className="veqsio-input w-full"
@@ -192,25 +196,25 @@ export function ApplicationLinksEditor() {
           />
         </div>
         <div>
-          <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">Type</label>
+          <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">{tr('Type')}</label>
           <select
             className="veqsio-input w-full"
             value={form.type}
             onChange={(e) => setForm({ ...form, type: e.target.value })}
           >
-            <option value="github">GitHub</option>
-            <option value="gitlab">GitLab</option>
-            <option value="bitbucket">Bitbucket</option>
-            <option value="confluence">Confluence</option>
-            <option value="bamboo">Bamboo</option>
-            <option value="jenkins">Jenkins</option>
-            <option value="custom">Custom</option>
+            <option value="github">{tr('GitHub')}</option>
+            <option value="gitlab">{tr('GitLab')}</option>
+            <option value="bitbucket">{tr('Bitbucket')}</option>
+            <option value="confluence">{tr('Confluence')}</option>
+            <option value="bamboo">{tr('Bamboo')}</option>
+            <option value="jenkins">{tr('Jenkins')}</option>
+            <option value="custom">{tr('Custom')}</option>
           </select>
         </div>
       </div>
 
       <div>
-        <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">Base URL</label>
+        <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">{tr('Base URL')}</label>
         <input
           type="url"
           className="veqsio-input w-full"
@@ -221,7 +225,7 @@ export function ApplicationLinksEditor() {
       </div>
 
       <div>
-        <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">Display URL (optional)</label>
+        <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">{tr('Display URL (optional)')}</label>
         <input
           type="url"
           className="veqsio-input w-full"
@@ -232,21 +236,21 @@ export function ApplicationLinksEditor() {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">Auth type</label>
+          <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">{tr('Auth type')}</label>
           <select
             className="veqsio-input w-full"
             value={form.authType}
             onChange={(e) => setForm({ ...form, authType: e.target.value })}
           >
-            <option value="none">None</option>
-            <option value="bearer">Bearer token</option>
-            <option value="basic">Basic auth</option>
+            <option value="none">{tr('None')}</option>
+            <option value="bearer">{tr('Bearer token')}</option>
+            <option value="basic">{tr('Basic auth')}</option>
           </select>
         </div>
         {form.type === 'github' || form.type === 'gitlab' || form.type === 'bitbucket' ? (
           <>
             <div>
-              <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">Owner / Org</label>
+              <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">{tr('Owner / Org')}</label>
               <input
                 type="text"
                 className="veqsio-input w-full"
@@ -255,7 +259,7 @@ export function ApplicationLinksEditor() {
               />
             </div>
             <div>
-              <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">Repository</label>
+              <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">{tr('Repository')}</label>
               <input
                 type="text"
                 className="veqsio-input w-full"
@@ -269,7 +273,7 @@ export function ApplicationLinksEditor() {
 
       {form.authType === 'bearer' && (
         <div>
-          <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">Token</label>
+          <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">{tr('Token')}</label>
           <input
             type="password"
             className="veqsio-input w-full"
@@ -282,7 +286,7 @@ export function ApplicationLinksEditor() {
       {form.authType === 'basic' && (
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">Username</label>
+            <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">{tr('Username')}</label>
             <input
               type="text"
               className="veqsio-input w-full"
@@ -291,7 +295,7 @@ export function ApplicationLinksEditor() {
             />
           </div>
           <div>
-            <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">Password</label>
+            <label className="text-caption font-medium text-[var(--text-secondary)] block mb-1">{tr('Password')}</label>
             <input
               type="password"
               className="veqsio-input w-full"
@@ -309,16 +313,14 @@ export function ApplicationLinksEditor() {
             checked={form.isPrimary}
             onChange={(e) => setForm({ ...form, isPrimary: e.target.checked })}
           />
-          Primary link
-        </label>
+          {tr('Primary link')} </label>
         <label className="flex items-center gap-2 text-body-sm text-[var(--text-primary)]">
           <input
             type="checkbox"
             checked={form.active}
             onChange={(e) => setForm({ ...form, active: e.target.checked })}
           />
-          Active
-        </label>
+          {tr('Active')} </label>
       </div>
     </div>
   )
@@ -328,17 +330,14 @@ export function ApplicationLinksEditor() {
       <div className="flex items-center justify-between">
         <h2 className="text-heading-2 text-[var(--text-primary)] flex items-center gap-2">
           <Link2 className="w-5 h-5 text-[var(--text-tertiary)]" />
-          Application Links
-        </h2>
+          {tr('Application Links')} </h2>
         <button onClick={() => { resetForm(); setShowCreate(true) }} className="veqsio-btn-primary flex items-center gap-1">
           <Plus className="w-4 h-4" />
-          Add link
-        </button>
+          {tr('Add link')} </button>
       </div>
 
       <p className="text-body-sm text-[var(--text-secondary)]">
-        Connect Veqsio with other tools like GitHub, GitLab, Confluence, and CI/CD servers.
-        Linked development data appears in the issue detail <strong>Development</strong> panel.
+        {tr('Connect Veqsio with other tools like GitHub, GitLab, Confluence, and CI/CD servers. Linked development data appears in the issue detail')} <strong>{tr('Development')}</strong> {tr('panel.')}
       </p>
 
       {isLoading ? (
@@ -348,8 +347,8 @@ export function ApplicationLinksEditor() {
       ) : links.length === 0 ? (
         <EmptyState
           icon="link"
-          title="No application links"
-          description="Add your first link to start seeing development data in issues."
+          title={tr('No application links')}
+          description={tr('Add your first link to start seeing development data in issues.')}
         />
       ) : (
         <div className="border border-[var(--surface-3)] rounded-lg overflow-hidden divide-y divide-[var(--surface-3)]">
@@ -364,11 +363,11 @@ export function ApplicationLinksEditor() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-body-sm font-medium text-[var(--text-primary)]">{link.name}</span>
-                      {link.isPrimary && <span className="text-caption px-1.5 py-0.5 bg-[var(--brand-500)] text-white rounded-full">Primary</span>}
-                      {!link.active && <span className="text-caption px-1.5 py-0.5 bg-[var(--surface-3)] text-[var(--text-tertiary)] rounded-full">Inactive</span>}
+                      {link.isPrimary && <span className="text-caption px-1.5 py-0.5 bg-[var(--brand-500)] text-white rounded-full">{tr('Primary')}</span>}
+                      {!link.active && <span className="text-caption px-1.5 py-0.5 bg-[var(--surface-3)] text-[var(--text-tertiary)] rounded-full">{tr('Inactive')}</span>}
                     </div>
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-caption text-[var(--text-tertiary)]">
-                      <span>{TYPE_LABELS[link.type] || link.type}</span>
+                      <span>{TYPE_LABELS[link.type] ? tr(TYPE_LABELS[link.type]) : link.type}</span>
                       <a href={link.baseUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[var(--brand-500)] hover:underline">
                         <Globe className="w-3 h-3" />
                         {link.baseUrl}
@@ -391,23 +390,22 @@ export function ApplicationLinksEditor() {
                       onClick={() => handleSync(link.id)}
                       disabled={syncDev.isPending}
                       className="veqsio-btn-secondary flex items-center gap-1 text-caption"
-                      title="Sync development data"
+                      title={tr('Sync development data')}
                     >
                       <RefreshCw className="w-3.5 h-3.5" />
-                      Sync
-                    </button>
+                      {tr('Sync')} </button>
                   )}
                   <button
                     onClick={() => openEdit(link)}
                     className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] p-1"
-                    title="Edit"
+                    title={tr('Edit')}
                   >
                     <Edit3 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(link.id)}
                     className="text-[var(--text-tertiary)] hover:text-red-500 p-1"
-                    title="Delete"
+                    title={tr('Delete')}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -418,25 +416,25 @@ export function ApplicationLinksEditor() {
         </div>
       )}
 
-      <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="Add application link">
+      <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title={tr('Add application link')}>
         <div className="space-y-4">
           {formContent}
           <div className="flex justify-end gap-2">
-            <button onClick={() => setShowCreate(false)} className="veqsio-btn-secondary">Cancel</button>
+            <button onClick={() => setShowCreate(false)} className="veqsio-btn-secondary">{tr('Cancel')}</button>
             <button onClick={handleCreate} disabled={createLink.isPending || !form.name || !form.baseUrl} className="veqsio-btn-primary">
-              {createLink.isPending ? <Spinner size="sm" /> : 'Create'}
+              {createLink.isPending ? <Spinner size="sm" /> : tr('Create')}
             </button>
           </div>
         </div>
       </Modal>
 
-      <Modal isOpen={!!editingLink} onClose={() => { setEditingLink(null); resetForm() }} title="Edit application link">
+      <Modal isOpen={!!editingLink} onClose={() => { setEditingLink(null); resetForm() }} title={tr('Edit application link')}>
         <div className="space-y-4">
           {formContent}
           <div className="flex justify-end gap-2">
-            <button onClick={() => { setEditingLink(null); resetForm() }} className="veqsio-btn-secondary">Cancel</button>
+            <button onClick={() => { setEditingLink(null); resetForm() }} className="veqsio-btn-secondary">{tr('Cancel')}</button>
             <button onClick={handleUpdate} disabled={updateLink.isPending} className="veqsio-btn-primary">
-              {updateLink.isPending ? <Spinner size="sm" /> : 'Save'}
+              {updateLink.isPending ? <Spinner size="sm" /> : tr('Save')}
             </button>
           </div>
         </div>

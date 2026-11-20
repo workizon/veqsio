@@ -1,5 +1,6 @@
 'use client'
 
+import { useI18n } from '@/hooks/use-i18n'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Spinner } from '@/components/spinner'
 import { toast } from '@/components/toast'
@@ -14,6 +15,7 @@ async function api<T>(url: string, init?: RequestInit): Promise<T> {
 
 /** Turn optional features on or off for this project only. */
 export function ProjectFeaturesPanel({ projectKey }: { projectKey: string }) {
+  const { tr } = useI18n()
   const qc = useQueryClient()
   const q = useQuery({ queryKey: ['project-features', projectKey], queryFn: () => api<{ features: Row[] }>(`/rest/api/2/project/${encodeURIComponent(projectKey)}/features`).then((r) => r.features) })
   const save = useMutation({
@@ -24,13 +26,13 @@ export function ProjectFeaturesPanel({ projectKey }: { projectKey: string }) {
   if (q.isLoading) return <Spinner />
   return (
     <div className="max-w-2xl space-y-3">
-      <p className="text-body-sm text-[var(--text-secondary)]">Switch optional features for this project. Turning one off hides it and closes its API for this project; nothing is deleted. Features an administrator switched off for the whole instance cannot be enabled here.</p>
+      <p className="text-body-sm text-[var(--text-secondary)]">{tr('Switch optional features for this project. Turning one off hides it and closes its API for this project; nothing is deleted. Features an administrator switched off for the whole instance cannot be enabled here.')}</p>
       <ul className="divide-y divide-[var(--surface-3)] rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)]">
         {(q.data ?? []).map((f) => (
           <li key={f.id} className="flex items-center gap-4 p-4">
             <label htmlFor={`pf-${f.id}`} className="flex-1 min-w-0">
               <span className="block text-body font-medium">{f.name}</span>
-              <span className="block text-body-sm text-[var(--text-secondary)]">{f.description}{!f.instanceEnabled ? ' (switched off for the whole instance)' : ''}</span>
+              <span className="block text-body-sm text-[var(--text-secondary)]">{f.description}{!f.instanceEnabled ? tr(' (switched off for the whole instance)') : ''}</span>
             </label>
             <input id={`pf-${f.id}`} type="checkbox" role="switch" checked={f.enabled} disabled={!f.instanceEnabled || save.isPending} onChange={(e) => save.mutate({ id: f.id, enabled: e.target.checked })} />
           </li>

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useMemo } from 'react'
 import { useGadgetData, useIssueDistribution } from '@/hooks/use-dashboards'
 import { ChartSkeleton } from '@/components/charts/chart-kit'
@@ -11,6 +13,8 @@ interface PieChartGadgetProps {
 }
 
 export function PieChartGadget({ config }: PieChartGadgetProps) {
+  const { tr } = useI18n();
+
   const field = config.field || 'status'
   const filtered = !!(config.jql || config.filterId)
   const all = useIssueDistribution(field)
@@ -22,7 +26,7 @@ export function PieChartGadget({ config }: PieChartGadgetProps) {
   const chartData = useMemo(() => data || [], [data])
 
   if (isLoading) return <ChartSkeleton />
-  if (!chartData.length) return <EmptyState icon="inbox" title="No data available" />
+  if (!chartData.length) return <EmptyState icon="inbox" title={tr('No data available')} />
 
   return <Donut data={chartData.map((d) => ({ name: String(d.name), value: Number(d.value) }))} label={field === 'status' ? 'Issues' : 'Issues'} />
 }

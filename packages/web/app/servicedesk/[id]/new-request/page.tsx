@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { AlertCircle, UserPlus, X } from 'lucide-react'
@@ -24,6 +26,8 @@ function useDebounced<T>(value: T, ms = 250): T {
 
 /** Agent view: raise a request on behalf of a customer (existing one via autocomplete, or a new one by email). */
 export default function NewRequestOnBehalfPage() {
+  const { tr } = useI18n();
+
   const id = Number(useParams<{ id: string }>().id)
   const router = useRouter()
   const desk = useDesk(id)
@@ -60,10 +64,10 @@ export default function NewRequestOnBehalfPage() {
     const problems: Record<string, string> = {}
     const who = customerPayload(picked, typed, name)
     if (!who.ok) problems._customer = who.error
-    if (!type) problems._type = 'Choose a request type'
+    if (!type) problems._type = tr('Choose a request type')
     if (type) {
       Object.assign(problems, validateValues(type.fields, values, {}))
-      if (!type.summaryField && !summary.trim()) problems._summary = 'Summary is required'
+      if (!type.summaryField && !summary.trim()) problems._summary = tr('Summary is required')
     }
     setErrors(problems)
     if (Object.keys(problems).length || !who.ok || !type) {
@@ -94,23 +98,23 @@ export default function NewRequestOnBehalfPage() {
   return (
     <AppLayout>
       <div className="space-y-4">
-        <PageHeader breadcrumb={[{ label: 'Service desk', href: '/servicedesk' }, { label: desk.data?.name ?? '…', href: `/servicedesk/${id}` }, { label: 'Create request' }]} title="Create request for a customer" description="The customer becomes the reporter and can follow the request in the portal. The activity log records that you raised it." />
+        <PageHeader breadcrumb={[{ label: tr('Service desk'), href: '/servicedesk' }, { label: desk.data?.name ?? '…', href: `/servicedesk/${id}` }, { label: tr('Create request') }]} title={tr('Create request for a customer')} description={tr('The customer becomes the reporter and can follow the request in the portal. The activity log records that you raised it.')} />
 
         {(desk.isLoading || (desk.data && portal.isLoading)) && <Spinner />}
-        {desk.isError && <p role="alert" className="text-[var(--error)]">You need to be an agent of this service desk.</p>}
+        {desk.isError && <p role="alert" className="text-[var(--error)]">{tr('You need to be an agent of this service desk.')}</p>}
 
         {desk.data && portal.data && (
-          <form onSubmit={submit} noValidate aria-label="Create request on behalf of a customer" className="veqsio-card p-5 space-y-6">
-            <p className="text-caption text-[var(--text-tertiary)]"><span aria-hidden className="text-[var(--error)]">*</span> Required field</p>
+          <form onSubmit={submit} noValidate aria-label={tr('Create request on behalf of a customer')} className="veqsio-card p-5 space-y-6">
+            <p className="text-caption text-[var(--text-tertiary)]"><span aria-hidden className="text-[var(--error)]">*</span> {tr('Required field')}</p>
 
             <div className="space-y-1.5 max-w-xl">
               <label htmlFor="customer-input" className="block text-body-sm font-medium text-[var(--text-primary)]">
-                Customer <span aria-hidden className="text-[var(--error)]">*</span><span className="sr-only"> (required)</span>
+                {tr('Customer')} <span aria-hidden className="text-[var(--error)]">*</span><span className="sr-only"> {tr('(required)')}</span>
               </label>
               {picked ? (
                 <div className="flex items-center justify-between gap-2 rounded-lg border border-[var(--surface-3)] bg-[var(--surface-1)] px-3 py-2">
                   <span><span className="font-medium">{picked.displayName || picked.email}</span> <span className="text-[var(--text-secondary)]">{picked.email}</span></span>
-                  <button type="button" className="veqsio-btn-ghost !px-2" onClick={() => setPicked(null)} aria-label="Change customer"><X aria-hidden className="w-4 h-4" /></button>
+                  <button type="button" className="veqsio-btn-ghost !px-2" onClick={() => setPicked(null)} aria-label={tr('Change customer')}><X aria-hidden className="w-4 h-4" /></button>
                 </div>
               ) : (
                 <div className="relative">
@@ -118,12 +122,12 @@ export default function NewRequestOnBehalfPage() {
                     id="customer-input" role="combobox" aria-expanded={listOpen} aria-controls="customer-list" aria-autocomplete="list"
                     aria-invalid={errors._customer ? true : undefined} aria-describedby={errors._customer ? '_customer-err' : 'customer-hint'}
                     aria-activedescendant={listOpen ? `customer-opt-${active}` : undefined}
-                    className="veqsio-input w-full" autoComplete="off" placeholder="Search by name or email, or type a new email address"
+                    className="veqsio-input w-full" autoComplete="off" placeholder={tr('Search by name or email, or type a new email address')}
                     value={typed} onChange={(e) => { setTyped(e.target.value); setOpen(true); setErrors((p) => ({ ...p, _customer: '' })) }}
                     onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 120)} onKeyDown={onKey}
                   />
                   {listOpen && (
-                    <ul id="customer-list" role="listbox" aria-label="Matching customers" className="absolute z-20 mt-1 w-full rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)] shadow-[var(--shadow-md)] py-1">
+                    <ul id="customer-list" role="listbox" aria-label={tr('Matching customers')} className="absolute z-20 mt-1 w-full rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)] shadow-[var(--shadow-md)] py-1">
                       {results.map((r, i) => (
                         <li key={r.id} id={`customer-opt-${i}`} role="option" aria-selected={i === active}
                           onMouseDown={(e) => { e.preventDefault(); choose(r) }} onMouseEnter={() => setActive(i)}
@@ -135,12 +139,12 @@ export default function NewRequestOnBehalfPage() {
                   )}
                 </div>
               )}
-              <p id="customer-hint" className="text-caption text-[var(--text-tertiary)]">Pick an existing customer, or enter an email address to create one.</p>
+              <p id="customer-hint" className="text-caption text-[var(--text-tertiary)]">{tr('Pick an existing customer, or enter an email address to create one.')}</p>
               {err('_customer')}
               {creating && (
                 <div className="space-y-1.5 rounded-lg border border-[var(--brand-100)] bg-[var(--brand-50)] p-3">
-                  <p className="flex items-center gap-2 text-body-sm font-medium text-[var(--text-primary)]"><UserPlus aria-hidden className="w-4 h-4 text-[var(--brand-600)]" />A new customer will be created for {typed.trim()}</p>
-                  <label htmlFor="customer-name" className="block text-body-sm">Name (optional)</label>
+                  <p className="flex items-center gap-2 text-body-sm font-medium text-[var(--text-primary)]"><UserPlus aria-hidden className="w-4 h-4 text-[var(--brand-600)]" />{tr('A new customer will be created for')} {typed.trim()}</p>
+                  <label htmlFor="customer-name" className="block text-body-sm">{tr('Name (optional)')}</label>
                   <input id="customer-name" className="veqsio-input w-full" maxLength={255} value={name} onChange={(e) => setName(e.target.value)} />
                 </div>
               )}
@@ -148,15 +152,15 @@ export default function NewRequestOnBehalfPage() {
 
             <div className="space-y-1.5 max-w-xl">
               <label htmlFor="rt-select" className="block text-body-sm font-medium text-[var(--text-primary)]">
-                Request type <span aria-hidden className="text-[var(--error)]">*</span><span className="sr-only"> (required)</span>
+                {tr('Request type')} <span aria-hidden className="text-[var(--error)]">*</span><span className="sr-only"> {tr('(required)')}</span>
               </label>
               <select id="rt-select" className="veqsio-input w-full" value={typeId} onChange={(e) => chooseType(e.target.value)}
                 aria-invalid={errors._type ? true : undefined} aria-describedby={errors._type ? '_type-err' : undefined}>
-                <option value="">Choose a request type</option>
+                <option value="">{tr('Choose a request type')}</option>
                 {portal.data.requestTypes.map((t) => <option key={t.id} value={t.id}>{t.groupName ? `${t.groupName}: ` : ''}{t.name}</option>)}
               </select>
               {err('_type')}
-              {portal.data.requestTypes.length === 0 && <p className="text-sm text-[var(--text-tertiary)]">This desk has no request types yet. Create one under Settings, Request types.</p>}
+              {portal.data.requestTypes.length === 0 && <p className="text-sm text-[var(--text-tertiary)]">{tr('This desk has no request types yet. Create one under Settings, Request types.')}</p>}
             </div>
 
             {type && (
@@ -164,7 +168,7 @@ export default function NewRequestOnBehalfPage() {
                 {(type.helpText || type.description) && <p className="text-body text-[var(--text-secondary)]">{type.helpText || type.description}</p>}
                 {!type.summaryField && (
                   <div className="space-y-1.5">
-                    <label htmlFor="req-summary" className="block text-body-sm font-medium text-[var(--text-primary)]">Summary <span aria-hidden className="text-[var(--error)]">*</span><span className="sr-only"> (required)</span></label>
+                    <label htmlFor="req-summary" className="block text-body-sm font-medium text-[var(--text-primary)]">{tr('Summary')} <span aria-hidden className="text-[var(--error)]">*</span><span className="sr-only"> {tr('(required)')}</span></label>
                     <input id="req-summary" maxLength={500} className="veqsio-input w-full" value={summary}
                       aria-invalid={errors._summary ? true : undefined} aria-describedby={errors._summary ? '_summary-err' : undefined}
                       onChange={(e) => { setSummary(e.target.value); setErrors((p) => ({ ...p, _summary: '' })) }} />
@@ -177,11 +181,11 @@ export default function NewRequestOnBehalfPage() {
                 />
                 {!type.descriptionField && (
                   <div className="space-y-1.5">
-                    <label htmlFor="req-description" className="block text-body-sm font-medium text-[var(--text-primary)]">Description</label>
-                    <RichTextEditor id="req-description" label="Description" rows={5} maxLength={20000} mentions={false} value={description} onChange={setDescription} />
+                    <label htmlFor="req-description" className="block text-body-sm font-medium text-[var(--text-primary)]">{tr('Description')}</label>
+                    <RichTextEditor id="req-description" label={tr('Description')} rows={5} maxLength={20000} mentions={false} value={description} onChange={setDescription} />
                   </div>
                 )}
-                <p className="text-caption text-[var(--text-tertiary)]">Files can be attached from the request once it exists.</p>
+                <p className="text-caption text-[var(--text-tertiary)]">{tr('Files can be attached from the request once it exists.')}</p>
               </div>
             )}
 
@@ -191,8 +195,8 @@ export default function NewRequestOnBehalfPage() {
               </p>
             )}
             <div className="flex items-center gap-2">
-              <button type="submit" className="veqsio-btn-primary" disabled={create.isPending}>{create.isPending ? 'Creating…' : 'Create request'}</button>
-              <button type="button" className="veqsio-btn-secondary" onClick={() => router.push(`/servicedesk/${id}`)} disabled={create.isPending}>Cancel</button>
+              <button type="submit" className="veqsio-btn-primary" disabled={create.isPending}>{create.isPending ? tr('Creating…') : tr('Create request')}</button>
+              <button type="button" className="veqsio-btn-secondary" onClick={() => router.push(`/servicedesk/${id}`)} disabled={create.isPending}>{tr('Cancel')}</button>
             </div>
           </form>
         )}

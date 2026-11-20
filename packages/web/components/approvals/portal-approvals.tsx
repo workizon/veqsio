@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { useState } from 'react'
 import { ChevronRight } from 'lucide-react'
@@ -22,6 +24,8 @@ const CHIP: Record<ApprovalStatus, string> = {
  * Looks like the other portal sections: rounded card, heading, one row per approval; a brand accent marks what needs an answer.
  */
 export function PortalApprovals({ slug, requestKey }: { slug: string; requestKey?: string }) {
+  const { tr } = useI18n();
+
   const list = usePortalApprovals(slug, requestKey)
   const decide = usePortalDecide(slug)
   const [errors, setErrors] = useState<Record<number, string>>({})
@@ -36,15 +40,15 @@ export function PortalApprovals({ slug, requestKey }: { slug: string; requestKey
       className={`rounded-xl border border-[var(--surface-3)] bg-[var(--surface-0)] shadow-[var(--shadow-sm)] p-5 space-y-4 ${waiting > 0 ? 'border-l-[3px] border-l-[var(--brand-500)]' : ''}`}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <h2 id={headingId} className="text-heading-3 text-[var(--text-primary)]">{requestKey ? 'Approvals' : 'Waiting for my approval'}</h2>
-        {waiting > 0 && <span className="rounded-full bg-[var(--brand-50)] px-2 py-0.5 text-caption font-semibold text-[var(--brand-700)] ring-1 ring-inset ring-[var(--brand-100)]">{waiting} to decide</span>}
+        <h2 id={headingId} className="text-heading-3 text-[var(--text-primary)]">{requestKey ? tr('Approvals') : tr('Waiting for my approval')}</h2>
+        {waiting > 0 && <span className="rounded-full bg-[var(--brand-50)] px-2 py-0.5 text-caption font-semibold text-[var(--brand-700)] ring-1 ring-inset ring-[var(--brand-100)]">{waiting} {tr('to decide')}</span>}
       </div>
       <ul className="space-y-3">
         {items.map((a) => (
           <li key={a.id} className="space-y-3 rounded-lg border border-[var(--surface-3)] bg-[var(--surface-1)] p-4">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <strong className="text-body font-semibold text-[var(--text-primary)]">{a.name}</strong>
-              <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-caption font-medium ring-1 ring-inset ${CHIP[a.status] ?? CHIP.cancelled}`}>{STATUS_LABEL[a.status] ?? a.status}</span>
+              <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-caption font-medium ring-1 ring-inset ${CHIP[a.status] ?? CHIP.cancelled}`}>{STATUS_LABEL[a.status] ? tr(STATUS_LABEL[a.status]) : a.status}</span>
             </div>
             {!requestKey && (
               <Link
@@ -56,7 +60,7 @@ export function PortalApprovals({ slug, requestKey }: { slug: string; requestKey
                 <ChevronRight aria-hidden className="h-4 w-4 shrink-0 text-[var(--text-tertiary)] transition-transform group-hover:translate-x-0.5" />
               </Link>
             )}
-            {a.myDecision && <p className="text-body-sm text-[var(--text-secondary)]">You {a.myDecision.decision} this request.</p>}
+            {a.myDecision && <p className="text-body-sm text-[var(--text-secondary)]">{tr('You')} {a.myDecision.decision} {tr('this request.')}</p>}
             {a.canDecide && (
               <DecisionForm
                 touch

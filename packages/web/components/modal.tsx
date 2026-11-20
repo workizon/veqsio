@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
@@ -13,6 +15,8 @@ interface ModalProps {
 }
 
 export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
+  const { tr } = useI18n();
+
   const overlayRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
 
@@ -68,7 +72,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
           <h2 className="min-w-0 flex-1 text-heading-2 text-[var(--text-primary)] break-words [overflow-wrap:anywhere]">{title}</h2>
           <button
             onClick={onClose}
-            aria-label="Close dialog"
+            aria-label={tr('Close dialog')}
             className="veqsio-btn-ghost p-1 shrink-0"
           >
             <X className="w-5 h-5 text-[var(--text-tertiary)]" />

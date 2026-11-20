@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { Fragment, useState, useEffect, useMemo, useRef } from 'react'
 import { useMultiSort } from '@/lib/table-sort'
 import { useRouter } from 'next/navigation'
@@ -92,6 +94,8 @@ const JQL_SORT_FIELDS: Record<string, string> = {
 }
 
 export default function IssuesPage() {
+  const { tr } = useI18n();
+
   const router = useRouter()
   const { t, Issues } = useTerm()
   const peek = usePeek()
@@ -307,9 +311,9 @@ export default function IssuesPage() {
       const results: BulkResult[] = []
       for (const g of undoGroups(r)) results.push(await runBulk(g.issueKeys, g.operation, g.params))
       const { restored, failed } = mergeUndoResults(results)
-      toast(failed ? `Restored ${restored} issues; ${failed} could not be restored` : `Restored ${restored} ${restored === 1 ? 'issue' : 'issues'}`, failed ? 'warning' : 'success')
+      toast(failed ? tr('Restored {restored} issues; {failed} could not be restored', { restored, failed }) : restored === 1 ? tr('Restored {restored} issue', { restored }) : tr('Restored {restored} issues', { restored }), failed ? 'warning' : 'success')
     } catch (err: any) {
-      toast(err?.message || 'Undo failed', 'error')
+      toast(err?.message || tr('Undo failed'), 'error')
     }
     refetch()
   }
@@ -365,16 +369,16 @@ export default function IssuesPage() {
     a.download = `issues-${new Date().toISOString().slice(0, 10)}.csv`
     a.click()
     URL.revokeObjectURL(url)
-    toast('Exported to CSV', 'success')
+    toast(tr('Exported to CSV'), 'success')
   }
 
   const saveFilter = async () => {
-    const name = (await promptDialog('Filter name:'))
+    const name = (await promptDialog(tr('Filter name:')))
     if (!name) return
     const next = [...savedFilters, { id: Math.random().toString(36).slice(2), name, jql }]
     setSavedFilters(next)
     saveSavedFilters(next)
-    toast('Filter saved', 'success')
+    toast(tr('Filter saved'), 'success')
   }
 
   const allColumns = [
@@ -460,18 +464,16 @@ export default function IssuesPage() {
           <div className="flex items-center gap-2">
             <button onClick={exportCSV} className="veqsio-btn-secondary flex items-center gap-2">
               <Download className="w-4 h-4" />
-              Export CSV
-            </button>
+              {tr('Export CSV')} </button>
             <Link href="/issues/create" className="veqsio-btn-primary flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              Create issue
-            </Link>
+              {tr('Create issue')} </Link>
           </div>
         </div>
 
         {/* Quick filters */}
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div role="tablist" aria-label="Issue views" className="inline-flex p-0.5 rounded-lg bg-[var(--surface-2)] border border-[var(--surface-3)]">
+          <div role="tablist" aria-label={tr('Issue views')} className="inline-flex p-0.5 rounded-lg bg-[var(--surface-2)] border border-[var(--surface-3)]">
             {quickFilters.map((f) => (
               <button
                 key={f.key}
@@ -484,14 +486,14 @@ export default function IssuesPage() {
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
-                {f.label}
+                {tr(f.label)}
               </button>
             ))}
           </div>
           <div className="flex items-center gap-2">
-          <div role="group" aria-label="Row density" className="hidden md:inline-flex p-0.5 rounded-lg bg-[var(--surface-2)] border border-[var(--surface-3)]">
+          <div role="group" aria-label={tr('Row density')} className="hidden md:inline-flex p-0.5 rounded-lg bg-[var(--surface-2)] border border-[var(--surface-3)]">
             {([['s', 'S', 'Compact rows'], ['m', 'M', 'Normal rows'], ['l', 'L', 'Roomy rows']] as const).map(([d, label, title]) => (
-              <button key={d} type="button" aria-pressed={density === d} title={title} aria-label={title} onClick={() => setDensity(d)}
+              <button key={d} type="button" aria-pressed={density === d} title={tr(title)} aria-label={tr(title)} onClick={() => setDensity(d)}
                 className={`px-2.5 py-1 rounded-md text-[12px] font-medium transition-colors ${density === d ? 'bg-[var(--surface-0)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>{label}</button>
             ))}
           </div>
@@ -501,8 +503,7 @@ export default function IssuesPage() {
             className="veqsio-btn-secondary text-[13px]"
           >
             <Filter className="w-3.5 h-3.5" />
-            Filters and columns
-          </button>
+            {tr('Filters and columns')} </button>
           </div>
         </div>
 
@@ -516,14 +517,13 @@ export default function IssuesPage() {
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-heading-3 text-[var(--text-primary)] flex items-center gap-2">
                     <Filter className="w-4 h-4" />
-                    Saved Filters
-                  </h3>
-                  <button onClick={() => setSidebarOpen(false)} aria-label="Close filters" className="veqsio-btn-ghost p-1 lg:hidden">
+                    {tr('Saved Filters')} </h3>
+                  <button onClick={() => setSidebarOpen(false)} aria-label={tr('Close filters')} className="veqsio-btn-ghost p-1 lg:hidden">
                     <ChevronLeft className="w-4 h-4" />
                   </button>
                 </div>
                 {savedFilters.length === 0 ? (
-                  <p className="text-caption text-[var(--text-secondary)]">No saved filters yet.</p>
+                  <p className="text-caption text-[var(--text-secondary)]">{tr('No saved filters yet.')}</p>
                 ) : (
                   <div className="space-y-1">
                     {savedFilters.map((f) => (
@@ -541,15 +541,13 @@ export default function IssuesPage() {
                   onClick={saveFilter}
                   className="mt-2 w-full flex items-center justify-center gap-1 text-caption text-[var(--brand-500)] hover:underline"
                 >
-                  <Save className="w-3 h-3" /> Save current filter
-                </button>
+                  <Save className="w-3 h-3" /> {tr('Save current filter')} </button>
               </div>
 
               <div className="veqsio-card">
                 <h3 className="text-heading-3 text-[var(--text-primary)] flex items-center gap-2 mb-2">
                   <Columns className="w-4 h-4" />
-                  Columns
-                </h3>
+                  {tr('Columns')} </h3>
                 <div className="space-y-1">
                   {allColumns.map((col) => (
                     <label
@@ -566,7 +564,7 @@ export default function IssuesPage() {
                         }}
                         className="w-4 h-4 rounded border-[var(--surface-4)] text-[var(--brand-500)] focus:ring-[var(--brand-500)]"
                       />
-                      <span className="text-body-sm text-[var(--text-secondary)]">{col.label}</span>
+                      <span className="text-body-sm text-[var(--text-secondary)]">{tr(col.label)}</span>
                     </label>
                   ))}
                 </div>
@@ -583,7 +581,7 @@ export default function IssuesPage() {
                   value={jqlText}
                   onChange={setJqlText}
                   onSubmit={() => setJql(jqlText.trim())}
-                  placeholder='Enter JQL, e.g. project = DEMO AND status = "In Progress"'
+                  placeholder={tr('Enter JQL, e.g. project = DEMO AND status = "In Progress"')}
                 />
               ) : (
                 <input
@@ -600,8 +598,7 @@ export default function IssuesPage() {
                 onClick={() => (advancedMode ? setJql(jqlText.trim()) : handleSearch())}
                 className="veqsio-btn-secondary"
               >
-                Search
-              </button>
+                {tr('Search')} </button>
               <button
                 onClick={() => {
                   if (!advancedMode) setJqlText(jql)
@@ -609,32 +606,29 @@ export default function IssuesPage() {
                 }}
                 className="veqsio-btn-ghost text-caption whitespace-nowrap"
               >
-                {advancedMode ? 'Basic' : 'Advanced (JQL)'}
+                {advancedMode ? tr('Basic') : tr('Advanced (JQL)')}
               </button>
             </div>
 
             {/* Bulk actions */}
             {selectedIssues.size > 0 && (
-              <div className="flex flex-wrap items-center gap-2 p-2 bg-[var(--brand-50)] rounded-lg border border-[var(--brand-100)]" role="region" aria-label="Bulk actions">
+              <div className="flex flex-wrap items-center gap-2 p-2 bg-[var(--brand-50)] rounded-lg border border-[var(--brand-100)]" role="region" aria-label={tr('Bulk actions')}>
                 <span className="text-body-sm text-[var(--text-primary)] font-medium px-2" aria-live="polite">
-                  {selectedIssues.size} selected
+                  {selectedIssues.size} {tr('selected')}
                 </span>
                 <button onClick={() => setBulkOpen(true)} className="veqsio-btn-primary text-xs" aria-keyshortcuts="b">
-                  Bulk change...
-                </button>
-                <button onClick={() => useCommandLineStore.getState().openBar()} className="veqsio-btn-secondary text-xs" aria-keyshortcuts="Control+Alt+J Meta+Alt+J" title="Command line (Ctrl/Cmd+Alt+J)">
-                  Command line...
-                </button>
+                  {tr('Bulk change...')} </button>
+                <button onClick={() => useCommandLineStore.getState().openBar()} className="veqsio-btn-secondary text-xs" aria-keyshortcuts="Control+Alt+J Meta+Alt+J" title={tr('Command line (Ctrl/Cmd+Alt+J)')}>
+                  {tr('Command line...')} </button>
                 <button onClick={() => setSelectedIssues(new Set())} className="veqsio-btn-ghost text-xs">
-                  Clear selection
-                </button>
+                  {tr('Clear selection')} </button>
               </div>
             )}
             <Portal><BulkChangeDialog open={bulkOpen} issues={bulkIssues} onClose={() => setBulkOpen(false)} onFinished={onBulkFinished} /></Portal>
 
             {/* Phones: one card per issue instead of a wide table (the table below is for tablets and up) */}
             {!isLoading && !error && issues.length > 0 && (
-              <ul aria-label="Issues" className="md:hidden space-y-2">
+              <ul aria-label={tr('Issues')} className="md:hidden space-y-2">
                 {issues.map((issue) => (
                   <li
                     key={issue.id}
@@ -662,7 +656,7 @@ export default function IssuesPage() {
                           <span className="flex min-w-0 items-center gap-1.5">
                             {issue.fields.assignee?.displayName
                               ? <><Avatar name={issue.fields.assignee.displayName} size="sm" /><span className="truncate">{issue.fields.assignee.displayName}</span></>
-                              : <span className="text-[var(--text-tertiary)]">Unassigned</span>}
+                              : <span className="text-[var(--text-tertiary)]">{tr('Unassigned')}</span>}
                           </span>
                           <span className="ml-auto text-[var(--text-tertiary)]">{timeAgo(issue.fields.updated)}</span>
                         </span>
@@ -684,7 +678,7 @@ export default function IssuesPage() {
                     <div className="flex items-center justify-center">
                       <button
                         onClick={toggleSelectAll}
-                        aria-label="Select all issues"
+                        aria-label={tr('Select all issues')}
                         className="p-1 hover:bg-[var(--surface-2)] rounded transition-colors"
                       >
                         {selectedIssues.size === issues.length && issues.length > 0 ? (
@@ -700,18 +694,18 @@ export default function IssuesPage() {
                       return (
                         <div key={col} className="relative min-w-0" aria-sort={dir === 'asc' ? 'ascending' : dir === 'desc' ? 'descending' : undefined}>
                           {JQL_SORT_FIELDS[col] ? (
-                            <button type="button" onClick={(e) => multiSort.toggle(col, e)} title="Click to sort. Shift+click to sort by several columns." className="inline-flex max-w-full items-center gap-1 uppercase hover:text-[var(--text-primary)]">
-                              {allColumns.find((c) => c.id === col)?.label}
+                            <button type="button" onClick={(e) => multiSort.toggle(col, e)} title={tr('Click to sort. Shift+click to sort by several columns.')} className="inline-flex max-w-full items-center gap-1 uppercase hover:text-[var(--text-primary)]">
+                              {tr(allColumns.find((c) => c.id === col)?.label ?? '')}
                               {dir === 'asc' && <ArrowUp className="h-3 w-3" aria-hidden />}
                               {dir === 'desc' && <ArrowDown className="h-3 w-3" aria-hidden />}
-                              {rank !== undefined && <span className="rounded bg-[var(--surface-2)] px-1 text-[10px] leading-4 normal-case" aria-label={`sort priority ${rank}`}>{rank}</span>}
+                              {rank !== undefined && <span className="rounded bg-[var(--surface-2)] px-1 text-[10px] leading-4 normal-case" aria-label={tr('sort priority {rank}', { rank })}>{rank}</span>}
                             </button>
-                          ) : allColumns.find((c) => c.id === col)?.label}
+                          ) : tr(allColumns.find((c) => c.id === col)?.label ?? '')}
                           <div
                             role="separator"
                             aria-orientation="vertical"
-                            aria-label={`Resize ${allColumns.find((c) => c.id === col)?.label} column`}
-                            title="Drag to resize, double-click to reset"
+                            aria-label={tr('Resize {name} column', { name: tr(allColumns.find((c) => c.id === col)?.label ?? '') })}
+                            title={tr('Drag to resize, double-click to reset')}
                             onPointerDown={(e) => startResize(col, e)}
                             onDoubleClick={() => resetColWidth(col)}
                             className="absolute -right-2 top-[-8px] bottom-[-8px] w-3 cursor-col-resize touch-none after:absolute after:left-1/2 after:top-1 after:bottom-1 after:w-px after:bg-[var(--surface-3)] hover:after:bg-[var(--brand-500)] hover:after:w-0.5"
@@ -722,7 +716,7 @@ export default function IssuesPage() {
                   </div>
 
                   {isLoading && (
-                    <div className="divide-y divide-[var(--surface-3)]" role="status" aria-busy="true" aria-label="Loading issues">
+                    <div className="divide-y divide-[var(--surface-3)]" role="status" aria-busy="true" aria-label={tr('Loading issues')}>
                       {Array.from({ length: 6 }, (_, i) => (
                         <div key={i} className="flex items-center gap-4 px-4 py-3.5">
                           <Skeleton className="h-4 w-20" /><Skeleton className="h-4 flex-1" /><Skeleton className="h-5 w-24 rounded-full" /><Skeleton className="h-4 w-16" />
@@ -746,7 +740,7 @@ export default function IssuesPage() {
                         title={t('No issues found')}
                         description={
                           search
-                            ? 'Try a different search query.'
+                            ? tr('Try a different search query.')
                             : t('Use Create issue above to add the first one.')
                         }
                       />
@@ -757,7 +751,7 @@ export default function IssuesPage() {
                   <div
                     ref={listRef}
                     role="listbox"
-                    aria-label="Issues"
+                    aria-label={tr('Issues')}
                     aria-multiselectable="true"
                     aria-activedescendant={nav.focus >= 0 && issues[nav.focus] ? `issue-row-${issues[nav.focus].id}` : undefined}
                     tabIndex={0}
@@ -804,7 +798,7 @@ export default function IssuesPage() {
                                   <span className="text-[12px] font-medium text-[var(--text-secondary)] tabular-nums truncate">
                                     {issue.key}
                                   </span>
-                                  {issue.fields.flagged && <Flag className="w-3.5 h-3.5 shrink-0 text-[var(--warning)]" aria-label="Flagged" />}
+                                  {issue.fields.flagged && <Flag className="w-3.5 h-3.5 shrink-0 text-[var(--warning)]" aria-label={tr('Flagged')} />}
                                   <PeekButton issueKey={issue.key} onPeek={peek.open} tabbable={false} className="ml-auto shrink-0 opacity-0 group-hover:opacity-70 hover:!opacity-100 focus-visible:opacity-100" />
                                 </div>
                               )
@@ -847,7 +841,7 @@ export default function IssuesPage() {
                                       priority={issue.fields.priority.name}
                                     />
                                   ) : (
-                                    <span className="text-[12px] text-[var(--text-tertiary)]">None</span>
+                                    <span className="text-[12px] text-[var(--text-tertiary)]">{tr('None')}</span>
                                   )}
                                 </div>
                               )
@@ -862,7 +856,7 @@ export default function IssuesPage() {
                                   ) : (
                                     <>
                                       <span className="w-5 h-5 rounded-full border border-dashed border-[var(--surface-4)] shrink-0" aria-hidden="true" />
-                                      <span className="text-[var(--text-tertiary)]">Unassigned</span>
+                                      <span className="text-[var(--text-tertiary)]">{tr('Unassigned')}</span>
                                     </>
                                   )}
                                 </div>
@@ -918,7 +912,7 @@ export default function IssuesPage() {
 
             {!isLoading && !error && issues.length > 0 && (
               <p className="text-caption text-[var(--text-tertiary)] text-center">
-                Showing {issues.length} of {total} issues
+                {tr('Showing')} {issues.length} {tr('of')} {total} {tr('issues')}
               </p>
             )}
           </div>

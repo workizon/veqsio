@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { AppLayout } from '@/components/app-layout'
@@ -20,6 +22,8 @@ const SOURCES: Source[] = [
 interface HistoryRow { id: number; source: string; dryRun: boolean; status: string; startedAt: string | null; processed: number; total: number }
 
 export default function MigrationHubPage() {
+  const { tr } = useI18n();
+
   const [history, setHistory] = useState<HistoryRow[] | null>(null)
   const [error, setError] = useState(false)
 
@@ -33,9 +37,9 @@ export default function MigrationHubPage() {
   return (
     <AppLayout>
       <div className="space-y-5">
-        <PageHeader title="Import from other tools" description="Move projects, issues and comments to Veqsio. Every importer can run a preview first, matches people by e-mail and can be run again later to catch up without creating duplicates." />
+        <PageHeader title={tr('Import from other tools')} description={tr('Move projects, issues and comments to Veqsio. Every importer can run a preview first, matches people by e-mail and can be run again later to catch up without creating duplicates.')} />
 
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Import sources">
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label={tr('Import sources')}>
           {SOURCES.map((s) => (
             <li key={s.id}>
               <Link href={s.href} className="veqsio-card p-4 block h-full hover:border-[var(--brand-500)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--brand-500)]">
@@ -48,13 +52,13 @@ export default function MigrationHubPage() {
         </ul>
 
         <section className="veqsio-card p-5 space-y-2">
-          <h2 className="text-heading-3">Recent imports from Linear, Asana, ClickUp and JSON</h2>
-          {error && <p className="text-sm text-red-700">The history could not be loaded.</p>}
-          {!error && history === null && <p className="text-sm text-[var(--text-secondary)]">Loading…</p>}
-          {history && history.length === 0 && <p className="text-sm text-[var(--text-secondary)]">Nothing imported yet.</p>}
+          <h2 className="text-heading-3">{tr('Recent imports from Linear, Asana, ClickUp and JSON')}</h2>
+          {error && <p className="text-sm text-red-700">{tr('The history could not be loaded.')}</p>}
+          {!error && history === null && <p className="text-sm text-[var(--text-secondary)]">{tr('Loading…')}</p>}
+          {history && history.length === 0 && <p className="text-sm text-[var(--text-secondary)]">{tr('Nothing imported yet.')}</p>}
           {history && history.length > 0 && (
             <table className="w-full text-sm">
-              <thead><tr className="text-left"><th>#</th><th>Source</th><th>Kind</th><th>Status</th><th>Started</th><th>Issues</th></tr></thead>
+              <thead><tr className="text-left"><th>#</th><th>{tr('Source')}</th><th>{tr('Kind')}</th><th>{tr('Status')}</th><th>{tr('Started')}</th><th>{tr('Issues')}</th></tr></thead>
               <tbody>
                 {history.map((h) => (
                   <tr key={h.id}>
@@ -65,7 +69,7 @@ export default function MigrationHubPage() {
               </tbody>
             </table>
           )}
-          <p className="text-xs text-[var(--text-tertiary)]">Documentation: docs/migration-other-tools.md</p>
+          <p className="text-xs text-[var(--text-tertiary)]">{tr('Documentation: docs/migration-other-tools.md')}</p>
         </section>
       </div>
     </AppLayout>

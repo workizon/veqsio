@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 
 interface PaginationProps {
@@ -9,6 +11,8 @@ interface PaginationProps {
 }
 
 export function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
+  const { tr } = useI18n();
+
   const getPageNumbers = () => {
     const pages: (number | string)[] = []
     const showEllipsis = totalPages > 7
@@ -35,7 +39,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
   return (
     <div className="flex items-center justify-between py-4">
       <div className="text-caption text-[var(--text-tertiary)]">
-        Page {currentPage} of {totalPages}
+        {tr('Page')} {currentPage} {tr('of')} {totalPages}
       </div>
 
       <div className="flex items-center gap-1">

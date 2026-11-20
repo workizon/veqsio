@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import {
   Plus,
@@ -28,6 +30,8 @@ import type { AdminProjectRole, ProjectRoleActor } from '@/hooks/use-admin'
 import { confirmDialog } from '@/components/dialogs'
 
 export function ProjectRoleEditor() {
+  const { tr } = useI18n();
+
   const [createOpen, setCreateOpen] = useState(false)
   const [editingRole, setEditingRole] = useState<AdminProjectRole | null>(null)
   const [manageRole, setManageRole] = useState<AdminProjectRole | null>(null)
@@ -46,32 +50,31 @@ export function ProjectRoleEditor() {
         name: fd.get('name') as string,
         description: (fd.get('description') as string) || undefined,
       })
-      toast('Role created', 'success')
+      toast(tr('Role created'), 'success')
       setCreateOpen(false)
       e.currentTarget.reset()
     } catch (err: any) {
-      toast(err.message || 'Failed to create role', 'error')
+      toast(err.message || tr('Failed to create role'), 'error')
     }
   }
 
   async function handleDelete(id: number, name: string) {
-    if (!(await confirmDialog(`Delete role "${name}"?`))) return
+    if (!(await confirmDialog(tr('Delete role "{name}"?', { name })))) return
     try {
       await deleteRole.mutateAsync(id)
-      toast('Role deleted', 'success')
+      toast(tr('Role deleted'), 'success')
     } catch (err: any) {
-      toast(err.message || 'Failed to delete role', 'error')
+      toast(err.message || tr('Failed to delete role'), 'error')
     }
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-heading-2 text-[var(--text-primary)]">Project roles</h2>
+        <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('Project roles')}</h2>
         <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          Create Role
-        </button>
+          {tr('Create Role')} </button>
       </div>
 
       {isLoading ? (
@@ -81,13 +84,12 @@ export function ProjectRoleEditor() {
       ) : roles.length === 0 ? (
         <EmptyState
           icon="folder"
-          title="No project roles found"
-          description="Create roles to manage project membership and permissions."
+          title={tr('No project roles found')}
+          description={tr('Create roles to manage project membership and permissions.')}
           action={
             <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              Create Role
-            </button>
+              {tr('Create Role')} </button>
           }
         />
       ) : (
@@ -103,7 +105,7 @@ export function ProjectRoleEditor() {
                     <div className="font-medium text-[var(--text-primary)]">{r.name}</div>
                     {r.description && <div className="text-xs text-[var(--text-tertiary)]">{r.description}</div>}
                     <div className="text-xs text-[var(--text-tertiary)] mt-0.5">
-                      {r.actors.length} actor{r.actors.length !== 1 ? 's' : ''}
+                      {r.actors.length === 1 ? tr('{n} actor', { n: 1 }) : tr('{n} actors', { n: r.actors.length })}
                     </div>
                   </div>
                 </div>
@@ -113,8 +115,7 @@ export function ProjectRoleEditor() {
                     className="veqsio-btn-secondary text-sm flex items-center gap-1"
                   >
                     <UserPlus className="w-3.5 h-3.5" />
-                    Manage Actors
-                  </button>
+                    {tr('Manage Actors')} </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); setEditingRole(r) }}
                     className="veqsio-btn-ghost p-1.5"
@@ -134,26 +135,26 @@ export function ProjectRoleEditor() {
         </div>
       )}
 
-      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title="Create project role">
+      <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title={tr('Create project role')}>
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Name</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Name')}</label>
             <input name="name" type="text" required className="veqsio-input w-full" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Description</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Description')}</label>
             <input name="description" type="text" className="veqsio-input w-full" />
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={() => setCreateOpen(false)} className="veqsio-btn-secondary">Cancel</button>
+            <button type="button" onClick={() => setCreateOpen(false)} className="veqsio-btn-secondary">{tr('Cancel')}</button>
             <button type="submit" disabled={createRole.isPending} className="veqsio-btn-primary">
-              {createRole.isPending ? 'Creating...' : 'Create'}
+              {createRole.isPending ? tr('Creating...') : tr('Create')}
             </button>
           </div>
         </form>
       </Modal>
 
-      <Modal isOpen={!!editingRole} onClose={() => setEditingRole(null)} title="Edit role">
+      <Modal isOpen={!!editingRole} onClose={() => setEditingRole(null)} title={tr('Edit role')}>
         {editingRole && <RoleEditPanel role={editingRole} onClose={() => setEditingRole(null)} />}
       </Modal>
 
@@ -165,6 +166,8 @@ export function ProjectRoleEditor() {
 }
 
 function RoleEditPanel({ role, onClose }: { role: AdminProjectRole; onClose: () => void }) {
+  const { tr } = useI18n();
+
   const updateRole = useUpdateProjectRole()
   const [name, setName] = useState(role.name)
   const [description, setDescription] = useState(role.description || '')
@@ -172,27 +175,27 @@ function RoleEditPanel({ role, onClose }: { role: AdminProjectRole; onClose: () 
   async function handleSave() {
     try {
       await updateRole.mutateAsync({ id: role.id, name, description: description || undefined })
-      toast('Role updated', 'success')
+      toast(tr('Role updated'), 'success')
       onClose()
     } catch (err: any) {
-      toast(err.message || 'Failed to update role', 'error')
+      toast(err.message || tr('Failed to update role'), 'error')
     }
   }
 
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Name</label>
+        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Name')}</label>
         <input value={name} onChange={e => setName(e.target.value)} className="veqsio-input w-full" />
       </div>
       <div>
-        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Description</label>
+        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Description')}</label>
         <input value={description} onChange={e => setDescription(e.target.value)} className="veqsio-input w-full" />
       </div>
       <div className="flex justify-end gap-2 pt-2">
-        <button onClick={onClose} className="veqsio-btn-secondary">Cancel</button>
+        <button onClick={onClose} className="veqsio-btn-secondary">{tr('Cancel')}</button>
         <button onClick={handleSave} disabled={updateRole.isPending} className="veqsio-btn-primary">
-          {updateRole.isPending ? 'Saving...' : 'Save'}
+          {updateRole.isPending ? tr('Saving...') : tr('Save')}
         </button>
       </div>
     </div>
@@ -200,6 +203,8 @@ function RoleEditPanel({ role, onClose }: { role: AdminProjectRole; onClose: () 
 }
 
 function ManageActorsPanel({ role, onClose }: { role: AdminProjectRole; onClose: () => void }) {
+  const { tr } = useI18n();
+
   const { data: projectsData } = useProjects()
   const { data: usersData } = useUsers(0, 200)
   const { data: groupsData } = useGroups()
@@ -222,19 +227,19 @@ function ManageActorsPanel({ role, onClose }: { role: AdminProjectRole; onClose:
         projectId: Number(selectedProject),
         [actorType === 'user' ? 'userId' : 'groupId']: Number(selectedId),
       })
-      toast('Actor added', 'success')
+      toast(tr('Actor added'), 'success')
       setSelectedId('')
     } catch (err: any) {
-      toast(err.message || 'Failed to add actor', 'error')
+      toast(err.message || tr('Failed to add actor'), 'error')
     }
   }
 
   async function handleRemove(actorId: number) {
     try {
       await removeActor.mutateAsync({ roleId: role.id, actorId })
-      toast('Actor removed', 'success')
+      toast(tr('Actor removed'), 'success')
     } catch (err: any) {
-      toast(err.message || 'Failed to remove actor', 'error')
+      toast(err.message || tr('Failed to remove actor'), 'error')
     }
   }
 
@@ -249,25 +254,25 @@ function ManageActorsPanel({ role, onClose }: { role: AdminProjectRole; onClose:
       <div className="bg-[var(--surface-1)] border border-[var(--surface-3)] rounded-lg p-4 space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">Project</label>
+            <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">{tr('Project')}</label>
             <select value={selectedProject} onChange={e => setSelectedProject(Number(e.target.value) || '')} className="veqsio-input w-full">
-              <option value="">Select project...</option>
+              <option value="">{tr('Select project...')}</option>
               {projects.map(p => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">Type</label>
+            <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">{tr('Type')}</label>
             <select value={actorType} onChange={e => { setActorType(e.target.value as any); setSelectedId(''); }} className="veqsio-input w-full">
-              <option value="user">User</option>
-              <option value="group">Group</option>
+              <option value="user">{tr('User')}</option>
+              <option value="group">{tr('Group')}</option>
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">{actorType === 'user' ? 'User' : 'Group'}</label>
+            <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">{actorType === 'user' ? tr('User') : tr('Group')}</label>
             <select value={selectedId} onChange={e => setSelectedId(Number(e.target.value) || '')} className="veqsio-input w-full">
-              <option value="">Select...</option>
+              <option value="">{tr('Select...')}</option>
               {actorType === 'user'
                 ? users.map(u => (<option key={u.key} value={Number(u.key)}>{u.name} ({u.key})</option>))
                 : groups.map(g => (<option key={g.id} value={g.id}>{g.name}</option>))
@@ -281,8 +286,7 @@ function ManageActorsPanel({ role, onClose }: { role: AdminProjectRole; onClose:
             disabled={!selectedProject || selectedId === '' || addActor.isPending}
             className="veqsio-btn-primary text-sm"
           >
-            Add Actor
-          </button>
+            {tr('Add Actor')} </button>
         </div>
       </div>
 
@@ -290,17 +294,17 @@ function ManageActorsPanel({ role, onClose }: { role: AdminProjectRole; onClose:
         <table className="w-full text-sm">
           <thead>
             <tr className="veqsio-table-header">
-              <th className="text-left">Project</th>
-              <th className="text-left">Actor</th>
-              <th className="text-left">Type</th>
-              <th className="text-right">Actions</th>
+              <th className="text-left">{tr('Project')}</th>
+              <th className="text-left">{tr('Actor')}</th>
+              <th className="text-left">{tr('Type')}</th>
+              <th className="text-right">{tr('Actions')}</th>
             </tr>
           </thead>
           <tbody>
             {role.actors.length === 0 ? (
               <tr>
                 <td colSpan={4} className="p-0">
-                  <EmptyState icon="folder" title="No actors" description="Add users or groups to this role." />
+                  <EmptyState icon="folder" title={tr('No actors')} description={tr('Add users or groups to this role.')} />
                 </td>
               </tr>
             ) : (
@@ -310,7 +314,7 @@ function ManageActorsPanel({ role, onClose }: { role: AdminProjectRole; onClose:
                     {projects.find(p => p.id === actor.projectId)?.name || `Project ${actor.projectId}`}
                   </td>
                   <td className="px-4 py-2">
-                    {actor.type === 'user' ? actor.user?.displayName || 'Unknown' : actor.group?.name || 'Unknown'}
+                    {actor.type === 'user' ? actor.user?.displayName || tr('Unknown') : actor.group?.name || tr('Unknown')}
                   </td>
                   <td className="px-4 py-2">
                     <span className="veqsio-badge veqsio-badge-status-todo capitalize">{actor.type}</span>
@@ -331,7 +335,7 @@ function ManageActorsPanel({ role, onClose }: { role: AdminProjectRole; onClose:
       </div>
 
       <div className="flex justify-end pt-2">
-        <button onClick={onClose} className="veqsio-btn-secondary">Close</button>
+        <button onClick={onClose} className="veqsio-btn-secondary">{tr('Close')}</button>
       </div>
     </div>
   )

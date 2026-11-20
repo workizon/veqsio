@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useId, useMemo, useRef, useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useLabels } from '@/hooks/use-labels'
@@ -24,6 +26,8 @@ export function LabelPicker({
   inputId?: string
   placeholder?: string
 }) {
+  const { tr } = useI18n();
+
   const { data } = useLabels()
   const [query, setQuery] = useState('')
   const [cursor, setCursor] = useState(0)
@@ -64,7 +68,7 @@ export function LabelPicker({
   return (
     <div className="space-y-2">
       {value.length > 0 && (
-        <ul className="flex flex-wrap gap-1" aria-label="Selected labels">
+        <ul className="flex flex-wrap gap-1" aria-label={tr('Selected labels')}>
           {value.map((name) => {
             const info = colourOf.get(name.toLowerCase())
             return (
@@ -107,7 +111,7 @@ export function LabelPicker({
                 return (
                   <li key="create" id={`${listId}-${i}`} role="option" aria-selected={isActive} className={`${base} text-[var(--brand-600)]`} onMouseDown={(e) => { e.preventDefault(); commit(row.name) }}>
                     <Plus className="w-3.5 h-3.5" aria-hidden="true" />
-                    Create <strong className="font-semibold">{row.name}</strong>
+                    {tr('Create')} <strong className="font-semibold">{row.name}</strong>
                   </li>
                 )
               }

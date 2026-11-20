@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import {
   useIssueWorklogs,
@@ -42,6 +44,8 @@ export function WorklogForm({
   }
   onClose: () => void
 }) {
+  const { tr } = useI18n();
+
   const [timeInput, setTimeInput] = useState(
     existing ? formatDuration(existing.timeSpentSeconds) : ''
   )
@@ -59,7 +63,7 @@ export function WorklogForm({
   const handleSubmit = () => {
     const seconds = parseDuration(timeInput)
     if (!seconds) {
-      toast('Invalid time format. Use e.g. 2h 30m or 1d', 'error')
+      toast(tr('Invalid time format. Use e.g. 2h 30m or 1d'), 'error')
       return
     }
 
@@ -76,7 +80,7 @@ export function WorklogForm({
         },
         {
           onSuccess: () => {
-            toast('Worklog updated', 'success')
+            toast(tr('Worklog updated'), 'success')
             onClose()
           },
           onError: (err) => toast(err.message, 'error'),
@@ -96,7 +100,7 @@ export function WorklogForm({
         },
         {
           onSuccess: () => {
-            toast('Worklog logged', 'success')
+            toast(tr('Worklog logged'), 'success')
             onClose()
           },
           onError: (err) => toast(err.message, 'error'),
@@ -109,8 +113,7 @@ export function WorklogForm({
     <div className="space-y-4">
       <div>
         <label className="text-body-sm font-medium text-[var(--text-primary)]">
-          Time Spent
-        </label>
+          {tr('Time Spent')} </label>
         <input
           type="text"
           value={timeInput}
@@ -119,14 +122,12 @@ export function WorklogForm({
           className="veqsio-input w-full mt-1"
         />
         <p className="text-caption text-[var(--text-tertiary)] mt-1">
-          Use w (weeks), d (days), h (hours), m (minutes). Example: 2h 30m
-        </p>
+          {tr('Use w (weeks), d (days), h (hours), m (minutes). Example: 2h 30m')} </p>
       </div>
 
       <div>
         <label className="text-body-sm font-medium text-[var(--text-primary)]">
-          Date Started
-        </label>
+          {tr('Date Started')} </label>
         <input
           type="datetime-local"
           value={started}
@@ -137,27 +138,25 @@ export function WorklogForm({
 
       <div>
         <label className="text-body-sm font-medium text-[var(--text-primary)]">
-          Description (optional)
-        </label>
+          {tr('Description (optional)')} </label>
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          placeholder="What did you work on?"
+          placeholder={tr('What did you work on?')}
           className="veqsio-input w-full mt-1 min-h-[80px] resize-y"
         />
       </div>
 
       <div className="flex justify-end gap-2">
         <button onClick={onClose} className="veqsio-btn-secondary">
-          Cancel
-        </button>
+          {tr('Cancel')} </button>
         <button
           onClick={handleSubmit}
           disabled={isPending}
           className="veqsio-btn-primary disabled:opacity-50 flex items-center gap-2"
         >
           {isPending ? <Spinner size="sm" /> : <Check className="w-4 h-4" />}
-          {existing ? 'Update' : 'Log Work'}
+          {existing ? tr('Update') : tr('Log Work')}
         </button>
       </div>
     </div>
@@ -165,6 +164,8 @@ export function WorklogForm({
 }
 
 export function WorklogPanel({ issueKey }: { issueKey: string }) {
+  const { tr } = useI18n();
+
   const { data, isLoading } = useIssueWorklogs(issueKey)
   const { data: issue } = useIssue(issueKey)
   const deleteWorklog = useDeleteWorklog()
@@ -188,11 +189,11 @@ export function WorklogPanel({ issueKey }: { issueKey: string }) {
   const totalTime = data?.totalTimeSpentSeconds || 0
 
   const handleDelete = async (id: number) => {
-    if (!(await confirmDialog('Delete this worklog?'))) return
+    if (!(await confirmDialog(tr('Delete this worklog?')))) return
     deleteWorklog.mutate(
       { id, issueKey },
       {
-        onSuccess: () => toast('Worklog deleted', 'success'),
+        onSuccess: () => toast(tr('Worklog deleted'), 'success'),
         onError: (err) => toast(err.message, 'error'),
       }
     )
@@ -207,7 +208,7 @@ export function WorklogPanel({ issueKey }: { issueKey: string }) {
             <Timer className="w-5 h-5 text-[var(--brand-500)]" />
           </div>
           <div>
-            <p className="text-caption text-[var(--text-tertiary)]">Total time spent</p>
+            <p className="text-caption text-[var(--text-tertiary)]">{tr('Total time spent')}</p>
             <p className="text-display text-[var(--text-primary)]">
               {formatDuration(totalTime)}
             </p>
@@ -221,16 +222,15 @@ export function WorklogPanel({ issueKey }: { issueKey: string }) {
           className="veqsio-btn-primary flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
-          Log work
-        </button>
+          {tr('Log work')} </button>
       </div>
 
       {/* Worklog list */}
       {worklogs.length === 0 ? (
         <EmptyState
           icon={Clock}
-          title="No work logged"
-          description="Log time spent on this issue to track progress and effort."
+          title={tr('No work logged')}
+          description={tr('Log time spent on this issue to track progress and effort.')}
         />
       ) : (
         <div className="border border-[var(--surface-3)] rounded-lg overflow-hidden divide-y divide-[var(--surface-3)]">
@@ -243,10 +243,10 @@ export function WorklogPanel({ issueKey }: { issueKey: string }) {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-body-sm font-medium text-[var(--text-primary)]">
-                      {wl.author.displayName || 'Unknown'}
+                      {wl.author.displayName || tr('Unknown')}
                     </span>
                     <span className="text-caption text-[var(--text-tertiary)]">
-                      logged {wl.timeSpent}
+                      {tr('logged')} {wl.timeSpent}
                     </span>
                   </div>
                   {wl.comment && (
@@ -276,14 +276,14 @@ export function WorklogPanel({ issueKey }: { issueKey: string }) {
                       setModalOpen(true)
                     }}
                     className="p-1.5 rounded hover:bg-[var(--surface-2)] text-[var(--text-tertiary)]"
-                    title="Edit"
+                    title={tr('Edit')}
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(wl.id)}
                     className="p-1.5 rounded hover:bg-[var(--surface-2)] text-[var(--text-tertiary)] hover:text-[var(--error)]"
-                    title="Delete"
+                    title={tr('Delete')}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -297,7 +297,7 @@ export function WorklogPanel({ issueKey }: { issueKey: string }) {
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editing ? 'Edit Worklog' : 'Log Work'}
+        title={editing ? tr('Edit Worklog') : tr('Log Work')}
         size="md"
       >
         <WorklogForm

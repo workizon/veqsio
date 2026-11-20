@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useRef, useState } from 'react'
 import { Hash } from 'lucide-react'
 
@@ -24,6 +26,8 @@ interface Props {
 
 /** Sidebar field with click-to-edit. Enter saves, Escape cancels, blur saves. */
 export function StoryPointsField({ value, onSave }: Props) {
+  const { tr } = useI18n();
+
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -38,14 +42,14 @@ export function StoryPointsField({ value, onSave }: Props) {
   const commit = async () => {
     if (cancelled.current || saving) return
     const parsed = parseStoryPointsInput(draft)
-    if (parsed === undefined) { setError('Enter a number from 0 to 1000 (max 2 decimals)'); return }
+    if (parsed === undefined) { setError(tr('Enter a number from 0 to 1000 (max 2 decimals)')); return }
     if (parsed === (value ?? null)) { setEditing(false); return }
     setSaving(true)
     try {
       await onSave(parsed)
       setEditing(false)
     } catch (e: any) {
-      setError(e?.message || 'Failed to save')
+      setError(e?.message || tr('Failed to save'))
     } finally {
       setSaving(false)
     }
@@ -55,7 +59,7 @@ export function StoryPointsField({ value, onSave }: Props) {
     <div className="flex items-center justify-between" data-testid="story-points-field">
       <div className="flex items-center gap-2 text-[var(--text-tertiary)]">
         <Hash className="w-4 h-4" />
-        <label htmlFor="sidebar-story-points" className="text-caption">Story points</label>
+        <label htmlFor="sidebar-story-points" className="text-caption">{tr('Story points')}</label>
       </div>
       {editing ? (
         <div className="flex flex-col items-end">
@@ -83,10 +87,10 @@ export function StoryPointsField({ value, onSave }: Props) {
           id="sidebar-story-points"
           type="button"
           onClick={start}
-          title="Click to edit story points"
+          title={tr('Click to edit story points')}
           className="text-body-sm text-[var(--text-primary)] hover:bg-[var(--surface-2)] rounded px-2 py-0.5 min-w-[3rem] text-right"
         >
-          {value === null || value === undefined ? <span className="text-[var(--text-tertiary)]">None</span> : formatStoryPoints(value)}
+          {value === null || value === undefined ? <span className="text-[var(--text-tertiary)]">{tr('None')}</span> : formatStoryPoints(value)}
         </button>
       )}
     </div>

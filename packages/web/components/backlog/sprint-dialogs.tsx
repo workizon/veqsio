@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import { Modal } from '@/components/modal'
@@ -29,9 +31,11 @@ function ErrorBanner({ message }: { message: string | null }) {
 function Actions({ onClose, pending, submitLabel, pendingLabel, danger, disabled }: {
   onClose: () => void; pending: boolean; submitLabel: string; pendingLabel: string; danger?: boolean; disabled?: boolean
 }) {
+  const { tr } = useI18n();
+
   return (
     <div className="flex justify-end gap-2 pt-2">
-      <button type="button" onClick={onClose} className="veqsio-btn-secondary" disabled={pending}>Cancel</button>
+      <button type="button" onClick={onClose} className="veqsio-btn-secondary" disabled={pending}>{tr('Cancel')}</button>
       <button
         type="submit"
         disabled={pending || disabled}
@@ -54,6 +58,8 @@ interface SprintFormModalProps {
 }
 
 export function SprintFormModal({ mode, sprint, suggestedName, onClose, onSubmit }: SprintFormModalProps) {
+  const { tr } = useI18n();
+
   const [form, setForm] = useState<SprintForm>({
     name: sprint?.name ?? suggestedName,
     goal: sprint?.goal ?? '',
@@ -88,17 +94,17 @@ export function SprintFormModal({ mode, sprint, suggestedName, onClose, onSubmit
   return (
     <Modal isOpen onClose={onClose} title={mode === 'create' ? 'Create sprint' : `Edit ${sprint?.name ?? 'sprint'}`}>
       <form onSubmit={submit} className="space-y-4" noValidate>
-        <Field id="sprint-name" label="Sprint name" error={errors.name}>
+        <Field id="sprint-name" label={tr('Sprint name')} error={errors.name}>
           <input id="sprint-name" autoFocus value={form.name} onChange={set('name')} className="veqsio-input w-full" aria-invalid={!!errors.name} aria-describedby={errors.name ? 'sprint-name-error' : undefined} />
         </Field>
-        <Field id="sprint-goal" label="Sprint goal (optional)" error={errors.goal}>
-          <textarea id="sprint-goal" rows={2} value={form.goal} onChange={set('goal')} placeholder="What should this sprint achieve?" className="veqsio-input w-full" />
+        <Field id="sprint-goal" label={tr('Sprint goal (optional)')} error={errors.goal}>
+          <textarea id="sprint-goal" rows={2} value={form.goal} onChange={set('goal')} placeholder={tr('What should this sprint achieve?')} className="veqsio-input w-full" />
         </Field>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Field id="sprint-start" label="Start date" error={errors.startDate}>
+          <Field id="sprint-start" label={tr('Start date')} error={errors.startDate}>
             <input id="sprint-start" type="date" value={form.startDate} onChange={set('startDate')} className="veqsio-input w-full" />
           </Field>
-          <Field id="sprint-end" label="End date" error={errors.endDate}>
+          <Field id="sprint-end" label={tr('End date')} error={errors.endDate}>
             <input id="sprint-end" type="date" value={form.endDate} onChange={set('endDate')} className="veqsio-input w-full" aria-invalid={!!errors.endDate} aria-describedby={errors.endDate ? 'sprint-end-error' : undefined} />
           </Field>
         </div>
@@ -120,6 +126,8 @@ interface StartSprintModalProps {
 }
 
 export function StartSprintModal({ sprint, otherActive, allowParallel, onClose, onSubmit }: StartSprintModalProps) {
+  const { tr } = useI18n();
+
   const today = isoToDateInput(new Date().toISOString())
   const startDefault = isoToDateInput(sprint.startDate) || today
   const [form, setForm] = useState<SprintForm>({
@@ -152,7 +160,7 @@ export function StartSprintModal({ sprint, otherActive, allowParallel, onClose, 
     <Modal isOpen onClose={onClose} title={`Start ${sprint.name}`}>
       <form onSubmit={submit} className="space-y-4" noValidate>
         <p className="text-body-sm text-[var(--text-secondary)]">
-          This sprint contains <strong className="text-[var(--text-primary)]">{pluralize(sprint.issueCount, 'issue')}</strong>
+          {tr('This sprint contains')} <strong className="text-[var(--text-primary)]">{pluralize(sprint.issueCount, 'issue')}</strong>
           {' '}worth <strong className="text-[var(--text-primary)]">{formatPoints(sprint.storyPoints)} story {sprint.storyPoints === 1 ? 'point' : 'points'}</strong>.
         </p>
         {otherActive.length > 0 && (
@@ -166,14 +174,14 @@ export function StartSprintModal({ sprint, otherActive, allowParallel, onClose, 
           </div>
         )}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Field id="start-start" label="Start date" error={errors.startDate}>
+          <Field id="start-start" label={tr('Start date')} error={errors.startDate}>
             <input id="start-start" type="date" autoFocus value={form.startDate} onChange={(e) => setForm((f) => ({ ...f, startDate: e.target.value }))} className="veqsio-input w-full" />
           </Field>
-          <Field id="start-end" label="End date" error={errors.endDate}>
+          <Field id="start-end" label={tr('End date')} error={errors.endDate}>
             <input id="start-end" type="date" value={form.endDate} onChange={(e) => setForm((f) => ({ ...f, endDate: e.target.value }))} className="veqsio-input w-full" />
           </Field>
         </div>
-        <Field id="start-goal" label="Sprint goal (optional)" error={errors.goal}>
+        <Field id="start-goal" label={tr('Sprint goal (optional)')} error={errors.goal}>
           <textarea id="start-goal" rows={2} value={form.goal} onChange={(e) => setForm((f) => ({ ...f, goal: e.target.value }))} className="veqsio-input w-full" />
         </Field>
         <ErrorBanner message={serverError} />
@@ -194,6 +202,8 @@ interface CompleteSprintModalProps {
 }
 
 export function CompleteSprintModal({ sprint, targets, onClose, onSubmit }: CompleteSprintModalProps) {
+  const { tr } = useI18n();
+
   const split = splitCompletion(sprint.issues)
   const [choice, setChoice] = useState<string>('backlog')
   const [pending, setPending] = useState(false)
@@ -215,16 +225,13 @@ export function CompleteSprintModal({ sprint, targets, onClose, onSubmit }: Comp
     <Modal isOpen onClose={onClose} title={`Complete ${sprint.name}`} size="lg">
       <form onSubmit={submit} className="space-y-4">
         <p className="text-body-sm text-[var(--text-secondary)]">
-          <strong className="text-[var(--text-primary)]">{pluralize(split.done.length, 'issue')}</strong> done
-          ({formatPoints(split.donePoints)} points) and{' '}
-          <strong className="text-[var(--text-primary)]">{pluralize(split.incomplete.length, 'issue')}</strong> not done
-          ({formatPoints(split.incompletePoints)} points).
-        </p>
+          <strong className="text-[var(--text-primary)]">{pluralize(split.done.length, 'issue')}</strong> {tr('done (')}{formatPoints(split.donePoints)} {tr('points) and')}{' '}
+          <strong className="text-[var(--text-primary)]">{pluralize(split.incomplete.length, 'issue')}</strong> {tr('not done (')}{formatPoints(split.incompletePoints)} {tr('points).')} </p>
 
         {split.incomplete.length > 0 ? (
           <>
             <div>
-              <p className={labelCls}>Issues that are not done</p>
+              <p className={labelCls}>{tr('Issues that are not done')}</p>
               <ul className="max-h-44 overflow-auto rounded-lg border border-[var(--surface-3)] divide-y divide-[var(--surface-3)]">
                 {split.incomplete.map((i) => (
                   <li key={i.key} className="flex items-center gap-2 px-3 py-1.5 text-body-sm">
@@ -236,22 +243,21 @@ export function CompleteSprintModal({ sprint, targets, onClose, onSubmit }: Comp
               </ul>
             </div>
             <fieldset className="space-y-2">
-              <legend className={labelCls}>Move the issues that are not done to</legend>
+              <legend className={labelCls}>{tr('Move the issues that are not done to')}</legend>
               <label className="flex items-center gap-2 text-body-sm text-[var(--text-primary)]">
                 <input type="radio" name="move-to" value="backlog" checked={choice === 'backlog'} onChange={() => setChoice('backlog')} className="accent-[var(--brand-600)]" />
-                Backlog
-              </label>
+                {tr('Backlog')} </label>
               {targets.map((t) => (
                 <label key={t.id} className="flex items-center gap-2 text-body-sm text-[var(--text-primary)]">
                   <input type="radio" name="move-to" value={String(t.id)} checked={choice === String(t.id)} onChange={() => setChoice(String(t.id))} className="accent-[var(--brand-600)]" />
                   {t.name} <span className="text-caption text-[var(--text-tertiary)]">{t.state === 'active' ? 'active' : 'planned'}</span>
                 </label>
               ))}
-              {targets.length === 0 && <p className="text-caption text-[var(--text-tertiary)]">Create another sprint to move the open issues there instead.</p>}
+              {targets.length === 0 && <p className="text-caption text-[var(--text-tertiary)]">{tr('Create another sprint to move the open issues there instead.')}</p>}
             </fieldset>
           </>
         ) : (
-          <p className="text-body-sm text-[var(--success)]">Every issue in this sprint is done.</p>
+          <p className="text-body-sm text-[var(--success)]">{tr('Every issue in this sprint is done.')}</p>
         )}
 
         <ErrorBanner message={serverError} />
@@ -264,6 +270,8 @@ export function CompleteSprintModal({ sprint, targets, onClose, onSubmit }: Comp
 /* ---------------------------------------------------------------- */
 
 export function DeleteSprintModal({ sprint, onClose, onSubmit }: { sprint: PlanSprint; onClose: () => void; onSubmit: () => Promise<unknown> }) {
+  const { tr } = useI18n();
+
   const [pending, setPending] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
   const submit = async (e: React.FormEvent) => {
@@ -279,8 +287,7 @@ export function DeleteSprintModal({ sprint, onClose, onSubmit }: { sprint: PlanS
           {sprint.issueCount > 0
             ? `${pluralize(sprint.issueCount, 'issue')} will return to the backlog. `
             : ''}
-          This cannot be undone.
-        </p>
+          {tr('This cannot be undone.')} </p>
         <ErrorBanner message={serverError} />
         <Actions onClose={onClose} pending={pending} danger submitLabel="Delete sprint" pendingLabel="Deleting…" />
       </form>
@@ -295,6 +302,8 @@ export function CreateBoardModal({ projects, onClose, onSubmit }: {
   onClose: () => void
   onSubmit: (v: { name: string; projectId: number }) => Promise<unknown>
 }) {
+  const { tr } = useI18n();
+
   const [name, setName] = useState('')
   const [projectId, setProjectId] = useState(projects[0] ? String(projects[0].id) : '')
   const [error, setError] = useState<string | null>(null)
@@ -307,15 +316,15 @@ export function CreateBoardModal({ projects, onClose, onSubmit }: {
     try { await onSubmit({ name: name.trim(), projectId: Number(projectId) }) } catch (err) { setError((err as Error).message); setPending(false) }
   }
   return (
-    <Modal isOpen onClose={onClose} title="Create Scrum board" size="sm">
+    <Modal isOpen onClose={onClose} title={tr('Create Scrum board')} size="sm">
       <form onSubmit={submit} className="space-y-4" noValidate>
-        <Field id="board-project" label="Project">
+        <Field id="board-project" label={tr('Project')}>
           <select id="board-project" value={projectId} onChange={(e) => setProjectId(e.target.value)} className="veqsio-input w-full">
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.key})</option>)}
           </select>
         </Field>
-        <Field id="board-name" label="Board name">
-          <input id="board-name" autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Team board" className="veqsio-input w-full" />
+        <Field id="board-name" label={tr('Board name')}>
+          <input id="board-name" autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={tr('e.g. Team board')} className="veqsio-input w-full" />
         </Field>
         <ErrorBanner message={error} />
         <Actions onClose={onClose} pending={pending} submitLabel="Create board" pendingLabel="Creating…" />

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useMemo } from 'react'
 import { useCreatedVsResolved } from '@/hooks/use-dashboards'
 import { EmptyState } from '@/components/empty-state'
@@ -25,6 +27,8 @@ export function bucketByPeriod<T extends { date: string; created: number; resolv
 }
 
 export function CreatedVsResolvedGadget({ config }: CreatedVsResolvedGadgetProps) {
+  const { tr } = useI18n();
+
   const days = config.days || 30
   const { data, isLoading } = useCreatedVsResolved(days)
   // a long range as one bar per day is hair-thin: show weeks (or months when asked), days only for a short range
@@ -33,7 +37,7 @@ export function CreatedVsResolvedGadget({ config }: CreatedVsResolvedGadgetProps
   const totals = useMemo(() => chartData.reduce((a, d) => ({ created: a.created + d.created, resolved: a.resolved + d.resolved }), { created: 0, resolved: 0 }), [chartData])
 
   if (isLoading) return <ChartSkeleton />
-  if (!chartData.length) return <EmptyState icon="inbox" title="No data available" />
+  if (!chartData.length) return <EmptyState icon="inbox" title={tr('No data available')} />
 
   const net = totals.created - totals.resolved
   return (
@@ -55,8 +59,8 @@ export function CreatedVsResolvedGadget({ config }: CreatedVsResolvedGadgetProps
         formatValue={(v) => `${v}`}
         trendOf={period === 'daily' ? 'created' : undefined}
       />
-      {period === 'daily' && <p className="text-caption text-[var(--text-tertiary)]">Dashed line: 7-day average of created issues.</p>}
-      {period !== 'daily' && <p className="text-caption text-[var(--text-tertiary)]">One bar per {period === 'weekly' ? 'week' : 'month'}, labelled with its first day.</p>}
+      {period === 'daily' && <p className="text-caption text-[var(--text-tertiary)]">{tr('Dashed line: 7-day average of created issues.')}</p>}
+      {period !== 'daily' && <p className="text-caption text-[var(--text-tertiary)]">{tr('One bar per')} {period === 'weekly' ? 'week' : 'month'}{tr(', labelled with its first day.')}</p>}
     </div>
   )
 }

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ChevronDown, ChevronRight, FileText, Lock, Plus } from 'lucide-react'
@@ -12,6 +14,8 @@ export function PageTree({ pages, currentId, onCreate, canCreate }: {
   onCreate: (parentId: number | null) => void
   canCreate: boolean
 }) {
+  const { tr } = useI18n();
+
   const roots = useMemo(() => buildPageTree(pages), [pages])
   const [expanded, setExpanded] = useState<Set<number>>(new Set())
 
@@ -35,14 +39,14 @@ export function PageTree({ pages, currentId, onCreate, canCreate }: {
   if (!pages.length) {
     return (
       <div className="px-3 py-6 text-sm text-[var(--text-secondary)] text-center">
-        <p>No pages yet.</p>
-        {canCreate && <button type="button" className="veqsio-btn-secondary mt-3" onClick={() => onCreate(null)}><Plus className="w-4 h-4" aria-hidden /> Create the first page</button>}
+        <p>{tr('No pages yet.')}</p>
+        {canCreate && <button type="button" className="veqsio-btn-secondary mt-3" onClick={() => onCreate(null)}><Plus className="w-4 h-4" aria-hidden /> {tr('Create the first page')}</button>}
       </div>
     )
   }
 
   return (
-    <ul role="tree" aria-label="Pages" className="text-sm space-y-0.5">
+    <ul role="tree" aria-label={tr('Pages')} className="text-sm space-y-0.5">
       {rows.map(({ node, depth }) => {
         const hasKids = node.children.length > 0
         const open = expanded.has(node.id)
@@ -54,17 +58,17 @@ export function PageTree({ pages, currentId, onCreate, canCreate }: {
               style={{ paddingLeft: depth * 14 + 4 }}
             >
               {hasKids ? (
-                <button type="button" onClick={() => toggle(node.id)} aria-label={`${open ? 'Collapse' : 'Expand'} ${node.title}`} className="p-1 rounded hover:bg-[var(--surface-3)]">
+                <button type="button" onClick={() => toggle(node.id)} aria-label={open ? tr('Collapse {title}', { title: node.title }) : tr('Expand {title}', { title: node.title })} className="p-1 rounded hover:bg-[var(--surface-3)]">
                   {open ? <ChevronDown className="w-3.5 h-3.5" aria-hidden /> : <ChevronRight className="w-3.5 h-3.5" aria-hidden />}
                 </button>
               ) : <span className="w-[22px]" aria-hidden />}
               <Link href={`/pages/${node.id}`} className="flex-1 min-w-0 flex items-center gap-1.5 py-1.5" aria-current={current ? 'page' : undefined}>
                 <FileText className="w-3.5 h-3.5 shrink-0 text-[var(--text-tertiary)]" aria-hidden />
                 <span className="truncate">{node.title}</span>
-                {node.locked && <Lock className="w-3 h-3 shrink-0 text-[var(--text-tertiary)]" aria-label="Locked" />}
+                {node.locked && <Lock className="w-3 h-3 shrink-0 text-[var(--text-tertiary)]" aria-label={tr('Locked')} />}
               </Link>
               {canCreate && (
-                <button type="button" onClick={() => onCreate(node.id)} aria-label={`Add a child page under ${node.title}`} className="p-1 rounded opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-[var(--surface-3)]">
+                <button type="button" onClick={() => onCreate(node.id)} aria-label={tr('Add a child page under {title}', { title: node.title })} className="p-1 rounded opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-[var(--surface-3)]">
                   <Plus className="w-3.5 h-3.5" aria-hidden />
                 </button>
               )}

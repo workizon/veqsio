@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Check, Pencil, X } from 'lucide-react'
@@ -40,6 +42,8 @@ function show(field: MetaField, raw: unknown, users: Map<number, string>): React
 
 /** The custom fields that apply to this issue (its project and type), with click-to-edit. */
 export function CustomFieldsSection({ issue }: { issue: ApiIssue }) {
+  const { tr } = useI18n();
+
   const projectKey = issue.fields.project?.key
   const typeId = String(issue.fields.issuetype?.id ?? '')
   const update = useUpdateIssue()
@@ -81,15 +85,15 @@ export function CustomFieldsSection({ issue }: { issue: ApiIssue }) {
   }
 
   return (
-    <CollapsibleSection id="custom-fields" title="Custom fields">
+    <CollapsibleSection id="custom-fields" title={tr('Custom fields')}>
       {fields.map((f) => (
         <FieldRow key={f.key} label={f.name}>
           {editing === f.key ? (
             <div className="space-y-2 py-1">
               <CustomFieldInput field={f} value={draft} onChange={setDraft} />
               <div className="flex gap-2">
-                <button type="button" onClick={() => void save(f)} disabled={update.isPending} className="veqsio-btn-primary px-2 py-1 text-sm inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" />Save</button>
-                <button type="button" onClick={() => setEditing(null)} className="veqsio-btn-secondary px-2 py-1 text-sm inline-flex items-center gap-1"><X className="w-3.5 h-3.5" />Cancel</button>
+                <button type="button" onClick={() => void save(f)} disabled={update.isPending} className="veqsio-btn-primary px-2 py-1 text-sm inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" />{tr('Save')}</button>
+                <button type="button" onClick={() => setEditing(null)} className="veqsio-btn-secondary px-2 py-1 text-sm inline-flex items-center gap-1"><X className="w-3.5 h-3.5" />{tr('Cancel')}</button>
               </div>
             </div>
           ) : (

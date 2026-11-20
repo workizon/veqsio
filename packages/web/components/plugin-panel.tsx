@@ -1,5 +1,6 @@
 'use client'
 
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
@@ -9,6 +10,7 @@ export interface PluginPanelInfo { pluginKey: string; pluginName: string; locati
 
 /** One sandboxed panel. No cookies or tokens reach it: the frame has an opaque origin and only gets ?issue= and ?project=. */
 export function PluginPanel({ panel, context }: { panel: PluginPanelInfo; context: PanelContext }) {
+  const { tr } = useI18n()
   const frame = useRef<HTMLIFrameElement>(null)
   const router = useRouter()
   const [height, setHeight] = useState(160)
@@ -29,7 +31,7 @@ export function PluginPanel({ panel, context }: { panel: PluginPanelInfo; contex
   if (!src) return null
   return (
     <div className="veqsio-card">
-      <div className="text-caption font-semibold text-[var(--text-tertiary)] uppercase mb-2" title={`Provided by ${panel.pluginName}`}>
+      <div className="text-caption font-semibold text-[var(--text-tertiary)] uppercase mb-2" title={tr('Provided by {name}', { name: panel.pluginName })}>
         {panel.title}
       </div>
       <iframe

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
@@ -57,6 +59,8 @@ async function testWebhook(id: number): Promise<{ success: boolean; error?: stri
 }
 
 export function WebhookManager() {
+  const { tr } = useI18n();
+
   const queryClient = useQueryClient()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [url, setUrl] = useState('')
@@ -72,19 +76,19 @@ export function WebhookManager() {
     mutationFn: createWebhook,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['webhooks'] })
-      toast('Webhook created', 'success')
+      toast(tr('Webhook created'), 'success')
       closeModal()
     },
-    onError: () => toast('Failed to create webhook', 'error'),
+    onError: () => toast(tr('Failed to create webhook'), 'error'),
   })
 
   const deleteMutation = useMutation({
     mutationFn: deleteWebhook,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['webhooks'] })
-      toast('Webhook deleted', 'success')
+      toast(tr('Webhook deleted'), 'success')
     },
-    onError: () => toast('Failed to delete webhook', 'error'),
+    onError: () => toast(tr('Failed to delete webhook'), 'error'),
   })
 
   const toggleMutation = useMutation({
@@ -92,19 +96,19 @@ export function WebhookManager() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['webhooks'] })
     },
-    onError: () => toast('Failed to toggle webhook', 'error'),
+    onError: () => toast(tr('Failed to toggle webhook'), 'error'),
   })
 
   const testMutation = useMutation({
     mutationFn: testWebhook,
     onSuccess: (data) => {
       if (data.success) {
-        toast('Webhook test successful', 'success')
+        toast(tr('Webhook test successful'), 'success')
       } else {
-        toast(data.error || 'Webhook test failed', 'error')
+        toast(data.error || tr('Webhook test failed'), 'error')
       }
     },
-    onError: () => toast('Webhook test failed', 'error'),
+    onError: () => toast(tr('Webhook test failed'), 'error'),
   })
 
   function closeModal() {
@@ -132,11 +136,10 @@ export function WebhookManager() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-heading-2 text-[var(--text-primary)]">Webhooks</h2>
+        <h2 className="text-heading-2 text-[var(--text-primary)]">{tr('Webhooks')}</h2>
         <button onClick={() => setIsModalOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          Add Webhook
-        </button>
+          {tr('Add Webhook')} </button>
       </div>
 
       {isLoading ? (
@@ -146,13 +149,12 @@ export function WebhookManager() {
       ) : !webhooks?.length ? (
         <EmptyState
           icon="inbox"
-          title="No webhooks configured yet"
-          description="Add webhooks to receive real-time event notifications."
+          title={tr('No webhooks configured yet')}
+          description={tr('Add webhooks to receive real-time event notifications.')}
           action={
             <button onClick={() => setIsModalOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              Add Webhook
-            </button>
+              {tr('Add Webhook')} </button>
           }
         />
       ) : (
@@ -161,10 +163,10 @@ export function WebhookManager() {
             <table className="w-full text-sm min-w-[640px]">
               <thead>
                 <tr className="veqsio-table-header">
-                  <th className="text-left px-4 py-2">URL</th>
-                  <th className="text-left px-4 py-2">Events</th>
-                  <th className="text-center px-4 py-2">Status</th>
-                  <th className="text-right px-4 py-2">Actions</th>
+                  <th className="text-left px-4 py-2">{tr('URL')}</th>
+                  <th className="text-left px-4 py-2">{tr('Events')}</th>
+                  <th className="text-center px-4 py-2">{tr('Status')}</th>
+                  <th className="text-right px-4 py-2">{tr('Actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -173,14 +175,14 @@ export function WebhookManager() {
                     <td className="px-4 py-3">
                       <div className="text-[var(--text-primary)] font-medium truncate max-w-xs">{wh.url}</div>
                       {wh.hasSecret && (
-                        <div className="text-caption text-[var(--text-tertiary)]">Secret configured</div>
+                        <div className="text-caption text-[var(--text-tertiary)]">{tr('Secret configured')}</div>
                       )}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-1">
                         {wh.events.map((e) => (
                           <span key={e} className="veqsio-badge">
-                            {EVENT_TYPES.find((et) => et.key === e)?.label || e}
+                            {tr(EVENT_TYPES.find((et) => et.key === e)?.label || e)}
                           </span>
                         ))}
                       </div>
@@ -189,13 +191,11 @@ export function WebhookManager() {
                       {wh.active ? (
                         <span className="inline-flex items-center gap-1 text-[var(--success)] text-xs font-medium">
                           <Power className="w-3.5 h-3.5" />
-                          Active
-                        </span>
+                          {tr('Active')} </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 text-[var(--error)] text-xs font-medium">
                           <PowerOff className="w-3.5 h-3.5" />
-                          Disabled
-                          {wh.failureCount > 0 && ` (${wh.failureCount} failures)`}
+                          {tr('Disabled')} {wh.failureCount > 0 && ` (${tr('{n} failures', { n: wh.failureCount })})`}
                         </span>
                       )}
                     </td>
@@ -204,7 +204,7 @@ export function WebhookManager() {
                         <button
                           onClick={() => toggleMutation.mutate({ id: wh.id, active: !wh.active })}
                           className="veqsio-btn-ghost p-2"
-                          title={wh.active ? 'Disable' : 'Enable'}
+                          title={wh.active ? tr('Disable') : tr('Enable')}
                         >
                           {wh.active ? <PowerOff className="w-4 h-4" /> : <Power className="w-4 h-4" />}
                         </button>
@@ -212,7 +212,7 @@ export function WebhookManager() {
                           onClick={() => testMutation.mutate(wh.id)}
                           disabled={testMutation.isPending}
                           className="veqsio-btn-ghost p-2"
-                          title="Test"
+                          title={tr('Test')}
                         >
                           {testMutation.isPending ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -223,7 +223,7 @@ export function WebhookManager() {
                         <button
                           onClick={() => deleteMutation.mutate(wh.id)}
                           className="veqsio-btn-ghost p-2 text-[var(--error)]"
-                          title="Delete"
+                          title={tr('Delete')}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -237,10 +237,10 @@ export function WebhookManager() {
         </div>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={closeModal} title="Add webhook" size="md">
+      <Modal isOpen={isModalOpen} onClose={closeModal} title={tr('Add webhook')} size="md">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">URL</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('URL')}</label>
             <input
               type="url"
               value={url}
@@ -250,17 +250,17 @@ export function WebhookManager() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Secret (optional)</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{tr('Secret (optional)')}</label>
             <input
               type="text"
               value={secret}
               onChange={(e) => setSecret(e.target.value)}
               className="veqsio-input w-full"
-              placeholder="For HMAC-SHA256 signature"
+              placeholder={tr('For HMAC-SHA256 signature')}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Events</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">{tr('Events')}</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {EVENT_TYPES.map((et) => (
                 <label
@@ -273,23 +273,21 @@ export function WebhookManager() {
                     onChange={() => toggleEvent(et.key)}
                     className="w-4 h-4 accent-[var(--brand-500)]"
                   />
-                  <span className="text-sm text-[var(--text-primary)]">{et.label}</span>
+                  <span className="text-sm text-[var(--text-primary)]">{tr(et.label)}</span>
                 </label>
               ))}
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <button onClick={closeModal} className="veqsio-btn-secondary">
-              Cancel
-            </button>
+              {tr('Cancel')} </button>
             <button
               onClick={handleCreate}
               disabled={createMutation.isPending || !url.trim() || selectedEvents.length === 0}
               className="veqsio-btn-primary flex items-center gap-2 disabled:opacity-50"
             >
               {createMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
-              Create
-            </button>
+              {tr('Create')} </button>
           </div>
         </div>
       </Modal>

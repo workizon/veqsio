@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useDroppable } from '@dnd-kit/core'
 import { CheckCircle2, ChevronDown, Pencil, Play, Trash2 } from 'lucide-react'
 import { IssueRow } from './issue-row'
@@ -46,6 +48,8 @@ const stateBadge = {
 } as const
 
 export function PlanningSection(p: SectionProps) {
+  const { tr } = useI18n();
+
   const { t } = useTerm()
   const dropId = p.sprint ? sprintDropId(p.sprint.id) : BACKLOG_DROP_ID
   const { setNodeRef, isOver } = useDroppable({ id: dropId })
@@ -71,7 +75,7 @@ export function PlanningSection(p: SectionProps) {
         >
           <ChevronDown className={`w-4 h-4 shrink-0 text-[var(--text-tertiary)] transition-transform ${p.expanded ? '' : '-rotate-90'}`} aria-hidden="true" />
           <h3 id={`${regionId}-title`} className="text-heading-3 text-[var(--text-primary)] truncate">{p.title}</h3>
-          {badgeClass && <span className={`veqsio-badge ${badgeClass} text-xs`}>{badgeText}</span>}
+          {badgeClass && <span className={`veqsio-badge ${badgeClass} text-xs`}>{badgeText ? tr(badgeText) : badgeText}</span>}
         </button>
 
         <div className="flex items-center gap-2 text-caption text-[var(--text-tertiary)] flex-wrap">
@@ -79,44 +83,42 @@ export function PlanningSection(p: SectionProps) {
           <span>
             {p.filtered ? `${p.issues.length} of ${pluralize(p.totalCount, 'issue')}` : pluralize(p.totalCount, 'issue')}
             {' · '}
-            {formatPoints(p.totalPoints)} {p.totalPoints === 1 ? 'point' : 'points'}
+            {formatPoints(p.totalPoints)} {p.totalPoints === 1 ? tr('point') : tr('points')}
           </span>
           {p.sprint && p.sprint.issues.length > 0 && !p.filtered && (
-            <span className="flex items-center gap-1" aria-label={`Points: ${byCat.todo} to do, ${byCat.in_progress} in progress, ${byCat.done} done`}>
-              <span className="rounded-full px-1.5 bg-[var(--surface-3)] text-[var(--text-secondary)]" title="To do points">{formatPoints(byCat.todo)}</span>
-              <span className="rounded-full px-1.5 bg-[var(--brand-100)] text-[var(--brand-700)]" title="In progress points">{formatPoints(byCat.in_progress)}</span>
-              <span className="rounded-full px-1.5 bg-[var(--success)]/15 text-[var(--success)]" title="Done points">{formatPoints(byCat.done)}</span>
+            <span className="flex items-center gap-1" aria-label={tr('Points: {todo} to do, {inProgress} in progress, {done} done', { todo: byCat.todo, inProgress: byCat.in_progress, done: byCat.done })}>
+              <span className="rounded-full px-1.5 bg-[var(--surface-3)] text-[var(--text-secondary)]" title={tr('To do points')}>{formatPoints(byCat.todo)}</span>
+              <span className="rounded-full px-1.5 bg-[var(--brand-100)] text-[var(--brand-700)]" title={tr('In progress points')}>{formatPoints(byCat.in_progress)}</span>
+              <span className="rounded-full px-1.5 bg-[var(--success)]/15 text-[var(--success)]" title={tr('Done points')}>{formatPoints(byCat.done)}</span>
             </span>
           )}
         </div>
 
         <div className="flex items-center gap-1.5 ml-auto">
           {p.onEdit && (
-            <button type="button" onClick={p.onEdit} className="veqsio-btn-ghost p-1.5" aria-label={`Edit ${p.title}`} title="Edit sprint">
+            <button type="button" onClick={p.onEdit} className="veqsio-btn-ghost p-1.5" aria-label={tr('Edit {name}', { name: p.title })} title={tr('Edit sprint')}>
               <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
           )}
           {p.onDelete && (
-            <button type="button" onClick={p.onDelete} className="veqsio-btn-ghost p-1.5" aria-label={`Delete ${p.title}`} title="Delete sprint">
+            <button type="button" onClick={p.onDelete} className="veqsio-btn-ghost p-1.5" aria-label={tr('Delete {name}', { name: p.title })} title={tr('Delete sprint')}>
               <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
           )}
           {p.onStart && (
             <button type="button" onClick={p.onStart} className="veqsio-btn-primary text-xs inline-flex items-center gap-1">
-              <Play className="w-3 h-3" aria-hidden="true" /> Start sprint
-            </button>
+              <Play className="w-3 h-3" aria-hidden="true" /> {tr('Start sprint')} </button>
           )}
           {p.onComplete && (
             <button type="button" onClick={p.onComplete} className="veqsio-btn-secondary text-xs inline-flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3" aria-hidden="true" /> Complete sprint
-            </button>
+              <CheckCircle2 className="w-3 h-3" aria-hidden="true" /> {tr('Complete sprint')} </button>
           )}
         </div>
       </div>
 
       {p.sprint?.goal && p.expanded && (
         <p className="px-3 py-1.5 text-caption text-[var(--text-secondary)] border-t border-[var(--surface-3)]">
-          <span className="font-medium">Goal:</span> {p.sprint.goal}
+          <span className="font-medium">{tr('Goal:')}</span> {p.sprint.goal}
         </p>
       )}
 
@@ -131,7 +133,7 @@ export function PlanningSection(p: SectionProps) {
                 onChange={(e) => p.onSelectAll(p.issues.map((i) => i.key), e.target.checked)}
                 className="w-4 h-4 accent-[var(--brand-600)]"
               />
-              Select all in {p.title}
+              {tr('Select all in')} {p.title}
             </label>
           )}
           {p.issues.length === 0 ? (
@@ -143,7 +145,7 @@ export function PlanningSection(p: SectionProps) {
                   : t('The backlog is empty. Create an issue below to get started.')}
             </div>
           ) : (
-            <div role="list" aria-label={`${p.title} issues`}>
+            <div role="list" aria-label={tr('{name} issues', { name: p.title })}>
               {p.issues.map((issue) => (
                 <div role="listitem" key={issue.key}>
                   <IssueRow
@@ -162,9 +164,9 @@ export function PlanningSection(p: SectionProps) {
           )}
           {p.backlogMore && p.backlogMore.shown < p.backlogMore.total && (
             <div className="flex items-center justify-between gap-3 px-3 py-2 border-t border-[var(--surface-3)] text-caption text-[var(--text-tertiary)]">
-              <span>Showing {p.backlogMore.shown} of {p.backlogMore.total} issues</span>
+              <span>{tr('Showing')} {p.backlogMore.shown} {tr('of')} {p.backlogMore.total} {tr('issues')}</span>
               <button type="button" onClick={p.backlogMore.onLoadMore} disabled={p.backlogMore.loading} className="veqsio-btn-secondary text-xs">
-                {p.backlogMore.loading ? 'Loading…' : 'Load more'}
+                {p.backlogMore.loading ? tr('Loading…') : tr('Load more')}
               </button>
             </div>
           )}

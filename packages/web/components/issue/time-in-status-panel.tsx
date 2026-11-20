@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { Clock } from 'lucide-react'
 import { EmptyState } from '@/components/empty-state'
 import { Spinner } from '@/components/spinner'
@@ -10,12 +12,14 @@ const fmt = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyle
 
 /** "Transitions" tab of the activity section: a bar of the time per stay and a table of every stay. */
 export function TimeInStatusPanel({ issueKey }: { issueKey: string }) {
+  const { tr } = useI18n();
+
   const { data, isLoading, error } = useTimeInStatus(issueKey)
 
   if (isLoading) return <div className="flex justify-center py-6"><Spinner /></div>
   if (error) return <p role="alert" className="text-body-sm text-[var(--error)]">{(error as Error).message}</p>
   if (!data || data.segments.length === 0) {
-    return <EmptyState icon={Clock} title="No transitions yet" description="The time the issue spends in each status will be listed here." />
+    return <EmptyState icon={Clock} title={tr('No transitions yet')} description={tr('The time the issue spends in each status will be listed here.')} />
   }
   const bar = barShares(data.segments.map((s, i) => ({ ...s, idx: i })))
 
@@ -24,7 +28,7 @@ export function TimeInStatusPanel({ issueKey }: { issueKey: string }) {
       <div>
         <div
           role="img"
-          aria-label={`Time in status: ${data.segments.map((s) => `${s.status} ${formatDuration(s.durationMs)}`).join(', ')}`}
+          aria-label={tr('Time in status: {list}', { list: data.segments.map((s) => `${s.status} ${formatDuration(s.durationMs)}`).join(', ') })}
           className="flex h-3 w-full overflow-hidden rounded-full bg-[var(--surface-2)]"
         >
           {bar.map((s) => (
@@ -36,27 +40,27 @@ export function TimeInStatusPanel({ issueKey }: { issueKey: string }) {
             />
           ))}
         </div>
-        <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-caption text-[var(--text-secondary)]" aria-label="Time per status category">
+        <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-caption text-[var(--text-secondary)]" aria-label={tr('Time per status category')}>
           {data.byCategory.map((c) => (
             <li key={c.category} className="flex items-center gap-1.5">
               <span aria-hidden="true" className="inline-block h-2 w-2 rounded-full" style={{ background: categoryColor(c.category) }} />
               {categoryLabel(c.category)}: <span className="font-medium text-[var(--text-primary)]">{formatDuration(c.durationMs)}</span>
             </li>
           ))}
-          <li>Total: <span className="font-medium text-[var(--text-primary)]">{formatDuration(data.totalMs)}</span></li>
+          <li>{tr('Total:')} <span className="font-medium text-[var(--text-primary)]">{formatDuration(data.totalMs)}</span></li>
         </ul>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-body-sm">
-          <caption className="sr-only">Every stay of {issueKey} in a status</caption>
+          <caption className="sr-only">{tr('Every stay of')} {issueKey} {tr('in a status')}</caption>
           <thead>
             <tr className="text-left text-caption text-[var(--text-tertiary)] border-b border-[var(--surface-3)]">
-              <th scope="col" className="py-1.5 pr-3 font-medium">Status</th>
-              <th scope="col" className="py-1.5 pr-3 font-medium">Entered</th>
-              <th scope="col" className="py-1.5 pr-3 font-medium">Left</th>
-              <th scope="col" className="py-1.5 pr-3 font-medium">Duration</th>
-              <th scope="col" className="py-1.5 font-medium">Moved by</th>
+              <th scope="col" className="py-1.5 pr-3 font-medium">{tr('Status')}</th>
+              <th scope="col" className="py-1.5 pr-3 font-medium">{tr('Entered')}</th>
+              <th scope="col" className="py-1.5 pr-3 font-medium">{tr('Left')}</th>
+              <th scope="col" className="py-1.5 pr-3 font-medium">{tr('Duration')}</th>
+              <th scope="col" className="py-1.5 font-medium">{tr('Moved by')}</th>
             </tr>
           </thead>
           <tbody>
@@ -69,9 +73,9 @@ export function TimeInStatusPanel({ issueKey }: { issueKey: string }) {
                   </span>
                 </td>
                 <td className="py-1.5 pr-3 text-[var(--text-secondary)]">{fmt(s.enteredAt)}</td>
-                <td className="py-1.5 pr-3 text-[var(--text-secondary)]">{s.leftAt ? fmt(s.leftAt) : <span className="text-[var(--brand-500)]">current</span>}</td>
+                <td className="py-1.5 pr-3 text-[var(--text-secondary)]">{s.leftAt ? fmt(s.leftAt) : <span className="text-[var(--brand-500)]">{tr('current')}</span>}</td>
                 <td className="py-1.5 pr-3 font-medium text-[var(--text-primary)]">{formatDuration(s.durationMs)}</td>
-                <td className="py-1.5 text-[var(--text-secondary)]">{s.movedBy?.displayName ?? 'System'}</td>
+                <td className="py-1.5 text-[var(--text-secondary)]">{s.movedBy?.displayName ?? tr('System')}</td>
               </tr>
             ))}
           </tbody>

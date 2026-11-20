@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState, useCallback, useEffect, type ReactNode } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -86,6 +88,8 @@ const DEFAULT_CONFIGS: Record<GadgetType, Record<string, unknown>> = {
 }
 
 export default function DashboardPage() {
+  const { tr } = useI18n();
+
   const params = useParams()
   const id = params.id as string
 
@@ -177,9 +181,9 @@ export default function DashboardPage() {
       await updateDashboard.mutateAsync({ id, gadgets })
       setHasChanges(false)
       setEditing(false)
-      toast('Dashboard saved', 'success')
+      toast(tr('Dashboard saved'), 'success')
     } catch (error) {
-      toast(error instanceof Error ? error.message : 'Unable to save dashboard', 'error')
+      toast(error instanceof Error ? error.message : tr('Unable to save dashboard'), 'error')
     }
   }
 
@@ -198,12 +202,11 @@ export default function DashboardPage() {
       <AppLayout>
         <EmptyState
           icon="frown"
-          title="Unable to open dashboard"
-          description="It may be unavailable, or you may not have access. Try again or return to your dashboards."
+          title={tr('Unable to open dashboard')}
+          description={tr('It may be unavailable, or you may not have access. Try again or return to your dashboards.')}
           action={
-            <div className="flex gap-2"><button className="veqsio-btn-secondary" onClick={() => void refetch()}>Retry</button><Link href="/dashboards" className="veqsio-btn-primary">
-              Back to Dashboards
-            </Link></div>
+            <div className="flex gap-2"><button className="veqsio-btn-secondary" onClick={() => void refetch()}>{tr('Retry')}</button><Link href="/dashboards" className="veqsio-btn-primary">
+              {tr('Back to Dashboards')} </Link></div>
           }
         />
       </AppLayout>
@@ -220,13 +223,13 @@ export default function DashboardPage() {
           <div className="flex items-center gap-4">
             <Link
               href="/dashboards"
-              aria-label="Back to my dashboards"
+              aria-label={tr('Back to my dashboards')}
               className="veqsio-btn-ghost p-2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
             >
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
-              <p className="text-caption text-[var(--text-tertiary)] mb-1">MY DASHBOARD</p>
+              <p className="text-caption text-[var(--text-tertiary)] mb-1">{tr('MY DASHBOARD')}</p>
               <h1 className="text-heading-1 text-[var(--text-primary)] break-words">
                 {dashboard.name}
               </h1>
@@ -241,49 +244,47 @@ export default function DashboardPage() {
             {!editing && (
               <button
                 type="button"
-                onClick={() => setDefaultDash.mutate(isDefault ? null : id, { onSuccess: () => toast(isDefault ? 'Default dashboard removed' : 'This dashboard opens first from now on', 'success'), onError: (e: Error) => toast(e.message, 'error') })}
+                onClick={() => setDefaultDash.mutate(isDefault ? null : id, { onSuccess: () => toast(isDefault ? tr('Default dashboard removed') : tr('This dashboard opens first from now on'), 'success'), onError: (e: Error) => toast(e.message, 'error') })}
                 aria-pressed={isDefault}
                 className={`veqsio-btn-secondary flex items-center gap-2 ${isDefault ? '!border-[var(--brand-500)] !text-[var(--brand-600)]' : ''}`}
-                title={isDefault ? 'This is your default dashboard (click to remove)' : 'Open this dashboard first after sign-in'}
-              ><Star className={`w-4 h-4 ${isDefault ? 'fill-current' : ''}`} aria-hidden="true" />{isDefault ? 'Default' : 'Make default'}</button>
+                title={isDefault ? tr('This is your default dashboard (click to remove)') : tr('Open this dashboard first after sign-in')}
+              ><Star className={`w-4 h-4 ${isDefault ? 'fill-current' : ''}`} aria-hidden="true" />{isDefault ? tr('Default') : tr('Make default')}</button>
             )}
-            {!editing && <button onClick={() => setEditing(true)} className="veqsio-btn-secondary"><SlidersHorizontal className="w-4 h-4" />Customize</button>}
-            {editing && <button disabled={updateDashboard.isPending} onClick={() => { setGadgets(dashboard.gadgets); setHasChanges(false); setEditing(false) }} className="veqsio-btn-ghost">Cancel</button>}
+            {!editing && <button onClick={() => setEditing(true)} className="veqsio-btn-secondary"><SlidersHorizontal className="w-4 h-4" />{tr('Customize')}</button>}
+            {editing && <button disabled={updateDashboard.isPending} onClick={() => { setGadgets(dashboard.gadgets); setHasChanges(false); setEditing(false) }} className="veqsio-btn-ghost">{tr('Cancel')}</button>}
             <button
               onClick={() => setAddOpen(true)}
               disabled={updateDashboard.isPending}
               className="veqsio-btn-secondary flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
-              Add widget
-            </button>
+              {tr('Add widget')} </button>
             {editing && <button
               onClick={handleSave}
               disabled={!hasChanges || updateDashboard.isPending}
               className="veqsio-btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save className="w-4 h-4" />
-              {updateDashboard.isPending ? 'Saving...' : 'Save changes'}
+              {updateDashboard.isPending ? tr('Saving...') : tr('Save changes')}
             </button>}
           </div>
         </div>
 
-        {editing && <div role="status" className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--brand-200)] bg-[var(--brand-50)] px-4 py-3 text-sm text-[var(--brand-800)]"><span>Drag widgets to arrange your dashboard. Use the settings icon to configure each widget.</span><span className="font-medium">{hasChanges ? 'Unsaved changes' : 'Customizing'}</span></div>}
+        {editing && <div role="status" className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--brand-200)] bg-[var(--brand-50)] px-4 py-3 text-sm text-[var(--brand-800)]"><span>{tr('Drag widgets to arrange your dashboard. Use the settings icon to configure each widget.')}</span><span className="font-medium">{hasChanges ? tr('Unsaved changes') : tr('Customizing')}</span></div>}
 
         {/* Gadget Grid */}
         {displayGadgets.length === 0 ? (
           <EmptyState
             icon="inbox"
-            title="A dashboard that works for you"
-            description="Start with your assigned issues, a saved filter or a chart. Add widgets and arrange them your way."
+            title={tr('A dashboard that works for you')}
+            description={tr('Start with your assigned issues, a saved filter or a chart. Add widgets and arrange them your way.')}
             action={
               <button
                 onClick={() => setAddOpen(true)}
                 className="veqsio-btn-primary flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />
-                Add widget
-              </button>
+                {tr('Add widget')} </button>
             }
           />
         ) : (
@@ -316,7 +317,7 @@ export default function DashboardPage() {
       <Modal
         isOpen={addOpen}
         onClose={() => setAddOpen(false)}
-        title="Add widget"
+        title={tr('Add widget')}
         size="md"
       >
         <div className="grid grid-cols-2 gap-3">
@@ -330,8 +331,8 @@ export default function DashboardPage() {
                 {g.icon}
               </div>
               <div>
-                <p className="text-body-sm font-medium text-[var(--text-primary)]">{g.label}</p>
-                <p className="text-caption text-[var(--text-tertiary)] mt-0.5">{g.defaultTitle}</p>
+                <p className="text-body-sm font-medium text-[var(--text-primary)]">{tr(g.label)}</p>
+                <p className="text-caption text-[var(--text-tertiary)] mt-0.5">{tr(g.defaultTitle)}</p>
               </div>
             </button>
           ))}

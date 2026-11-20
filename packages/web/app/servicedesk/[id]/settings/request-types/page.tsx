@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -15,6 +17,8 @@ import {
 
 /** Project settings > Request types */
 export default function RequestTypesPage() {
+  const { tr } = useI18n();
+
   const id = Number(useParams<{ id: string }>().id)
   const router = useRouter()
   const list = useAdminRequestTypes(id)
@@ -86,15 +90,15 @@ export default function RequestTypesPage() {
     <section className="space-y-4" aria-labelledby="rt-heading">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 id="rt-heading" className="text-heading-2 text-[var(--text-primary)]">Request types</h2>
-          <p className="text-sm text-[var(--text-secondary)]">What your customers can ask for. Each request type has its own form.</p>
+          <h2 id="rt-heading" className="text-heading-2 text-[var(--text-primary)]">{tr('Request types')}</h2>
+          <p className="text-sm text-[var(--text-secondary)]">{tr('What your customers can ask for. Each request type has its own form.')}</p>
         </div>
-        {isAdmin && <button className="veqsio-btn-primary inline-flex items-center gap-2" onClick={() => { setCreating(true); setName(''); setGroup(''); setFormError(null) }}><Plus className="w-4 h-4" aria-hidden />Create request type</button>}
+        {isAdmin && <button className="veqsio-btn-primary inline-flex items-center gap-2" onClick={() => { setCreating(true); setName(''); setGroup(''); setFormError(null) }}><Plus className="w-4 h-4" aria-hidden />{tr('Create request type')}</button>}
       </div>
 
       {list.isLoading && <Spinner />}
       {list.error && <div role="alert" className="text-[var(--error)]">{list.error.message}</div>}
-      {list.data && types.length === 0 && <p className="text-[var(--text-tertiary)]">No request types yet.</p>}
+      {list.data && types.length === 0 && <p className="text-[var(--text-tertiary)]">{tr('No request types yet.')}</p>}
 
       <ul className="space-y-2">
         {types.map((t, i) => (
@@ -103,7 +107,7 @@ export default function RequestTypesPage() {
             <div className="min-w-0 flex-1">
               <Link href={`/servicedesk/${id}/settings/request-types/${t.id}`} className="font-medium text-[var(--text-primary)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--brand-500)]">{t.name}</Link>
               <p className="text-xs text-[var(--text-tertiary)]">
-                {t.groupName || 'General'} · {t.fields.filter((f) => f.type !== 'section' && f.type !== 'help').length} fields · {t.requestCount ?? 0} requests
+                {t.groupName || 'General'} · {t.fields.filter((f) => f.type !== 'section' && f.type !== 'help').length} {tr('fields ·')} {t.requestCount ?? 0} requests
                 {t.visibility === 'organizations' && ' · restricted to organizations'}
                 {!t.enabled && ' · disabled'}
               </p>
@@ -114,7 +118,7 @@ export default function RequestTypesPage() {
                   type="checkbox" checked={t.enabled} disabled={update.isPending}
                   onChange={(e) => update.mutate({ rtId: t.id, body: { enabled: e.target.checked } }, { onError: (er) => toast(er.message, 'error') })}
                 />
-                Enabled<span className="sr-only"> {t.name}</span>
+                {tr('Enabled')}<span className="sr-only"> {t.name}</span>
               </label>
             )}
             <div className="flex items-center gap-1">
@@ -132,39 +136,39 @@ export default function RequestTypesPage() {
         ))}
       </ul>
 
-      <Modal isOpen={creating} onClose={() => setCreating(false)} title="Create request type">
+      <Modal isOpen={creating} onClose={() => setCreating(false)} title={tr('Create request type')}>
         <form onSubmit={submitCreate} className="space-y-4">
           <label className="block space-y-1">
-            <span className="text-sm font-medium">Name</span>
+            <span className="text-sm font-medium">{tr('Name')}</span>
             <input autoFocus required maxLength={255} className="veqsio-input w-full" value={name} onChange={(e) => setName(e.target.value)} />
           </label>
           <label className="block space-y-1">
-            <span className="text-sm font-medium">Issue type created for each request</span>
+            <span className="text-sm font-medium">{tr('Issue type created for each request')}</span>
             <select className="veqsio-input w-full" value={issueTypeId} onChange={(e) => setIssueTypeId(e.target.value)}>
               {ctx.data?.issueTypes.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
             </select>
           </label>
           <label className="block space-y-1">
-            <span className="text-sm font-medium">Portal group <span className="font-normal text-[var(--text-tertiary)]">(optional)</span></span>
+            <span className="text-sm font-medium">{tr('Portal group')} <span className="font-normal text-[var(--text-tertiary)]">{tr('(optional)')}</span></span>
             <input maxLength={100} className="veqsio-input w-full" value={group} onChange={(e) => setGroup(e.target.value)} />
           </label>
           {formError && <p role="alert" className="text-sm text-[var(--error)]">{formError}</p>}
           <div className="flex justify-end gap-2">
-            <button type="button" className="veqsio-btn-secondary" onClick={() => setCreating(false)}>Cancel</button>
-            <button type="submit" className="veqsio-btn-primary" disabled={create.isPending || !name.trim()}>Create and edit form</button>
+            <button type="button" className="veqsio-btn-secondary" onClick={() => setCreating(false)}>{tr('Cancel')}</button>
+            <button type="submit" className="veqsio-btn-primary" disabled={create.isPending || !name.trim()}>{tr('Create and edit form')}</button>
           </div>
         </form>
       </Modal>
 
-      <Modal isOpen={!!toDelete} onClose={() => setToDelete(null)} title="Delete request type">
+      <Modal isOpen={!!toDelete} onClose={() => setToDelete(null)} title={tr('Delete request type')}>
         <div className="space-y-4">
           <p className="text-sm">
-            Delete <strong>{toDelete?.name}</strong> and its form? {(toDelete?.requestCount ?? 0) > 0
+            {tr('Delete')} <strong>{toDelete?.name}</strong> {tr('and its form?')} {(toDelete?.requestCount ?? 0) > 0
               ? `It has ${toDelete?.requestCount} existing requests, so it cannot be deleted. It will be disabled instead and disappear from the portal.`
               : 'This cannot be undone.'}
           </p>
           <div className="flex justify-end gap-2">
-            <button className="veqsio-btn-secondary" onClick={() => setToDelete(null)}>Cancel</button>
+            <button className="veqsio-btn-secondary" onClick={() => setToDelete(null)}>{tr('Cancel')}</button>
             <button className="veqsio-btn-primary" onClick={confirmDelete} disabled={del.isPending}>
               {(toDelete?.requestCount ?? 0) > 0 ? 'Disable instead' : 'Delete'}
             </button>

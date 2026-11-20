@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Modal } from '@/components/modal'
@@ -9,6 +11,8 @@ import { useConvertToIssue } from '@/hooks/use-pages'
 
 /** "Convert highlighted text to issue": creates an issue in a chosen project and links it from the page. */
 export function ConvertToIssueDialog({ pageId, text, defaultProject, onClose }: { pageId: number; text: string | null; defaultProject: string | null; onClose: () => void }) {
+  const { tr } = useI18n();
+
   const projects = useProjects()
   const convert = useConvertToIssue(pageId)
   const [project, setProject] = useState('')
@@ -33,31 +37,31 @@ export function ConvertToIssueDialog({ pageId, text, defaultProject, onClose }: 
   }
 
   return (
-    <Modal isOpen={text !== null} onClose={onClose} title="Create issue from selection">
+    <Modal isOpen={text !== null} onClose={onClose} title={tr('Create issue from selection')}>
       {created ? (
         <div className="space-y-4">
-          <p>Created <Link className="text-[var(--brand-500)] underline" href={`/issues/${created}`}>{created}</Link>. It is linked from this page.</p>
-          <button type="button" className="veqsio-btn-primary" onClick={onClose}>Done</button>
+          <p>{tr('Created')} <Link className="text-[var(--brand-500)] underline" href={`/issues/${created}`}>{created}</Link>{tr('. It is linked from this page.')}</p>
+          <button type="button" className="veqsio-btn-primary" onClick={onClose}>{tr('Done')}</button>
         </div>
       ) : (
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label htmlFor="cti-project" className="block text-sm font-medium mb-1">Project</label>
+            <label htmlFor="cti-project" className="block text-sm font-medium mb-1">{tr('Project')}</label>
             <select id="cti-project" className="veqsio-input w-full" value={project} onChange={(e) => setProject(e.target.value)} required>
               {(projects.data ?? []).map((p) => <option key={p.key} value={p.key}>{p.name} ({p.key})</option>)}
             </select>
           </div>
           <div>
-            <label htmlFor="cti-summary" className="block text-sm font-medium mb-1">Summary</label>
-            <input id="cti-summary" className="veqsio-input w-full" value={summary} maxLength={255} onChange={(e) => setSummary(e.target.value)} placeholder="Defaults to the first line of the selection" />
+            <label htmlFor="cti-summary" className="block text-sm font-medium mb-1">{tr('Summary')}</label>
+            <input id="cti-summary" className="veqsio-input w-full" value={summary} maxLength={255} onChange={(e) => setSummary(e.target.value)} placeholder={tr('Defaults to the first line of the selection')} />
           </div>
           <div>
-            <label htmlFor="cti-text" className="block text-sm font-medium mb-1">Description (the selected text)</label>
+            <label htmlFor="cti-text" className="block text-sm font-medium mb-1">{tr('Description (the selected text)')}</label>
             <textarea id="cti-text" className="veqsio-input w-full" rows={5} value={body} maxLength={20000} onChange={(e) => setBody(e.target.value)} required />
           </div>
           <div className="flex justify-end gap-2">
-            <button type="button" className="veqsio-btn-ghost" onClick={onClose}>Cancel</button>
-            <button type="submit" className="veqsio-btn-primary" disabled={!project || !body.trim() || convert.isPending}>Create issue</button>
+            <button type="button" className="veqsio-btn-ghost" onClick={onClose}>{tr('Cancel')}</button>
+            <button type="submit" className="veqsio-btn-primary" disabled={!project || !body.trim() || convert.isPending}>{tr('Create issue')}</button>
           </div>
         </form>
       )}

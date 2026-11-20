@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
@@ -17,6 +19,8 @@ export function deleteConfirmed(projectKey: string, typedKey: string, typedPhras
 
 /** Project settings, tab "Lifecycle": archive, restore and (for archived projects) delete. */
 export function LifecyclePanel({ projectKey, projectName, archived }: { projectKey: string; projectName: string; archived: boolean }) {
+  const { tr } = useI18n();
+
   const router = useRouter()
   const { issues } = useTerm()
   const { archive, restore, remove } = useArchiveProject(projectKey)
@@ -35,43 +39,39 @@ export function LifecyclePanel({ projectKey, projectName, archived }: { projectK
             : `Archiving makes ${projectName} read-only and hides it from project lists, pickers and default searches. Its ${issues} stay reachable by link and by searching for the project key. You can restore it at any time.`}
         </p>
         {archived ? (
-          <button className="veqsio-btn-primary" disabled={restore.isPending} onClick={() => restore.mutate(undefined, { onSuccess: () => toast('Project restored', 'success'), onError: fail })}>
-            {restore.isPending && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}Restore project
-          </button>
+          <button className="veqsio-btn-primary" disabled={restore.isPending} onClick={() => restore.mutate(undefined, { onSuccess: () => toast(tr('Project restored'), 'success'), onError: fail })}>
+            {restore.isPending && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}{tr('Restore project')} </button>
         ) : (
-          <button className="veqsio-btn-secondary" disabled={archive.isPending} onClick={async () => { if ((await confirmDialog(`Archive ${projectName}? It becomes read-only.`))) archive.mutate(undefined, { onSuccess: () => toast('Project archived', 'success'), onError: fail }) }}>
-            {archive.isPending && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}Archive project
-          </button>
+          <button className="veqsio-btn-secondary" disabled={archive.isPending} onClick={async () => { if ((await confirmDialog(`Archive ${projectName}? It becomes read-only.`))) archive.mutate(undefined, { onSuccess: () => toast(tr('Project archived'), 'success'), onError: fail }) }}>
+            {archive.isPending && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}{tr('Archive project')} </button>
         )}
       </section>
 
       <section aria-labelledby="delete-heading" className={`${box} border-[var(--error)]`}>
-        <h2 id="delete-heading" className="text-heading-3 text-[var(--error)]">Delete project</h2>
+        <h2 id="delete-heading" className="text-heading-3 text-[var(--error)]">{tr('Delete project')}</h2>
         {!archived ? (
-          <p className="text-body-sm text-[var(--text-secondary)]">Only archived projects can be deleted. Archive the project first: it stops all changes and gives you time to restore it if that was a mistake.</p>
+          <p className="text-body-sm text-[var(--text-secondary)]">{tr('Only archived projects can be deleted. Archive the project first: it stops all changes and gives you time to restore it if that was a mistake.')}</p>
         ) : (
           <form
             className="space-y-3"
             onSubmit={(e) => {
               e.preventDefault()
               if (!deleteConfirmed(projectKey, typedKey, typedPhrase)) return
-              remove.mutate({ confirmKey: typedKey, confirmPhrase: typedPhrase }, { onSuccess: () => { toast('Project deleted', 'success'); router.push('/projects') }, onError: fail })
+              remove.mutate({ confirmKey: typedKey, confirmPhrase: typedPhrase }, { onSuccess: () => { toast(tr('Project deleted'), 'success'); router.push('/projects') }, onError: fail })
             }}
           >
             <p className="text-body-sm text-[var(--text-secondary)]">
-              Permanently deletes {projectName} with all its {issues}, comments, boards and settings. This cannot be undone. Deleting needs the Administer permission.
-            </p>
+              {tr('Permanently deletes')} {projectName} {tr('with all its')} {issues}{tr(', comments, boards and settings. This cannot be undone. Deleting needs the Administer permission.')} </p>
             <div>
-              <label htmlFor="del-key" className="block text-[12px] font-medium text-[var(--text-secondary)] mb-1.5">Type the project key <code className="font-mono">{projectKey}</code></label>
+              <label htmlFor="del-key" className="block text-[12px] font-medium text-[var(--text-secondary)] mb-1.5">{tr('Type the project key')} <code className="font-mono">{projectKey}</code></label>
               <input id="del-key" className="veqsio-input w-40 font-mono" value={typedKey} onChange={(e) => setTypedKey(e.target.value)} autoComplete="off" />
             </div>
             <div>
-              <label htmlFor="del-phrase" className="block text-[12px] font-medium text-[var(--text-secondary)] mb-1.5">Type <code className="font-mono">{DELETE_PHRASE}</code></label>
+              <label htmlFor="del-phrase" className="block text-[12px] font-medium text-[var(--text-secondary)] mb-1.5">{tr('Type')} <code className="font-mono">{DELETE_PHRASE}</code></label>
               <input id="del-phrase" className="veqsio-input w-full" value={typedPhrase} onChange={(e) => setTypedPhrase(e.target.value)} autoComplete="off" />
             </div>
             <button type="submit" disabled={remove.isPending || !deleteConfirmed(projectKey, typedKey, typedPhrase)} className="veqsio-btn-primary !bg-[var(--error)] disabled:opacity-50">
-              {remove.isPending && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}Delete project permanently
-            </button>
+              {remove.isPending && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}{tr('Delete project permanently')} </button>
           </form>
         )}
       </section>

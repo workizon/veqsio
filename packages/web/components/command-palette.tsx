@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useTerm } from '@/hooks/use-term'
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
@@ -90,6 +92,8 @@ function SkeletonRows({ count }: { count: number }) {
 }
 
 export function PaletteView({ query, groups, activeIndex, loading, error, onQueryChange, onHover, onChoose, onRetry, inputRef, listRef, t = (x: string) => x }: PaletteViewProps) {
+  const { tr } = useI18n();
+
   const total = groups.reduce((n, g) => n + g.items.length, 0)
   const q = query.trim()
   let flat = -1
@@ -117,7 +121,7 @@ export function PaletteView({ query, groups, activeIndex, loading, error, onQuer
       </div>
 
       <div ref={listRef} className="max-h-[min(60vh,28rem)] overflow-y-auto overscroll-contain">
-        <div id={PALETTE_LISTBOX_ID} role="listbox" aria-label="Results" className="py-1.5">
+        <div id={PALETTE_LISTBOX_ID} role="listbox" aria-label={tr('Results')} className="py-1.5">
           {groups.map((g) => (
             <div key={g.group} role="group" aria-labelledby={`palette-group-${g.group}`}>
               <div id={`palette-group-${g.group}`} className="px-4 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
@@ -154,7 +158,7 @@ export function PaletteView({ query, groups, activeIndex, loading, error, onQuer
                     {r.item.badge && <span className="veqsio-badge flex-shrink-0">{r.item.badge}</span>}
                     {hint && (
                       <span className="flex items-center gap-1 flex-shrink-0" aria-hidden="true">
-                        {hint.map((k, i) => (k === 'then' ? <span key={i} className="text-[10px] text-[var(--text-tertiary)]">then</span> : <kbd key={i} className="veqsio-kbd">{k}</kbd>))}
+                        {hint.map((k, i) => (k === 'then' ? <span key={i} className="text-[10px] text-[var(--text-tertiary)]">{tr('then')}</span> : <kbd key={i} className="veqsio-kbd">{k}</kbd>))}
                       </span>
                     )}
                   </div>
@@ -168,28 +172,28 @@ export function PaletteView({ query, groups, activeIndex, loading, error, onQuer
 
         {!loading && total === 0 && !error && (
           <div className="px-4 py-10 text-center" data-testid="palette-empty">
-            <p className="text-sm text-[var(--text-primary)]">{q ? `No results for “${q}”` : 'Nothing to show yet'}</p>
-            <p className="text-xs text-[var(--text-tertiary)] mt-1">Try an issue key such as DEMO-12, a project name, or “create”.</p>
+            <p className="text-sm text-[var(--text-primary)]">{q ? tr('No results for “{q}”', { q }) : tr('Nothing to show yet')}</p>
+            <p className="text-xs text-[var(--text-tertiary)] mt-1">{tr('Try an issue key such as DEMO-12, a project name, or “create”.')}</p>
           </div>
         )}
 
         {error && (
           <div role="alert" className="flex items-center gap-3 mx-3 my-2 px-3 py-2 rounded-lg bg-[var(--surface-2)] text-xs text-[var(--text-secondary)]" data-testid="palette-error">
             <AlertCircle className="w-4 h-4 text-[var(--error)] flex-shrink-0" aria-hidden="true" />
-            <span className="flex-1">{total > 0 ? 'Search on the server failed. Showing local results only.' : 'Search on the server failed.'}</span>
-            {onRetry && <button type="button" className="text-[var(--brand-600)] font-medium hover:underline" onMouseDown={(e) => e.preventDefault()} onClick={onRetry}>Retry</button>}
+            <span className="flex-1">{total > 0 ? tr('Search on the server failed. Showing local results only.') : tr('Search on the server failed.')}</span>
+            {onRetry && <button type="button" className="text-[var(--brand-600)] font-medium hover:underline" onMouseDown={(e) => e.preventDefault()} onClick={onRetry}>{tr('Retry')}</button>}
           </div>
         )}
       </div>
 
       <div className="flex items-center gap-4 px-4 py-2 border-t border-[var(--surface-3)] bg-[var(--surface-1)] text-[11px] text-[var(--text-tertiary)]" aria-hidden="true">
-        <span className="flex items-center gap-1"><kbd className="veqsio-kbd">↑</kbd><kbd className="veqsio-kbd">↓</kbd> navigate</span>
-        <span className="flex items-center gap-1"><kbd className="veqsio-kbd"><CornerDownLeft className="w-3 h-3" /></kbd> open</span>
-        <span className="flex items-center gap-1"><kbd className="veqsio-kbd">Tab</kbd> next group</span>
+        <span className="flex items-center gap-1"><kbd className="veqsio-kbd">↑</kbd><kbd className="veqsio-kbd">↓</kbd> {tr('navigate')}</span>
+        <span className="flex items-center gap-1"><kbd className="veqsio-kbd"><CornerDownLeft className="w-3 h-3" /></kbd> {tr('open')}</span>
+        <span className="flex items-center gap-1"><kbd className="veqsio-kbd">Tab</kbd> {tr('next group')}</span>
       </div>
 
       <div className="sr-only" role="status" aria-live="polite">
-        {loading ? 'Searching' : error ? 'Server search failed' : total === 0 ? 'No results' : `${total} results`}
+        {loading ? tr('Searching') : error ? tr('Server search failed') : total === 0 ? tr('No results') : tr('{total} results', { total })}
       </div>
     </div>
   )
@@ -225,6 +229,8 @@ export function CommandPalette() {
 }
 
 function PaletteDialog() {
+  const { tr } = useI18n();
+
   const { t } = useTerm()
   const router = useRouter()
   const pathname = usePathname() || ''
@@ -282,7 +288,7 @@ function PaletteDialog() {
       return {
         issues: (issues.issues ?? []).map((i) => issueItem(i.key, i.fields?.summary, i.fields?.status?.name)),
         pages: (pageHits.results ?? []).slice(0, 5).map(pageResultItem),
-        people: (Array.isArray(users) ? users : []).slice(0, 5).map((u) => userItem({ id: u.id, displayName: u.displayName || u.name || 'User', email: u.emailAddress })),
+        people: (Array.isArray(users) ? users : []).slice(0, 5).map((u) => userItem({ id: u.id, displayName: u.displayName || u.name || tr('User'), email: u.emailAddress })),
       }
     },
   })
@@ -312,10 +318,10 @@ function PaletteDialog() {
       case 'myIssues': router.push(`/issues?jql=${encodeURIComponent('assignee = currentUser() AND status != Done')}`); break
       case 'signOut': void signOut(router); break
       case 'assignToMe':
-        if (!issueKey || !myself) { toast('Could not assign: your user is not loaded yet', 'error'); break }
+        if (!issueKey || !myself) { toast(tr('Could not assign: your user is not loaded yet'), 'error'); break }
         updateIssue.mutate(
           { key: issueKey, fields: { assignee: { id: myself.id } }, lookup: { users: [{ id: myself.id, displayName: myself.displayName || myself.name }] } },
-          { onSuccess: () => toast(`${issueKey} assigned to you`, 'success'), onError: (e: any) => toast(e?.message || 'Failed to assign', 'error') },
+          { onSuccess: () => toast(tr('{key} assigned to you', { key: issueKey }), 'success'), onError: (e: any) => toast(e?.message || tr('Failed to assign'), 'error') },
         )
         break
     }
@@ -347,7 +353,7 @@ function PaletteDialog() {
       className="fixed inset-0 z-[70] flex items-start justify-center px-4 pt-[12vh] veqsio-modal-overlay veqsio-fade-in"
       onMouseDown={(e) => { if (e.target === e.currentTarget) close() }}
     >
-      <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Command palette" className="w-full max-w-xl" onKeyDown={onKeyDown} tabIndex={-1}>
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={tr('Command palette')} className="w-full max-w-xl" onKeyDown={onKeyDown} tabIndex={-1}>
         <PaletteView
           t={t}
           query={query}

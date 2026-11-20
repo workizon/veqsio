@@ -28,7 +28,7 @@ export function AdminSidebar() {
   }, [modules, isEnabled, cloud])
 
   const nav = (
-    <nav aria-label="Administration" className="space-y-5">
+    <nav aria-label={tr('Administration')} className="space-y-5">
       <Link href="/admin" className={`block rounded-md px-3 py-1.5 text-sm font-semibold ${pathname === '/admin' && !tab ? 'bg-[var(--brand-50)] text-[var(--brand-700)]' : 'text-[var(--text-primary)] hover:bg-[var(--surface-2)]'}`}>{tr('Administration home')}</Link>
       {sections.map((s) => (
         <div key={s.id}>
@@ -52,7 +52,7 @@ export function AdminSidebar() {
     <>
       <aside className="hidden lg:block w-60 shrink-0 self-start sticky top-[calc(var(--header-height,56px)+1.5rem)] max-h-[calc(100vh-6rem)] overflow-y-auto pr-2">{nav}</aside>
       <details className="lg:hidden mb-4 rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)] p-3">
-        <summary className="cursor-pointer text-sm font-medium">Administration menu</summary>
+        <summary className="cursor-pointer text-sm font-medium">{tr('Administration menu')}</summary>
         <div className="mt-3">{nav}</div>
       </details>
     </>

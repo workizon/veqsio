@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Bug, GitBranch, BookOpen, Layers, CheckCircle2, ChevronDown, ChevronRight, Pencil } from 'lucide-react'
 import { normalizeCategory, CATEGORY_LABEL, relativeTime } from '@/lib/issue-view'
@@ -231,8 +233,10 @@ export function RelativeTime({ date, className = '' }: { date: string | Date | n
 /* ------------------------------------------------------------------ */
 
 export function IssueViewSkeleton() {
+  const { tr } = useI18n();
+
   return (
-    <div className="space-y-6" role="status" aria-label="Loading issue">
+    <div className="space-y-6" role="status" aria-label={tr('Loading issue')}>
       <Skeleton className="h-4 w-56" />
       <div className="space-y-3">
         <Skeleton className="h-4 w-24" />
@@ -259,7 +263,7 @@ export function IssueViewSkeleton() {
           <Skeleton className="h-32 w-full" />
         </div>
       </div>
-      <span className="sr-only">Loading issue</span>
+      <span className="sr-only">{tr('Loading issue')}</span>
     </div>
   )
 }

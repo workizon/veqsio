@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -36,6 +38,8 @@ async function api<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 export default function RoadmapPage() {
+  const { tr } = useI18n();
+
   const ms = useMultiSort()
   const qc = useQueryClient()
   const projects = useQuery({ queryKey: ['projects'], queryFn: () => api<Array<{ key: string; name: string }>>('/rest/api/2/project') })
@@ -69,7 +73,7 @@ export default function RoadmapPage() {
       }
       return { prev }
     },
-    onError: (e, _v, ctx) => { if (ctx?.prev) qc.setQueryData(queryKey, ctx.prev); toast((e as Error).message || 'Could not reschedule', 'error') },
+    onError: (e, _v, ctx) => { if (ctx?.prev) qc.setQueryData(queryKey, ctx.prev); toast((e as Error).message || tr('Could not reschedule'), 'error') },
     onSettled: () => qc.invalidateQueries({ queryKey }),
   })
 
@@ -114,39 +118,37 @@ export default function RoadmapPage() {
   return (
     <AppLayout>
       <div className="space-y-4">
-        <PageHeader title="Roadmap" description="Epics and versions on a timeline, with dependencies." />
+        <PageHeader title={tr('Roadmap')} description={tr('Epics and versions on a timeline, with dependencies.')} />
         <div className="flex flex-wrap items-end gap-3">
           <div className="contents">
-            <label className="text-sm block">Project
-              <select className="veqsio-input block" value={key} onChange={(e) => setProjectKey(e.target.value)}>
+            <label className="text-sm block">{tr('Project')} <select className="veqsio-input block" value={key} onChange={(e) => setProjectKey(e.target.value)}>
                 {projects.data?.map((p) => <option key={p.key} value={p.key}>{p.key} — {p.name}</option>)}
               </select>
             </label>
-            <label className="text-sm block">Zoom
-              <select className="veqsio-input block" value={zoom} onChange={(e) => setZoom(e.target.value as Zoom)}>
-                <option value="weeks">Weeks</option><option value="months">Months</option><option value="quarters">Quarters</option>
+            <label className="text-sm block">{tr('Zoom')} <select className="veqsio-input block" value={zoom} onChange={(e) => setZoom(e.target.value as Zoom)}>
+                <option value="weeks">{tr('Weeks')}</option><option value="months">{tr('Months')}</option><option value="quarters">{tr('Quarters')}</option>
               </select>
             </label>
-            <label className="text-sm flex items-center gap-2 pb-2"><input type="checkbox" checked={orphans} onChange={(e) => setOrphans(e.target.checked)} /> Include issues without an epic</label>
-            <div role="group" aria-label="View" className="flex gap-1">
-              <button className={view === 'timeline' ? 'veqsio-btn-primary' : 'veqsio-btn-secondary'} aria-pressed={view === 'timeline'} onClick={() => setView('timeline')}>Timeline</button>
-              <button className={view === 'table' ? 'veqsio-btn-primary' : 'veqsio-btn-secondary'} aria-pressed={view === 'table'} onClick={() => setView('table')}>Table</button>
+            <label className="text-sm flex items-center gap-2 pb-2"><input type="checkbox" checked={orphans} onChange={(e) => setOrphans(e.target.checked)} /> {tr('Include issues without an epic')}</label>
+            <div role="group" aria-label={tr('View')} className="flex gap-1">
+              <button className={view === 'timeline' ? 'veqsio-btn-primary' : 'veqsio-btn-secondary'} aria-pressed={view === 'timeline'} onClick={() => setView('timeline')}>{tr('Timeline')}</button>
+              <button className={view === 'table' ? 'veqsio-btn-primary' : 'veqsio-btn-secondary'} aria-pressed={view === 'table'} onClick={() => setView('table')}>{tr('Table')}</button>
             </div>
           </div>
         </div>
 
         {roadmap.isLoading && <Spinner />}
         {roadmap.error && <p role="alert" className="text-[var(--error)]">{(roadmap.error as Error).message}</p>}
-        {data && data.items.length === 0 && <p className="text-[var(--text-tertiary)]">No epics in this project yet. Create an epic to see it on the roadmap.</p>}
+        {data && data.items.length === 0 && <p className="text-[var(--text-tertiary)]">{tr('No epics in this project yet. Create an epic to see it on the roadmap.')}</p>}
 
         {data && data.dependencies.some((d) => d.conflict) && (
           <div role="alert" className="rounded-lg border border-[#C9372C] bg-[#C9372C14] p-3 text-sm space-y-1">
-            <p className="font-medium text-[#C9372C]">Schedule conflicts</p>
+            <p className="font-medium text-[#C9372C]">{tr('Schedule conflicts')}</p>
             <ul className="list-disc pl-5">
               {data.dependencies.filter((d) => d.conflict).map((d) => (
                 <li key={`${d.from}-${d.to}-${d.kind}`}>
                   <Link href={`/issues/${d.from}`} className="font-mono text-[var(--brand-500)] hover:underline">{d.from}</Link>
-                  {d.kind === 'starts_before' ? ' should start before ' : ' should finish before '}
+                  {d.kind === 'starts_before' ? ` ${tr('should start before')} ` : ` ${tr('should finish before')} `}
                   <Link href={`/issues/${d.to}`} className="font-mono text-[var(--brand-500)] hover:underline">{d.to}</Link>
                   {d.message ? ` (${d.message.toLowerCase()})` : ''}
                 </li>
@@ -159,15 +161,15 @@ export default function RoadmapPage() {
           <div className="veqsio-card p-0 overflow-hidden">
             <div className="flex">
               <div className="shrink-0 border-r border-[var(--surface-3)]" style={{ width: LABEL_W }}>
-                <div className="h-8 border-b border-[var(--surface-3)] px-3 text-xs flex items-center text-[var(--text-tertiary)]">Epic</div>
+                <div className="h-8 border-b border-[var(--surface-3)] px-3 text-xs flex items-center text-[var(--text-tertiary)]">{tr('Epic')}</div>
                 {data.items.map((i) => (
                   <div key={i.key} className="px-3 flex items-center gap-2 border-b border-[var(--surface-2)] text-sm" style={{ height: ROW }}>
                     <Link href={`/issues/${i.key}`} className="font-mono text-xs text-[var(--brand-500)] hover:underline">{i.key}</Link>
                     <span className="truncate" title={i.summary}>{i.summary}</span>
                   </div>
                 ))}
-                {data.versions.length > 0 && <div className="px-3 flex items-center text-xs text-[var(--text-tertiary)]" style={{ height: ROW }}>Releases</div>}
-                {milestones.length > 0 && <div className="px-3 flex items-center text-xs text-[var(--text-tertiary)]" style={{ height: ROW }}>Milestones</div>}
+                {data.versions.length > 0 && <div className="px-3 flex items-center text-xs text-[var(--text-tertiary)]" style={{ height: ROW }}>{tr('Releases')}</div>}
+                {milestones.length > 0 && <div className="px-3 flex items-center text-xs text-[var(--text-tertiary)]" style={{ height: ROW }}>{tr('Milestones')}</div>}
               </div>
               <div className="overflow-x-auto flex-1">
                 <div className="relative" style={{ width, height: 32 + ROW * data.items.length + (versionRows + milestoneRows) * ROW }} onPointerMove={onMove} onPointerUp={onUp}>
@@ -197,11 +199,11 @@ export default function RoadmapPage() {
                     return (
                       <div key={i.key} className="absolute" style={{ top: 32 + idx * ROW + 6, left: g.left, width: g.width, height: ROW - 12 }}>
                         <div
-                          role="img" aria-label={`${i.key}: ${i.summary}, ${i.progress.percent}% done, ${ymd(dayOf(i.start))} to ${i.end ? ymd(dayOf(i.end)) : 'no end date'}`}
+                          role="img" aria-label={tr('{key}: {summary}, {percent}% done, {start} to {end}', { key: i.key, summary: i.summary, percent: i.progress.percent, start: ymd(dayOf(i.start)), end: i.end ? ymd(dayOf(i.end)) : tr('no end date') })}
                           className="relative h-full rounded cursor-grab active:cursor-grabbing select-none touch-none overflow-hidden"
                           style={{ background: `${color}33`, border: `1px ${g.open ? 'dashed' : 'solid'} ${color}` }}
                           onPointerDown={(e) => onDown(e, raw, 'move')}
-                          title={`${i.key} · ${i.progress.percent}% done${g.open ? ' · no end date (drag the right edge to set one)' : ''}`}
+                          title={`${i.key} · ${tr('{percent}% done', { percent: i.progress.percent })}${g.open ? ` ${tr('· no end date (drag the right edge to set one)')}` : ''}`}
                         >
                           <div className="absolute inset-y-0 left-0" style={{ width: `${i.progress.percent}%`, background: `${color}88` }} />
                           <span className="relative px-2 text-xs leading-5 whitespace-nowrap">{i.progress.percent}%</span>
@@ -241,23 +243,22 @@ export default function RoadmapPage() {
               </div>
             </div>
             <p className="px-3 py-2 text-xs text-[var(--text-tertiary)] border-t border-[var(--surface-3)]">
-              Drag a bar to move it, drag its edges to change start or end. Dashed bars have no end date yet. The red line is today. A keyboard-friendly version is in the Table view.
-            </p>
+              {tr('Drag a bar to move it, drag its edges to change start or end. Dashed bars have no end date yet. The red line is today. A keyboard-friendly version is in the Table view.')} </p>
           </div>
         )}
 
         {data && data.items.length > 0 && view === 'table' && (
           <div className="veqsio-card p-0 overflow-x-auto">
             <table className="w-full text-sm">
-              <thead><tr className="veqsio-table-header text-left"><SortableTh {...ms.th('key')} className="px-3 py-2">Key</SortableTh><SortableTh {...ms.th('name')} className="px-3 py-2">Summary</SortableTh><SortableTh {...ms.th('progress')} className="px-3 py-2">Progress</SortableTh><SortableTh {...ms.th('start')} className="px-3 py-2">Start</SortableTh><SortableTh {...ms.th('due')} className="px-3 py-2">Due</SortableTh></tr></thead>
+              <thead><tr className="veqsio-table-header text-left"><SortableTh {...ms.th('key')} className="px-3 py-2">{tr('Key')}</SortableTh><SortableTh {...ms.th('name')} className="px-3 py-2">{tr('Summary')}</SortableTh><SortableTh {...ms.th('progress')} className="px-3 py-2">{tr('Progress')}</SortableTh><SortableTh {...ms.th('start')} className="px-3 py-2">{tr('Start')}</SortableTh><SortableTh {...ms.th('due')} className="px-3 py-2">{tr('Due')}</SortableTh></tr></thead>
               <tbody>
                 {ms.sort(data.items, { key: (i) => i.key, name: (i) => i.summary, progress: (i) => i.progress.percent, start: (i) => i.start, due: (i) => i.end }).map((i) => (
                   <tr key={i.key} className="veqsio-table-row">
                     <td className="px-3 py-2"><Link href={`/issues/${i.key}`} className="text-[var(--brand-500)] hover:underline">{i.key}</Link></td>
                     <td className="px-3 py-2">{i.summary}</td>
                     <td className="px-3 py-2">{i.progress.percent}%</td>
-                    <td className="px-3 py-2"><input aria-label={`Start date of ${i.key}`} type="date" className="veqsio-input" defaultValue={ymd(dayOf(i.start))} onBlur={(e) => e.target.value && e.target.value !== ymd(dayOf(i.start)) && reschedule.mutate({ issueKey: i.key, startDate: e.target.value })} /></td>
-                    <td className="px-3 py-2"><input aria-label={`Due date of ${i.key}`} type="date" className="veqsio-input" defaultValue={i.end ? ymd(dayOf(i.end)) : ''} onBlur={(e) => e.target.value && e.target.value !== (i.end ? ymd(dayOf(i.end)) : '') && reschedule.mutate({ issueKey: i.key, dueDate: e.target.value })} /></td>
+                    <td className="px-3 py-2"><input aria-label={tr('Start date of {key}', { key: i.key })} type="date" className="veqsio-input" defaultValue={ymd(dayOf(i.start))} onBlur={(e) => e.target.value && e.target.value !== ymd(dayOf(i.start)) && reschedule.mutate({ issueKey: i.key, startDate: e.target.value })} /></td>
+                    <td className="px-3 py-2"><input aria-label={tr('Due date of {key}', { key: i.key })} type="date" className="veqsio-input" defaultValue={i.end ? ymd(dayOf(i.end)) : ''} onBlur={(e) => e.target.value && e.target.value !== (i.end ? ymd(dayOf(i.end)) : '') && reschedule.mutate({ issueKey: i.key, dueDate: e.target.value })} /></td>
                   </tr>
                 ))}
               </tbody>
