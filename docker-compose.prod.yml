@@ -196,7 +196,9 @@ services:
       - ./nginx/certbot-www:/var/www/certbot
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - "certbot certonly --standalone --preferred-challenges http -d ${VEQSIO_DOMAIN:?set VEQSIO_DOMAIN in .env} --agree-tos --no-eff-email -m ${VEQSIO_SSL_EMAIL:-} --keep-until-expiring --non-interactive"
+      # The guard is inside the command, not a `${VAR:?}` expansion: Compose expands every service when it loads the file, so a `:?` here made
+      # `docker compose` fail for installations without a domain (install.sh writes VEQSIO_DOMAIN="") although certbot is never started.
+      - "[ -n \"${VEQSIO_DOMAIN:-}\" ] || { echo 'set VEQSIO_DOMAIN in .env' >&2; exit 1; }; certbot certonly --standalone --preferred-challenges http -d \"${VEQSIO_DOMAIN:-}\" --agree-tos --no-eff-email -m ${VEQSIO_SSL_EMAIL:-} --keep-until-expiring --non-interactive"
     ports:
       - "80:80"
     networks:
