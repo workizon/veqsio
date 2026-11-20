@@ -20,7 +20,7 @@ Administration > Configuration health shows the **Last verified backup** card (s
 | **`SECRETS_ENCRYPTION_KEY`** | `.env` | **Without it every stored secret is unreadable** (SSO client secrets, SMTP password, webhook/plugin/agent signing secrets, AI and integration keys). Store it in a password manager / secrets vault, separately from the database dump. A dump without the key restores fine but those secrets must be re-entered |
 | **Licence key** (Enterprise) | `VEQSIO_LICENSE_KEY` / `VEQSIO_LICENSE_PUBLIC_KEYS` in `.env`, or saved in Administration > System > Licence (then it is in the database) | keep the licence token from your purchase mail with your other credentials |
 | **`.env` / deployment config** | the server | `BACKUP_COPY_ENV=1` with `BACKUP_GPG_RECIPIENT=...` stores an **encrypted** copy next to each dump; the script refuses to copy it in clear text. Also keep nginx/Caddy config and your compose overrides in git |
-| Redis | `redis_data` | **not needed**: it holds sessions, caches, rate-limit counters and job heartbeats. After a Redis loss users sign in again; nothing else is lost |
+| Valkey (Redis-compatible) | `valkey_data` | **not needed**: it holds sessions, caches, rate-limit counters and job heartbeats. After a Redis loss users sign in again; nothing else is lost |
 
 ## RPO and RTO: what to promise
 

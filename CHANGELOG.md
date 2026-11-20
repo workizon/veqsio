@@ -4,6 +4,13 @@ All notable changes to Veqsio (community edition). The format follows [Keep a Ch
 version numbers follow [Semantic Versioning](https://semver.org/). Every `## [x.y.z]` section is published as the notes of the GitHub
 release `vx.y.z` (see `scripts/release.sh`). The enterprise edition (`veqsio-ee`) uses the same version numbers.
 
+## [1.2.1] - 2026-11-20
+
+### Fixed
+- Upgrading from 1.2.0 or earlier: Valkey 8 cannot read the data file of Redis 7.4 (RDB format 12) and stopped in a restart loop. The Compose files now use a new volume
+  (`valkey_data`), so the old file is simply ignored. Only sessions and caches are lost, so people sign in once more. The old `redis_data` volume can be removed
+  after the upgrade (`docker volume rm <project>_redis_data`).
+
 ## [1.2.0] - 2026-11-20
 
 ### Changed

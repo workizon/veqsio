@@ -35,7 +35,7 @@ services:
     ports:
       - "127.0.0.1:${REDIS_HOST_PORT:-6381}:6379"
     volumes:
-      - redis_data:/data
+      - valkey_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -307,7 +307,7 @@ services:
 
 volumes:
   postgres_data:
-  redis_data:
+  valkey_data:
   uploads_data:
   prometheus_data:
   grafana_data:
