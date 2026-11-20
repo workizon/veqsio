@@ -4,6 +4,12 @@ All notable changes to Veqsio (community edition). The format follows [Keep a Ch
 version numbers follow [Semantic Versioning](https://semver.org/). Every `## [x.y.z]` section is published as the notes of the GitHub
 release `vx.y.z` (see `scripts/release.sh`). The enterprise edition (`veqsio-ee`) uses the same version numbers.
 
+## [1.2.2] - 2026-11-20
+
+### Fixed
+- The calendar showed English weekday names; they now follow the interface language. The Administration overview and its menu now translate the section descriptions and hints.
+- Installation with a domain and automatic HTTPS (Let's Encrypt) was tested on a clean server together with the upgrade path.
+
 ## [1.2.1] - 2026-11-20
 
 ### Fixed

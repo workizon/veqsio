@@ -180,11 +180,11 @@ function AdminHub() {
       <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
         {sections.map((s) => (
           <section key={s.id} aria-labelledby={`adm-${s.id}`} className="rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)] p-4">
-            <h2 id={`adm-${s.id}`} className="text-heading-3 text-[var(--text-primary)]">{s.title}</h2>
-            <p className="text-body-sm text-[var(--text-secondary)] mb-2">{s.description}</p>
+            <h2 id={`adm-${s.id}`} className="text-heading-3 text-[var(--text-primary)]">{tr(s.title)}</h2>
+            <p className="text-body-sm text-[var(--text-secondary)] mb-2">{tr(s.description)}</p>
             <ul className="space-y-0.5">
               {s.items.filter((i) => isEnabled(i.feature)).map((i) => (
-                <li key={i.href}><Link href={i.href} className="block rounded px-2 py-1 text-sm text-[var(--brand-600)] hover:bg-[var(--surface-2)]">{i.label}{i.hint && <span className="ml-2 text-caption text-[var(--text-tertiary)]">{i.hint}</span>}</Link></li>
+                <li key={i.href}><Link href={i.href} className="block rounded px-2 py-1 text-sm text-[var(--brand-600)] hover:bg-[var(--surface-2)]">{tr(i.label)}{i.hint && <span className="ml-2 text-caption text-[var(--text-tertiary)]">{tr(i.hint)}</span>}</Link></li>
               ))}
             </ul>
           </section>

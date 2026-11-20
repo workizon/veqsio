@@ -38,7 +38,7 @@ export function AdminSidebar() {
               const active = isActiveAdminLink(i.href, pathname, tab)
               return (
                 <li key={i.href}>
-                  <Link href={i.href} aria-current={active ? 'page' : undefined} title={i.hint} className={`block rounded-md px-3 py-1.5 text-sm ${active ? 'bg-[var(--brand-50)] font-medium text-[var(--brand-700)]' : 'text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]'}`}>{tr(i.label)}</Link>
+                  <Link href={i.href} aria-current={active ? 'page' : undefined} title={i.hint ? tr(i.hint) : undefined} className={`block rounded-md px-3 py-1.5 text-sm ${active ? 'bg-[var(--brand-50)] font-medium text-[var(--brand-700)]' : 'text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]'}`}>{tr(i.label)}</Link>
                 </li>
               )
             })}
