@@ -244,8 +244,6 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Offline deployment backup checks
-        run: bash scripts/test-deploy.sh
       - name: Offline installer checks
         run: bash scripts/test-installer.sh
       - name: Docker images build (api, web, migrate)

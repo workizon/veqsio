@@ -31,6 +31,7 @@ const JSON_H = { 'Content-Type': 'application/json' };
 const PUBLIC_ROUTES: Record<string, string> = {
   'GET /health': 'liveness probe',
   'GET /ready': 'readiness probe for load balancers: coarse ok/not-ok per dependency, no connection details',
+  'GET /rest/api/2/cloud/tenant': 'metering endpoint of the Cloud control plane with its own bearer credential (METERING_TOKEN); 404 when unset, 401 without the token',
   'GET /metrics': 'Prometheus scrape endpoint with its own bearer credential (METRICS_TOKEN); 404 when unset, 401 without the token',
   'GET /rest/api/2/openapi.json': 'OpenAPI description of the API: generated from the route table, contains no instance data',
   'GET /rest/api/2/serverInfo': 'Jira-compatible server info (version and base URL only)',

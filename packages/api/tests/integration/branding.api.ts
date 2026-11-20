@@ -53,13 +53,17 @@ describe('Branding and server info', () => {
 
   test('serverInfo reports the version from the root package.json and the build id', async () => {
     delete process.env.VEQSIO_BUILD
-    const info = await (await app.request('/rest/api/2/serverInfo')).json()
+    // Signed in: the build id is not shown to anonymous callers (the sign-in page only needs the version and the title).
+    const anon = await (await app.request('/rest/api/2/serverInfo')).json()
+    expect(anon.version).toBe(pkg.version)
+    expect(anon.build).toBeUndefined()
+    const info = await (await app.request('/rest/api/2/serverInfo', { headers: { Cookie: admin } })).json()
     expect(info.version).toBe(pkg.version)
     expect(info.versionNumbers).toEqual(pkg.version.split('.').map(Number))
     expect(info.build).toBe('dev')
     expect(info.serverTitle).toBeTruthy()
     process.env.VEQSIO_BUILD = '4711'
-    const again = await (await app.request('/rest/api/2/serverInfo')).json()
+    const again = await (await app.request('/rest/api/2/serverInfo', { headers: { Cookie: admin } })).json()
     expect(again.build).toBe('4711')
     expect(again.buildNumber).toBe(4711)
     delete process.env.VEQSIO_BUILD

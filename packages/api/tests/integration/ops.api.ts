@@ -135,7 +135,7 @@ describe('Operations: health, readiness, metrics, jobs, backup status', () => {
     expect(text).toContain('veqsio_db_up 1');
     expect(text).toMatch(/veqsio_db_connections\{state="[a-z ]+"\} \d+/);
     expect(text).toContain('veqsio_db_pool_max_connections');
-    expect(text).toContain('veqsio_redis_up{mode="memory"} 1');
+    expect(text).toMatch(/veqsio_redis_up\{mode="(memory|redis)"\} 1/); // the in-memory store when REDIS_URL=memory:, a real server otherwise
     expect(text).toContain('veqsio_queue_depth{queue="email",state="pending"}');
     expect(text).toContain('veqsio_queue_depth{queue="agent_runs",state="queued"}');
     expect(text).toContain('veqsio_delivery_failures_24h{kind="webhook"}');

@@ -370,7 +370,7 @@ describe('Initiatives, milestones and releases', () => {
     });
 
     test('moving an issue to another project drops its milestones', async () => {
-      const move = await req('POST', '/rest/api/2/issue/TEST-2/move', admin, { projectId: moveTargetId });
+      const move = await req('POST', '/rest/api/2/issue/TEST-2/move', admin, { projectId: moveTargetId, statusId: seeded.status.id }); // TEST-2 is Done; the target workflow must be told which status to map it to
       expect(move.status).toBe(200);
       const m = await json(req('GET', `${url}/${mid}`, member));
       expect(m.issues).toEqual([]);

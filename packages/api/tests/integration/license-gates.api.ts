@@ -196,7 +196,7 @@ describe('Licence gates and seat limit', () => {
       expect(refused.status).toBe(402);
       const body = await refused.json();
       expect(body).toMatchObject({ feature: 'seats', seats: { limit: inUse + 1, inUse: inUse + 1 } });
-      expect(body.errorMessages[0]).toContain('seat limit');
+      expect(body.errorMessages[0]).toContain('user limit');
       // creating an inactive user does not take a seat
       expect((await call(admin, 'POST', '/rest/api/2/user', { ...newUser('seat-inactive'), active: false })).status).toBe(201);
       // activating it would
@@ -208,7 +208,7 @@ describe('Licence gates and seat limit', () => {
       // SCIM
       const sc = await scim('POST', '/Users', scimUser('scim-a'));
       expect(sc.status).toBe(402);
-      expect((await sc.json()).detail).toContain('seat limit');
+      expect((await sc.json()).detail).toContain('user limit');
       expect((await scim('POST', '/Users', { ...scimUser('scim-inactive'), active: false })).status).toBe(201);
       const [scimInactive] = await db.select().from(schema.users).where(eq(schema.users.username, 'scim-inactive@example.com'));
       const put = await scim('PUT', `/Users/${scimInactive.id}`, scimUser('scim-inactive'));

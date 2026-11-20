@@ -452,7 +452,9 @@ describe('Service Desk SLA calendars and metrics', () => {
         const res = await call(alice, 'GET', url);
         expect(res.status).toBe(200);
         const text = await res.text();
-        expect(text).not.toMatch(/"sla"|slaId|warningPercent|calendar|targetMs|dueAt|stopConditions|startConditions/);
+        // The request list shows one word per request (overdue, paused, on_track, met or null) next to it; the SLA definitions, goals and calendars must never reach a customer.
+        expect(text).not.toMatch(/"sla":[\[{]|slaId|warningPercent|calendar|targetMs|dueAt|stopConditions|startConditions/);
+        for (const m of text.matchAll(/"sla":(null|"[a-z_]+")/g)) expect(['null', '"overdue"', '"paused"', '"on_track"', '"met"']).toContain(m[1]);
       }
       expect((await call(alice, 'GET', `/rest/servicedeskapi/request/${r.key}/meta`)).status).toBe(200);
       const meta = await (await call(alice, 'GET', `/rest/servicedeskapi/request/${r.key}/meta`)).json();
