@@ -1,6 +1,6 @@
 {
   "name": "@veqsio-modules/example-notes",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "private": true,
   "description": "Reference module: exercises every Veqsio extension point. Copy it to start a new module.",
   "license": "AGPL-3.0-only",
