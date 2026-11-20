@@ -1,6 +1,6 @@
 {
   "name": "@veqsio/sdk",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "SDK for building Veqsio modules (manifest schema, defineModule, event bus, settings validation, semver helpers)",
   "license": "AGPL-3.0-or-later",
   "type": "module",
