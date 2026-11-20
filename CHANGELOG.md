@@ -4,6 +4,13 @@ All notable changes to Veqsio (community edition). The format follows [Keep a Ch
 version numbers follow [Semantic Versioning](https://semver.org/). Every `## [x.y.z]` section is published as the notes of the GitHub
 release `vx.y.z` (see `scripts/release.sh`). The enterprise edition (`veqsio-ee`) uses the same version numbers.
 
+## [1.1.1] - 2026-11-20
+
+### Fixed
+- `install.sh` failed without `--domain` ("VEQSIO_DOMAIN is missing a value") because every `docker compose` command expanded the certbot service. Installations
+  with and without a domain, and upgrades, were tested on a clean server.
+- A React hydration error (#418) in the console of browsers whose language is not English.
+
 ## [1.1.0] - 2026-11-20
 
 ### Added

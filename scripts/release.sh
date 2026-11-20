@@ -20,6 +20,8 @@ NOTES="$(awk -v v="$V" '$0 ~ "^## \\[" v "\\]" {f=1; next} /^## \[/ {f=0} f' CHA
 for f in package.json packages/*/package.json modules/*/package.json; do
   [ -f "$f" ] && sed -i -E '0,/"version": *"[^"]+"/s//"version": "'"$V"'"/' "$f"
 done
+# bun.lock records the workspace versions; a mismatch makes `bun install --frozen-lockfile` (the Docker builds) fail
+[ -f bun.lock ] && perl -0pi -e 's/("name": "\@veqsio(?:-modules)?\/[a-z-]+",\s+"version": )"[^"]+"/$1"'"$V"'"/g' bun.lock
 git add -A && git commit -q -m "Release v$V"
 git tag -a "v$V" -m "Veqsio $V"$'\n\n'"$NOTES"
 echo "Created commit and tag v$V."
