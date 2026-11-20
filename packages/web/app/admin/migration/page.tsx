@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -44,8 +45,8 @@ export default function MigrationHubPage() {
             <li key={s.id}>
               <Link href={s.href} className="veqsio-card p-4 block h-full hover:border-[var(--brand-500)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--brand-500)]">
                 <div className="font-medium text-[var(--text-primary)]">{s.name}</div>
-                <div className="text-xs text-[var(--text-tertiary)] mb-2">{s.kind}</div>
-                <p className="text-sm text-[var(--text-secondary)]">{s.description}</p>
+                <div className="text-xs text-[var(--text-tertiary)] mb-2">{tr(s.kind)}</div>
+                <p className="text-sm text-[var(--text-secondary)]">{tr(s.description)}</p>
               </Link>
             </li>
           ))}
@@ -63,7 +64,7 @@ export default function MigrationHubPage() {
                 {history.map((h) => (
                   <tr key={h.id}>
                     <td>{h.id}</td><td>{h.source}</td><td>{h.dryRun ? 'preview' : 'import'}</td><td>{h.status.replace(/_/g, ' ')}</td>
-                    <td>{h.startedAt ? new Date(h.startedAt).toLocaleString() : ''}</td><td>{h.processed}{h.total ? ` / ${h.total}` : ''}</td>
+                    <td>{h.startedAt ? new Date(h.startedAt).toLocaleString(getIntlLocale()) : ''}</td><td>{h.processed}{h.total ? ` / ${h.total}` : ''}</td>
                   </tr>
                 ))}
               </tbody>

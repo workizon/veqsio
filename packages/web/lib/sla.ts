@@ -1,4 +1,5 @@
 /** Pure helpers for the SLA screens (durations, condition catalogue, display state). */
+import { trNow } from './tr'
 
 /** "4h 30m", "90m", "1d 2h", "2:30" or a bare number (minutes) -> minutes; null if not understood. */
 export function parseDuration(input: string): number | null {
@@ -84,9 +85,9 @@ export const BLOCK_TEXT: Record<Block, { title: string; hint: string }> = {
 /** Validation messages for one block (empty when valid). */
 export function validateConditions(block: Block, list: Condition[]): string[] {
   const errs: string[] = []
-  if (block !== 'pause' && list.length === 0) errs.push(`Add at least one ${block} condition`)
+  if (block !== 'pause' && list.length === 0) errs.push(block === 'start' ? trNow('Add at least one start condition') : trNow('Add at least one stop condition'))
   for (const c of list) {
-    if (NEEDS_STATUSES.includes(c.event) && !c.statusIds?.length) errs.push(`${conditionLabel(block, c.event)}: pick at least one status`)
+    if (NEEDS_STATUSES.includes(c.event) && !c.statusIds?.length) errs.push(trNow('{condition}: pick at least one status', { condition: trNow(conditionLabel(block, c.event)) }))
   }
   return errs
 }

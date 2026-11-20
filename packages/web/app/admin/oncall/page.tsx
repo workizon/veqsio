@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -29,7 +30,7 @@ async function api<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 const B = '/rest/api/2/oncall/schedule'
-const fmt = (iso: string) => new Date(iso).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
+const fmt = (iso: string) => new Date(iso).toLocaleString(getIntlLocale(), { dateStyle: 'medium', timeStyle: 'short' })
 /** <input type="datetime-local"> value for a Date, in local time */
 const local = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16)
 

@@ -5,6 +5,7 @@ import { UndoController, type UndoableAction } from '@/lib/undoable'
 import { UndoKeyStack, shouldUndoOnKey } from '@/lib/undo-stack'
 import { isTypingTarget } from '@/lib/shortcuts'
 import { undoToast, toast, dismissToast } from '@/components/toast'
+import { trNow } from '@/lib/tr'
 
 /**
  * One controller for the whole app so an undo window survives client-side navigation. When the tab is
@@ -66,7 +67,7 @@ export function useUndoable() {
       {
         ...run,
         onError: (e, phase) => {
-          toast(phase === 'undo' ? 'Could not undo that change' : (e instanceof Error && e.message) || 'That change could not be saved', 'error')
+          toast(phase === 'undo' ? trNow('Could not undo that change') : (e instanceof Error && e.message) || trNow('That change could not be saved'), 'error')
           userOnError?.(e, phase)
         },
         onSettled: (state) => {

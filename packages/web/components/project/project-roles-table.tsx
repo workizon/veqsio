@@ -71,7 +71,7 @@ export function ProjectRolesTable({ projectKey }: { projectKey: string }) {
       <Modal isOpen={!!editRole} onClose={() => setEditing(null)} title={editRole ? `Edit “${editRole.name}”` : ''} size="lg">
         {editRole && (
           <div className="space-y-4">
-            <ActorPicker onPick={(a) => add.mutate({ roleId: editRole.id, ...(a.type === 'user' ? { userId: a.id } : { groupId: a.id }) }, { onSuccess: () => toast(`${a.name} added`, 'success'), onError: (e) => toast(e.message, 'error') })} />
+            <ActorPicker onPick={(a) => add.mutate({ roleId: editRole.id, ...(a.type === 'user' ? { userId: a.id } : { groupId: a.id }) }, { onSuccess: () => toast(tr('{name} added', { name: a.name }), 'success'), onError: (e) => toast(e.message, 'error') })} />
             <ul className="divide-y divide-[var(--surface-3)] rounded-lg border border-[var(--surface-3)]">
               {editRole.actors.length === 0 && <li className="px-4 py-3 text-sm text-[var(--text-tertiary)]">{tr('Nobody in this role yet.')}</li>}
               {editRole.actors.map((a) => (

@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
@@ -23,7 +24,7 @@ export function describeSchedule(r: Pick<RecurringRule, 'frequency' | 'daysOfWee
   return `Weekly on ${days} ${when}`
 }
 
-const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleString() : '-')
+const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleString(getIntlLocale()) : '-')
 
 function timezones(): string[] {
   const list = (Intl as unknown as { supportedValuesOf?: (k: string) => string[] }).supportedValuesOf?.('timeZone') ?? []
@@ -56,7 +57,7 @@ function RuleEditor({ projectKey, rule, onClose }: { projectKey: string; rule: R
     save.mutate({ id: rule?.id, data }, { onSuccess: () => { toast(tr('Recurring issue saved'), 'success'); onClose() }, onError: (err) => toast(err.message, 'error') })
   }
   return (
-    <Modal isOpen onClose={onClose} title={rule ? 'Edit recurring issue' : 'New recurring issue'} size="md">
+    <Modal isOpen onClose={onClose} title={rule ? tr('Edit recurring issue') : tr('New recurring issue')} size="md">
       <form onSubmit={submit} className="space-y-4">
         <div><label htmlFor="rec-name" className={label}>{tr('Name')}</label><input id="rec-name" className="veqsio-input w-full" value={name} onChange={(e) => setName(e.target.value)} maxLength={100} required autoFocus /></div>
         <div>

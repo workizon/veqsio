@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { AppLayout } from '@/components/app-layout'
 import { Spinner } from '@/components/spinner'
@@ -140,7 +141,7 @@ export default function AutomationPage() {
                         toggleMutation.mutate({ id: rule.id, isEnabled: !rule.isEnabled })
                       }
                       className="veqsio-btn-ghost p-2"
-                      title={rule.isEnabled ? 'Disable' : 'Enable'}
+                      title={rule.isEnabled ? tr('Disable') : tr('Enable')}
                     >
                       {rule.isEnabled ? (
                         <Power className="w-4 h-4 text-[var(--success)]" />
@@ -247,7 +248,7 @@ function ExecutionHistoryModal({
                     {ex.triggerIssueKey ? ` · ${ex.triggerIssueKey}` : ''}
                   </div>
                   <div className="text-caption text-[var(--text-tertiary)]">
-                    {new Date(ex.startedAt).toLocaleString()}
+                    {new Date(ex.startedAt).toLocaleString(getIntlLocale())}
                   </div>
                   {ex.errorMessage && (
                     <div className="text-caption text-[var(--error)] mt-1">{ex.errorMessage}</div>

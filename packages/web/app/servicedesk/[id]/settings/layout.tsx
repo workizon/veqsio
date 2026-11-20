@@ -65,7 +65,7 @@ export default function DeskSettingsLayout({ children }: { children: React.React
           <Link href={base} className="veqsio-btn-ghost inline-flex items-center gap-1 text-sm">
             <ArrowLeft className="w-4 h-4" aria-hidden /> {tr('Back to queues')} </Link>
           <div className="min-w-0">
-            <h1 className="text-heading-1 text-[var(--text-primary)] truncate">{desk.data?.name ?? 'Service desk'}</h1>
+            <h1 className="text-heading-1 text-[var(--text-primary)] truncate">{desk.data?.name ?? tr('Service desk')}</h1>
             <p className="text-sm text-[var(--text-tertiary)]">
               {desk.data?.projectKey ? <>{tr('Project key')} <span className="font-mono">{desk.data.projectKey}</span> · </> : null}{tr('Project settings')} {desk.data && desk.data.role !== 'admin' && ' · read-only (desk administrators can edit)'}
             </p>
@@ -84,7 +84,7 @@ export default function DeskSettingsLayout({ children }: { children: React.React
               <nav aria-label={tr('Service desk settings')} className="veqsio-card p-2 h-fit space-y-3">
                 {navItems(base).map((group) => (
                   <div key={group.heading}>
-                    <div className="px-3 pt-1 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">{group.heading}</div>
+                    <div className="px-3 pt-1 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">{tr(group.heading)}</div>
                     <ul className="space-y-0.5">
                       {group.items.map((it) => {
                         const active = it.match === 'exact' ? pathname === it.href : pathname.startsWith(it.href)
@@ -96,7 +96,7 @@ export default function DeskSettingsLayout({ children }: { children: React.React
                                 active ? 'bg-[var(--surface-2)] font-medium text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:bg-[var(--surface-2)]'
                               }`}
                             >
-                              {it.label}
+                              {tr(it.label)}
                             </Link>
                           </li>
                         )

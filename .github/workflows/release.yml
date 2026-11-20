@@ -1,0 +1,25 @@
+# Publishes the GitHub release when a version tag (v1.2.3) is pushed, with the matching CHANGELOG.md section as notes.
+# The tag must equal the version in package.json and CHANGELOG.md must have a section for it (scripts/release.sh takes care of both).
+name: Release
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the tag against package.json and the changelog
+        run: |
+          set -euo pipefail
+          V="${GITHUB_REF_NAME#v}"
+          P="$(node -p "require('./package.json').version")"
+          [ "$V" = "$P" ] || { echo "tag $V does not match package.json $P"; exit 1; }
+          awk -v v="$V" '$0 ~ "^## \\[" v "\\]" {f=1; next} /^## \[/ {f=0} f' CHANGELOG.md > notes.md
+          [ -s notes.md ] || { echo "CHANGELOG.md has no section for $V"; exit 1; }
+      - name: Create the GitHub release (marked as the latest)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --title "Veqsio ${GITHUB_REF_NAME#v}" --notes-file notes.md --latest --verify-tag

@@ -94,7 +94,7 @@ export default function PortalSettingsPage() {
                   <span className="text-xs text-[var(--text-tertiary)] w-20 text-right">{g.count} type{g.count === 1 ? '' : 's'}</span>
                   <button type="button" className="veqsio-btn-ghost p-1.5" aria-label={`Move ${g.name || 'group'} up`} disabled={i === 0} onClick={() => move(i, -1)}><ArrowUp className="w-4 h-4" /></button>
                   <button type="button" className="veqsio-btn-ghost p-1.5" aria-label={`Move ${g.name || 'group'} down`} disabled={i === groups.length - 1} onClick={() => move(i, 1)}><ArrowDown className="w-4 h-4" /></button>
-                  <button type="button" className="veqsio-btn-ghost p-1.5 text-[var(--error)]" aria-label={`Remove ${g.name || 'group'}`} disabled={g.count > 0} title={g.count > 0 ? 'Move its request types to another group first' : 'Remove group'} onClick={() => setGroups((all) => all.filter((_, j) => j !== i))}><Trash2 className="w-4 h-4" /></button>
+                  <button type="button" className="veqsio-btn-ghost p-1.5 text-[var(--error)]" aria-label={`Remove ${g.name || 'group'}`} disabled={g.count > 0} title={g.count > 0 ? tr('Move its request types to another group first') : tr('Remove group')} onClick={() => setGroups((all) => all.filter((_, j) => j !== i))}><Trash2 className="w-4 h-4" /></button>
                 </li>
               ))}
             </ul>

@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useState } from 'react'
 import { describeDraftAge } from '@/lib/drafts'
@@ -17,7 +18,7 @@ export function DraftNotice({ savedAt, onDiscard, className = '' }: { savedAt: n
     return () => clearInterval(t)
   }, [savedAt])
   if (savedAt === null) return null
-  const time = new Date(savedAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+  const time = new Date(savedAt).toLocaleString(getIntlLocale(), { dateStyle: 'medium', timeStyle: 'short' })
   return (
     <div
       role="status"

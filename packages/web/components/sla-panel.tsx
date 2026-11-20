@@ -1,5 +1,6 @@
 'use client'
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { formatDuration, type SlaResult } from '@/hooks/use-servicedesk'
 import { slaLabel } from '@/components/sla-badge'
@@ -9,7 +10,7 @@ const COLOR = { ok: 'var(--info)', warning: 'var(--warning)', danger: 'var(--err
 
 const when = (iso?: string | null) => {
   if (!iso) return null
-  try { return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) } catch { return iso }
+  try { return new Date(iso).toLocaleString(getIntlLocale(), { dateStyle: 'medium', timeStyle: 'short' }) } catch { return iso }
 }
 
 /**

@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
@@ -46,7 +47,7 @@ export function ProjectAuditPanel({ projectKey }: { projectKey: string }) {
               {(data.data?.values ?? []).length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-[var(--text-tertiary)]">{tr('Nothing recorded for this project yet.')}</td></tr>}
               {(data.data?.values ?? []).map((r) => (
                 <tr key={r.id} className="veqsio-table-row">
-                  <td className="px-4 py-2 whitespace-nowrap text-[var(--text-secondary)]">{new Date(r.createdAt).toLocaleString()}</td>
+                  <td className="px-4 py-2 whitespace-nowrap text-[var(--text-secondary)]">{new Date(r.createdAt).toLocaleString(getIntlLocale())}</td>
                   <td className="px-4 py-2">{r.actor ?? 'system'}</td>
                   <td className="px-4 py-2 font-mono text-xs">{r.action}</td>
                   <td className="px-4 py-2">{r.target ?? '—'}</td>

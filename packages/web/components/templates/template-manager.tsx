@@ -58,7 +58,7 @@ function TemplateEditor({ projectKey, template, onClose }: { projectKey?: string
   }
   const label = 'block text-[12px] font-medium text-[var(--text-secondary)] mb-1.5'
   return (
-    <Modal isOpen onClose={onClose} title={template ? 'Edit template' : 'New template'} size="md">
+    <Modal isOpen onClose={onClose} title={template ? tr('Edit template') : tr('New template')} size="md">
       <form onSubmit={submit} className="space-y-4">
         <div><label htmlFor="tpl-name" className={label}>{tr('Name')}</label><input id="tpl-name" className="veqsio-input w-full" value={d.name} onChange={set('name')} maxLength={100} required autoFocus /></div>
         <div><label htmlFor="tpl-desc" className={label}>{tr('Description')} <span className="font-normal text-[var(--text-tertiary)]">{tr('(shown in the template picker)')}</span></label><input id="tpl-desc" className="veqsio-input w-full" value={d.description} onChange={set('description')} maxLength={500} /></div>

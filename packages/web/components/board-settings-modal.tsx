@@ -144,7 +144,7 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
       await updateBoard.mutateAsync({ id: boardId, data: { config: { ...board?.config, cardFields: CARD_FIELDS.filter((f) => layout.fields.has(f)), cardSize: layout.size } } })
       toast(tr('Card layout saved'), 'success')
     } catch (e: any) {
-      toast(e?.message || 'Could not save the card layout', 'error')
+      toast(e?.message || tr('Could not save the card layout'), 'error')
     }
   }
 
@@ -255,7 +255,7 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
         tabs={[
           {
             id: 'columns',
-            label: 'Columns',
+            label: tr('Columns'),
             content: (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -356,7 +356,7 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
           },
           {
             id: 'quick-filters',
-            label: 'Quick Filters',
+            label: tr('Quick Filters'),
             content: (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -419,7 +419,7 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
           },
           {
             id: 'cards',
-            label: 'Card colours',
+            label: tr('Card colours'),
             content: (
               <div className="space-y-4">
                 <h3 className="text-heading-3 text-[var(--text-primary)]">{tr('Card colour by')}</h3>
@@ -470,7 +470,7 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
                               type="button"
                               onClick={() => { setCardColour((c) => ({ ...c, rules: c.rules.filter((_, j) => j !== i) })); setHasChanges(true) }}
                               className="ml-auto text-[var(--error)] hover:opacity-70 p-1"
-                              title={tr('Remove rule')} aria-label={`Remove rule ${i + 1}`}
+                              title={tr('Remove rule')} aria-label={tr('Remove rule {n}', { n: i + 1 })}
                             ><Trash2 className="w-4 h-4" /></button>
                           </div>
                         </div>
@@ -499,7 +499,7 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
           },
           {
             id: 'layout',
-            label: 'Card layout',
+            label: tr('Card layout'),
             content: (
               <div className="space-y-4">
                 <h3 className="text-heading-3 text-[var(--text-primary)]">{tr('Card layout')}</h3>
@@ -538,7 +538,7 @@ function BoardSettingsContent({ boardId }: { boardId: string }) {
           },
           {
             id: 'swimlanes',
-            label: 'Swimlanes',
+            label: tr('Swimlanes'),
             content: (
               <div className="space-y-4">
                 <h3 className="text-heading-3 text-[var(--text-primary)]">{tr('Swimlane configuration')}</h3>

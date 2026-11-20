@@ -1,7 +1,8 @@
 'use client'
 
 
-import { useI18n } from '@/hooks/use-i18n'
+import { getIntlLocale } from '@/lib/i18n'
+import { useI18n, type Tr } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Check, Pencil, X } from 'lucide-react'
@@ -21,13 +22,13 @@ function toInput(field: MetaField, raw: unknown): unknown {
   return raw ?? ''
 }
 
-function show(field: MetaField, raw: unknown, users: Map<number, string>): React.ReactNode {
-  const none = <span className="text-[var(--text-tertiary)]">None</span>
+function show(field: MetaField, raw: unknown, users: Map<number, string>, tr: Tr): React.ReactNode {
+  const none = <span className="text-[var(--text-tertiary)]">{tr('None')}</span>
   if (raw === null || raw === undefined || raw === '') return none
   const type = field.schema?.type
-  if (type === 'checkbox' && typeof raw === 'boolean') return raw ? 'Yes' : 'No'
-  if (type === 'date' && typeof raw === 'string') return new Date(raw).toLocaleDateString()
-  if (type === 'datetime' && typeof raw === 'string') return new Date(raw).toLocaleString()
+  if (type === 'checkbox' && typeof raw === 'boolean') return raw ? tr('Yes') : tr('No')
+  if (type === 'date' && typeof raw === 'string') return new Date(raw).toLocaleDateString(getIntlLocale())
+  if (type === 'datetime' && typeof raw === 'string') return new Date(raw).toLocaleString(getIntlLocale())
   if (type === 'url' && typeof raw === 'string') {
     // only a web address becomes a link: older data may hold anything, and `javascript:` in a link runs when somebody clicks it
     return /^https?:\/\/[^\s]+$/i.test(raw.trim())
@@ -80,7 +81,7 @@ export function CustomFieldsSection({ issue }: { issue: ApiIssue }) {
       await update.mutateAsync({ key: issue.key, fields: { customFields: [{ fieldId: Number(field.key.replace('customfield_', '')), value: value === '' ? null : value }] } })
       setEditing(null)
     } catch (err: any) {
-      toast(err?.message || 'Failed to update the field', 'error')
+      toast(err?.message || tr('Failed to update the field'), 'error')
     }
   }
 
@@ -100,10 +101,10 @@ export function CustomFieldsSection({ issue }: { issue: ApiIssue }) {
             <button
               type="button"
               onClick={() => { setDraft(toInput(f, raw[f.key])); setEditing(f.key) }}
-              title={f.description ? `${f.description} (click to edit)` : 'Click to edit'}
+              title={f.description ? `${f.description} (click to edit)` : tr('Click to edit')}
               className="group w-full text-left rounded px-1 -mx-1 py-1 hover:bg-[var(--surface-2)] inline-flex items-start gap-2"
             >
-              <span className="min-w-0 flex-1">{show(f, raw[f.key], users.data ?? new Map())}</span>
+              <span className="min-w-0 flex-1">{show(f, raw[f.key], users.data ?? new Map(), tr)}</span>
               <Pencil className="w-3 h-3 mt-1 shrink-0 opacity-0 group-hover:opacity-60" aria-hidden="true" />
             </button>
           )}

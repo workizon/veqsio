@@ -26,9 +26,9 @@ export default function LoginPage() {
           <p className="mt-4 text-base leading-7 text-slate-300 max-w-sm">{tr('Bring your projects, issues and team into one focused workspace.')}</p>
           <div className="mt-8 border-t border-white/15 divide-y divide-white/10">
             {[
-              { icon: Layers3, title: 'Keep the work in view', detail: 'Issues, boards and backlogs' },
-              { icon: GitBranch, title: 'Find your flow', detail: 'Workflows that fit your team' },
-              { icon: CheckCircle2, title: 'Move forward together', detail: 'From the first idea to done' },
+              { icon: Layers3, title: tr('Keep the work in view'), detail: tr('Issues, boards and backlogs') },
+              { icon: GitBranch, title: tr('Find your flow'), detail: tr('Workflows that fit your team') },
+              { icon: CheckCircle2, title: tr('Move forward together'), detail: tr('From the first idea to done') },
             ].map(({ icon: Icon, title, detail }) => (
               <div key={title} className="flex items-center gap-4 py-3 [@media(min-height:900px)]:py-5">
                 <Icon className="w-5 h-5 text-[#A5B4FC]" aria-hidden="true" />

@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useMemo, useState } from 'react'
 import { MessageSquare, Pencil, Reply, Trash2 } from 'lucide-react'
@@ -36,7 +37,7 @@ export function PageComments({ pageId, canComment, quote, onClearQuote }: { page
   const item = (c: PageComment, nested: boolean) => (
     <li key={c.id} className={nested ? 'ml-6 mt-3' : 'py-3 border-b border-[var(--surface-2)]'}>
       <div className="text-xs text-[var(--text-secondary)] mb-1">
-        <strong className="text-[var(--text-primary)]">{c.author?.displayName ?? tr('Unknown')}</strong> · {new Date(c.createdAt).toLocaleString()}
+        <strong className="text-[var(--text-primary)]">{c.author?.displayName ?? tr('Unknown')}</strong> · {new Date(c.createdAt).toLocaleString(getIntlLocale())}
         {c.updatedAt !== c.createdAt && ' (edited)'}
       </div>
       {c.quote && <blockquote className="border-l-2 border-[var(--surface-4)] pl-3 text-sm text-[var(--text-secondary)] mb-1 line-clamp-3">{c.quote}</blockquote>}

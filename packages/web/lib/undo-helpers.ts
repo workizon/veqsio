@@ -1,4 +1,5 @@
 /** Pure decisions behind the undo toasts, kept out of the components so they can be tested. */
+import { trNow } from './tr'
 
 export interface TransitionLike {
   id: number
@@ -45,7 +46,7 @@ export function assigneeRestorePatch(previous: { id: number } | null | undefined
 }
 
 export function labelsRemovalMessage(removed: string): string {
-  return `Label "${removed}" removed`
+  return trNow('Label "{label}" removed', { label: removed })
 }
 
 export interface BulkIssueSnapshot {

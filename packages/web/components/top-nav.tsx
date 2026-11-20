@@ -94,7 +94,7 @@ export function TopNav() {
       {NAV_GROUPS.filter((g) => isEnabled(g.feature)).map((g) => <Group key={g.label} group={{ ...g, items: g.items?.filter((l) => isEnabled(l.feature)) }} pathname={pathname} />)}
       {topNavItems(modules).length > 0 && (
         // Modules share one "Apps" menu (like Jira) so the bar does not overflow as modules are added.
-        <Group pathname={pathname} group={{ label: 'Apps', match: ['/m'], items: topNavItems(modules).map((n) => ({ label: n.title, href: n.href })) }} />
+        <Group pathname={pathname} group={{ label: tr('Apps'), match: ['/m'], items: topNavItems(modules).map((n) => ({ label: n.title, href: n.href })) }} />
       )}
     </nav>
   )

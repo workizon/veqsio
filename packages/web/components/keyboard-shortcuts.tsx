@@ -19,22 +19,23 @@ import { isChromeFreeRoute } from '@/lib/routes'
 /* ------------------------------------------------------------------ */
 
 export function ShortcutHelp({ sections }: { sections: HelpSection[] }) {
+  const { tr } = useI18n()
   return (
     <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2" data-testid="shortcut-help">
       {sections.map((s) => (
         <section key={s.context} aria-labelledby={`shortcut-section-${s.context}`}>
           <h3 id={`shortcut-section-${s.context}`} className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
-            {s.label}
+            {tr(s.label)}
           </h3>
           <ul className="divide-y divide-[var(--surface-3)]">
             {s.rows.map((r) => (
               <li key={r.id} data-shortcut-id={r.id} className="flex items-center justify-between gap-3 py-1.5">
-                <span className="text-sm text-[var(--text-secondary)]">{r.description}</span>
+                <span className="text-sm text-[var(--text-secondary)]">{tr(r.description)}</span>
                 <span className="flex flex-wrap items-center justify-end gap-x-2 gap-y-1">
                   {r.combos.map((combo, ci) => (
                     <span key={ci} className="flex items-center gap-1">
-                      {ci > 0 && <span className="text-[10px] text-[var(--text-tertiary)]">or</span>}
-                      {combo.map((k, i) => (k === 'then' ? <span key={i} className="text-[10px] text-[var(--text-tertiary)]">then</span> : <kbd key={i} className="veqsio-kbd">{k}</kbd>))}
+                      {ci > 0 && <span className="text-[10px] text-[var(--text-tertiary)]">{tr('or')}</span>}
+                      {combo.map((k, i) => (k === 'then' ? <span key={i} className="text-[10px] text-[var(--text-tertiary)]">{tr('then')}</span> : <kbd key={i} className="veqsio-kbd">{k}</kbd>))}
                     </span>
                   ))}
                 </span>

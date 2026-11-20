@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useQuery } from '@tanstack/react-query'
 import { Database } from 'lucide-react'
@@ -16,7 +17,7 @@ interface Status {
 }
 
 const LABEL = { ok: 'Verified', stale: 'Verification is overdue', failed: 'Last verification failed', unknown: 'Never verified' }
-const when = (iso?: string | null) => (iso ? new Date(iso).toLocaleString() : 'never')
+const when = (iso?: string | null) => (iso ? new Date(iso).toLocaleString(getIntlLocale()) : 'never')
 
 /**
  * Backups are taken by scripts/backup.sh on the host (a pg_dump of the live database cannot safely be started or restored

@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useRef, useState } from 'react'
 import { History, X } from 'lucide-react'
@@ -9,7 +10,7 @@ import { toast } from '@/components/toast'
 import { useDescriptionVersion, useDescriptionVersions, useRestoreDescription, type DiffOp } from '@/hooks/use-issue-history'
 import { Portal } from '@/components/portal'
 
-const fmt = (iso: string | null, created: string) => (iso ? new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : created)
+const fmt = (iso: string | null, created: string) => (iso ? new Date(iso).toLocaleString(getIntlLocale(), { dateStyle: 'medium', timeStyle: 'short' }) : created)
 
 export function DiffView({ ops, label }: { ops: DiffOp[]; label: string }) {
   const { tr } = useI18n();

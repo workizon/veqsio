@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { Check, Copy, FlaskConical, KeyRound, ListChecks, Pencil, Plus, Trash2 } from 'lucide-react'
@@ -108,7 +109,8 @@ function SourceForm({ project, source, onDone }: { project: string; source: Inbo
           <Field label={tr('Comment on a repeat')} hint={tr('Added to the open issue when the same dedup key arrives again. Defaults to the description.')}><textarea className={text} rows={2} value={form.comment} onChange={(e) => set('comment', e.target.value)} /></Field>
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label={tr('Severity / priority')}><input className={text} value={form.priority} onChange={(e) => set('priority', e.target.value)} placeholder="{{alerts[0].labels.severity}}" /></Field>
-            <Field label={tr('Priority map')} hint={tr('One per line: severity=Priority name')}><textarea className={text} rows={3} value={form.priorityMap} onChange={(e) => set('priorityMap', e.target.value)} placeholder={'critical=Highest\nwarning=High'} /></Field>
+            <Field label={tr('Priority map')} hint={tr('One per line: severity=Priority name')}><textarea className={text} rows={3} value={form.priorityMap} onChange={(e) => set('priorityMap', e.target.value)} placeholder={`critical=Highest
+warning=High`} /></Field>
           </div>
           <Field label={tr('Labels')} hint={tr('One template per line')}><textarea className={text} rows={2} value={form.labels} onChange={(e) => set('labels', e.target.value)} placeholder="alert" /></Field>
           <Field label={tr('Dedup key')} hint={tr('Same key = same problem: an open issue gets a comment instead of a duplicate.')}><input className={text} value={form.dedupKey} onChange={(e) => set('dedupKey', e.target.value)} placeholder="{{alerts[0].fingerprint}}" /></Field>
@@ -194,7 +196,7 @@ function LogDialog({ project, source, onClose }: { project: string; source: Inbo
                 <span className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${['created', 'commented', 'transitioned'].includes(d.status) ? 'bg-[var(--success)]/10 text-[var(--success)]' : d.status === 'error' || d.status === 'rejected' ? 'bg-[var(--error)]/10 text-[var(--error)]' : 'bg-[var(--surface-2)] text-[var(--text-secondary)]'}`}>{d.status}</span>
                 {d.isTest && <span className="text-caption text-[var(--text-tertiary)]">{tr('test')}</span>}
                 <span className="flex-1 truncate">{d.issueKey ?? d.reason ?? ''}{d.dedupKey ? ` · ${d.dedupKey}` : ''}</span>
-                <time className="text-caption text-[var(--text-tertiary)]" dateTime={d.createdAt}>{new Date(d.createdAt).toLocaleString()}</time>
+                <time className="text-caption text-[var(--text-tertiary)]" dateTime={d.createdAt}>{new Date(d.createdAt).toLocaleString(getIntlLocale())}</time>
               </button>
               {open === d.id && (
                 <div className="mt-2 space-y-1">

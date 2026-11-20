@@ -1,4 +1,5 @@
 import { contrastRatio, ensureContrast, isHexColor, mix } from './label-colors'
+import { trNow } from './tr'
 
 /** Pure helpers for custom branding and the product footer (unit-tested, no React). */
 
@@ -31,9 +32,9 @@ export const DEFAULT_BRANDING: Branding = {
 
 /** Null when the accent colour is acceptable, otherwise the reason (same rule as the server: at least 3:1 on white). */
 export function checkAccent(value: string): string | null {
-  if (!isHexColor(value)) return 'Use a hex colour like #3D6AF0'
+  if (!isHexColor(value)) return trNow('Use a hex colour like #3D6AF0')
   const r = contrastRatio(value, '#FFFFFF')
-  if (r < MIN_ACCENT_CONTRAST) return `Too light: contrast on white is ${r.toFixed(1)}:1, at least ${MIN_ACCENT_CONTRAST}:1 is needed`
+  if (r < MIN_ACCENT_CONTRAST) return trNow('Too light: contrast on white is {ratio}:1, at least {min}:1 is needed', { ratio: r.toFixed(1), min: MIN_ACCENT_CONTRAST })
   return null
 }
 

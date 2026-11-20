@@ -62,7 +62,7 @@ function SSOAdminPageBody() {
       })
       toast(tr('SSO settings saved successfully'), 'success')
     } catch (err) {
-      toast(err instanceof Error ? err.message : 'Failed to save settings', 'error')
+      toast(err instanceof Error ? err.message : tr('Failed to save settings'), 'error')
     }
   }
 
@@ -94,7 +94,7 @@ function SSOAdminPageBody() {
         toast(tr('Test login window opened. Complete the Microsoft flow to verify.'), 'info')
       }
     } catch (err) {
-      toast(err instanceof Error ? err.message : 'Test failed', 'error')
+      toast(err instanceof Error ? err.message : tr('Test failed'), 'error')
     } finally {
       setTesting(false)
     }

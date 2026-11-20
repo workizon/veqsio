@@ -46,7 +46,7 @@ export default function KnowledgeBasePage() {
       </div>
 
       {editing && (
-        <form onSubmit={submit} className="veqsio-card p-5 space-y-3" aria-label={editing.id ? 'Edit article' : 'New article'}>
+        <form onSubmit={submit} className="veqsio-card p-5 space-y-3" aria-label={editing.id ? tr('Edit article') : tr('New article')}>
           <label className="block space-y-1"><span className="text-sm font-medium">{tr('Title')}</span><input required autoFocus maxLength={500} className="veqsio-input w-full" value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} /></label>
           <label className="block space-y-1"><span className="text-sm font-medium">{tr('Article')}</span><textarea required rows={10} maxLength={100000} className="veqsio-input w-full" value={editing.body} onChange={(e) => setEditing({ ...editing, body: e.target.value })} /></label>
           <label className="block space-y-1"><span className="text-sm font-medium">{tr('Labels (comma separated)')}</span><input className="veqsio-input w-full" value={editing.labels} onChange={(e) => setEditing({ ...editing, labels: e.target.value })} /></label>

@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { ListChecks, Pencil, Plus, Send, Trash2 } from 'lucide-react'
@@ -105,7 +106,7 @@ function LogDialog({ scope, channel, onClose }: { scope: ChannelScope; channel: 
           <tbody>
             {(log.data ?? []).map((d) => (
               <tr key={d.id} className="border-t border-[var(--surface-3)]">
-                <td className="py-1 pr-2 tabular-nums">{new Date(d.createdAt).toLocaleString()}</td>
+                <td className="py-1 pr-2 tabular-nums">{new Date(d.createdAt).toLocaleString(getIntlLocale())}</td>
                 <td className="pr-2">{d.event}</td>
                 <td className={`pr-2 ${d.status === 'success' ? 'text-[var(--success)]' : 'text-[var(--error)]'}`}>{d.status}{d.responseStatus ? ` (${d.responseStatus})` : ''}{d.error ? `: ${d.error}` : ''}</td>
                 <td>{d.attempts}</td>

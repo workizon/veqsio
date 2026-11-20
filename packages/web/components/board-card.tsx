@@ -1,4 +1,7 @@
+'use client'
+
 import { useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 import { Flag, MoreHorizontal } from 'lucide-react'
 import { IssueTypeGlyph } from '@/components/issue-type-glyph'
 import { PriorityBadge } from '@/components/priority-badge'
@@ -40,6 +43,7 @@ export function BoardCard({ issue, colour, colourReason, onToggleFlag, layout, m
   const show = (f: Parameters<CardLayout['fields']['has']>[0]) => !layout || layout.fields.has(f)
   const compact = layout?.size === 'compact'
   const [menuOpen, setMenuOpen] = useState(false)
+  const { tr } = useI18n()
   const flagStyle = flagged ? { backgroundImage: 'linear-gradient(color-mix(in srgb, var(--warning) 16%, transparent), color-mix(in srgb, var(--warning) 16%, transparent))' } : {}
   return (
     <div
@@ -51,8 +55,7 @@ export function BoardCard({ issue, colour, colourReason, onToggleFlag, layout, m
     >
       {flagged && (
         <span className="mb-1.5 inline-flex items-center gap-1 rounded bg-[var(--warning)]/15 px-1.5 py-0.5 text-[11px] font-medium text-[var(--warning)]">
-          <Flag className="w-3 h-3" aria-hidden="true" /> Flagged
-        </span>
+          <Flag className="w-3 h-3" aria-hidden="true" /> {tr('Flagged')} </span>
       )}
       <p className="text-[13px] leading-[18px] font-medium text-[var(--text-primary)] line-clamp-2 pr-6">{summary}</p>
       {onToggleFlag && (
@@ -63,12 +66,12 @@ export function BoardCard({ issue, colour, colourReason, onToggleFlag, layout, m
           <Popover
             open={menuOpen}
             onOpenChange={setMenuOpen}
-            label={`Actions for ${issue.key}`}
+            label={tr('Actions for {key}', { key: issue.key })}
             haspopup="menu"
             align="right"
             panelClassName="min-w-[10rem] py-1 z-20"
             trigger={(p) => (
-              <button type="button" {...p} aria-label={`Actions for ${issue.key}`} className="rounded p-1 text-[var(--text-tertiary)] hover:bg-[var(--surface-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]">
+              <button type="button" {...p} aria-label={tr('Actions for {key}', { key: issue.key })} className="rounded p-1 text-[var(--text-tertiary)] hover:bg-[var(--surface-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]">
                 <MoreHorizontal className="w-4 h-4" aria-hidden="true" />
               </button>
             )}
@@ -88,7 +91,7 @@ export function BoardCard({ issue, colour, colourReason, onToggleFlag, layout, m
               className="w-full flex items-center gap-2 px-3 py-2 text-left text-body-sm text-[var(--text-primary)] hover:bg-[var(--surface-2)] focus-visible:bg-[var(--surface-2)] focus-visible:outline-none"
               onClick={() => { setMenuOpen(false); onToggleFlag(issue.key, !flagged) }}
             >
-              <Flag className="w-4 h-4" aria-hidden="true" /> {flagged ? 'Remove flag' : 'Add flag'}
+              <Flag className="w-4 h-4" aria-hidden="true" /> {flagged ? tr('Remove flag') : tr('Add flag')}
             </button>
           </Popover>
         </div>
@@ -106,13 +109,13 @@ export function BoardCard({ issue, colour, colourReason, onToggleFlag, layout, m
         <span className="text-[12px] font-medium tabular-nums text-[var(--text-tertiary)] group-hover:text-[var(--text-secondary)]">{issue.key}</span>
         <span className="ml-auto flex items-center gap-2">
           {show('storyPoints') && storyPoints !== null && storyPoints !== undefined && (
-            <span className="min-w-[1.25rem] rounded-full bg-[var(--surface-2)] px-1.5 py-0.5 text-center text-[11px] font-medium text-[var(--text-secondary)]" title={`${Number(storyPoints)} story points`}>{Number(storyPoints)}</span>
+            <span className="min-w-[1.25rem] rounded-full bg-[var(--surface-2)] px-1.5 py-0.5 text-center text-[11px] font-medium text-[var(--text-secondary)]" title={tr('{n} story points', { n: Number(storyPoints) })}>{Number(storyPoints)}</span>
           )}
           {show('priority') && priority && <PriorityBadge priority={priority.name} iconOnly />}
           {!show('assignee') ? null : assignee ? (
             <Avatar name={assignee.displayName} size="sm" />
           ) : (
-            <span className="w-5 h-5 rounded-full border border-dashed border-[var(--surface-4)]" title="Unassigned" aria-label="Unassigned" />
+            <span className="w-5 h-5 rounded-full border border-dashed border-[var(--surface-4)]" title={tr('Unassigned')} aria-label={tr('Unassigned')} />
           )}
         </span>
       </div>

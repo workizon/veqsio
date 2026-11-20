@@ -30,7 +30,7 @@ export function ResolutionTimeGadget({ config }: Props) {
   return (
     <div className="space-y-3">
       <div className="flex items-end justify-between gap-3">
-        <Kpi value={<>{summary?.last.toFixed(1)}<span className="ml-0.5 text-[14px] font-medium text-[var(--text-tertiary)]">d</span></>} caption="Average time to resolve (days)" />
+        <Kpi value={<>{summary?.last.toFixed(1)}<span className="ml-0.5 text-[14px] font-medium text-[var(--text-tertiary)]">d</span></>} caption={tr('Average time to resolve (days)')} />
         {summary?.delta != null && (
           <span className="mb-1 rounded-full bg-[var(--surface-2)] px-2 py-0.5 text-[12px] font-medium tabular-nums text-[var(--text-secondary)]" title={tr('Change since the first non-zero point')}>
             {summary.delta > 0 ? '+' : ''}{summary.delta}%

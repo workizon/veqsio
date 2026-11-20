@@ -167,7 +167,7 @@ export function FieldInput({ field, id, value, error, disabled, onChange, files,
       control = <input {...common} type="url" placeholder={field.placeholder || 'https://'} className={`veqsio-input w-full min-h-[44px] px-3 ${invalid}`} value={str} onChange={(e) => onChange(e.target.value)} />
       break
     case 'email':
-      control = <input {...common} type="email" placeholder={field.placeholder || 'name@example.com'} className={`veqsio-input w-full min-h-[44px] px-3 ${invalid}`} value={str} onChange={(e) => onChange(e.target.value)} />
+      control = <input {...common} type="email" placeholder={field.placeholder || tr('name@example.com')} className={`veqsio-input w-full min-h-[44px] px-3 ${invalid}`} value={str} onChange={(e) => onChange(e.target.value)} />
       break
     case 'user':
       control = <input {...common} type="email" placeholder={field.placeholder || tr('Email of a colleague')} autoComplete="off" className={`veqsio-input w-full min-h-[44px] px-3 ${invalid}`} value={str} onChange={(e) => onChange(e.target.value)} />

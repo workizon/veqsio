@@ -92,7 +92,7 @@ export function SprintFormModal({ mode, sprint, suggestedName, onClose, onSubmit
   }
 
   return (
-    <Modal isOpen onClose={onClose} title={mode === 'create' ? 'Create sprint' : `Edit ${sprint?.name ?? 'sprint'}`}>
+    <Modal isOpen onClose={onClose} title={mode === 'create' ? tr('Create sprint') : `Edit ${sprint?.name ?? 'sprint'}`}>
       <form onSubmit={submit} className="space-y-4" noValidate>
         <Field id="sprint-name" label={tr('Sprint name')} error={errors.name}>
           <input id="sprint-name" autoFocus value={form.name} onChange={set('name')} className="veqsio-input w-full" aria-invalid={!!errors.name} aria-describedby={errors.name ? 'sprint-name-error' : undefined} />
@@ -109,7 +109,7 @@ export function SprintFormModal({ mode, sprint, suggestedName, onClose, onSubmit
           </Field>
         </div>
         <ErrorBanner message={serverError} />
-        <Actions onClose={onClose} pending={pending} submitLabel={mode === 'create' ? 'Create sprint' : 'Save'} pendingLabel="Saving…" />
+        <Actions onClose={onClose} pending={pending} submitLabel={mode === 'create' ? tr('Create sprint') : tr('Save')} pendingLabel={tr('Saving…')} />
       </form>
     </Modal>
   )
@@ -185,7 +185,7 @@ export function StartSprintModal({ sprint, otherActive, allowParallel, onClose, 
           <textarea id="start-goal" rows={2} value={form.goal} onChange={(e) => setForm((f) => ({ ...f, goal: e.target.value }))} className="veqsio-input w-full" />
         </Field>
         <ErrorBanner message={serverError} />
-        <Actions onClose={onClose} pending={pending} disabled={blocked} submitLabel="Start sprint" pendingLabel="Starting…" />
+        <Actions onClose={onClose} pending={pending} disabled={blocked} submitLabel={tr('Start sprint')} pendingLabel={tr('Starting…')} />
       </form>
     </Modal>
   )
@@ -261,7 +261,7 @@ export function CompleteSprintModal({ sprint, targets, onClose, onSubmit }: Comp
         )}
 
         <ErrorBanner message={serverError} />
-        <Actions onClose={onClose} pending={pending} submitLabel="Complete sprint" pendingLabel="Completing…" />
+        <Actions onClose={onClose} pending={pending} submitLabel={tr('Complete sprint')} pendingLabel={tr('Completing…')} />
       </form>
     </Modal>
   )
@@ -289,7 +289,7 @@ export function DeleteSprintModal({ sprint, onClose, onSubmit }: { sprint: PlanS
             : ''}
           {tr('This cannot be undone.')} </p>
         <ErrorBanner message={serverError} />
-        <Actions onClose={onClose} pending={pending} danger submitLabel="Delete sprint" pendingLabel="Deleting…" />
+        <Actions onClose={onClose} pending={pending} danger submitLabel={tr('Delete sprint')} pendingLabel={tr('Deleting…')} />
       </form>
     </Modal>
   )
@@ -327,7 +327,7 @@ export function CreateBoardModal({ projects, onClose, onSubmit }: {
           <input id="board-name" autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={tr('e.g. Team board')} className="veqsio-input w-full" />
         </Field>
         <ErrorBanner message={error} />
-        <Actions onClose={onClose} pending={pending} submitLabel="Create board" pendingLabel="Creating…" />
+        <Actions onClose={onClose} pending={pending} submitLabel={tr('Create board')} pendingLabel={tr('Creating…')} />
       </form>
     </Modal>
   )

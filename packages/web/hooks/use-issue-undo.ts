@@ -4,6 +4,7 @@ import { useCallback } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useUndoable } from '@/hooks/use-undoable'
 import { usePendingDeletes, commentPendingKey } from '@/hooks/pending-deletes'
+import { trNow } from '@/lib/tr'
 
 async function request(url: string, init: RequestInit): Promise<void> {
   const res = await fetch(url, { credentials: 'include', ...init })
@@ -37,7 +38,7 @@ export function useUndoableDeleteIssues() {
           )
           const failed = results.filter((r) => r.status === 'rejected')
           if (failed.length > 0) {
-            throw new Error(failed.length === keys.length ? 'Could not delete the issues' : `${failed.length} of ${keys.length} issues could not be deleted`)
+            throw new Error(failed.length === keys.length ? trNow('Could not delete the issues') : trNow('{failed} of {total} issues could not be deleted', { failed: failed.length, total: keys.length }))
           }
         },
         revert: () => {

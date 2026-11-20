@@ -141,7 +141,7 @@ export default function BacklogPage() {
   const [announcement, setAnnouncement] = useState('')
 
   const undoableAction = useUndoableAction()
-  const move = useMoveIssues(boardId, (message) => toast(`Could not move issues: ${message}`, 'error'))
+  const move = useMoveIssues(boardId, (message) => toast(tr('Could not move issues: {message}', { message }), 'error'))
   const createSprint = useCreateSprint(boardId)
   const updateSprint = useUpdateSprint(boardId)
   const deleteSprint = useDeleteSprint(boardId)
@@ -189,10 +189,10 @@ export default function BacklogPage() {
     }
     move.mutate({ keys, target, beforeKey: target.kind === 'sprint' ? anchor : null }, {
       onSuccess: () => {
-        setAnnouncement(`Moved ${keys.join(', ')} to ${name}`)
-        if (origins.size === 0) { toast(`Moved ${pluralize(keys.length, 'issue')} to ${name}`, 'success'); return }
+        setAnnouncement(tr('Moved {keys} to {name}', { keys: keys.join(', '), name }))
+        if (origins.size === 0) { toast(tr('Moved {issues} to {name}', { issues: pluralize(keys.length, 'issue'), name }), 'success'); return }
         undoableAction({
-          message: `Moved ${pluralize(keys.length, 'issue')} to ${name}`,
+          message: tr('Moved {issues} to {name}', { issues: pluralize(keys.length, 'issue'), name }),
           undo: async () => {
             const groups = new Map<string, { target: MoveTarget; keys: string[] }>()
             for (const [k, o] of origins) groups.set(o.sig, { target: o.target, keys: [...(groups.get(o.sig)?.keys ?? []), k] })
@@ -210,7 +210,7 @@ export default function BacklogPage() {
     if (!data) return []
     const at = locate(data, key)
     const opts: MoveOption[] = []
-    if (at?.kind !== 'backlog') opts.push({ id: 'backlog', label: 'Backlog', target: { kind: 'backlog' } })
+    if (at?.kind !== 'backlog') opts.push({ id: 'backlog', label: tr('Backlog'), target: { kind: 'backlog' } })
     for (const s of data.sprints) {
       if (s.state === 'closed' || (at?.kind === 'sprint' && at.id === s.id)) continue
       opts.push({ id: `s${s.id}`, label: s.name, hint: s.state === 'active' ? 'active' : 'planned', target: { kind: 'sprint', id: s.id } })
@@ -221,7 +221,7 @@ export default function BacklogPage() {
   const bulkOptions = useMemo<MoveOption[]>(() => {
     if (!data) return []
     return [
-      { id: 'backlog', label: 'Backlog', target: { kind: 'backlog' } as MoveTarget },
+      { id: 'backlog', label: tr('Backlog'), target: { kind: 'backlog' } as MoveTarget },
       ...openSprints.map((s) => ({ id: `s${s.id}`, label: s.name, hint: s.state === 'active' ? 'active' : 'planned', target: { kind: 'sprint', id: s.id } as MoveTarget })),
     ]
   }, [data, openSprints])
@@ -256,8 +256,8 @@ export default function BacklogPage() {
   const handleCreateIssue = (target: MoveTarget) => async (input: { summary: string; issueTypeId: number; typeName: string }) => {
     try {
       const issue = await createIssue.mutateAsync({ ...input, target })
-      toast(`Created ${issue.key}`, 'success')
-      setAnnouncement(`Created ${issue.key}`)
+      toast(tr('Created {key}', { key: issue.key }), 'success')
+      setAnnouncement(tr('Created {key}', { key: issue.key }))
     } catch (err) {
       toast((err as Error).message, 'error')
       throw err
@@ -271,7 +271,7 @@ export default function BacklogPage() {
     })
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))
-      throw new Error(body.errorMessages?.[0] || (res.status === 403 ? 'You need the Administer Projects permission to create boards' : `HTTP ${res.status}`))
+      throw new Error(body.errorMessages?.[0] || (res.status === 403 ? tr('You need the Administer Projects permission to create boards') : `HTTP ${res.status}`))
     }
     await qc.invalidateQueries({ queryKey: ['boards'] })
     toast(tr('Board created'), 'success')
@@ -313,7 +313,7 @@ export default function BacklogPage() {
       <div className="rounded-lg border border-[var(--surface-3)] bg-[var(--surface-0)]">
         <EmptyState
           icon="folder"
-          title={hasOtherBoards ? 'No Scrum board yet' : 'No boards yet'}
+          title={hasOtherBoards ? tr('No Scrum board yet') : tr('No boards yet')}
           description={tr('Sprints live on Scrum boards. Create a board for one of your projects to start planning.')}
           action={
             <button type="button" onClick={() => setDialog({ kind: 'create-board' })} className="veqsio-btn-primary inline-flex items-center gap-2">
@@ -418,7 +418,7 @@ export default function BacklogPage() {
           ghostKeys={dragKey && liveSelection.has(dragKey) ? liveSelection : new Set()}
           createPending={createIssue.isPending}
           onCreateIssue={handleCreateIssue({ kind: 'backlog' })}
-          backlogMore={{ shown: data.backlog.issues.length, total: data.backlog.total, loading: loadMore.isPending, onLoadMore: () => loadMore.mutate(undefined, { onError: (e) => toast(`Could not load more issues: ${e.message}`, 'error') }) }}
+          backlogMore={{ shown: data.backlog.issues.length, total: data.backlog.total, loading: loadMore.isPending, onLoadMore: () => loadMore.mutate(undefined, { onError: (e) => toast(tr('Could not load more issues: {message}', { message: e.message }), 'error') }) }}
         />
 
         {closedSprints.length > 0 && (
@@ -454,7 +454,7 @@ export default function BacklogPage() {
             <span className="text-body-sm text-[var(--text-primary)]">
               {t(pluralize(liveSelection.size, 'issue'))} {tr('selected ·')} {formatPoints(sumPoints([...liveSelection].map((k) => issueByKey.get(k)!).filter(Boolean)))} points
             </span>
-            <MoveMenu label={`Move ${liveSelection.size} selected issues to…`} text="Move to…" options={bulkOptions} onSelect={(t) => doMove([...liveSelection], t)} className="border border-[var(--surface-4)]" />
+            <MoveMenu label={tr('Move {n} selected issues to…', { n: liveSelection.size })} text={tr('Move to…')} options={bulkOptions} onSelect={(t) => doMove([...liveSelection], t)} className="border border-[var(--surface-4)]" />
             <button type="button" onClick={() => setSelected(new Set())} className="veqsio-btn-ghost text-xs">{tr('Clear selection')}</button>
           </div>
         )}
@@ -488,7 +488,7 @@ export default function BacklogPage() {
           mode="create"
           suggestedName={suggestSprintName(data.sprints)}
           onClose={() => setDialog(null)}
-          onSubmit={(v) => run(() => createSprint.mutateAsync(v), `Sprint “${v.name}” created`)}
+          onSubmit={(v) => run(() => createSprint.mutateAsync(v), tr('Sprint “{name}” created', { name: v.name }))}
         />
       )}
       {dialog?.kind === 'edit-sprint' && (
@@ -521,10 +521,10 @@ export default function BacklogPage() {
             try {
               const res = await completeSprint.mutateAsync({ id: dialog.sprint.id, moveIncompleteTo: to })
               const s = res.summary
-              toast(`${dialog.sprint.name} completed: ${s.completed} done${s.moved ? `, ${s.moved} moved to ${s.movedTo.type === 'sprint' ? s.movedTo.name : 'the backlog'}` : ''}`, 'success')
+              toast(s.moved ? tr('{name} completed: {done} done, {moved} moved to {to}', { name: dialog.sprint.name, done: s.completed, moved: s.moved, to: s.movedTo.type === 'sprint' ? s.movedTo.name : tr('the backlog') }) : tr('{name} completed: {done} done', { name: dialog.sprint.name, done: s.completed }), 'success')
               setDialog(null)
             } catch (err) {
-              toast(`Could not complete sprint: ${(err as Error).message}`, 'error')
+              toast(tr('Could not complete sprint: {message}', { message: (err as Error).message }), 'error')
               throw err
             }
           }}

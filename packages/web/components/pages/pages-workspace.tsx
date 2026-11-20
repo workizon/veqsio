@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
@@ -156,7 +157,7 @@ function Landing({ pages, loading, scope, onCreate }: { pages: PageSummary[] | u
               <FileText className="w-4 h-4 mt-0.5 text-[var(--text-tertiary)]" aria-hidden />
               <span className="min-w-0">
                 <span className="block font-medium truncate">{p.title}</span>
-                <span className="block text-xs text-[var(--text-secondary)]">{p.author?.displayName ?? tr('Unknown')} · {new Date(p.updatedAt).toLocaleDateString()}</span>
+                <span className="block text-xs text-[var(--text-secondary)]">{p.author?.displayName ?? tr('Unknown')} · {new Date(p.updatedAt).toLocaleDateString(getIntlLocale())}</span>
               </span>
             </Link>
           </li>
@@ -362,7 +363,7 @@ function PageView({ page, pages, focus, onFocus }: { page: PageDetail; pages: Pa
             <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[var(--text-secondary)]">
               <dt>{tr('Space')}</dt><dd>{page.projectKey ? `${page.projectName ?? ''} (${page.projectKey})` : tr('Workspace')}</dd>
               <dt>{tr('Author')}</dt><dd>{page.author?.displayName ?? tr('Unknown')}</dd>
-              <dt>{tr('Updated')}</dt><dd>{new Date(page.updatedAt).toLocaleString()}</dd>
+              <dt>{tr('Updated')}</dt><dd>{new Date(page.updatedAt).toLocaleString(getIntlLocale())}</dd>
               <dt>{tr('Version')}</dt><dd>{page.version}</dd>
             </dl>
           </section>

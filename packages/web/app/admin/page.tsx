@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { Suspense } from 'react'
 import Link from 'next/link'
@@ -147,13 +148,13 @@ function SystemInfoTab() {
           <div className="flex justify-between py-2 border-b border-[var(--surface-3)]">
             <span className="text-[var(--text-secondary)]">{tr('Server Time')}</span>
             <span className="text-[var(--text-primary)] font-mono">
-              {new Date(data.serverTime).toLocaleString()}
+              {new Date(data.serverTime).toLocaleString(getIntlLocale())}
             </span>
           </div>
           <div className="flex justify-between py-2 border-b border-[var(--surface-3)]">
             <span className="text-[var(--text-secondary)]">{tr('Start time')}</span>
             <span className="text-[var(--text-primary)] font-mono">
-              {new Date(data.startTime).toLocaleString()}
+              {new Date(data.startTime).toLocaleString(getIntlLocale())}
             </span>
           </div>
           <div className="flex justify-between py-2 border-b border-[var(--surface-3)]">

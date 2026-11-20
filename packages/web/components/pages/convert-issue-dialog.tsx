@@ -31,7 +31,7 @@ export function ConvertToIssueDialog({ pageId, text, defaultProject, onClose }: 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
     convert.mutate({ projectKey: project, text: body, summary: summary.trim() || undefined }, {
-      onSuccess: (r) => { setCreated(r.issue.key); toast(`Created ${r.issue.key}`, 'success') },
+      onSuccess: (r) => { setCreated(r.issue.key); toast(tr('Created {key}', { key: r.issue.key }), 'success') },
       onError: (err) => toast(err.message, 'error'),
     })
   }

@@ -1,5 +1,7 @@
 /** Pure helpers for initiatives and milestones (labels, timeline strip, progress text). */
+import { getIntlLocale } from '@/lib/i18n'
 import { DAY, dayOf } from './roadmap-layout'
+import { trNow } from './tr'
 
 export type InitiativeStatus = 'planned' | 'active' | 'completed' | 'cancelled'
 
@@ -19,8 +21,8 @@ export interface ProgressLike { total: number; done: number; percentDone: number
 
 /** "3 of 7 done (43%), 1 cancelled" ; "No work yet" when nothing counts. */
 export function progressText(p: ProgressLike): string {
-  if (p.total === 0) return p.cancelled ? `No open work (${p.cancelled} cancelled)` : 'No work yet'
-  return `${p.done} of ${p.total} done (${p.percentDone}%)${p.cancelled ? `, ${p.cancelled} cancelled` : ''}`
+  if (p.total === 0) return p.cancelled ? trNow('No open work ({n} cancelled)', { n: p.cancelled }) : trNow('No work yet')
+  return p.cancelled ? trNow('{done} of {total} done ({percent}%), {cancelled} cancelled', { done: p.done, total: p.total, percent: p.percentDone, cancelled: p.cancelled }) : trNow('{done} of {total} done ({percent}%)', { done: p.done, total: p.total, percent: p.percentDone })
 }
 
 export type TimelineState = 'no-dates' | 'not-started' | 'in-progress' | 'overdue' | 'finished'
@@ -56,16 +58,16 @@ export function timelineStrip(start: string | null, target: string | null, statu
   const e = dayOf(target)
   const span = Math.max(e - s, 1)
   const pct = Math.min(100, Math.max(0, Math.round(((t - s) / span) * 100)))
-  if (t < s) return { state: 'not-started', todayPct: 0, elapsedPct: 0, daysLeft, label: `Starts in ${s - t} day${s - t === 1 ? '' : 's'}` }
-  if (t > e) return { state: 'overdue', todayPct: 100, elapsedPct: 100, daysLeft, label: `${t - e} day${t - e === 1 ? '' : 's'} past the target` }
-  return { state: 'in-progress', todayPct: pct, elapsedPct: pct, daysLeft, label: daysLeft === 0 ? 'Target is today' : `${daysLeft} day${daysLeft === 1 ? '' : 's'} left` }
+  if (t < s) return { state: 'not-started', todayPct: 0, elapsedPct: 0, daysLeft, label: s - t === 1 ? trNow('Starts in {n} day', { n: s - t }) : trNow('Starts in {n} days', { n: s - t }) }
+  if (t > e) return { state: 'overdue', todayPct: 100, elapsedPct: 100, daysLeft, label: t - e === 1 ? trNow('{n} day past the target', { n: t - e }) : trNow('{n} days past the target', { n: t - e }) }
+  return { state: 'in-progress', todayPct: pct, elapsedPct: pct, daysLeft, label: daysLeft === 0 ? trNow('Target is today') : daysLeft === 1 ? trNow('{n} day left', { n: daysLeft }) : trNow('{n} days left', { n: daysLeft }) }
 }
 
-/** Date range text such as "1 Jan 2026 – 31 Dec 2026"; open ends are shown as "no start" / "no target". */
+/** Date range text such as "Jan 1, 2026 – Dec 31, 2026" (in the app language); open ends are shown as "no start" / "no target". */
 export function dateRangeText(start: string | null, target: string | null): string {
-  const fmt = (d: string) => new Date(Date.parse(d)).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
-  if (!start && !target) return 'No dates'
-  return `${start ? fmt(start) : 'no start'} – ${target ? fmt(target) : 'no target'}`
+  const fmt = (d: string) => new Date(Date.parse(d)).toLocaleDateString(getIntlLocale(), { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+  if (!start && !target) return trNow('No dates')
+  return `${start ? fmt(start) : trNow('no start')} – ${target ? fmt(target) : trNow('no target')}`
 }
 
 export interface MilestoneMarkerInput { id: number; name: string; targetDate: string; state: string; percent: number }
@@ -76,7 +78,7 @@ export function milestoneMarker(m: MilestoneMarkerInput, startDay: number, ppd: 
   const overdue = !reached && dayOf(m.targetDate) < Math.floor(todayMs / DAY)
   return {
     x: (dayOf(m.targetDate) - startDay) * ppd,
-    label: `${m.name}, ${reached ? 'reached' : overdue ? 'overdue' : 'open'}, ${m.percent}% done, due ${m.targetDate}`,
+    label: trNow('{name}, {state}, {percent}% done, due {date}', { name: m.name, state: reached ? trNow('reached') : overdue ? trNow('overdue') : trNow('open'), percent: m.percent, date: m.targetDate }),
     color: reached ? '#16A06A' : overdue ? '#C9372C' : '#2D54D8',
     overdue,
   }

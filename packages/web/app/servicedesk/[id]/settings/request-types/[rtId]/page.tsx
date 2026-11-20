@@ -94,20 +94,20 @@ export default function RequestTypeBuilderPage() {
     const at = selected === null ? fields.length : selected + 1
     const f = newField(type, fields)
     setFields(insertField(fields, f, at)); setSelected(at); setTab('field')
-    setAnnounce(`Added ${f.label} at position ${at + 1}`)
+    setAnnounce(tr('Added {name} at position {n}', { name: f.label, n: at + 1 }))
   }
   const move = (from: number, to: number) => {
     setFields(moveField(fields, from, to))
     if (selected === from) setSelected(Math.max(0, Math.min(to, fields.length - 1)))
     else if (selected !== null && from < selected && to >= selected) setSelected(selected - 1)
     else if (selected !== null && from > selected && to <= selected) setSelected(selected + 1)
-    setAnnounce(`${fields[from]?.label} moved to position ${Math.max(0, Math.min(to, fields.length - 1)) + 1} of ${fields.length}`)
+    setAnnounce(tr('{name} moved to position {n} of {total}', { name: fields[from]?.label, n: Math.max(0, Math.min(to, fields.length - 1)) + 1, total: fields.length }))
   }
   const remove = (i: number) => {
     const name = fields[i]?.label
     setFields(removeField(fields, i))
     setSelected(fields.length - 1 === 0 ? null : Math.min(i, fields.length - 2))
-    setAnnounce(`Deleted ${name}`)
+    setAnnounce(tr('Deleted {name}', { name }))
   }
   const duplicate = (i: number) => { setFields(duplicateField(fields, i)); setSelected(i + 1); setTab('field') }
   const relabel = (i: number, label: string) => {
@@ -188,7 +188,7 @@ export default function RequestTypeBuilderPage() {
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
         {/* left: canvas or live preview */}
-        <section aria-label={mode === 'edit' ? 'Form canvas' : 'Customer preview'} className="min-w-0">
+        <section aria-label={mode === 'edit' ? tr('Form canvas') : tr('Customer preview')} className="min-w-0">
           {mode === 'edit' ? (
             <div className="veqsio-card p-4 space-y-3">
               <div className="flex items-center justify-between">

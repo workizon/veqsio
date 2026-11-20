@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useDevData } from '@/hooks/use-application-links'
 import { Spinner } from './spinner'
@@ -59,7 +60,7 @@ export function DevelopmentPanel({ issueKey }: { issueKey: string }) {
                       {commit.authorName && <span>{commit.authorName}</span>}
                       {commit.branch && <span>{commit.branch}</span>}
                       {commit.committedAt && (
-                        <span>{new Date(commit.committedAt).toLocaleDateString()}</span>
+                        <span>{new Date(commit.committedAt).toLocaleDateString(getIntlLocale())}</span>
                       )}
                     </div>
                   </div>
@@ -138,7 +139,7 @@ export function DevelopmentPanel({ issueKey }: { issueKey: string }) {
                         <span>{pr.sourceBranch} → {pr.targetBranch}</span>
                       )}
                       {pr.updatedAt && (
-                        <span>{tr('Updated')} {new Date(pr.updatedAt).toLocaleDateString()}</span>
+                        <span>{tr('Updated')} {new Date(pr.updatedAt).toLocaleDateString(getIntlLocale())}</span>
                       )}
                     </div>
                   </div>

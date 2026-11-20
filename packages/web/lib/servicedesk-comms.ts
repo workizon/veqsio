@@ -1,4 +1,5 @@
 /** Pure helpers for the service desk e-mail settings, requests raised on behalf of customers, and merge/link. */
+import { trNow } from './tr'
 
 export const MIN_POLL_SECONDS = 60
 export const MAX_POLL_SECONDS = 86_400
@@ -84,9 +85,9 @@ export function parseRequestKey(s: string): string | null {
 }
 
 export function describeMerge(r: { source: string; target: string; movedComments: number; movedAttachments: number; addedParticipants: number }): string {
-  const parts = [`${r.movedComments} comment${r.movedComments === 1 ? '' : 's'}`, `${r.movedAttachments} attachment${r.movedAttachments === 1 ? '' : 's'}`]
-  if (r.addedParticipants) parts.push(`${r.addedParticipants} participant${r.addedParticipants === 1 ? '' : 's'}`)
-  return `${r.source} merged into ${r.target}: ${parts.join(', ')} moved`
+  const parts = [r.movedComments === 1 ? trNow('{n} comment', { n: r.movedComments }) : trNow('{n} comments', { n: r.movedComments }), r.movedAttachments === 1 ? trNow('{n} attachment', { n: r.movedAttachments }) : trNow('{n} attachments', { n: r.movedAttachments })]
+  if (r.addedParticipants) parts.push(r.addedParticipants === 1 ? trNow('{n} participant', { n: r.addedParticipants }) : trNow('{n} participants', { n: r.addedParticipants }))
+  return trNow('{source} merged into {target}: {parts} moved', { source: r.source, target: r.target, parts: parts.join(', ') })
 }
 
 export interface LinkTypeOption { id: string; name: string; inward: string; outward: string }

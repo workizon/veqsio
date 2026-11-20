@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -190,7 +191,7 @@ export default function JiraRestImportPage() {
                 <div className="rounded border border-[var(--brand-500)] p-4 flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <div className="font-medium">{tr('Ready to migrate everything')}</div>
-                    <div className="text-sm text-[var(--text-secondary)]">{selected.size} of {projects.length} {tr('projects · about')} {totalIssues.toLocaleString()} issues</div>
+                    <div className="text-sm text-[var(--text-secondary)]">{selected.size} of {projects.length} {tr('projects · about')} {totalIssues.toLocaleString(getIntlLocale())} issues</div>
                   </div>
                   <button className="veqsio-btn-primary" disabled={busy || selected.size === 0} onClick={start}>{tr('Import everything now')}</button>
                 </div>

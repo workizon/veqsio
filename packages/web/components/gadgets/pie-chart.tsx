@@ -28,5 +28,5 @@ export function PieChartGadget({ config }: PieChartGadgetProps) {
   if (isLoading) return <ChartSkeleton />
   if (!chartData.length) return <EmptyState icon="inbox" title={tr('No data available')} />
 
-  return <Donut data={chartData.map((d) => ({ name: String(d.name), value: Number(d.value) }))} label={field === 'status' ? 'Issues' : 'Issues'} />
+  return <Donut data={chartData.map((d) => ({ name: String(d.name), value: Number(d.value) }))} label={field === 'status' ? tr('Issues') : tr('Issues')} />
 }

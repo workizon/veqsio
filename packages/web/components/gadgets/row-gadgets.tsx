@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { RichText } from '@/components/rich-text'
@@ -143,7 +144,7 @@ function DueCalendar({ config }: { config: Config }) {
     <ul className="space-y-2 text-body-sm">
       {q.data.days.map((d) => (
         <li key={d.date}>
-          <p className="font-medium text-[var(--text-secondary)]">{new Date(d.date + 'T00:00:00Z').toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' })}</p>
+          <p className="font-medium text-[var(--text-secondary)]">{new Date(d.date + 'T00:00:00Z').toLocaleDateString(getIntlLocale(), { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' })}</p>
           <ul>{d.issues.map((i) => (
             <li key={i.key} className="flex gap-2 min-w-0"><Link href={`/issues/${i.key}`} className={`shrink-0 hover:underline ${i.done ? 'line-through text-[var(--text-tertiary)]' : ''}`}>{i.key}</Link><span className="truncate">{i.summary}</span>{i.overdue && <span className="text-[var(--error)] shrink-0">overdue</span>}</li>
           ))}</ul>

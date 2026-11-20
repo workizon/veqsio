@@ -56,8 +56,8 @@ function CopyRow({ label, value }: { label: string; value: string }) {
       <button
         type="button"
         className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
-        title={`Copy ${label}`}
-        aria-label={`Copy ${label}`}
+        title={tr('Copy {name}', { name: label })}
+        aria-label={tr('Copy {name}', { name: label })}
         onClick={() => navigator.clipboard?.writeText(value).then(() => toast(tr('Copied'), 'success'), () => toast(tr('Copy failed'), 'error'))}
       >
         <Copy className="w-4 h-4" />
@@ -160,7 +160,9 @@ function SamlAdminPageBody() {
               <Field label={tr('IdP entity ID (issuer)')} wide><input className="veqsio-input w-full" value={form.idpEntityId} onChange={(e) => set('idpEntityId', e.target.value)} placeholder="https://sts.windows.net/<tenant>/" /></Field>
               <Field label={tr('IdP single sign-on URL (HTTP-Redirect)')} wide><input className="veqsio-input w-full" value={form.idpSsoUrl} onChange={(e) => set('idpSsoUrl', e.target.value)} placeholder="https://login.example.com/saml2" /></Field>
               <Field label={tr('IdP signing certificate(s), PEM. Add the next certificate too before a key rollover.')} wide>
-                <textarea className="veqsio-input w-full font-mono text-caption h-32" spellCheck={false} value={form.idpCertificates} onChange={(e) => set('idpCertificates', e.target.value)} placeholder={'-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----'} />
+                <textarea className="veqsio-input w-full font-mono text-caption h-32" spellCheck={false} value={form.idpCertificates} onChange={(e) => set('idpCertificates', e.target.value)} placeholder={`-----BEGIN CERTIFICATE-----
+...
+-----END CERTIFICATE-----`} />
               </Field>
               <Field label={tr('NameID format')}>
                 <select className="veqsio-input w-full" value={form.nameIdFormat} onChange={(e) => set('nameIdFormat', e.target.value)}>
@@ -194,7 +196,7 @@ function SamlAdminPageBody() {
             {form.signRequests && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field label={form.hasSigningKey ? tr('SP private key (PEM) (stored encrypted, leave empty to keep)') : tr('SP private key (PEM)')}>
-                  <textarea className="veqsio-input w-full font-mono text-caption h-28" spellCheck={false} autoComplete="off" value={form.spSigningKey} onChange={(e) => set('spSigningKey', e.target.value)} placeholder={form.hasSigningKey ? '••••••••' : '-----BEGIN PRIVATE KEY-----'} />
+                  <textarea className="veqsio-input w-full font-mono text-caption h-28" spellCheck={false} autoComplete="off" value={form.spSigningKey} onChange={(e) => set('spSigningKey', e.target.value)} placeholder={form.hasSigningKey ? '••••••••' : tr('-----BEGIN PRIVATE KEY-----')} />
                 </Field>
                 <Field label={tr('SP certificate (PEM)')}>
                   <textarea className="veqsio-input w-full font-mono text-caption h-28" spellCheck={false} value={form.spSigningCertificate} onChange={(e) => set('spSigningCertificate', e.target.value)} placeholder={tr('-----BEGIN CERTIFICATE-----')} />

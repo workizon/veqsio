@@ -27,7 +27,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: { mobileOpen?: bo
           </div>
           <div className="p-4"><Link href="/issues/create" onClick={onMobileClose} className="veqsio-btn-primary w-full"><Plus className="w-4 h-4" />{t('Create issue')}</Link></div>
           <nav aria-label={tr('Mobile navigation')} className="flex-1 overflow-y-auto px-3 pb-4 space-y-5">
-            {[...NAV_GROUPS.map((group) => ({ label: group.label, items: group.href ? [{ href: group.href, label: group.label }] : group.items ?? [] })), { label: 'Administration', items: ADMIN_LINKS }].map((group) => (
+            {[...NAV_GROUPS.map((group) => ({ label: group.label, items: group.href ? [{ href: group.href, label: group.label }] : group.items ?? [] })), { label: tr('Administration'), items: ADMIN_LINKS }].map((group) => (
               <div key={group.label}>
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-tertiary)] px-3 mb-1">{t(group.label)}</p>
                 {group.items.map((item) => {

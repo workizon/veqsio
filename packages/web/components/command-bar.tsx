@@ -134,7 +134,7 @@ function CommandBarDialog() {
 
           {suggestions.length > 0 && (
             <ul id={LISTBOX} role="listbox" aria-label={tr('Suggestions')} className="max-h-60 overflow-y-auto py-1.5">
-              {completion.expecting && <li role="presentation" className="px-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">{completion.expecting}</li>}
+              {completion.expecting && <li role="presentation" className="px-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">{tr(completion.expecting)}</li>}
               {suggestions.map((s, i) => (
                 <li
                   key={`${s.kind}:${s.label}`}

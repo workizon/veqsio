@@ -1,5 +1,7 @@
 'use client'
 
+import { useI18n } from '@/hooks/use-i18n'
+
 interface PriorityBadgeProps {
   priority: string
   /** Hide the text and keep the icon (the name stays available as a tooltip and to screen readers). */
@@ -45,10 +47,11 @@ export function PriorityIcon({ priority, size = 14 }: { priority: string; size?:
 }
 
 export function PriorityBadge({ priority, iconOnly = false, className = '' }: PriorityBadgeProps) {
+  const { tr } = useI18n()
   return (
     <span
       className={`inline-flex items-center gap-1.5 text-[12px] leading-5 text-[var(--text-secondary)] whitespace-nowrap ${className}`}
-      title={`Priority: ${priority}`}
+      title={tr('Priority: {name}', { name: priority })}
     >
       <PriorityIcon priority={priority} />
       {iconOnly ? <span className="sr-only">{priority}</span> : <span>{priority}</span>}

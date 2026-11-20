@@ -56,17 +56,17 @@ export function IssueTypeSchemeEditor() {
       setCreateOpen(false)
       e.currentTarget.reset()
     } catch (err: any) {
-      toast(err.message || 'Failed to create scheme', 'error')
+      toast(err.message || tr('Failed to create scheme'), 'error')
     }
   }
 
   async function handleDelete(id: number, name: string) {
-    if (!(await confirmDialog(`Delete issue type scheme "${name}"?`))) return
+    if (!(await confirmDialog(tr('Delete issue type scheme "{name}"?', { name })))) return
     try {
       await deleteScheme.mutateAsync(id)
       toast(tr('Scheme deleted'), 'success')
     } catch (err: any) {
-      toast(err.message || 'Failed to delete scheme', 'error')
+      toast(err.message || tr('Failed to delete scheme'), 'error')
     }
   }
 
@@ -107,7 +107,7 @@ export function IssueTypeSchemeEditor() {
                     <div className="font-medium text-[var(--text-primary)]">{s.name}</div>
                     <div className="text-xs text-[var(--text-tertiary)] mt-0.5">
                       {s.issueTypes.length} {tr('issue type')}{s.issueTypes.length !== 1 ? 's' : ''}
-                      {s.defaultIssueTypeId ? ` · Default: ${s.issueTypes.find(t => t.id === s.defaultIssueTypeId)?.name || s.defaultIssueTypeId}` : ''}
+                      {s.defaultIssueTypeId ? ` · ${tr('Default: {name}', { name: s.issueTypes.find(t => t.id === s.defaultIssueTypeId)?.name || s.defaultIssueTypeId })}` : ''}
                     </div>
                     {s.projects.length > 0 && (
                       <div className="text-xs text-[var(--text-tertiary)] mt-0.5 flex items-center gap-1">
@@ -168,7 +168,7 @@ export function IssueTypeSchemeEditor() {
         </form>
       </Modal>
 
-      <Modal isOpen={!!editingScheme} onClose={() => setEditingScheme(null)} title={editingScheme?.name || 'Edit Scheme'} size="lg">
+      <Modal isOpen={!!editingScheme} onClose={() => setEditingScheme(null)} title={editingScheme?.name || tr('Edit Scheme')} size="lg">
         {editingScheme && (
           <SchemeEditPanel scheme={editingScheme} onClose={() => setEditingScheme(null)} />
         )}
@@ -237,7 +237,7 @@ function SchemeEditPanel({ scheme, onClose }: { scheme: IssueTypeScheme; onClose
       toast(tr('Scheme updated'), 'success')
       onClose()
     } catch (err: any) {
-      toast(err.message || 'Failed to update scheme', 'error')
+      toast(err.message || tr('Failed to update scheme'), 'error')
     }
   }
 
@@ -328,7 +328,7 @@ function AssignPanel({ scheme, onClose }: { scheme: IssueTypeScheme; onClose: ()
       toast(tr('Scheme assigned to project'), 'success')
       onClose()
     } catch (err: any) {
-      toast(err.message || 'Failed to assign scheme', 'error')
+      toast(err.message || tr('Failed to assign scheme'), 'error')
     }
   }
 

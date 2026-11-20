@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
@@ -188,7 +189,7 @@ export function CalendarLayout({ issues, config }: LayoutProps) {
   const weeks = useMemo(() => monthGrid(ym.year, ym.month), [ym])
   const field = config.dateField === 'duedate' ? 'duedate' : config.dateField === 'startdate' ? 'startdate' : config.dateField
   const byDay = useMemo(() => groupByDate(issues, (i) => i.fields[field] as string | null), [issues, field])
-  const title = new Date(Date.UTC(ym.year, ym.month, 1)).toLocaleDateString('en', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+  const title = new Date(Date.UTC(ym.year, ym.month, 1)).toLocaleDateString(getIntlLocale(), { month: 'long', year: 'numeric', timeZone: 'UTC' })
   const undated = issues.filter((i) => !i.fields[field]).length
   return (
     <div className="space-y-3">

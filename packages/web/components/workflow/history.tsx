@@ -1,12 +1,13 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { History } from 'lucide-react'
 import { Spinner } from '@/components/spinner'
 import { useWorkflowHistory } from '@/hooks/use-issue-history'
 
-const fmt = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+const fmt = (iso: string) => new Date(iso).toLocaleString(getIntlLocale(), { dateStyle: 'medium', timeStyle: 'short' })
 
 /** Who changed which transition, status or condition of this workflow, newest first. */
 export function WorkflowHistoryList({ workflowId }: { workflowId: number }) {

@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
@@ -178,8 +179,8 @@ export default function YourWorkPage() {
               {tr(greeting())}{name ? `, ${name}` : ''}
             </h1>
             <p className="text-body text-[var(--text-secondary)] mt-0.5">
-              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-              {mine.data ? ` · ${mine.data.total} open ${mine.data.total === 1 ? 'issue' : 'issues'} assigned to you` : ''}
+              {new Date().toLocaleDateString(getIntlLocale(), { weekday: 'long', month: 'long', day: 'numeric' })}
+              {mine.data ? ` · ${tr(mine.data.total === 1 ? '{n} open issue assigned to you' : '{n} open issues assigned to you', { n: mine.data.total })}` : ''}
             </p>
           </div>
           <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary"><Plus className="w-4 h-4" />{tr('Create issue')}</button>
@@ -195,14 +196,14 @@ export default function YourWorkPage() {
         <div className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div className="space-y-4 min-w-0">
             <ListCard
-              title={tr('Assigned to me')} action={{ href: q(`assignee = currentUser() AND ${OPEN}`), label: 'View all' }}
+              title={tr('Assigned to me')} action={{ href: q(`assignee = currentUser() AND ${OPEN}`), label: tr('View all') }}
               loading={mine.isLoading} error={mine.error} issues={mine.data?.issues}
-              empty={{ title: 'Nothing assigned to you', hint: 'Issues assigned to you will show up here.' }}
+              empty={{ title: tr('Nothing assigned to you'), hint: tr('Issues assigned to you will show up here.') }}
             />
             <ListCard
-              title={tr('Recently updated')} action={{ href: '/issues', label: 'All issues' }}
+              title={tr('Recently updated')} action={{ href: '/issues', label: tr('All issues') }}
               loading={recent.isLoading} error={recent.error} issues={recent.data?.issues} showAssignee
-              empty={{ title: 'No issues yet', hint: 'Create the first issue to get started.' }}
+              empty={{ title: tr('No issues yet'), hint: tr('Create the first issue to get started.') }}
             />
           </div>
 
@@ -225,9 +226,9 @@ export default function YourWorkPage() {
             <section className="veqsio-card !p-0 overflow-hidden">
               <header className="px-4 py-3 border-b border-[var(--surface-3)]"><h2 className="text-heading-3 text-[var(--text-primary)]">{tr('Jump to')}</h2></header>
               {([
-                { href: '/boards', label: 'Board', hint: 'Active sprint', Icon: KanbanSquare },
-                { href: '/backlog', label: 'Backlog', hint: 'Plan sprints', Icon: ListTodo },
-                { href: '/dashboards', label: 'Dashboards', hint: 'Charts and gadgets', Icon: FolderKanban },
+                { href: '/boards', label: tr('Board'), hint: tr('Active sprint'), Icon: KanbanSquare },
+                { href: '/backlog', label: tr('Backlog'), hint: tr('Plan sprints'), Icon: ListTodo },
+                { href: '/dashboards', label: tr('Dashboards'), hint: tr('Charts and gadgets'), Icon: FolderKanban },
               ] as const).map(({ href, label, hint, Icon }) => (
                 <Link key={href} href={href} className="group flex items-center gap-3 px-4 py-2.5 border-b border-[var(--surface-3)] last:border-b-0 hover:bg-[var(--surface-1)] transition-colors">
                   <Icon className="w-4 h-4 text-[var(--text-tertiary)]" aria-hidden="true" />

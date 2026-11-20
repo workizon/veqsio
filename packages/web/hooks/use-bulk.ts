@@ -2,12 +2,13 @@
 
 import { useQuery } from '@tanstack/react-query'
 import type { BulkOperation, BulkResult } from '@/lib/bulk'
+import { trNow } from '@/lib/tr'
 
 async function post<T>(url: string, body: unknown): Promise<T> {
   const res = await fetch(url, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
   let data: any = null
   try { data = await res.json() } catch { /* empty */ }
-  if (!res.ok) throw new Error(data?.errorMessages?.join(', ') || `Request failed (HTTP ${res.status})`)
+  if (!res.ok) throw new Error(data?.errorMessages?.join(', ') || trNow('Request failed (HTTP {status})', { status: res.status }))
   return data as T
 }
 

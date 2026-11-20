@@ -1,5 +1,6 @@
 'use client'
 
+import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { Check } from 'lucide-react'
 import { useDraggable, useDroppable } from '@dnd-kit/core'
@@ -15,6 +16,7 @@ export function DraggableBoardCard({ issue, selected, onToggleSelect, cardProps,
   /** Touch swipe actions (move to the next or previous column) */
   swipe?: { left?: SwipeAction; right?: SwipeAction }; issue: BoardCardIssue & { id: number | string }; selected: boolean; onToggleSelect: (key: string) => void; /** colour and flag props of the card (card colours, flag toggle) */ cardProps?: Omit<ComponentProps<typeof BoardCard>, 'issue'> }) {
   const { setNodeRef, listeners, isDragging } = useDraggable({ id: issue.key })
+  const { tr } = useI18n()
   return (
     <div
       ref={setNodeRef}
@@ -36,7 +38,7 @@ export function DraggableBoardCard({ issue, selected, onToggleSelect, cardProps,
         type="button"
         role="checkbox"
         aria-checked={selected}
-        aria-label={`Select ${issue.key}`}
+        aria-label={tr('Select {key}', { key: issue.key })}
         onClick={() => onToggleSelect(issue.key)}
         onPointerDown={(e) => e.stopPropagation()}
         className={`absolute top-1.5 right-1.5 w-5 h-5 rounded border flex items-center justify-center bg-[var(--surface-0)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)] transition-opacity ${selected ? 'opacity-100 border-[var(--brand-500)] bg-[var(--brand-500)] text-white' : 'opacity-0 group-hover/card:opacity-100 focus-visible:opacity-100 border-[var(--surface-4)]'}`}

@@ -1,5 +1,6 @@
 'use client'
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { formatDuration, type SlaResult } from '@/hooks/use-servicedesk'
 import { slaProgress, slaTone, type SlaTone } from '@/lib/sla'
@@ -24,7 +25,7 @@ export function slaLabel(sla: SlaResult, tr: Tr): string {
 
 const when = (iso?: string | null) => {
   if (!iso) return null
-  try { return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) } catch { return iso }
+  try { return new Date(iso).toLocaleString(getIntlLocale(), { dateStyle: 'medium', timeStyle: 'short' }) } catch { return iso }
 }
 
 /** Plain-text tooltip: metric, goal, calendar and due date. */

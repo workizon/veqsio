@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -40,14 +41,14 @@ export default function MyApprovalsPage() {
                   : <Link className="text-[var(--brand-500)] hover:underline" href={`/issues/${a.issue.key}`}>{a.issue.key}</Link>}
                 {' '}{a.issue.summary} <span className="text-[var(--text-tertiary)]">· {a.project.name}</span>
               </p>
-              <p className="text-xs text-[var(--text-tertiary)]">{tr('Requested')} {new Date(a.created).toLocaleString()}{a.expires ? ` · expires ${new Date(a.expires).toLocaleString()}` : ''}</p>
+              <p className="text-xs text-[var(--text-tertiary)]">{tr('Requested')} {new Date(a.created).toLocaleString(getIntlLocale())}{a.expires ? ` · expires ${new Date(a.expires).toLocaleString(getIntlLocale())}` : ''}</p>
               <DecisionForm
                 busy={decide.isPending}
                 error={errors[a.id]}
                 onDecide={(decision, comment) => {
                   setErrors((e) => ({ ...e, [a.id]: '' }))
                   decide.mutate({ id: a.id, decision, comment }, {
-                    onSuccess: () => toast(decision === 'approved' ? 'Approved' : 'Declined', 'success'),
+                    onSuccess: () => toast(decision === 'approved' ? tr('Approved') : tr('Declined'), 'success'),
                     onError: (e) => setErrors((er) => ({ ...er, [a.id]: e.message })),
                   })
                 }}

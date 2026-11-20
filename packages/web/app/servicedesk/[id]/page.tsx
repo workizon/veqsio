@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import Link from 'next/link'
@@ -101,7 +102,7 @@ export default function ServiceDeskPage() {
                           <td className="px-3 py-2"><Link className="text-[var(--brand-500)] hover:underline" href={`/issues/${r.key}`}>{r.key}</Link></td>
                           <td className="px-3 py-2">{r.summary}</td>
                           <td className="px-3 py-2"><div className="flex flex-wrap gap-1">{r.sla.map((s) => <SlaBadge key={s.slaId} sla={s} />)}</div></td>
-                          <td className="px-3 py-2 whitespace-nowrap">{new Date(r.created).toLocaleString()}</td>
+                          <td className="px-3 py-2 whitespace-nowrap">{new Date(r.created).toLocaleString(getIntlLocale())}</td>
                         </tr>
                       ))}
                     </tbody>

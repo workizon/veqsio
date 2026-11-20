@@ -63,7 +63,7 @@ export function ImapSettings({ deskId, channel }: { deskId: number; channel: Ema
       host: p.host ?? undefined, port: p.port, tls: p.tls, user: p.user ?? undefined, password: p.password, folder: p.folder,
     }).catch((err: Error) => ({ ok: false as const, error: err.message }))
     setTestResult(r.ok
-      ? { ok: true, text: `Connected. ${r.unseen} unread message${r.unseen === 1 ? '' : 's'} in ${form.folder}.` }
+      ? { ok: true, text: tr(r.unseen === 1 ? 'Connected. {n} unread message in {folder}.' : 'Connected. {n} unread messages in {folder}.', { n: r.unseen, folder: form.folder }) }
       : { ok: false, text: r.error })
   }
 

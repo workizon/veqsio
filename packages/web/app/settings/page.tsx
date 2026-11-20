@@ -31,7 +31,7 @@ export default function PersonalSettingsPage() {
         <section className="rounded-xl border border-[var(--surface-3)] bg-[var(--surface-0)] p-4 sm:p-5">
         <label className="block text-sm font-semibold mb-2" htmlFor="lang">{tr('Language')}</label>
         <select id="lang" className="veqsio-input w-full" value={stored ?? ''} onChange={(e) => setUserLocale(isLocale(e.target.value) ? e.target.value : null)}>
-          <option value="">{`Auto (${LOCALES.find((l) => l.id === locale)?.name})`}</option>
+          <option value="">{tr('Auto ({language})', { language: LOCALES.find((l) => l.id === locale)?.name })}</option>
           {LOCALES.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
         </select>
         <p className="text-xs text-[var(--text-tertiary)] mt-2">{tr('Applies to menus and common labels in this browser. E-mails and notifications are not translated yet.')}</p>

@@ -20,6 +20,7 @@
  * There is no `flag` (the API has no flag operation) and no `--silent` (the notification layer has no such switch).
  */
 
+import { trNow } from './tr'
 import { operationDef, type BulkOperation, type BulkResult, type UndoGroup } from './bulk'
 
 /* ------------------------------------------------------------------ */
@@ -208,11 +209,11 @@ export function parseCommand(input: string): ParsedCommand {
   const errors: CommandError[] = []
   const out: ParsedCommand = { input, clauses: [], comment: tk.comment, repeat: false, errors }
   if (isRepeatCommand(input)) { out.repeat = true; return out }
-  if (tk.unterminated) errors.push({ code: 'syntax', message: 'A quote is not closed.' })
-  for (const o of tk.options) errors.push({ code: 'syntax', message: `Unknown option ${o}. Only --comment is supported.` })
+  if (tk.unterminated) errors.push({ code: 'syntax', message: trNow('A quote is not closed.') })
+  for (const o of tk.options) errors.push({ code: 'syntax', message: trNow('Unknown option {option}. Only --comment is supported.', { option: o }) })
   const tokens = tk.tokens
   if (tokens.length === 0) {
-    if (tk.comment !== null) errors.push({ code: 'missing', message: 'A comment needs a command in front of it, for example: status done : shipped.' })
+    if (tk.comment !== null) errors.push({ code: 'missing', message: trNow('A comment needs a command in front of it, for example: status done : shipped.') })
     return out
   }
 
@@ -224,7 +225,7 @@ export function parseCommand(input: string): ParsedCommand {
       const guess = t.quoted ? null : suggestVerb(t.text)
       errors.push({
         code: 'unknown',
-        message: `Unknown command "${t.text}".${guess ? ` Did you mean "${guess}"?` : ' Try assign, status, priority, label, sprint, fix version, watch, due or points.'}`,
+        message: guess ? trNow('Unknown command "{command}". Did you mean "{guess}"?', { command: t.text, guess }) : trNow('Unknown command "{command}". Try assign, status, priority, label, sprint, fix version, watch, due or points.', { command: t.text }),
         candidates: guess ? [guess] : undefined,
       })
       // skip to the next verb so later clauses are still checked
@@ -243,9 +244,9 @@ export function parseCommand(input: string): ParsedCommand {
       values.shift()
     }
     if (v.spec.bare && values.length > 0) {
-      errors.push({ code: 'syntax', message: `"${verbText}" takes no value (found "${values.map((t) => t.text).join(' ')}").` })
+      errors.push({ code: 'syntax', message: trNow('"{verb}" takes no value (found "{value}").', { verb: verbText, value: values.map((t) => t.text).join(' ') }) })
     } else if (!v.spec.bare && values.length === 0 && !(mode === 'set' && (v.spec.id === 'label' || v.spec.id === 'fixVersion'))) {
-      errors.push({ code: 'missing', message: `"${verbText}" needs a value, for example: ${v.spec.example}` })
+      errors.push({ code: 'missing', message: trNow('"{verb}" needs a value, for example: {example}', { verb: verbText, example: v.spec.example }) })
     }
     out.clauses.push({ verb: v.spec.id, verbText, mode, values, start: first.start })
   }
@@ -256,7 +257,7 @@ export function parseCommand(input: string): ParsedCommand {
     const key = c.verb === 'label' || c.verb === 'fixVersion' ? `${group}:${c.mode ?? 'add'}` : group
     seen.set(key, (seen.get(key) ?? 0) + 1)
   }
-  for (const [k, n] of seen) if (n > 1) errors.push({ code: 'syntax', message: `"${k.split(':')[0]}" is given ${n} times; use one clause.` })
+  for (const [k, n] of seen) if (n > 1) errors.push({ code: 'syntax', message: trNow('"{verb}" is given {n} times; use one clause.', { verb: k.split(':')[0], n }) })
   return out
 }
 
@@ -449,15 +450,15 @@ function resolveUser(text: string, ctx: ResolveContext): { id: number | null; la
   const lower = q.toLowerCase()
   if (['none', 'nobody', 'unassigned', 'unassign', 'no one', '-'].includes(lower)) return { id: null, label: 'nobody' }
   if (lower === 'me' || lower === 'myself' || lower === 'i') {
-    return ctx.me ? { id: ctx.me.id, label: 'you' } : { code: 'pending', message: 'Your user is still loading.' }
+    return ctx.me ? { id: ctx.me.id, label: 'you' } : { code: 'pending', message: trNow('Your user is still loading.') }
   }
   const m = matchName(ctx.users, q, (u) => [u.displayName, u.name ?? '', u.email ?? '', (u.email ?? '').split('@')[0]])
   if (m.kind === 'one') return { id: m.item.id, label: userLabel(m.item) }
   if (m.kind === 'many') {
     const names = describeMany(m.items.map(userLabel))
-    return { code: 'ambiguous', message: `"${q}" matches ${m.items.length} users: ${names.join(', ')}${m.items.length > names.length ? ', ...' : ''}. Type more of the name.`, candidates: names }
+    return { code: 'ambiguous', message: trNow('"{query}" matches {n} users: {names}. Type more of the name.', { query: q, n: m.items.length, names: names.join(', ') + (m.items.length > names.length ? ', ...' : '') }), candidates: names }
   }
-  return { code: 'unknown', message: `Unknown user "${q}".` }
+  return { code: 'unknown', message: trNow('Unknown user "{query}".', { query: q }) }
 }
 
 const isError = (x: unknown): x is CommandError => typeof x === 'object' && x !== null && 'code' in x && 'message' in x
@@ -479,10 +480,10 @@ export function resolveCommand(parsed: ParsedCommand, ctx: ResolveContext): Reso
     ops.push({ operation, params, summary, undoable: operationDef(operation).undoable })
 
   if (ctx.issueKeys.length === 0 && parsed.clauses.length > 0) {
-    errors.push({ code: 'missing', message: 'No issue is selected. Select issues in the list (or open one) first.' })
+    errors.push({ code: 'missing', message: trNow('No issue is selected. Select issues in the list (or open one) first.') })
   }
   if (parsed.comment !== null && parsed.comment === '' && parsed.clauses.length > 0) {
-    errors.push({ code: 'missing', message: 'The comment after ":" is empty.' })
+    errors.push({ code: 'missing', message: trNow('The comment after ":" is empty.') })
   }
 
   for (const c of parsed.clauses) {
@@ -500,32 +501,32 @@ export function resolveCommand(parsed: ParsedCommand, ctx: ResolveContext): Reso
         if (c.values.length === 0) break
         const m = matchName(ctx.priorities, text, (p) => [p.name])
         if (m.kind === 'one') push('priority', { priorityId: m.item.id }, `set priority to ${m.item.name}`)
-        else if (m.kind === 'many') fail({ code: 'ambiguous', message: `"${text}" matches priorities ${m.items.map((p) => p.name).join(', ')}.`, candidates: m.items.map((p) => p.name) })
-        else if (ctx.priorities.length === 0) fail({ code: 'pending', message: 'Priorities are still loading.' })
-        else fail({ code: 'unknown', message: `Unknown priority "${text}". Available: ${ctx.priorities.map((p) => p.name).join(', ')}.`, candidates: ctx.priorities.map((p) => p.name) })
+        else if (m.kind === 'many') fail({ code: 'ambiguous', message: trNow('"{query}" matches priorities {names}.', { query: text, names: m.items.map((p) => p.name).join(', ') }), candidates: m.items.map((p) => p.name) })
+        else if (ctx.priorities.length === 0) fail({ code: 'pending', message: trNow('Priorities are still loading.') })
+        else fail({ code: 'unknown', message: trNow('Unknown priority "{query}". Available: {names}.', { query: text, names: ctx.priorities.map((p) => p.name).join(', ') }), candidates: ctx.priorities.map((p) => p.name) })
         break
       }
       case 'status': {
         if (c.values.length === 0) break
         const data = ctx.transitions
-        if (!data) { fail({ code: 'pending', message: 'Checking which statuses the selected issues can move to.' }); break }
-        if (data.transitions.length === 0) { fail({ code: 'unavailable', message: 'No status change is available for the selected issues.' }); break }
+        if (!data) { fail({ code: 'pending', message: trNow('Checking which statuses the selected issues can move to.') }); break }
+        if (data.transitions.length === 0) { fail({ code: 'unavailable', message: trNow('No status change is available for the selected issues.') }); break }
         // one entry per target status; the match also accepts the transition's own name ("Start progress")
         const byTarget = new Map<string, TransitionOption[]>()
         for (const t of data.transitions) byTarget.set(t.to.name, [...(byTarget.get(t.to.name) ?? []), t])
         const targets = [...byTarget.entries()].map(([name, list]) => ({ name, list }))
         const m = matchName(targets, text, (t) => [t.name, ...t.list.map((x) => x.name)])
-        if (m.kind === 'none') { fail({ code: 'unknown', message: `Unknown status "${text}". Reachable: ${targets.map((t) => t.name).join(', ')}.`, candidates: targets.map((t) => t.name) }); break }
-        if (m.kind === 'many') { fail({ code: 'ambiguous', message: `"${text}" matches statuses ${m.items.map((t) => t.name).join(', ')}.`, candidates: m.items.map((t) => t.name) }); break }
+        if (m.kind === 'none') { fail({ code: 'unknown', message: trNow('Unknown status "{query}". Reachable: {names}.', { query: text, names: targets.map((t) => t.name).join(', ') }), candidates: targets.map((t) => t.name) }); break }
+        if (m.kind === 'many') { fail({ code: 'ambiguous', message: trNow('"{query}" matches statuses {names}.', { query: text, names: m.items.map((t) => t.name).join(', ') }), candidates: m.items.map((t) => t.name) }); break }
         const common = new Set(data.commonIds)
         const usable = m.item.list.find((t) => common.has(t.id))
         if (!usable) {
           const most = Math.max(...m.item.list.map((t) => t.count))
-          fail({ code: 'unavailable', message: `${m.item.name} is not reachable for all ${data.total} selected issues (${plural(most, 'issue')} can move there). Narrow the selection or use Bulk change.` })
+          fail({ code: 'unavailable', message: trNow('{status} is not reachable for all {total} selected issues ({issues} can move there). Narrow the selection or use Bulk change.', { status: m.item.name, total: data.total, issues: plural(most, 'issue') }) })
           break
         }
-        if (usable.requiresComment && !comment) { fail({ code: 'missing', message: `Moving to ${m.item.name} needs a comment. Add it after a colon: status ${quoteIfNeeded(m.item.name)} : your comment` }); break }
-        if (data.unavailable.length > 0) warnings.push(`${plural(data.unavailable.length, 'selected issue')} cannot be transitioned by you.`)
+        if (usable.requiresComment && !comment) { fail({ code: 'missing', message: trNow('Moving to {status} needs a comment. Add it after a colon: status {value} : your comment', { status: m.item.name, value: quoteIfNeeded(m.item.name) }) }); break }
+        if (data.unavailable.length > 0) warnings.push(trNow('{issues} cannot be transitioned by you.', { issues: plural(data.unavailable.length, 'selected issue') }))
         // the comment travels with the transition so it is posted together with the status change
         push('transition', { transitionId: usable.id, ...(comment ? { comment } : {}) }, `set status to ${m.item.name}`)
         comment = null
@@ -536,12 +537,12 @@ export function resolveCommand(parsed: ParsedCommand, ctx: ResolveContext): Reso
         const names = c.values.map((t) => t.text)
         if (mode !== 'set' && names.length === 0) break
         const bad = names.find((n) => /[\s,]/.test(n))
-        if (bad) { fail({ code: 'invalid', message: `Label "${bad}" cannot contain spaces or commas.` }); break }
+        if (bad) { fail({ code: 'invalid', message: trNow('Label "{label}" cannot contain spaces or commas.', { label: bad }) }); break }
         const known = new Map(ctx.labels.map((l) => [l.toLowerCase(), l]))
         const fixed = [...new Set(names.map((n) => known.get(n.toLowerCase()) ?? n))]
         if (mode === 'remove') {
           const missing = fixed.filter((n) => ctx.labels.length > 0 && !known.has(n.toLowerCase()))
-          if (missing.length > 0) warnings.push(`No issue uses ${missing.length === 1 ? 'the label' : 'the labels'} ${missing.join(', ')}.`)
+          if (missing.length > 0) warnings.push(trNow(missing.length === 1 ? 'No issue uses the label {names}.' : 'No issue uses the labels {names}.', { names: missing.join(', ') }))
         }
         const phrase = mode === 'add' ? `add ${plural(fixed.length, 'label')} ${fixed.join(', ')}` : mode === 'remove' ? `remove ${plural(fixed.length, 'label')} ${fixed.join(', ')}` : fixed.length === 0 ? 'remove all labels' : `set labels to ${fixed.join(', ')}`
         push('label', { [mode]: fixed }, phrase)
@@ -549,19 +550,19 @@ export function resolveCommand(parsed: ParsedCommand, ctx: ResolveContext): Reso
       }
       case 'sprint': {
         if (c.values.length === 0) break
-        if (!single) { fail({ code: 'unavailable', message: `Sprint works on one project at a time. Your selection spans ${ctx.projectKeys.length === 0 ? 'no project' : ctx.projectKeys.join(', ')}.` }); break }
+        if (!single) { fail({ code: 'unavailable', message: trNow('Sprint works on one project at a time. Your selection spans {projects}.', { projects: ctx.projectKeys.length === 0 ? trNow('no project') : ctx.projectKeys.join(', ') }) }); break }
         if (['backlog', 'none', 'no sprint'].includes(text.toLowerCase())) { push('sprint', { sprintId: null }, 'move to the backlog'); break }
-        if (!ctx.sprints) { fail({ code: 'pending', message: 'Loading sprints.' }); break }
+        if (!ctx.sprints) { fail({ code: 'pending', message: trNow('Loading sprints.') }); break }
         const m = matchName(ctx.sprints, text, (s) => [s.name])
         if (m.kind === 'one') push('sprint', { sprintId: m.item.id }, `move to sprint ${m.item.name}`)
-        else if (m.kind === 'many') fail({ code: 'ambiguous', message: `"${text}" matches sprints ${m.items.map((s) => s.name).join(', ')}.`, candidates: m.items.map((s) => s.name) })
-        else fail({ code: 'unknown', message: `Unknown sprint "${text}".${ctx.sprints.length ? ` Open sprints: ${ctx.sprints.map((s) => s.name).join(', ')}.` : ' There is no open sprint.'}` })
+        else if (m.kind === 'many') fail({ code: 'ambiguous', message: trNow('"{query}" matches sprints {names}.', { query: text, names: m.items.map((s) => s.name).join(', ') }), candidates: m.items.map((s) => s.name) })
+        else fail({ code: 'unknown', message: ctx.sprints.length ? trNow('Unknown sprint "{query}". Open sprints: {names}.', { query: text, names: ctx.sprints.map((s) => s.name).join(', ') }) : trNow('Unknown sprint "{query}". There is no open sprint.', { query: text }) })
         break
       }
       case 'fixVersion': {
         const mode: ListMode = c.mode ?? 'add'
-        if (!single) { fail({ code: 'unavailable', message: `Fix versions work on one project at a time. Your selection spans ${ctx.projectKeys.length === 0 ? 'no project' : ctx.projectKeys.join(', ')}.` }); break }
-        if (!ctx.versions) { fail({ code: 'pending', message: 'Loading versions.' }); break }
+        if (!single) { fail({ code: 'unavailable', message: trNow('Fix versions work on one project at a time. Your selection spans {projects}.', { projects: ctx.projectKeys.length === 0 ? trNow('no project') : ctx.projectKeys.join(', ') }) }); break }
+        if (!ctx.versions) { fail({ code: 'pending', message: trNow('Loading versions.') }); break }
         if (c.values.length === 0) { if (mode === 'set') { push('fixVersion', { set: [] }, 'clear the fix version'); } break }
         const ids: number[] = []
         const names: string[] = []
@@ -571,7 +572,7 @@ export function resolveCommand(parsed: ParsedCommand, ctx: ResolveContext): Reso
         for (const w of wanted) {
           const m = matchName(ctx.versions, w, (v) => [v.name])
           if (m.kind === 'one') { ids.push(m.item.id); names.push(m.item.name) }
-          else { bad = true; fail(m.kind === 'many' ? { code: 'ambiguous', message: `"${w}" matches versions ${m.items.map((v) => v.name).join(', ')}.`, candidates: m.items.map((v) => v.name) } : { code: 'unknown', message: `Unknown version "${w}".${ctx.versions.length ? ` Versions: ${ctx.versions.map((v) => v.name).join(', ')}.` : ' This project has no versions.'}` }) }
+          else { bad = true; fail(m.kind === 'many' ? { code: 'ambiguous', message: trNow('"{query}" matches versions {names}.', { query: w, names: m.items.map((v) => v.name).join(', ') }), candidates: m.items.map((v) => v.name) } : { code: 'unknown', message: ctx.versions.length ? trNow('Unknown version "{query}". Versions: {names}.', { query: w, names: ctx.versions.map((v) => v.name).join(', ') }) : trNow('Unknown version "{query}". This project has no versions.', { query: w }) }) }
         }
         if (!bad) push('fixVersion', { [mode]: [...new Set(ids)] }, `${mode === 'add' ? 'add' : mode === 'remove' ? 'remove' : 'set'} fix version ${names.join(', ')}`)
         break
@@ -582,7 +583,7 @@ export function resolveCommand(parsed: ParsedCommand, ctx: ResolveContext): Reso
         if (c.values.length === 0) break
         if (['none', 'clear', 'remove', 'no'].includes(text.toLowerCase())) { editFields.duedate = null; editParts.push('clear the due date'); break }
         const d = parseRelativeDate(text, ctx.now)
-        if (!d) fail({ code: 'invalid', message: `"${text}" is not a date. Try tomorrow, +3d, next friday or 2026-12-24.` })
+        if (!d) fail({ code: 'invalid', message: trNow('"{query}" is not a date. Try tomorrow, +3d, next friday or 2026-12-24.', { query: text }) })
         else { editFields.duedate = d; editParts.push(`set the due date to ${formatDateLong(d)}`) }
         break
       }
@@ -590,7 +591,7 @@ export function resolveCommand(parsed: ParsedCommand, ctx: ResolveContext): Reso
         if (c.values.length === 0) break
         if (['none', 'clear', 'remove'].includes(text.toLowerCase())) { editFields.storyPoints = null; editParts.push('clear story points'); break }
         const n = Number(text.replace(',', '.'))
-        if (!Number.isFinite(n) || n < 0 || n > 1000 || Math.round(n * 100) / 100 !== n || text === '') fail({ code: 'invalid', message: `Story points must be a number from 0 to 1000 (up to 2 decimals), not "${text}".` })
+        if (!Number.isFinite(n) || n < 0 || n > 1000 || Math.round(n * 100) / 100 !== n || text === '') fail({ code: 'invalid', message: trNow('Story points must be a number from 0 to 1000 (up to 2 decimals), not "{query}".', { query: text }) })
         else { editFields.storyPoints = n; editParts.push(`set story points to ${n}`) }
         break
       }
@@ -712,9 +713,9 @@ function verbSuggestions(fragment: string): Suggestion[] {
   const out: Suggestion[] = []
   for (const v of VERBS) {
     const spelling = v.words.find((w) => w.startsWith(f)) ?? (f === '' ? verbLabel(v) : undefined)
-    if (spelling) out.push({ kind: 'verb', label: spelling, insert: spelling, detail: v.hint })
+    if (spelling) out.push({ kind: 'verb', label: spelling, insert: spelling, detail: trNow(v.hint) })
   }
-  if (f === '' || 'repeat'.startsWith(f) || f === '!' || f === '!!') out.push({ kind: 'repeat', label: '!!', insert: '!!', detail: 'Repeat the last command' })
+  if (f === '' || 'repeat'.startsWith(f) || f === '!' || f === '!!') out.push({ kind: 'repeat', label: '!!', insert: '!!', detail: trNow('Repeat the last command') })
   return out
 }
 
@@ -767,7 +768,7 @@ export function completeCommand(input: string, ctx: ResolveContext): Completion 
   // a fragment that is the beginning of a multi-word verb ("fix" for "fix version") continues the verb
   const lastWord = tokens.length > 0 ? tokens[tokens.length - 1] : null
   if (lastWord && !lastWord.quoted && lastWord.text.toLowerCase() === 'fix' && 'version'.startsWith(fragment.toLowerCase()) && (verb === null || valueTokens.length === 0)) {
-    return { from, fragment, suggestions: [{ kind: 'verb', label: 'version', insert: 'version', detail: 'Add, remove or replace the fix version' }], expecting: 'version' }
+    return { from, fragment, suggestions: [{ kind: 'verb', label: 'version', insert: 'version', detail: trNow('Add, remove or replace the fix version') }], expecting: 'version' }
   }
 
   const quoted = (s: string) => quoteIfNeeded(s)
@@ -797,7 +798,7 @@ export function completeCommand(input: string, ctx: ResolveContext): Completion 
     case 'assign': {
       const list: Suggestion[] = [
         { kind: 'user', label: 'me', insert: 'me', detail: ctx.me ? ctx.me.displayName : undefined },
-        { kind: 'user', label: 'none', insert: 'none', detail: 'Remove the assignee' },
+        { kind: 'user', label: 'none', insert: 'none', detail: trNow('Remove the assignee') },
         ...ctx.users.map((u): Suggestion => ({ kind: 'user', label: u.displayName || u.name || String(u.id), insert: quoted(u.displayName || u.name || String(u.id)), detail: u.name && u.name !== u.displayName ? `@${u.name}` : u.email })),
       ]
       return withVerbs(list, 'a user')
@@ -812,7 +813,7 @@ export function completeCommand(input: string, ctx: ResolveContext): Completion 
         if (seen.has(t.to.name)) continue
         seen.add(t.to.name)
         const all = data.transitions.filter((x) => x.to.name === t.to.name).some((x) => common.has(x.id))
-        list.push({ kind: 'status', label: t.to.name, insert: quoted(t.to.name), detail: all ? (data.total === 1 ? 'this issue' : `all ${data.total} issues`) : `only ${t.count} of ${data.total} issues` })
+        list.push({ kind: 'status', label: t.to.name, insert: quoted(t.to.name), detail: all ? (data.total === 1 ? trNow('this issue') : trNow('all {n} issues', { n: data.total })) : trNow('only {count} of {total} issues', { count: t.count, total: data.total }) })
       }
       return withVerbs(list, 'a status')
     }
@@ -821,13 +822,13 @@ export function completeCommand(input: string, ctx: ResolveContext): Completion 
     case 'label': {
       const labelSug: Suggestion[] = ctx.labels.map((l) => ({ kind: 'label' as const, label: l, insert: l }))
       if (valueTokens.length === 0) {
-        const modes = MODE_WORDS.map((m): Suggestion => ({ kind: 'mode', label: m, insert: m, detail: m === 'add' ? 'Add to existing labels' : m === 'remove' ? 'Remove from existing labels' : 'Replace all labels' }))
+        const modes = MODE_WORDS.map((m): Suggestion => ({ kind: 'mode', label: m, insert: m, detail: m === 'add' ? trNow('Add to existing labels') : m === 'remove' ? trNow('Remove from existing labels') : trNow('Replace all labels') }))
         return withVerbs([...modes, ...labelSug], 'add, remove or a label')
       }
       return withVerbs(labelSug, 'a label')
     }
     case 'sprint': {
-      const list: Suggestion[] = [{ kind: 'sprint', label: 'backlog', insert: 'backlog', detail: 'Remove from the sprint' }, ...(ctx.sprints ?? []).map((s): Suggestion => ({ kind: 'sprint', label: s.name, insert: quoted(s.name), detail: s.state === 'active' ? 'active' : undefined }))]
+      const list: Suggestion[] = [{ kind: 'sprint', label: 'backlog', insert: 'backlog', detail: trNow('Remove from the sprint') }, ...(ctx.sprints ?? []).map((s): Suggestion => ({ kind: 'sprint', label: s.name, insert: quoted(s.name), detail: s.state === 'active' ? trNow('active') : undefined }))]
       return withVerbs(list, 'a sprint')
     }
     case 'fixVersion': {
@@ -839,7 +840,7 @@ export function completeCommand(input: string, ctx: ResolveContext): Completion 
     }
     case 'due': {
       const d = (label: string, detail?: string): Suggestion => ({ kind: 'date', label, insert: label, detail: detail ?? (parseRelativeDate(label, ctx.now) ? formatDateLong(parseRelativeDate(label, ctx.now)!) : undefined) })
-      return withVerbs([d('today'), d('tomorrow'), d('+3d'), d('+1w'), d('next monday'), d('next friday'), d('next week'), d('end of month'), d('none', 'Clear the due date')], 'a date')
+      return withVerbs([d('today'), d('tomorrow'), d('+3d'), d('+1w'), d('next monday'), d('next friday'), d('next week'), d('end of month'), d('none', trNow('Clear the due date'))], 'a date')
     }
     case 'points':
       return withVerbs(['1', '2', '3', '5', '8', '13', 'none'].map((n) => ({ kind: 'number' as const, label: n, insert: n })), 'a number')

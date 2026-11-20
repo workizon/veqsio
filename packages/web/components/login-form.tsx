@@ -54,7 +54,7 @@ export function LoginForm() {
         router.push(next && next.startsWith('/') && !next.startsWith('//') && !next.includes('\\') && !/[\u0000-\u001f\u007f]/.test(next) ? next : '/dashboard')
       } else {
         const data = await res.json()
-        toast(data.errorMessages?.[0] || 'Login failed', 'error')
+        toast(data.errorMessages?.[0] || tr('Login failed'), 'error')
       }
     } catch (err) {
       toast(tr('Network error'), 'error')
@@ -113,7 +113,7 @@ export function LoginForm() {
           />
           <button
             type="button"
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            aria-label={showPassword ? tr('Hide password') : tr('Show password')}
             aria-pressed={showPassword}
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-1 top-1/2 -translate-y-1/2 p-3 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"

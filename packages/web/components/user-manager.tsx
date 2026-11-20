@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useState } from 'react'
 import {
@@ -76,7 +77,7 @@ export function UserManager() {
       setCreateOpen(false)
       form.reset()
     } catch (err: any) {
-      toast(err.message || 'Failed to create user', 'error')
+      toast(err.message || tr('Failed to create user'), 'error')
     }
   }
 
@@ -96,7 +97,7 @@ export function UserManager() {
       toast(tr('User updated successfully'), 'success')
       setEditUser(null)
     } catch (err: any) {
-      toast(err.message || 'Failed to update user', 'error')
+      toast(err.message || tr('Failed to update user'), 'error')
     }
   }
 
@@ -106,9 +107,9 @@ export function UserManager() {
         username,
         active: !current,
       })
-      toast(current ? 'User deactivated' : 'User activated', 'success')
+      toast(current ? tr('User deactivated') : tr('User activated'), 'success')
     } catch (err: any) {
-      toast(err.message || 'Failed to update user', 'error')
+      toast(err.message || tr('Failed to update user'), 'error')
     }
   }
 
@@ -127,7 +128,7 @@ export function UserManager() {
           />
         </div>
         <span className="text-sm text-[var(--text-secondary)] sm:ml-auto" aria-live="polite" data-testid="user-total">
-          {total.toLocaleString()} {searchQuery ? (total === 1 ? 'user found' : 'users found') : (total === 1 ? 'user' : 'users')}
+          {total.toLocaleString(getIntlLocale())} {searchQuery ? (total === 1 ? 'user found' : 'users found') : (total === 1 ? 'user' : 'users')}
         </span>
         <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
           <Plus className="w-4 h-4" />
@@ -157,8 +158,8 @@ export function UserManager() {
                 <td colSpan={4} className="p-0">
                   <EmptyState
                     icon="search"
-                    title={search ? 'No users match your search' : 'No users found'}
-                    description={search ? 'Try adjusting your search terms.' : 'Get started by creating a new user.'}
+                    title={search ? tr('No users match your search') : tr('No users found')}
+                    description={search ? tr('Try adjusting your search terms.') : tr('Get started by creating a new user.')}
                     action={
                       !search && (
                         <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
@@ -215,7 +216,7 @@ export function UserManager() {
                       <button
                         onClick={() => toggleActive(u.key, u.active)}
                         className="veqsio-btn-ghost p-1.5"
-                        title={u.active ? 'Deactivate' : 'Activate'}
+                        title={u.active ? tr('Deactivate') : tr('Activate')}
                       >
                         {u.active ? (
                           <UserX className="w-4 h-4 text-[var(--error)]" />

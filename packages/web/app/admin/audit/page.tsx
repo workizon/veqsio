@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
@@ -101,7 +102,7 @@ export default function AdminAuditPage() {
                 <tbody>
                   {data.entries.map((e) => (
                     <tr key={e.id} className="veqsio-table-row">
-                      <td className="px-4 py-2 whitespace-nowrap text-[var(--text-secondary)]">{new Date(e.createdAt).toLocaleString()}</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-[var(--text-secondary)]">{new Date(e.createdAt).toLocaleString(getIntlLocale())}</td>
                       <td className="px-4 py-2">{e.actorName ?? tr('unknown')}</td>
                       <td className="px-4 py-2"><span className="veqsio-badge veqsio-badge-status-todo">{e.action}</span></td>
                       <td className="px-4 py-2 text-[var(--text-secondary)]">{e.targetType}{e.target ? ` / ${e.target}` : ''}</td>

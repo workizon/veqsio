@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -21,7 +22,7 @@ const TABS: Array<{ id: IntakeStatus; label: string }> = [
   { id: 'duplicate', label: 'Duplicates' },
 ]
 const SOURCE: Record<string, string> = { form: 'Public form', email: 'Email', api: 'API', app: 'In app' }
-const fmt = (s: string | null) => (s ? new Date(s).toLocaleString() : '')
+const fmt = (s: string | null) => (s ? new Date(s).toLocaleString(getIntlLocale()) : '')
 const ago = (s: string, tr: (k: string, v?: Record<string, string | number>) => string) => {
   const m = Math.max(0, Math.round((Date.now() - new Date(s).getTime()) / 60_000))
   if (m < 60) return tr('{n} min ago', { n: m })
@@ -70,7 +71,7 @@ export function IntakeQueue({ project, info }: { project: string; info: IntakeIn
         toast(tr('Item {status}', { status: tr(past(action)) }), 'success')
       } else {
         const r = await bulk.mutateAsync({ ids: its.map((i) => i.id), action, ...body })
-        toast(`${r.succeeded} ${tr(past(action))}${r.failed ? tr(', {n} failed: {error}', { n: r.failed, error: r.results.find((x) => !x.ok)?.error ?? '' }) : ''}`, r.failed ? 'error' : 'success')
+        toast(r.failed ? tr('{n} {status}, {failed} failed: {error}', { n: r.succeeded, status: tr(past(action)), failed: r.failed, error: r.results.find((x) => !x.ok)?.error ?? '' }) : tr('{n} {status}', { n: r.succeeded, status: tr(past(action)) }), r.failed ? 'error' : 'success')
         setChecked(new Set())
       }
       setDialog(null)
@@ -171,7 +172,7 @@ export function IntakeQueue({ project, info }: { project: string; info: IntakeIn
                         <p className="font-medium truncate">{i.title}</p>
                         <p className="text-xs text-[var(--text-tertiary)] truncate">
                           {i.requester.name || i.requester.email || tr('Unknown requester')} · {tr(SOURCE[i.source])} · {ago(i.createdAt, tr)}
-                          {i.status === 'snoozed' && i.snoozedUntil ? ` · ${tr('back {date}', { date: new Date(i.snoozedUntil).toLocaleDateString() })}` : ''}
+                          {i.status === 'snoozed' && i.snoozedUntil ? ` · ${tr('back {date}', { date: new Date(i.snoozedUntil).toLocaleDateString(getIntlLocale()) })}` : ''}
                         </p>
                       </div>
                     </li>

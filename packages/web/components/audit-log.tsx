@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { Search, Filter, ClipboardList } from 'lucide-react'
@@ -96,7 +97,7 @@ export function AuditLog() {
               {logs.map((log) => (
                 <tr key={log.id} className="veqsio-table-row">
                   <td className="px-4 py-2 text-[var(--text-secondary)] whitespace-nowrap">
-                    {new Date(log.timestamp).toLocaleString()}
+                    {new Date(log.timestamp).toLocaleString(getIntlLocale())}
                   </td>
                   <td className="px-4 py-2 text-[var(--text-primary)]">{log.user}</td>
                   <td className="px-4 py-2">

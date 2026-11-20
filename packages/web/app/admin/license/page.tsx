@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -45,7 +46,7 @@ interface UpdatesView {
   release: { status: 'not_configured' | 'untrusted' | 'unreachable' | 'ok'; latest?: string; updateAvailable?: boolean; securityUpdate?: boolean; canUpgradeDirectly?: boolean; notes?: Array<{ version: string; security: boolean; notes: string }>; reason?: string; error?: string }
 }
 
-const fmtMb = (b: number | null, unlimited: string) => (b === null ? unlimited : `${Math.round(b / 1048576).toLocaleString()} MB`)
+const fmtMb = (b: number | null, unlimited: string) => (b === null ? unlimited : `${Math.round(b / 1048576).toLocaleString(getIntlLocale())} MB`)
 const jget = <T,>(url: string) => fetch(url, { credentials: 'include' }).then(async (r) => { if (!r.ok) throw new Error(String(r.status)); return (await r.json()) as T })
 
 const STATUS_TEXT: Record<LicenseView['keyStatus'], string> = {
@@ -112,7 +113,7 @@ export default function LicensePage() {
               <dl className="grid grid-cols-[10rem_1fr] gap-x-6 gap-y-1 text-sm">
                 {v.customer && (<><dt className="text-[var(--text-tertiary)]">{tr('Licensee')}</dt><dd>{v.customer}</dd></>)}
                 {v.plan && v.edition === 'enterprise' && (<><dt className="text-[var(--text-tertiary)]">{tr('Plan')}</dt><dd className="capitalize">{v.plan}</dd></>)}
-                {v.expiresAt && (<><dt className="text-[var(--text-tertiary)]">{tr('Expires')}</dt><dd>{new Date(v.expiresAt).toLocaleDateString()}{v.daysToExpiry !== null ? ` (${tr('{n} days', { n: v.daysToExpiry })})` : ''}</dd></>)}
+                {v.expiresAt && (<><dt className="text-[var(--text-tertiary)]">{tr('Expires')}</dt><dd>{new Date(v.expiresAt).toLocaleDateString(getIntlLocale())}{v.daysToExpiry !== null ? ` (${tr('{n} days', { n: v.daysToExpiry })})` : ''}</dd></>)}
                 <dt className="text-[var(--text-tertiary)]">{tr('Users')}</dt>
                 <dd>{v.seatsInUse}{v.seatsEnforced ? ' ' + tr('of {seats} ({available} available)', { seats: v.seats, available: v.seatsAvailable }) : ' ' + tr('(no seat limit)')}</dd>
                 {v.keySource && (<><dt className="text-[var(--text-tertiary)]">{tr('Key source')}</dt><dd>{v.keySource}</dd></>)}
@@ -129,7 +130,7 @@ export default function LicensePage() {
                   <dt className="text-[var(--text-tertiary)]">{tr('Storage')}</dt><dd>{cs.usage ? fmtMb(cs.usage.storageBytes, tr('unlimited')) : '…'} {tr('of')} {fmtMb(cs.limits.storageBytes, tr('unlimited'))}</dd>
                   <dt className="text-[var(--text-tertiary)]">{tr('Largest file')}</dt><dd>{fmtMb(cs.limits.attachmentMaxBytes, tr('unlimited'))}</dd>
                   <dt className="text-[var(--text-tertiary)]">{tr('E-mails per hour')}</dt><dd>{cs.limits.emailsPerHour ?? tr('unlimited')}</dd>
-                  {cs.usage && (<><dt className="text-[var(--text-tertiary)]">{tr('Issues / projects')}</dt><dd>{cs.usage.issues.toLocaleString()} / {cs.usage.projects.toLocaleString()}</dd></>)}
+                  {cs.usage && (<><dt className="text-[var(--text-tertiary)]">{tr('Issues / projects')}</dt><dd>{cs.usage.issues.toLocaleString(getIntlLocale())} / {cs.usage.projects.toLocaleString(getIntlLocale())}</dd></>)}
                 </dl>
               </section>
             )}

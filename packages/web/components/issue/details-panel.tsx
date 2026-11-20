@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { AgentBadge } from '@/components/agent-badge'
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
@@ -510,7 +511,7 @@ export function DueDateField({ value, onChange, id = 'field-duedate' }: { value:
   const overdue = value ? new Date(`${value}T23:59:59`).getTime() < Date.now() : false
   return (
     <InlineValueButton id={id} onClick={() => setEditing(true)} aria-label={tr('Due date: {value}. Change due date', { value: value || tr('none') })}>
-      {value ? <span className={overdue ? 'text-[var(--error)]' : ''}>{new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}{overdue ? tr(' (overdue)') : ''}</span> : <Muted />}
+      {value ? <span className={overdue ? 'text-[var(--error)]' : ''}>{new Date(`${value}T00:00:00`).toLocaleDateString(getIntlLocale(), { day: 'numeric', month: 'short', year: 'numeric' })}{overdue ? tr(' (overdue)') : ''}</span> : <Muted />}
     </InlineValueButton>
   )
 }
@@ -529,7 +530,7 @@ function ParentField({ issue, onSave }: { issue: ApiIssue; onSave: (id: number |
     setBusy(true)
     try {
       const target = await fetch(`/rest/api/2/issue/${encodeURIComponent(k)}`, { credentials: 'include' }).then((r) => (r.ok ? r.json() : null))
-      if (!target) { toast(`Issue ${k} not found`, 'error'); return }
+      if (!target) { toast(tr('Issue {key} not found', { key: k }), 'error'); return }
       setOpen(false)
       setKeyText('')
       onSave(target.id)

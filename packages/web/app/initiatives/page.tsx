@@ -81,7 +81,7 @@ export default function InitiativesPage() {
 
         {on && (
           <div role="group" aria-label={tr('Filter by status')} className="flex flex-wrap gap-1">
-            {[{ value: 'all', label: 'All' }, ...INITIATIVE_STATUS_OPTIONS].map((o) => (
+            {[{ value: 'all', label: tr('All') }, ...INITIATIVE_STATUS_OPTIONS].map((o) => (
               <button key={o.value} type="button" aria-pressed={filter === o.value} className={filter === o.value ? 'veqsio-btn-primary' : 'veqsio-btn-secondary'} onClick={() => setFilter(o.value as any)}>{o.label}</button>
             ))}
           </div>

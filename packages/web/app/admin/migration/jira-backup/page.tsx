@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -126,7 +127,7 @@ function StatCard({ label, value }: { label: string; value: number }) {
         {icon}
       </div>
       <div>
-        <p className="text-lg font-semibold text-[var(--text-primary)] leading-tight">{value.toLocaleString()}</p>
+        <p className="text-lg font-semibold text-[var(--text-primary)] leading-tight">{value.toLocaleString(getIntlLocale())}</p>
         <p className="text-xs text-[var(--text-tertiary)] capitalize">{label.replace(/([A-Z])/g, ' $1').trim()}</p>
       </div>
     </div>
@@ -165,7 +166,7 @@ export default function MigrationPage() {
             if (res.status < 500 && res.status !== 408 && res.status !== 429) await fail(res, 'Upload failed')
             throw new Error(`HTTP ${res.status}`)
           } catch (e) {
-            if (++attempt > 5) throw new Error(`Upload interrupted at ${Math.round(offset / 1048576)} MB: ${(e as Error).message}`)
+            if (++attempt > 5) throw new Error(tr('Upload interrupted at {mb} MB: {message}', { mb: Math.round(offset / 1048576), message: (e as Error).message }))
             await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt))
           }
         }
@@ -437,7 +438,7 @@ export default function MigrationPage() {
                 <h2 className="text-heading-2 text-[var(--text-primary)] flex items-center gap-2">
                   <BarChart3 className="w-5 h-5 text-[var(--brand-500)]" />
                   {tr('Analysis Results')} </h2>
-                <span className="text-sm text-[var(--text-tertiary)]">{totalCount.toLocaleString()} {tr('total entities')}</span>
+                <span className="text-sm text-[var(--text-tertiary)]">{totalCount.toLocaleString(getIntlLocale())} {tr('total entities')}</span>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -462,8 +463,8 @@ export default function MigrationPage() {
                   <p className="text-sm font-medium text-[var(--text-primary)]">{tr('Ready to migrate')}</p>
                   <p className="text-xs text-[var(--text-secondary)] mt-1">
                     {conflicts.length > 0
-                      ? `${conflicts.length} conflict${conflicts.length !== 1 ? 's' : ''} will be skipped.`
-                      : 'No conflicts detected.'}
+                      ? tr(conflicts.length === 1 ? '{n} conflict will be skipped.' : '{n} conflicts will be skipped.', { n: conflicts.length })
+                      : tr('No conflicts detected.')}
                   </p>
                 </div>
                 <button

@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
@@ -144,7 +145,7 @@ export function WebhookLogs() {
                         {d.durationMs ? `${d.durationMs}ms` : '-'}
                       </td>
                       <td className="px-4 py-3 text-right text-[var(--text-secondary)]">
-                        {new Date(d.createdAt).toLocaleString()}
+                        {new Date(d.createdAt).toLocaleString(getIntlLocale())}
                       </td>
                       <td className="px-2 py-3">
                         {expandedId === d.id ? (

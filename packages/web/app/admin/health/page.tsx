@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
@@ -38,7 +39,7 @@ const JOB_STYLE: Record<JobHealth, { label: string; cls: string }> = {
   never: { label: 'No heartbeat yet', cls: 'bg-[var(--surface-2)] text-[var(--text-secondary)]' },
 }
 const every = (ms: number) => (ms >= 60_000 ? `${Math.round(ms / 60_000)} min` : `${Math.round(ms / 1000)} s`)
-const when = (iso: string | null | undefined, never: string) => (iso ? new Date(iso).toLocaleString() : never)
+const when = (iso: string | null | undefined, never: string) => (iso ? new Date(iso).toLocaleString(getIntlLocale()) : never)
 
 function JobsCard() {
   const { tr } = useI18n();
@@ -187,7 +188,7 @@ export default function HealthCheckPage() {
                 )
               })}
             </ul>
-            <p className="text-xs text-[var(--text-tertiary)]">{tr('Checked')} {new Date(data.generatedAt).toLocaleString()}</p>
+            <p className="text-xs text-[var(--text-tertiary)]">{tr('Checked')} {new Date(data.generatedAt).toLocaleString(getIntlLocale())}</p>
           </>
         )}
 

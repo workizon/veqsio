@@ -3,6 +3,7 @@
 import { useCallback } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useUndoableAction } from '@/hooks/use-undoable'
+import { useI18n } from '@/hooks/use-i18n'
 import { toast } from '@/components/toast'
 import type { ApiTransition } from '@/hooks/use-issues'
 import { findReverseTransition } from '@/lib/undo-helpers'
@@ -28,6 +29,7 @@ const post = (key: string, transitionId: number) =>
  */
 export function useOfferStatusUndo() {
   const undoableAction = useUndoableAction()
+  const { tr } = useI18n()
   const qc = useQueryClient()
   return useCallback(async (key: string, previousStatusName: string, moved: ApiTransition) => {
     let back: ApiTransition | null = null
@@ -35,18 +37,18 @@ export function useOfferStatusUndo() {
       const fresh = await api<{ transitions: ApiTransition[] }>(transitionsUrl(key))
       back = findReverseTransition(fresh.transitions, previousStatusName, moved.to) as ApiTransition | null
     } catch { /* no undo offered when the transitions cannot be read */ }
-    if (!back) { toast(`${key} moved to ${moved.to.name}`, 'success'); return null }
+    if (!back) { toast(tr('{key} moved to {status}', { key, status: moved.to.name }), 'success'); return null }
     const reverseId = back.id
     undoableAction({
-      message: `${key} moved to ${moved.to.name}`,
+      message: tr('{key} moved to {status}', { key, status: moved.to.name }),
       undo: async () => {
         await post(key, reverseId)
-        toast(`${key} moved back to ${previousStatusName}`, 'success')
+        toast(tr('{key} moved back to {status}', { key, status: previousStatusName }), 'success')
         for (const k of [['issue', key], ['issue', key, 'transitions'], ['issues', 'search'], ['board']]) void qc.invalidateQueries({ queryKey: k })
       },
     })
     return back
-  }, [undoableAction, qc])
+  }, [undoableAction, qc, tr])
 }
 
 /**
@@ -59,6 +61,7 @@ export function useOfferStatusUndo() {
 export function useMoveToStatus() {
   const qc = useQueryClient()
   const offerUndo = useOfferStatusUndo()
+  const { tr } = useI18n()
   return useCallback(async (args: { key: string; fromName: string; toStatusId: number; toName: string; optimistic?: () => () => void; onNeedsInput?: (t: ApiTransition) => void }): Promise<boolean> => {
     const rollback = args.optimistic?.() ?? (() => {})
     try {
@@ -68,7 +71,7 @@ export function useMoveToStatus() {
       if (plan.kind === 'input') {
         rollback() // the card stays where it is until the dialog has been completed
         if (args.onNeedsInput) args.onNeedsInput(plan.transition)
-        else toast(`Moving ${args.key} to ${args.toName} needs more input. Open the issue and use the status button.`, 'warning')
+        else toast(tr('Moving {key} to {status} needs more input. Open the issue and use the status button.', { key: args.key, status: args.toName }), 'warning')
         return false
       }
       const t = plan.transition
@@ -79,9 +82,9 @@ export function useMoveToStatus() {
       return true
     } catch (e: any) {
       rollback()
-      toast(e?.message || `Could not move ${args.key}`, 'error')
+      toast(e?.message || tr('Could not move {key}', { key: args.key }), 'error')
       void qc.invalidateQueries({ queryKey: ['issues', 'search'] })
       return false
     }
-  }, [qc, offerUndo])
+  }, [qc, offerUndo, tr])
 }

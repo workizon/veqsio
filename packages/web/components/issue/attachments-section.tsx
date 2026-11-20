@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { ImageLightbox } from '@/components/image-lightbox'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -16,20 +17,21 @@ import { attachmentPreviewUrl, formatBytes, isImageAttachment, isPdfAttachment, 
 export function useAttachmentUpload(issueKey: string) {
   const inputRef = useRef<HTMLInputElement>(null)
   const add = useAddAttachment()
+  const { tr } = useI18n()
   const upload = useCallback(
     async (files: FileList | File[] | null | undefined) => {
       const list = files ? Array.from(files) : []
       if (list.length === 0) return
       try {
         await add.mutateAsync({ key: issueKey, files: list })
-        toast(list.length === 1 ? 'Attachment uploaded' : `${list.length} attachments uploaded`, 'success')
+        toast(list.length === 1 ? tr('Attachment uploaded') : tr('{n} attachments uploaded', { n: list.length }), 'success')
       } catch (err: any) {
-        toast(err?.message || 'Failed to upload attachment', 'error')
+        toast(err?.message || tr('Failed to upload attachment'), 'error')
       } finally {
         if (inputRef.current) inputRef.current.value = ''
       }
     },
-    [add, issueKey],
+    [add, issueKey, tr],
   )
   return { inputRef, open: () => inputRef.current?.click(), upload, isPending: add.isPending }
 }
@@ -71,7 +73,7 @@ export function AttachmentsSection({ issueKey, uploader }: { issueKey: string; u
       toast(tr('Attachment deleted'), 'success')
       if (preview?.id === a.id) setPreview(null)
     } catch (err: any) {
-      toast(err?.message || 'Failed to delete attachment', 'error')
+      toast(err?.message || tr('Failed to delete attachment'), 'error')
     }
   }
 
@@ -172,7 +174,7 @@ export function AttachmentsSection({ issueKey, uploader }: { issueKey: string; u
                 ? <button type="button" onClick={() => setPreview(a)} className="flex-1 min-w-0 truncate text-left text-body-sm text-[var(--brand-500)] hover:underline">{a.filename}</button>
                 : <a href={a.content} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-0 truncate text-body-sm text-[var(--brand-500)] hover:underline">{a.filename}</a>}
               <span className="hidden sm:block text-caption text-[var(--text-tertiary)]">{a.author?.displayName}</span>
-              <span className="text-caption text-[var(--text-tertiary)] tabular-nums" title={new Date(a.created).toLocaleString()}>{formatBytes(a.size)}</span>
+              <span className="text-caption text-[var(--text-tertiary)] tabular-nums" title={new Date(a.created).toLocaleString(getIntlLocale())}>{formatBytes(a.size)}</span>
               <button type="button" onClick={() => void remove(a)} aria-label={`Delete ${a.filename}`} className="p-1 rounded text-[var(--text-tertiary)] hover:text-[var(--error)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]">
                 <Trash2 className="w-4 h-4" aria-hidden="true" />
               </button>
@@ -181,7 +183,7 @@ export function AttachmentsSection({ issueKey, uploader }: { issueKey: string; u
         </ul>
       )}
 
-      <Modal isOpen={!!preview && !isImageAttachment(preview)} onClose={() => setPreview(null)} title={preview?.filename || 'Preview'} size="lg">
+      <Modal isOpen={!!preview && !isImageAttachment(preview)} onClose={() => setPreview(null)} title={preview?.filename || tr('Preview')} size="lg">
         {preview && !isImageAttachment(preview) && (
           <div className="space-y-3">
             <div className="flex items-center justify-center bg-[var(--surface-2)] rounded-lg h-[70vh] overflow-hidden">
@@ -194,7 +196,7 @@ export function AttachmentsSection({ issueKey, uploader }: { issueKey: string; u
             <div className="flex items-center justify-between gap-2">
               <span className="text-caption text-[var(--text-tertiary)]">
                 {formatBytes(preview.size)}
-                {images.length > 1 && ` · ${images.findIndex((i) => i.id === preview.id) + 1} of ${images.length}`}
+                {images.length > 1 && ` · ${tr('{n} of {total}', { n: images.findIndex((i) => i.id === preview.id) + 1, total: images.length })}`}
               </span>
               <div className="flex items-center gap-2">
                 {images.length > 1 && (

@@ -69,7 +69,7 @@ function Csat({ id, days }: { id: number; days: number }) {
   const max = Math.max(1, ...d.csatDistribution.map((x) => x.count))
   return (
     <div className="space-y-3">
-      <Kpi value={d.csat.average === null ? '–' : d.csat.average.toFixed(1)} caption={`average of ${d.csat.responses} rating${d.csat.responses === 1 ? '' : 's'}`} />
+      <Kpi value={d.csat.average === null ? '–' : d.csat.average.toFixed(1)} caption={d.csat.responses === 1 ? tr('average of {n} rating', { n: d.csat.responses }) : tr('average of {n} ratings', { n: d.csat.responses })} />
       {d.csatDistribution.map((x) => (
         <div key={x.rating} className="flex items-center gap-2 text-body-sm"><span className="w-8">{x.rating} ★</span><div className="flex-1 h-2 rounded bg-[var(--surface-2)]"><div className="h-2 rounded bg-[var(--brand-500)]" style={{ width: `${(x.count / max) * 100}%` }} /></div><span className="w-6 text-right tabular-nums text-[var(--text-secondary)]">{x.count}</span></div>
       ))}
@@ -114,7 +114,7 @@ export function VersionProgressGadget({ config }: { config: Config }) {
   const done = count(/done|complete/i), doing = count(/progress/i), todo = total - done - doing
   return (
     <div className="space-y-3">
-      <Kpi value={`${Math.round((done / total) * 100)}%`} caption={`of ${total} issues done in ${meta.data?.name}`} />
+      <Kpi value={`${Math.round((done / total) * 100)}%`} caption={tr('of {total} issues done in {name}', { total, name: meta.data?.name })} />
       <div className="flex h-3 overflow-hidden rounded-full bg-[var(--surface-2)]" role="img" aria-label={`${done} done, ${doing} in progress, ${todo} to do`}>
         <div className="bg-[var(--success)]" style={{ width: `${(done / total) * 100}%` }} /><div className="bg-[var(--brand-500)]" style={{ width: `${(doing / total) * 100}%` }} />
       </div>

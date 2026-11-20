@@ -1,0 +1,7 @@
+[
+  "a user", "a status", "a priority", "add, remove or a label", "a label", "a sprint", "add, remove or a version", "a version", "a date", "a number", "a command", "version",
+  "Live connection", "Live connection (API key)", "Live connection (token)", "File upload (XML)", "File upload (CSV)", "File upload (JSON)",
+  "Start counting time on", "Pause counting time while", "Stop counting time on",
+  "no project", "start", "stop", "updated", "assigned", "transitioned", "moved", "watched", "unwatched", "deleted",
+  "this issue", "active"
+]

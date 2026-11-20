@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import Link from 'next/link'
@@ -91,7 +92,7 @@ export default function DeskInsightsPage() {
             <table className="w-full text-sm">
               <thead><tr className="text-left text-caption text-[var(--text-tertiary)]"><th className="py-1">{tr('Rule')}</th><th>{tr('Runs')}</th><th>{tr('Failures')}</th><th>{tr('Last run')}</th><th>{tr('Last failure')}</th></tr></thead>
               <tbody>{auto.data.values.map((r) => (
-                <tr key={r.id} className="border-t border-[var(--surface-3)]"><td className="py-1.5">{r.name}{!r.enabled && <span className="ml-2 text-caption text-[var(--text-tertiary)]">{tr('(off)')}</span>}</td><td>{r.runs}</td><td className={r.failures ? 'text-[var(--error)]' : ''}>{r.failures}</td><td>{r.lastRunAt ? new Date(r.lastRunAt).toLocaleString() : '–'}</td><td className="text-body-sm">{r.lastFailure ?? ''}</td></tr>
+                <tr key={r.id} className="border-t border-[var(--surface-3)]"><td className="py-1.5">{r.name}{!r.enabled && <span className="ml-2 text-caption text-[var(--text-tertiary)]">{tr('(off)')}</span>}</td><td>{r.runs}</td><td className={r.failures ? 'text-[var(--error)]' : ''}>{r.failures}</td><td>{r.lastRunAt ? new Date(r.lastRunAt).toLocaleString(getIntlLocale()) : '–'}</td><td className="text-body-sm">{r.lastFailure ?? ''}</td></tr>
               ))}</tbody>
             </table>
           ))}

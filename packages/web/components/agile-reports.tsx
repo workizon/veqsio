@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { Flag } from 'lucide-react'
@@ -47,7 +48,7 @@ export function BurnupView({ data, unit }: { data: any; unit: ReportUnit }) {
             <tbody>
               {changes.map((c, i) => (
                 <tr key={i} className="border-t border-[var(--surface-3)]">
-                  <td className="py-1.5">{new Date(c.at).toLocaleString()}</td>
+                  <td className="py-1.5">{new Date(c.at).toLocaleString(getIntlLocale())}</td>
                   <td><Link href={`/issues/${c.key}`} className="text-[var(--brand-600)] hover:underline">{c.key}</Link></td>
                   <td>{c.kind === 'added' ? tr('Added to scope') : tr('Removed from scope')}</td>
                   <td className="text-right tabular-nums">{c.kind === 'added' ? '+' : '-'}{c.size}</td>

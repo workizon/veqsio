@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
@@ -114,7 +115,7 @@ export default function MyRequestsPage() {
                       <span className="font-mono">{r.key}</span>
                       {r.requestType && <><span aria-hidden>·</span><span>{r.requestType}</span></>}
                       <span aria-hidden>·</span>
-                      <time dateTime={r.created} title={new Date(r.created).toLocaleString()}>{tr('Created')} {timeAgo(r.created)}</time>
+                      <time dateTime={r.created} title={new Date(r.created).toLocaleString(getIntlLocale())}>{tr('Created')} {timeAgo(r.created)}</time>
                       {r.resolved && <><span aria-hidden>·</span><span>{tr('Resolved')} {timeAgo(r.resolved)}</span></>}
                     </div>
                   </div>

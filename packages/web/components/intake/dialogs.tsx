@@ -82,36 +82,36 @@ export function AcceptDialog({ project, items, busy, error, onCancel, onSubmit }
         <p className="text-sm text-[var(--text-secondary)]">
           {single ? tr('An issue is created from this submission.') : tr('An issue is created for each of the {n} submissions, with the same settings.', { n: items.length })}
         </p>
-        <Field id={`${id}-type`} label="Issue type">
+        <Field id={`${id}-type`} label={tr('Issue type')}>
           <select id={`${id}-type`} className="veqsio-input w-full" value={effectiveType} onChange={(e) => setTypeId(e.target.value)} required autoFocus>
             {types.isLoading && <option value="">{tr('Loading…')}</option>}
             {(types.data ?? []).map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
         </Field>
-        <Field id={`${id}-prio`} label="Priority">
+        <Field id={`${id}-prio`} label={tr('Priority')}>
           <select id={`${id}-prio`} className="veqsio-input w-full" value={priorityId} onChange={(e) => setPriorityId(e.target.value)}>
             <option value="">{tr('Default')}</option>
             {(priorities.data ?? []).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </Field>
-        <Field id={`${id}-assignee`} label="Assignee">
+        <Field id={`${id}-assignee`} label={tr('Assignee')}>
           <select id={`${id}-assignee`} className="veqsio-input w-full" value={assigneeId} onChange={(e) => setAssigneeId(e.target.value)}>
             <option value="">{tr('Unassigned')}</option>
             {(users.data ?? []).map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
           </select>
         </Field>
         {single && (
-          <Field id={`${id}-summary`} label="Summary" hint="Defaults to the submitted title.">
+          <Field id={`${id}-summary`} label={tr('Summary')} hint={tr('Defaults to the submitted title.')}>
             <input id={`${id}-summary`} className="veqsio-input w-full" maxLength={255} value={summary} onChange={(e) => setSummary(e.target.value)} />
           </Field>
         )}
-        <Field id={`${id}-note`} label="Note for the issue (optional)" hint="Added to the issue description.">
+        <Field id={`${id}-note`} label={tr('Note for the issue (optional)')} hint={tr('Added to the issue description.')}>
           <textarea id={`${id}-note`} className="veqsio-input w-full min-h-[60px]" maxLength={2000} value={note} onChange={(e) => setNote(e.target.value)} />
         </Field>
-        <Field id={`${id}-reason`} label="Message to the requester (optional)" hint={withEmail ? tr('{n} requester(s) with an email address are notified.', { n: withEmail }) : 'None of the requesters has an email address, nobody is notified.'}>
+        <Field id={`${id}-reason`} label={tr('Message to the requester (optional)')} hint={withEmail ? tr('{n} requester(s) with an email address are notified.', { n: withEmail }) : tr('None of the requesters has an email address, nobody is notified.')}>
           <textarea id={`${id}-reason`} className="veqsio-input w-full min-h-[60px]" maxLength={2000} value={reason} onChange={(e) => setReason(e.target.value)} />
         </Field>
-        <Footer busy={busy || !effectiveType} error={error} onCancel={onCancel} submit="Accept" />
+        <Footer busy={busy || !effectiveType} error={error} onCancel={onCancel} submit={tr('Accept')} />
       </form>
     </Modal>
   )
@@ -125,10 +125,10 @@ export function DeclineDialog({ items, busy, error, onCancel, onSubmit }: Common
   return (
     <Modal isOpen onClose={onCancel} title={dialogTitle(tr, 'decline', items.length)}>
       <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); onSubmit({ reason: reason.trim() || undefined }) }}>
-        <Field id={`${id}-reason`} label="Reason (optional)" hint={withEmail ? tr('Sent to {n} requester(s) with an email address.', { n: withEmail }) : 'None of the requesters has an email address, nobody is notified.'}>
+        <Field id={`${id}-reason`} label={tr('Reason (optional)')} hint={withEmail ? tr('Sent to {n} requester(s) with an email address.', { n: withEmail }) : tr('None of the requesters has an email address, nobody is notified.')}>
           <textarea id={`${id}-reason`} className="veqsio-input w-full min-h-[80px]" maxLength={2000} value={reason} onChange={(e) => setReason(e.target.value)} autoFocus />
         </Field>
-        <Footer busy={busy} error={error} onCancel={onCancel} submit="Decline" />
+        <Footer busy={busy} error={error} onCancel={onCancel} submit={tr('Decline')} />
       </form>
     </Modal>
   )
@@ -155,7 +155,7 @@ export function SnoozeDialog({ items, busy, error, onCancel, onSubmit }: Common 
           onSubmit({ until: new Date(y, m - 1, d, 8, 0, 0).toISOString(), reason: reason.trim() || undefined })
         }}
       >
-        <Field id={`${id}-date`} label="Come back on" hint="The item moves back to Pending automatically.">
+        <Field id={`${id}-date`} label={tr('Come back on')} hint={tr('The item moves back to Pending automatically.')}>
           <input id={`${id}-date`} type="date" className="veqsio-input w-full" value={date} min={dayInput(1)} max={dayInput(365)} onChange={(e) => setDate(e.target.value)} required autoFocus />
         </Field>
         <div className="flex gap-2" role="group" aria-label={tr('Quick choices')}>
@@ -163,10 +163,10 @@ export function SnoozeDialog({ items, busy, error, onCancel, onSubmit }: Common 
             <button key={label as string} type="button" className="veqsio-btn-secondary text-xs" onClick={() => setDate(dayInput(days as number))}>{tr(label as string)}</button>
           ))}
         </div>
-        <Field id={`${id}-reason`} label="Note (optional)">
+        <Field id={`${id}-reason`} label={tr('Note (optional)')}>
           <input id={`${id}-reason`} className="veqsio-input w-full" maxLength={2000} value={reason} onChange={(e) => setReason(e.target.value)} />
         </Field>
-        <Footer busy={busy} error={error} onCancel={onCancel} submit="Snooze" />
+        <Footer busy={busy} error={error} onCancel={onCancel} submit={tr('Snooze')} />
       </form>
     </Modal>
   )
@@ -180,13 +180,13 @@ export function DuplicateDialog({ project, items, busy, error, onCancel, onSubmi
   return (
     <Modal isOpen onClose={onCancel} title={dialogTitle(tr, 'duplicate', items.length)} size="sm">
       <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); onSubmit({ issue: issue.trim(), reason: reason.trim() || undefined }) }}>
-        <Field id={`${id}-issue`} label="Existing issue" hint={tr('An issue key of this project, for example {key}.', { key: `${project}-12` })}>
+        <Field id={`${id}-issue`} label={tr('Existing issue')} hint={tr('An issue key of this project, for example {key}.', { key: `${project}-12` })}>
           <input id={`${id}-issue`} className="veqsio-input w-full" value={issue} onChange={(e) => setIssue(e.target.value)} placeholder={`${project}-12`} required autoFocus pattern="[A-Za-z][A-Za-z0-9_]*-[0-9]+" title={tr('An issue key such as ABC-12')} />
         </Field>
-        <Field id={`${id}-reason`} label="Note (optional)">
+        <Field id={`${id}-reason`} label={tr('Note (optional)')}>
           <input id={`${id}-reason`} className="veqsio-input w-full" maxLength={2000} value={reason} onChange={(e) => setReason(e.target.value)} />
         </Field>
-        <Footer busy={busy} error={error} onCancel={onCancel} submit="Mark as duplicate" />
+        <Footer busy={busy} error={error} onCancel={onCancel} submit={tr('Mark as duplicate')} />
       </form>
     </Modal>
   )
@@ -201,13 +201,13 @@ export function SubmitDialog({ busy, error, onCancel, onSubmit }: Omit<Common, '
     <Modal isOpen onClose={onCancel} title={tr('Submit to intake')}>
       <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); onSubmit({ title: title.trim(), description: description.trim() || undefined }) }}>
         <p className="text-sm text-[var(--text-secondary)]">{tr('Your submission waits in the queue until someone on the team accepts it. It becomes an issue only then.')}</p>
-        <Field id={`${id}-title`} label="Title">
+        <Field id={`${id}-title`} label={tr('Title')}>
           <input id={`${id}-title`} className="veqsio-input w-full" maxLength={200} value={title} onChange={(e) => setTitle(e.target.value)} required autoFocus />
         </Field>
-        <Field id={`${id}-desc`} label="Details (optional)">
+        <Field id={`${id}-desc`} label={tr('Details (optional)')}>
           <textarea id={`${id}-desc`} className="veqsio-input w-full min-h-[120px]" maxLength={10000} value={description} onChange={(e) => setDescription(e.target.value)} />
         </Field>
-        <Footer busy={busy} error={error} onCancel={onCancel} submit="Submit" />
+        <Footer busy={busy} error={error} onCancel={onCancel} submit={tr('Submit')} />
       </form>
     </Modal>
   )

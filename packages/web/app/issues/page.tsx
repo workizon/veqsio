@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { Fragment, useState, useEffect, useMemo, useRef } from 'react'
 import { useMultiSort } from '@/lib/table-sort'
@@ -69,7 +70,7 @@ function timeAgo(dateStr: string): string {
   if (diffHours < 24) return `${diffHours}h ago`
   const diffDays = Math.floor(diffHours / 24)
   if (diffDays < 30) return `${diffDays}d ago`
-  return d.toLocaleDateString()
+  return d.toLocaleDateString(getIntlLocale())
 }
 
 function loadSavedFilters(): SavedFilter[] {
@@ -382,15 +383,15 @@ export default function IssuesPage() {
   }
 
   const allColumns = [
-    { id: 'key', label: 'Key' },
-    { id: 'summary', label: 'Summary' },
-    { id: 'type', label: 'Type' },
-    { id: 'status', label: 'Status' },
-    { id: 'priority', label: 'Priority' },
-    { id: 'assignee', label: 'Assignee' },
-    { id: 'reporter', label: 'Reporter' },
-    { id: 'updated', label: 'Updated' },
-    { id: 'created', label: 'Created' },
+    { id: 'key', label: tr('Key') },
+    { id: 'summary', label: tr('Summary') },
+    { id: 'type', label: tr('Type') },
+    { id: 'status', label: tr('Status') },
+    { id: 'priority', label: tr('Priority') },
+    { id: 'assignee', label: tr('Assignee') },
+    { id: 'reporter', label: tr('Reporter') },
+    { id: 'updated', label: tr('Updated') },
+    { id: 'created', label: tr('Created') },
   ]
 
   // Column widths can be dragged in the header; they are remembered in the browser. Double-click resets one.
@@ -637,7 +638,7 @@ export default function IssuesPage() {
                     <div className="flex items-start gap-1 p-1.5">
                       <button
                         type="button"
-                        aria-label={`Select ${issue.key}`}
+                        aria-label={tr('Select {key}', { key: issue.key })}
                         aria-pressed={selectedIssues.has(issue.id)}
                         onClick={() => toggleSelect(issue.id)}
                         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
@@ -775,7 +776,7 @@ export default function IssuesPage() {
                         <div className="flex items-center justify-center">
                           <button
                             tabIndex={-1}
-                            aria-label={`Select ${issue.key}`}
+                            aria-label={tr('Select {key}', { key: issue.key })}
                             onClick={(e) => {
                               e.stopPropagation()
                               toggleSelect(issue.id)

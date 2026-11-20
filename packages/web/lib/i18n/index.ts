@@ -61,3 +61,12 @@ export function fill(text: string, vars?: I18nVars): string {
 
 /** BCP 47 tag for Intl and date formatting. */
 export const intlLocale = (locale: LocaleId): string => ({ en: 'en-US', de: 'de-DE', es: 'es-ES', ru: 'ru-RU', fr: 'fr-FR', pt: 'pt-BR', zh: 'zh-CN', ja: 'ja-JP' })[locale]
+
+/**
+ * The interface language as a BCP 47 tag for dates and numbers. The hook in hooks/use-i18n.ts publishes it on every
+ * render, so plain functions (lib/*.ts, formatters outside components) format with the app's language instead of the
+ * browser's: `date.toLocaleDateString(getIntlLocale(), ...)`.
+ */
+let activeIntl = 'en-US'
+export const setActiveLocale = (locale: LocaleId): void => { activeIntl = intlLocale(locale) }
+export const getIntlLocale = (): string => activeIntl

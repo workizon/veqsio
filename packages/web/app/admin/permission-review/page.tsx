@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
@@ -57,7 +58,7 @@ export default function PermissionReviewPage() {
         <div className="flex flex-wrap items-center gap-4">
           <input className="veqsio-input w-72" placeholder={tr('Filter projects…')} value={filter} onChange={(e) => setFilter(e.target.value)} aria-label={tr('Filter projects')} />
           <label className="inline-flex items-center gap-2 text-sm"><input type="checkbox" checked={onlyFindings} onChange={(e) => setOnlyFindings(e.target.checked)} /> {tr('Only projects with findings')}</label>
-          {list.data && <span className="text-sm text-[var(--text-tertiary)] sm:ml-auto">{tr('Generated')} {new Date(list.data.generatedAt).toLocaleString()}</span>}
+          {list.data && <span className="text-sm text-[var(--text-tertiary)] sm:ml-auto">{tr('Generated')} {new Date(list.data.generatedAt).toLocaleString(getIntlLocale())}</span>}
         </div>
 
         {list.isLoading ? <div className="flex justify-center py-12"><Spinner /></div> : list.error ? <p role="alert" className="text-[var(--error)]">{(list.error as Error).message}</p> : (

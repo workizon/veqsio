@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
@@ -25,7 +26,7 @@ export default function CalendarPage() {
   const { data, isLoading, error } = useIssues(jql)
   const byDay = useMemo(() => groupByDate(data?.issues ?? [], (i) => i.fields.duedate), [data])
   const today = isoDate(now)
-  const title = new Date(Date.UTC(ym.year, ym.month, 1)).toLocaleDateString('en', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+  const title = new Date(Date.UTC(ym.year, ym.month, 1)).toLocaleDateString(getIntlLocale(), { month: 'long', year: 'numeric', timeZone: 'UTC' })
 
   return (
     <AppLayout>

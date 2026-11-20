@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useRef, useState } from 'react'
 import { History, RotateCcw, X } from 'lucide-react'
@@ -58,7 +59,7 @@ export function HistoryDrawer({ pageId, canRestore, onClose, onRestored }: { pag
                       {tr('Version')} {v.version}
                       {v.version === current && <span className="text-xs rounded px-1.5 py-0.5 bg-[var(--surface-3)]">{tr('current')}</span>}
                     </span>
-                    <span className="block text-xs text-[var(--text-secondary)]">{v.author?.displayName ?? tr('Unknown')} · {new Date(v.createdAt).toLocaleString()}</span>
+                    <span className="block text-xs text-[var(--text-secondary)]">{v.author?.displayName ?? tr('Unknown')} · {new Date(v.createdAt).toLocaleString(getIntlLocale())}</span>
                     <span className="block text-xs text-[var(--text-tertiary)]">
                       {v.restoredFrom ? tr('Restored from version {n} · ', { n: v.restoredFrom }) : ''}{versionSummary(v.added, v.removed)}
                     </span>

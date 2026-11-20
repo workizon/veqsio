@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useI18n } from '@/hooks/use-i18n'
 import { useQuery } from '@tanstack/react-query'
 import { EmptyState } from '@/components/empty-state'
 import { ChartSkeleton } from '@/components/charts/chart-kit'
@@ -15,10 +17,16 @@ async function get<T>(url: string): Promise<T> {
 
 const unit = (c: Config) => (c.unit === 'hours' || c.unit === 'points' ? (c.unit as string) : 'issues')
 const board = (c: Config) => (c.boardId ? String(c.boardId) : '')
-const NoBoard = () => <EmptyState icon="inbox" title="Choose a board" description="Open the gadget settings and pick a board." />
+const NoBoard = () => {
+  const { tr } = useI18n();
+
+  return <EmptyState icon="inbox" title={tr('Choose a board')} description={tr('Open the gadget settings and pick a board.')} />
+}
 
 /** Closed sprints of a board: committed versus completed, with the average. Reuses the report endpoint. */
 function Velocity({ config }: { config: Config }) {
+  const { tr } = useI18n();
+
   const b = board(config)
   const q = useQuery({
     enabled: !!b, queryKey: ['gadget-velocity', b, config.count, unit(config)],
@@ -28,10 +36,10 @@ function Velocity({ config }: { config: Config }) {
   if (q.isLoading) return <ChartSkeleton />
   if (q.error) return <p role="alert" className="p-3 text-body-sm text-[var(--error)]">{(q.error as Error).message}</p>
   const d = q.data!
-  if (!d.sprints.length) return <EmptyState icon="inbox" title="No closed sprints yet" />
+  if (!d.sprints.length) return <EmptyState icon="inbox" title={tr('No closed sprints yet')} />
   return (
     <div className="space-y-2">
-      <p className="text-body-sm">Average velocity: <strong>{d.averageVelocity?.toFixed(1) ?? '—'}</strong> {unit(config)}</p>
+      <p className="text-body-sm">{tr('Average velocity:')} <strong>{d.averageVelocity?.toFixed(1) ?? '—'}</strong> {unit(config)}</p>
       <ul className="space-y-1.5">
         {d.sprints.map((s) => (
           <li key={s.sprintId} className="grid grid-cols-[minmax(0,8rem)_1fr_auto] items-center gap-2 text-body-sm">
@@ -46,6 +54,8 @@ function Velocity({ config }: { config: Config }) {
 }
 
 function Burndown({ config }: { config: Config }) {
+  const { tr } = useI18n();
+
   const b = board(config)
   const sprint = useQuery({
     enabled: !!b && !config.sprintId, queryKey: ['gadget-active-sprint', b],
@@ -58,21 +68,22 @@ function Burndown({ config }: { config: Config }) {
   })
   if (!b) return <NoBoard />
   if (sprint.isLoading || q.isLoading) return <ChartSkeleton />
-  if (!sid) return <EmptyState icon="inbox" title="No active sprint" />
+  if (!sid) return <EmptyState icon="inbox" title={tr('No active sprint')} />
   if (q.error) return <p role="alert" className="p-3 text-body-sm text-[var(--error)]">{(q.error as Error).message}</p>
   const d = q.data!
   return (
     <div>
       <p className="text-caption text-[var(--text-tertiary)] mb-1">{d.sprint.name}</p>
-      <LineChart ariaLabel="Sprint burndown" height={200} labels={d.points.map((p) => p.date)} series={[
-        { name: 'Ideal', color: 'var(--text-tertiary)', dashed: true, values: d.points.map((p) => p.ideal) },
-        { name: 'Remaining', color: 'var(--brand-500)', values: d.points.map((p) => (Number.isFinite(p.remaining) ? p.remaining : null)) },
+      <LineChart ariaLabel={tr('Sprint burndown')} height={200} labels={d.points.map((p) => p.date)} series={[
+        { name: tr('Ideal'), color: 'var(--text-tertiary)', dashed: true, values: d.points.map((p) => p.ideal) },
+        { name: tr('Remaining'), color: 'var(--brand-500)', values: d.points.map((p) => (Number.isFinite(p.remaining) ? p.remaining : null)) },
       ]} />
     </div>
   )
 }
 
 function Flow({ config }: { config: Config }) {
+  const { tr } = useI18n()
   const b = board(config)
   const q = useQuery({
     enabled: !!b, queryKey: ['gadget-cfd', b, config.days],
@@ -83,10 +94,10 @@ function Flow({ config }: { config: Config }) {
   if (q.error) return <p role="alert" className="p-3 text-body-sm text-[var(--error)]">{(q.error as Error).message}</p>
   const p = q.data!.points
   return (
-    <LineChart ariaLabel="Cumulative flow" stacked height={220} labels={p.map((x) => x.date)} series={[
-      { name: 'Done', color: '#16A06A', values: p.map((x) => x.done) },
-      { name: 'In progress', color: '#3D6AF0', values: p.map((x) => x.in_progress) },
-      { name: 'To do', color: '#98A2B3', values: p.map((x) => x.todo) },
+    <LineChart ariaLabel={tr('Cumulative flow')} stacked height={220} labels={p.map((x) => x.date)} series={[
+      { name: tr('Done'), color: '#16A06A', values: p.map((x) => x.done) },
+      { name: tr('In progress'), color: '#3D6AF0', values: p.map((x) => x.in_progress) },
+      { name: tr('To do'), color: '#98A2B3', values: p.map((x) => x.todo) },
     ]} />
   )
 }

@@ -65,14 +65,14 @@ export default function RequestTypesPage() {
       // Existing requests keep their request type: offer the safe alternative instead of a doomed delete.
       try {
         await update.mutateAsync({ rtId: toDelete.id, body: { enabled: false } })
-        toast(`${toDelete.name} was disabled instead`, 'info')
+        toast(tr('{name} was disabled instead', { name: toDelete.name }), 'info')
         setToDelete(null)
       } catch (err) { toast((err as Error).message, 'error') }
       return
     }
     try {
       await del.mutateAsync(toDelete.id)
-      toast(`Deleted ${toDelete.name}`, 'success')
+      toast(tr('Deleted {name}', { name: toDelete.name }), 'success')
       setToDelete(null)
     } catch (err) {
       const e = err as ApiError
@@ -80,7 +80,7 @@ export default function RequestTypesPage() {
       if (e.status === 409) {
         // Offer the safe alternative right away.
         await update.mutateAsync({ rtId: toDelete.id, body: { enabled: false } }).catch(() => {})
-        toast(`${toDelete.name} was disabled instead`, 'info')
+        toast(tr('{name} was disabled instead', { name: toDelete.name }), 'info')
         setToDelete(null)
       }
     }
@@ -126,7 +126,7 @@ export default function RequestTypesPage() {
                 <>
                   <button className="veqsio-btn-ghost p-2" aria-label={`Move ${t.name} up`} disabled={i === 0 || reorder.isPending} onClick={() => move(i, -1)}><ArrowUp className="w-4 h-4" /></button>
                   <button className="veqsio-btn-ghost p-2" aria-label={`Move ${t.name} down`} disabled={i === types.length - 1 || reorder.isPending} onClick={() => move(i, 1)}><ArrowDown className="w-4 h-4" /></button>
-                  <button className="veqsio-btn-ghost p-2" aria-label={`Duplicate ${t.name}`} disabled={dup.isPending} onClick={() => dup.mutate(t.id, { onSuccess: (c) => toast(`Created ${c.name} (disabled)`, 'success'), onError: (e) => toast(e.message, 'error') })}><Copy className="w-4 h-4" /></button>
+                  <button className="veqsio-btn-ghost p-2" aria-label={tr('Duplicate {name}', { name: t.name })} disabled={dup.isPending} onClick={() => dup.mutate(t.id, { onSuccess: (c) => toast(tr('Created {name} (disabled)', { name: c.name }), 'success'), onError: (e) => toast(e.message, 'error') })}><Copy className="w-4 h-4" /></button>
                   <button className="veqsio-btn-ghost p-2 text-[var(--error)]" aria-label={`Delete ${t.name}`} onClick={() => setToDelete(t)}><Trash2 className="w-4 h-4" /></button>
                 </>
               )}
@@ -164,8 +164,8 @@ export default function RequestTypesPage() {
         <div className="space-y-4">
           <p className="text-sm">
             {tr('Delete')} <strong>{toDelete?.name}</strong> {tr('and its form?')} {(toDelete?.requestCount ?? 0) > 0
-              ? `It has ${toDelete?.requestCount} existing requests, so it cannot be deleted. It will be disabled instead and disappear from the portal.`
-              : 'This cannot be undone.'}
+              ? tr('It has {n} existing requests, so it cannot be deleted. It will be disabled instead and disappear from the portal.', { n: toDelete?.requestCount })
+              : tr('This cannot be undone.')}
           </p>
           <div className="flex justify-end gap-2">
             <button className="veqsio-btn-secondary" onClick={() => setToDelete(null)}>{tr('Cancel')}</button>

@@ -63,7 +63,7 @@ function DemoBanner({ minutes }: { minutes: number }) {
       >
         ×
       </button>
-      {tr('Public demo: the data is reset every')} {minutes === 60 ? tr('hour') : tr('{n} minutes', { n: minutes })}. {resetting
+      {minutes === 60 ? tr('Public demo: the data is reset every hour.') : tr('Public demo: the data is reset every {n} minutes.', { n: minutes })} {resetting
         ? tr('The demo is being reset right now, the page reloads by itself.')
         : <>{tr('Next reset in')} <strong className="tabular-nums" data-testid="demo-reset-countdown">{formatCountdown(left)}</strong>.</>}
       {' '}{tr('E-mail, webhooks, imports and other outgoing integrations are switched off.')} </div>

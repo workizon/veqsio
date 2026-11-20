@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Bug, GitBranch, BookOpen, Layers, CheckCircle2, ChevronDown, ChevronRight, Pencil } from 'lucide-react'
@@ -222,7 +223,7 @@ export function RelativeTime({ date, className = '' }: { date: string | Date | n
   const d = typeof date === 'string' ? new Date(date) : date
   if (Number.isNaN(d.getTime())) return null
   return (
-    <time dateTime={d.toISOString()} title={d.toLocaleString()} className={className}>
+    <time dateTime={d.toISOString()} title={d.toLocaleString(getIntlLocale())} className={className}>
       {relativeTime(d)}
     </time>
   )

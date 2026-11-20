@@ -260,10 +260,10 @@ function PaletteDialog() {
 
   const local = useMemo<PaletteItem[]>(() => [
     ...(projects ?? []).map(projectItem),
-    ...(boards?.values ?? []).map(boardItem),
-    ...pageItems(),
-    ...actionItems({ issueKey }),
-  ], [projects, boards, issueKey])
+    ...(boards?.values ?? []).map((b) => boardItem(b, tr)),
+    ...pageItems(tr),
+    ...actionItems({ issueKey }, tr),
+  ], [projects, boards, issueKey, tr])
 
   const q = query.trim()
   const debounced = useDebounced(q, 200)
@@ -287,8 +287,8 @@ function PaletteDialog() {
       ])
       return {
         issues: (issues.issues ?? []).map((i) => issueItem(i.key, i.fields?.summary, i.fields?.status?.name)),
-        pages: (pageHits.results ?? []).slice(0, 5).map(pageResultItem),
-        people: (Array.isArray(users) ? users : []).slice(0, 5).map((u) => userItem({ id: u.id, displayName: u.displayName || u.name || tr('User'), email: u.emailAddress })),
+        pages: (pageHits.results ?? []).slice(0, 5).map((p) => pageResultItem(p, tr)),
+        people: (Array.isArray(users) ? users : []).slice(0, 5).map((u) => userItem({ id: u.id, displayName: u.displayName || u.name || tr('User'), email: u.emailAddress }, tr)),
       }
     },
   })
@@ -298,7 +298,7 @@ function PaletteDialog() {
   const remoteItems = useMemo(() => (settledForQuery ? [...remote.data!.issues, ...remote.data!.pages, ...remote.data!.people] : []), [settledForQuery, remote.data])
   const error = remoteEnabled && debounced === q && remote.isError
 
-  const groups = useMemo(() => buildGroups({ query, local, remote: remoteItems, recents }), [query, local, remoteItems, recents])
+  const groups = useMemo(() => buildGroups({ query, local, remote: remoteItems, recents, tr }), [query, local, remoteItems, recents, tr])
   const flat = useMemo(() => flatten(groups), [groups])
   const found = activeId ? flat.findIndex((r) => r.item.id === activeId) : -1
   const activeIndex = flat.length === 0 ? -1 : found >= 0 ? found : 0

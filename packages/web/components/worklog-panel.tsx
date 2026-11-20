@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import {
@@ -258,7 +259,7 @@ export function WorklogPanel({ issueKey }: { issueKey: string }) {
                     <span className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
                       {wl.started
-                        ? new Date(wl.started).toLocaleDateString()
+                        ? new Date(wl.started).toLocaleDateString(getIntlLocale())
                         : '-'}
                     </span>
                     <span>{formatDuration(wl.timeSpentSeconds)}</span>

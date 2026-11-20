@@ -1,3 +1,4 @@
+import { setActiveLocale } from '@/lib/i18n'
 import { describe, test, expect } from 'bun:test'
 import { dateRangeText, initiativeStatusBadge, milestoneDays, milestoneMarker, progressText, timelineStrip } from '../lib/initiatives'
 import { dayOf } from '../lib/roadmap-layout'
@@ -37,7 +38,10 @@ describe('initiative helpers', () => {
 
   test('date range text', () => {
     expect(dateRangeText(null, null)).toBe('No dates')
-    expect(dateRangeText('2026-01-01', '2026-12-31')).toBe('1 Jan 2026 – 31 Dec 2026')
+    expect(dateRangeText('2026-01-01', '2026-12-31')).toBe('Jan 1, 2026 – Dec 31, 2026')
+    setActiveLocale('de')
+    expect(dateRangeText('2026-01-01', '2026-12-31')).toBe('1. Jan. 2026 – 31. Dez. 2026')
+    setActiveLocale('en')
     expect(dateRangeText('2026-01-01', null)).toContain('no target')
   })
 })

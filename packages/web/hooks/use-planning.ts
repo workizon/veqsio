@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { trNow } from '@/lib/tr'
 import {
   applyCreate, applyMove, mapPlanning, mapRow, type MoveTarget, type PlanIssue, type PlanningData,
 } from '@/lib/planning'
@@ -13,7 +14,7 @@ async function api<T>(url: string, options?: RequestInit): Promise<T> {
   })
   if (!res.ok) {
     const data = await res.json().catch(() => ({}))
-    throw new Error(data.errorMessages?.[0] || `Request failed (HTTP ${res.status})`)
+    throw new Error(data.errorMessages?.[0] || trNow('Request failed (HTTP {status})', { status: res.status }))
   }
   return res.status === 204 ? (undefined as T) : res.json()
 }
@@ -124,7 +125,7 @@ export function useCreatePlanIssue(boardId: string | number | null, projectId: n
   const qc = useQueryClient()
   return useMutation<PlanIssue, Error, { summary: string; issueTypeId: number; typeName: string; target: MoveTarget }>({
     mutationFn: async ({ summary, issueTypeId, typeName, target }) => {
-      if (!projectId) throw new Error('This board has no project')
+      if (!projectId) throw new Error(trNow('This board has no project'))
       const created = await api<{ id: number | string; key: string }>('/rest/api/2/issue', {
         method: 'POST',
         body: JSON.stringify({ fields: { project: { id: projectId }, issuetype: { id: issueTypeId }, summary } }),
@@ -133,7 +134,7 @@ export function useCreatePlanIssue(boardId: string | number | null, projectId: n
         try {
           await api(`${BASE}/sprint/${target.id}/issue`, { method: 'POST', body: JSON.stringify({ issues: [created.key] }) })
         } catch (e) {
-          throw new Error(`${created.key} was created but could not be added to the sprint: ${(e as Error).message}`)
+          throw new Error(trNow('{key} was created but could not be added to the sprint: {message}', { key: created.key, message: (e as Error).message }))
         }
       }
       return mapRow({

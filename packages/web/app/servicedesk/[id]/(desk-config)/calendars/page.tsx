@@ -98,7 +98,7 @@ export default function CalendarsPage() {
                     >
                       <div className="font-medium text-[var(--text-primary)]">{c.name}</div>
                       <div className="text-xs text-[var(--text-tertiary)]">
-                        {c.builtIn ? tr('Always open') : `${c.timeZone} · ${formatMinutes(weeklyHours(c.workingHours))} per week${c.holidays.length ? ` · ${c.holidays.length} holiday${c.holidays.length === 1 ? '' : 's'}` : ''}`}
+                        {c.builtIn ? tr('Always open') : `${tr('{zone} · {hours} per week', { zone: c.timeZone, hours: formatMinutes(weeklyHours(c.workingHours)) })}${c.holidays.length ? ` · ${c.holidays.length === 1 ? tr('{n} holiday', { n: c.holidays.length }) : tr('{n} holidays', { n: c.holidays.length })}` : ''}`}
                       </div>
                     </button>
                   </li>

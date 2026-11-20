@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
@@ -44,7 +45,7 @@ export function SystemLicenseBilling() {
           <div className={tile}><div className="flex items-center gap-2 text-[var(--text-secondary)]"><ShieldCheck className="w-4 h-4" aria-hidden="true" /><span className="text-sm font-medium">{tr('Status')}</span></div><p className="text-display capitalize text-[var(--text-primary)]">{data.state}</p></div>
           <div className={tile}><div className="flex items-center gap-2 text-[var(--text-secondary)]"><Users className="w-4 h-4" aria-hidden="true" /><span className="text-sm font-medium">{tr('Seats')}</span></div><p className="text-display text-[var(--text-primary)]">{data.seatsInUse}{data.seats ? ` / ${data.seats}` : ''}</p><p className="text-xs text-[var(--text-tertiary)]">{data.seats ? 'in use / licensed' : 'in use (no limit)'}</p></div>
           <div className={tile}><div className="text-sm font-medium text-[var(--text-secondary)]">{tr('Licensed to')}</div><p className="text-display text-[var(--text-primary)]">{data.customer ?? '—'}</p></div>
-          <div className={tile}><div className="text-sm font-medium text-[var(--text-secondary)]">{tr('Valid until')}</div><p className="text-display text-[var(--text-primary)]">{data.expiresAt ? new Date(data.expiresAt).toLocaleDateString() : 'No expiry'}</p></div>
+          <div className={tile}><div className="text-sm font-medium text-[var(--text-secondary)]">{tr('Valid until')}</div><p className="text-display text-[var(--text-primary)]">{data.expiresAt ? new Date(data.expiresAt).toLocaleDateString(getIntlLocale()) : 'No expiry'}</p></div>
         </div>
         <div className="grid gap-6 lg:grid-cols-2">
           <section aria-label={tr('Included features')}><h3 className="mb-2 text-heading-3 text-[var(--text-primary)]">{tr('Included features (')}{on.length})</h3>

@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import Link from 'next/link'
@@ -102,7 +103,7 @@ export default function CsatReportPage() {
                       <span className="rounded bg-red-100 px-2 py-0.5 text-sm font-semibold text-red-800" aria-label={`${f.rating} out of 5`}>{f.rating}/5</span>
                       <div className="min-w-0 flex-1">
                         <div><Link className="font-medium text-[var(--brand-600)] hover:underline" href={`/issues/${f.key}`}>{f.key}</Link> {f.summary}</div>
-                        <div className="text-body-sm text-[var(--text-secondary)]">{f.customer ?? tr('Customer')}{f.assignee ? ` · handled by ${f.assignee}` : ' · unassigned'} · {new Date(f.ratedAt).toLocaleDateString()}</div>
+                        <div className="text-body-sm text-[var(--text-secondary)]">{f.customer ?? tr('Customer')}{f.assignee ? ` · handled by ${f.assignee}` : ' · unassigned'} · {new Date(f.ratedAt).toLocaleDateString(getIntlLocale())}</div>
                         {f.comment && <blockquote className="mt-1 border-l-2 border-[var(--surface-4)] pl-2 text-body-sm">{f.comment}</blockquote>}
                       </div>
                       <button type="button" className="veqsio-btn-secondary text-sm" disabled={handled.isPending} onClick={() => handled.mutate(f.key)}>{tr('Mark handled')}<span className="sr-only"> {f.key}</span></button>

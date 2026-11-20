@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { trNow } from '@/lib/tr'
 
 async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, { ...options, credentials: 'include' })
@@ -75,7 +76,7 @@ export function useTestSSOConnection() {
       }
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
-        throw new Error(body.errorMessages?.[0] || 'Connection test failed')
+        throw new Error(body.errorMessages?.[0] || trNow('Connection test failed'))
       }
       return { ok: true }
     },

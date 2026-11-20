@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -128,7 +129,7 @@ export default function AgentsAdminPage() {
                     <td><a className="text-[var(--brand-500)] hover:underline" href={`/issues/${r.issueKey}`}>{r.issueKey}</a></td>
                     <td>{TRIGGER_LABELS[r.trigger] ?? r.trigger}</td>
                     <td title={r.error ?? undefined}>{r.status}{r.error ? ' *' : ''}</td>
-                    <td>{new Date(r.createdAt).toLocaleString()}</td>
+                    <td>{new Date(r.createdAt).toLocaleString(getIntlLocale())}</td>
                     <td>{ACTIVE_RUN.includes(r.status) && <button className="veqsio-btn-ghost p-1" aria-label={tr('Stop run {id}', { id: r.id })} onClick={() => stop.mutate(r.id)}><Square className="w-4 h-4" /></button>}</td>
                   </tr>
                 ))}

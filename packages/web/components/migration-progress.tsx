@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useState } from 'react'
 import { Pause, Play, Loader2, CheckCircle2, AlertCircle, Download } from 'lucide-react'
@@ -61,7 +62,7 @@ export function MigrationProgress({ progress, onPause, onResume, onDownloadRepor
             <Icon className={`w-5 h-5 ${config.color} ${progress.status === 'running' || progress.status === 'analyzing' ? 'animate-spin' : ''}`} />
           </div>
           <div>
-            <p className="text-sm font-semibold text-[var(--text-primary)]">{config.label}</p>
+            <p className="text-sm font-semibold text-[var(--text-primary)]">{tr(config.label)}</p>
             <p className="text-xs text-[var(--text-tertiary)] capitalize">{progress.phase}</p>
           </div>
         </div>
@@ -98,7 +99,7 @@ export function MigrationProgress({ progress, onPause, onResume, onDownloadRepor
 
       <div>
         <div className="flex justify-between text-xs mb-1.5">
-          <span className="text-[var(--text-secondary)]">{progress.processedEntities.toLocaleString()} of {progress.totalEntities.toLocaleString()}</span>
+          <span className="text-[var(--text-secondary)]">{progress.processedEntities.toLocaleString(getIntlLocale())} of {progress.totalEntities.toLocaleString(getIntlLocale())}</span>
           <span className="font-medium text-[var(--text-primary)]">{pct}%</span>
         </div>
         <div className="h-2 bg-[var(--surface-2)] rounded-full overflow-hidden">

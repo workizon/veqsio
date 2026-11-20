@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -338,7 +339,7 @@ function DeliveriesModal({ plugin, onClose }: { plugin: Plugin; onClose: () => v
             <tbody>
               {data?.map((d) => (
                 <tr key={d.id} className="border-t border-[var(--surface-3)]">
-                  <td>{new Date(d.createdAt).toLocaleString()}</td><td>{d.event}</td>
+                  <td>{new Date(d.createdAt).toLocaleString(getIntlLocale())}</td><td>{d.event}</td>
                   <td className={d.status === 'success' ? 'text-green-700' : 'text-red-700'}>{d.status}</td>
                   <td>{d.responseStatus ?? '-'}</td><td>{d.attempts}</td><td>{d.latencyMs}</td><td className="max-w-[12rem] truncate" title={d.error ?? ''}>{d.error ?? ''}</td>
                 </tr>

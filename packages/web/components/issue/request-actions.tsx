@@ -143,7 +143,7 @@ function LinkDialog({ deskId, issueKey, onClose }: { deskId: number; issueKey: s
   const run = () => {
     if (!target || !chosen) return
     link.mutate({ targetKey: target, linkTypeId: chosen.linkTypeId, direction: chosen.direction }, {
-      onSuccess: () => { toast(`${issueKey} ${chosen.label} ${target}`, 'success'); onClose() },
+      onSuccess: () => { toast(tr('{key} {label} {target}', { key: issueKey, label: chosen.label, target }), 'success'); onClose() },
     })
   }
 

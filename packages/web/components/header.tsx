@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState, useEffect, useMemo, useRef } from 'react'
@@ -133,7 +134,7 @@ function NotificationBell() {
                         <p className="text-body-sm font-medium text-[var(--text-primary)]">{n.title}</p>
                         <p className="text-caption text-[var(--text-secondary)] line-clamp-2 break-words">{n.body}</p>
                         <p className="text-caption-sm text-[var(--text-tertiary)] mt-1">
-                          {new Date(n.createdAt).toLocaleString()}
+                          {new Date(n.createdAt).toLocaleString(getIntlLocale())}
                         </p>
                       </div>
                     </div>

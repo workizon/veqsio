@@ -3,6 +3,7 @@
  * Colours are palette tokens (the label palette, CSS variables `--label-<token>-bg|dot` that follow light and dark
  * themes), never hex. DOM-free so it is unit tested; the API validates the same shape (agile/board-config.ts).
  */
+import { trNow } from './tr'
 
 export const CARD_COLOUR_TOKENS = ['gray', 'red', 'orange', 'amber', 'lime', 'green', 'teal', 'cyan', 'blue', 'indigo', 'violet', 'pink'] as const
 export type CardColourToken = (typeof CARD_COLOUR_TOKENS)[number]
@@ -71,7 +72,7 @@ export function colourFor(cfg: CardColourConfig, issue: ColourableIssue, ruleMat
     }
     case 'assignee': {
       const name = issue.fields.assignee?.displayName
-      return name ? { token: hashToken(name), reason: name } : { token: 'gray', reason: 'Unassigned' }
+      return name ? { token: hashToken(name), reason: name } : { token: 'gray', reason: trNow('Unassigned') }
     }
     case 'label': {
       const first = [...(issue.fields.labels ?? [])].sort()[0]
@@ -128,11 +129,11 @@ export function emptyRule(): CardColourRule { return { name: '', jql: '', colour
 /** Client side check before saving; the server validates again. Returns messages, empty when fine. */
 export function validateCardColour(cfg: CardColourConfig, max = 10): string[] {
   const errors: string[] = []
-  if (cfg.by === 'rules' && cfg.rules.length === 0) errors.push('Add at least one rule, or choose another colouring.')
-  if (cfg.rules.length > max) errors.push(`At most ${max} rules.`)
+  if (cfg.by === 'rules' && cfg.rules.length === 0) errors.push(trNow('Add at least one rule, or choose another colouring.'))
+  if (cfg.rules.length > max) errors.push(trNow('At most {max} rules.', { max }))
   cfg.rules.forEach((r, i) => {
-    if (!r.jql.trim()) errors.push(`Rule ${i + 1} needs a JQL query.`)
-    if (!isToken(r.colour)) errors.push(`Rule ${i + 1} needs a colour.`)
+    if (!r.jql.trim()) errors.push(trNow('Rule {n} needs a JQL query.', { n: i + 1 }))
+    if (!isToken(r.colour)) errors.push(trNow('Rule {n} needs a colour.', { n: i + 1 }))
   })
   return errors
 }

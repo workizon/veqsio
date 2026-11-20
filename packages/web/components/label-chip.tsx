@@ -42,7 +42,7 @@ export function LabelChip({
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); onRemove() }}
-          aria-label={`Remove label ${name}`}
+          aria-label={tr('Remove label {name}', { name })}
           className="-mr-1 rounded-full p-0.5 opacity-70 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]"
         >
           <X className="w-3 h-3" aria-hidden="true" />

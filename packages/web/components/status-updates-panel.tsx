@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { Spinner } from '@/components/spinner'
@@ -68,7 +69,7 @@ export function StatusUpdatesPanel({ scope, epic = false, canPost = true, initia
               <div className="flex flex-wrap items-center gap-2 text-sm">
                 <StatusUpdateBadge state={u.state} />
                 <span className="text-[var(--text-primary)] font-medium">{u.author?.displayName ?? tr('Unknown user')}</span>
-                <time dateTime={u.created} title={new Date(u.created).toLocaleString()} className="text-[var(--text-tertiary)]">{whenLabel(u.created)}</time>
+                <time dateTime={u.created} title={new Date(u.created).toLocaleString(getIntlLocale())} className="text-[var(--text-tertiary)]">{whenLabel(u.created)}</time>
               </div>
               {u.body && <p className="text-sm text-[var(--text-primary)] whitespace-pre-wrap break-words">{u.body}</p>}
             </li>

@@ -34,9 +34,9 @@ export default function AdminWorkflowsPage() {
 
   function askDelete(w: WorkflowSummary) {
     setConfirm({
-      title: 'Delete workflow?',
-      message: `“${w.name}” and its ${w.transitionCount} transition${w.transitionCount === 1 ? '' : 's'} will be deleted. This cannot be undone.`,
-      confirmLabel: 'Delete workflow',
+      title: tr('Delete workflow?'),
+      message: tr(w.transitionCount === 1 ? '“{name}” and its {n} transition will be deleted. This cannot be undone.' : '“{name}” and its {n} transitions will be deleted. This cannot be undone.', { name: w.name, n: w.transitionCount }),
+      confirmLabel: tr('Delete workflow'),
       danger: true,
       onConfirm: async () => {
         try { await m.deleteWorkflow.mutateAsync(w.id); toast(tr('Workflow deleted'), 'success') } catch (e) { toast(errMsg(e), 'error') }
@@ -112,7 +112,7 @@ export default function AdminWorkflowsPage() {
         onCreate={async (d) => {
           try {
             const r = await m.createWorkflow.mutateAsync(d)
-            toast(d.cloneFromId ? 'Workflow cloned' : 'Workflow created', 'success')
+            toast(d.cloneFromId ? tr('Workflow cloned') : tr('Workflow created'), 'success')
             setCreateOpen(false); setCloneFrom(null)
             router.push(`/admin/workflows/${r.id}`)
           } catch (e) { toast(errMsg(e), 'error') }
@@ -128,8 +128,10 @@ function CreateModal({ open, onClose, workflows, initialClone, initialName, pend
   initialClone?: number; initialName: string; pending: boolean
   onCreate: (d: { name: string; description?: string; cloneFromId?: number }) => Promise<void>
 }) {
+  const { tr } = useI18n();
+
   return (
-    <Modal isOpen={open} onClose={onClose} title={initialClone ? 'Clone workflow' : 'Create workflow'}>
+    <Modal isOpen={open} onClose={onClose} title={initialClone ? tr('Clone workflow') : tr('Create workflow')}>
       {/* remount per opening so the fields start from the right defaults */}
       <CreateForm key={`${initialClone ?? 'new'}`} workflows={workflows} initialClone={initialClone} initialName={initialName} pending={pending} onCreate={onCreate} onCancel={onClose} />
     </Modal>

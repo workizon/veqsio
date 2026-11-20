@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useDismiss } from '@/hooks/use-dismiss'
 import { useEffect, useState } from 'react'
@@ -72,18 +73,18 @@ export function GroupManager() {
       setCreateOpen(false)
       e.currentTarget.reset()
     } catch (err: any) {
-      toast(err.message || 'Failed to create group', 'error')
+      toast(err.message || tr('Failed to create group'), 'error')
     }
   }
 
   async function handleDeleteGroup(name: string) {
-    if (!(await confirmDialog(`Delete group "${name}"?`))) return
+    if (!(await confirmDialog(tr('Delete group "{name}"?', { name })))) return
     try {
       await deleteGroup.mutateAsync(name)
       toast(tr('Group deleted'), 'success')
       if (selectedGroup === name) setSelectedGroup(null)
     } catch (err: any) {
-      toast(err.message || 'Failed to delete group', 'error')
+      toast(err.message || tr('Failed to delete group'), 'error')
     }
   }
 
@@ -115,8 +116,8 @@ export function GroupManager() {
       ) : groups.length === 0 ? (
         <EmptyState
           icon={groupQuery ? 'search' : 'inbox'}
-          title={groupQuery ? 'No groups match your search' : 'No groups found'}
-          description={groupQuery ? 'Try a different name.' : 'Get started by creating a new group.'}
+          title={groupQuery ? tr('No groups match your search') : tr('No groups found')}
+          description={groupQuery ? tr('Try a different name.') : tr('Get started by creating a new group.')}
           action={groupQuery ? undefined : (
             <button onClick={() => setCreateOpen(true)} className="veqsio-btn-primary flex items-center gap-2">
               <Plus className="w-4 h-4" />
@@ -149,13 +150,13 @@ export function GroupManager() {
                     </span>
                   </td>
                   <td className="px-4 py-2 text-[var(--text-secondary)] hidden md:table-cell max-w-md truncate">{g.description}</td>
-                  <td className="px-4 py-2 text-right tabular-nums text-[var(--text-secondary)]">{(g.memberCount ?? 0).toLocaleString()}</td>
+                  <td className="px-4 py-2 text-right tabular-nums text-[var(--text-secondary)]">{(g.memberCount ?? 0).toLocaleString(getIntlLocale())}</td>
                   <td className="px-4 py-2 text-right whitespace-nowrap">
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDeleteGroup(g.name) }}
                       className="veqsio-btn-ghost p-1.5 text-[var(--error)] hover:bg-[var(--error)]/10"
                       title={tr('Delete')}
-                      aria-label={`Delete ${g.name}`}
+                      aria-label={tr('Delete {name}', { name: g.name })}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -176,7 +177,7 @@ export function GroupManager() {
           setSelectedGroup(null)
           setMemberSearch('')
         }}
-        title={`Members of ${selectedGroup || ''}`}
+        title={tr('Members of {name}', { name: selectedGroup || '' })}
         size="lg"
       >
         {selectedGroup && <GroupMemberPanel groupName={selectedGroup} search={memberSearch} onSearchChange={setMemberSearch} />}
@@ -233,19 +234,19 @@ function GroupMemberPanel({
   async function handleAdd(username: string) {
     try {
       await addMember.mutateAsync({ groupname: groupName, username })
-      toast(`Added ${username} to ${groupName}`, 'success')
+      toast(tr('Added {username} to {group}', { username, group: groupName }), 'success')
       setAddQuery('')
     } catch (err: any) {
-      toast(err.message || 'Failed to add member', 'error')
+      toast(err.message || tr('Failed to add member'), 'error')
     }
   }
 
   async function handleRemove(username: string) {
     try {
       await removeMember.mutateAsync({ groupname: groupName, username })
-      toast(`Removed ${username} from ${groupName}`, 'success')
+      toast(tr('Removed {username} from {group}', { username, group: groupName }), 'success')
     } catch (err: any) {
-      toast(err.message || 'Failed to remove member', 'error')
+      toast(err.message || tr('Failed to remove member'), 'error')
     }
   }
 
@@ -314,8 +315,8 @@ function GroupMemberPanel({
                 <td colSpan={3} className="p-0">
                   <EmptyState
                     icon="search"
-                    title={search ? 'No members match your filter' : 'No members yet'}
-                    description={search ? 'Try adjusting your filter terms.' : 'Search users above to add them to this group.'}
+                    title={search ? tr('No members match your filter') : tr('No members yet')}
+                    description={search ? tr('Try adjusting your filter terms.') : tr('Search users above to add them to this group.')}
                   />
                 </td>
               </tr>

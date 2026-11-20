@@ -46,7 +46,7 @@ export function ProjectSchemesPanel({ projectKey }: { projectKey: string }) {
           return (
             <li key={s.kind} className="flex flex-wrap items-center gap-4 p-4">
               <div className="flex-1 min-w-[12rem]">
-                <label htmlFor={`scheme-${s.kind}`} className="block text-body font-medium">{m.label}</label>
+                <label htmlFor={`scheme-${s.kind}`} className="block text-body font-medium">{tr(m.label)}</label>
                 <span className="block text-body-sm text-[var(--text-secondary)]">{m.help}</span>
               </div>
               {s.editable ? (
@@ -61,7 +61,7 @@ export function ProjectSchemesPanel({ projectKey }: { projectKey: string }) {
                   {s.options.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
                 </select>
               ) : (
-                <span id={`scheme-${s.kind}`} className="w-64 text-body-sm">{s.current ?? 'None'}</span>
+                <span id={`scheme-${s.kind}`} className="w-64 text-body-sm">{s.current ?? tr('None')}</span>
               )}
               <Link href={m.admin} className="text-body-sm">{tr('Manage')}</Link>
             </li>

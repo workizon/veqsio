@@ -41,7 +41,7 @@ export function SystemMailServer() {
       await update.mutateAsync({ host, port, user, pass, from, tls })
       toast(tr('Mail server configuration saved'), 'success')
     } catch (err: any) {
-      toast(err.message || 'Failed to save mail configuration', 'error')
+      toast(err.message || tr('Failed to save mail configuration'), 'error')
     }
   }
 
@@ -54,7 +54,7 @@ export function SystemMailServer() {
       const res = await test.mutateAsync({ to: testAddress })
       toast(res.message, 'success')
     } catch (err: any) {
-      toast(err.message || 'Failed to send test email', 'error')
+      toast(err.message || tr('Failed to send test email'), 'error')
     }
   }
 

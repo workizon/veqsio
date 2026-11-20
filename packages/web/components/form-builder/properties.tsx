@@ -80,12 +80,12 @@ export function FieldProperties({ fields, index, ctx, problems, readOnly, onChan
         <ul role="alert" className="rounded-md bg-[var(--error)]/10 p-2 text-xs text-[var(--error)] list-disc list-inside">{problems.map((p) => <li key={p}>{p}</li>)}</ul>
       ) : null}
 
-      <Row id={`${idp}-label`} label={layout && f.type === 'section' ? 'Heading' : 'Label'}>
+      <Row id={`${idp}-label`} label={layout && f.type === 'section' ? tr('Heading') : tr('Label')}>
         <input id={`${idp}-label`} className="veqsio-input w-full" maxLength={200} value={f.label} onChange={(e) => onRelabel(e.target.value)} />
       </Row>
 
       {(f.type === 'help' || valueField || f.type === 'attachment') && (
-        <Row id={`${idp}-help`} label={f.type === 'help' ? 'Text' : 'Help text'}>
+        <Row id={`${idp}-help`} label={f.type === 'help' ? tr('Text') : tr('Help text')}>
           <textarea id={`${idp}-help`} rows={f.type === 'help' ? 4 : 2} maxLength={2000} className="veqsio-input w-full" value={f.helpText ?? ''} onChange={(e) => onChange({ helpText: e.target.value || undefined })} />
         </Row>
       )}
@@ -314,7 +314,7 @@ function ConditionValue({ idp, cond, source, onChange }: {
     )
   }
   return (
-    <Row id={id} label={many ? 'Values (comma separated)' : 'Value'}>
+    <Row id={id} label={many ? tr('Values (comma separated)') : tr('Value')}>
       <input
         id={id} className="veqsio-input w-full" value={many ? (Array.isArray(cond.value) ? cond.value.join(', ') : '') : String(cond.value ?? '')}
         onChange={(e) => onChange(many ? e.target.value.split(',').map((s) => s.trim()).filter(Boolean) : e.target.value)}
@@ -348,7 +348,7 @@ export function TypeProperties({ draft, ctx, groups, readOnly, onChange }: {
         <div role="radiogroup" aria-labelledby="rt-icon-label" className="grid grid-cols-5 gap-1.5">
           {Object.entries(REQUEST_TYPE_ICONS).map(([key, { Icon, label }]) => (
             <button
-              key={key} type="button" role="radio" aria-checked={(draft.icon ?? 'help-circle') === key} aria-label={label} title={label}
+              key={key} type="button" role="radio" aria-checked={(draft.icon ?? 'help-circle') === key} aria-label={tr(label)} title={tr(label)}
               onClick={() => onChange({ icon: key })}
               className={`h-9 rounded-md border flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--brand-500)] ${(draft.icon ?? 'help-circle') === key ? 'border-[var(--brand-500)] bg-[var(--brand-100)] text-[var(--brand-500)]' : 'border-[var(--surface-3)] text-[var(--text-secondary)] hover:bg-[var(--surface-2)]'}`}
             >

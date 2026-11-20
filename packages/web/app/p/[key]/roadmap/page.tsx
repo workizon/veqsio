@@ -1,3 +1,4 @@
+import { getIntlLocale } from '@/lib/i18n'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-const day = (d: string | null) => (d ? new Date(d + 'T00:00:00Z').toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }) : null)
+const day = (d: string | null) => (d ? new Date(d + 'T00:00:00Z').toLocaleDateString(getIntlLocale(), { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }) : null)
 
 /** Read-only roadmap of a public project: its versions with release dates and how much of each is done. */
 export default async function PublicRoadmapPage({ params }: Props) {

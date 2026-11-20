@@ -92,10 +92,10 @@ export default function DashboardPage() {
     useRecentIssues()
 
   const stats = [
-    { label: 'Open issues', hint: 'Ready for the next step', icon: CircleDot, query: open, color: 'var(--text-primary)' },
-    { label: 'In progress', hint: 'Work moving forward', icon: Clock3, query: inProgress, color: 'var(--brand-600)' },
-    { label: 'Done this week', hint: 'Updated in the last 7 days', icon: CheckCircle2, query: done, color: 'var(--success)' },
-    { label: 'Overdue', hint: 'Needs your attention', icon: AlertCircle, query: overdue, color: 'var(--error)' },
+    { label: tr('Open issues'), hint: tr('Ready for the next step'), icon: CircleDot, query: open, color: 'var(--text-primary)' },
+    { label: tr('In progress'), hint: tr('Work moving forward'), icon: Clock3, query: inProgress, color: 'var(--brand-600)' },
+    { label: tr('Done this week'), hint: tr('Updated in the last 7 days'), icon: CheckCircle2, query: done, color: 'var(--success)' },
+    { label: tr('Overdue'), hint: tr('Needs your attention'), icon: AlertCircle, query: overdue, color: 'var(--error)' },
   ]
 
   return (
@@ -126,9 +126,9 @@ export default function DashboardPage() {
 
         <div className="grid sm:grid-cols-3 gap-3">
           {[
-            { href: '/boards', icon: KanbanSquare, title: 'Boards', description: 'See work in motion' },
-            { href: '/projects', icon: FolderKanban, title: 'Projects', description: 'Find your team’s workspace' },
-            { href: '/backlog', icon: List, title: 'Backlog', description: 'Plan what comes next' },
+            { href: '/boards', icon: KanbanSquare, title: tr('Boards'), description: tr('See work in motion') },
+            { href: '/projects', icon: FolderKanban, title: tr('Projects'), description: tr('Find your team’s workspace') },
+            { href: '/backlog', icon: List, title: tr('Backlog'), description: tr('Plan what comes next') },
           ].map(({ href, icon: Icon, title, description }) => (
             <Link key={href} href={href} className="group flex items-center gap-3 rounded-xl border border-[var(--surface-3)] p-4 hover:bg-[var(--surface-0)] hover:border-[var(--surface-4)] transition-colors">
               <div className="p-2 rounded-lg bg-[var(--surface-2)]"><Icon className="w-5 h-5 text-[var(--text-secondary)]" aria-hidden="true" /></div>

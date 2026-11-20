@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { usePathname } from 'next/navigation'
 import { AppLayout } from '@/components/app-layout'
@@ -108,8 +109,8 @@ function ScimAdminPageBody() {
                   {t.name} {t.revokedAt && <span className="ml-2 text-caption text-red-500">{tr('revoked')}</span>}
                 </div>
                 <div className="text-caption text-[var(--text-tertiary)]">
-                  {tr('Created')} {new Date(t.createdAt).toLocaleDateString()}
-                  {t.lastUsedAt ? tr(' · last used {date}', { date: new Date(t.lastUsedAt).toLocaleString() }) : tr(' · never used')}
+                  {tr('Created')} {new Date(t.createdAt).toLocaleDateString(getIntlLocale())}
+                  {t.lastUsedAt ? tr(' · last used {date}', { date: new Date(t.lastUsedAt).toLocaleString(getIntlLocale()) }) : tr(' · never used')}
                 </div>
               </div>
               {!t.revokedAt && (

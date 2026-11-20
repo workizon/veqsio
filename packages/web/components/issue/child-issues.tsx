@@ -63,7 +63,7 @@ export const ChildIssues = forwardRef<ChildIssuesHandle, { issue: ApiIssue }>(fu
       setSummary('')
       inputRef.current?.focus() // stay open for the next one
     } catch (err: any) {
-      toast(err?.message || 'Failed to create sub-task', 'error')
+      toast(err?.message || tr('Failed to create sub-task'), 'error')
     }
   }
 

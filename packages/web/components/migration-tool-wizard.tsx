@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -170,7 +171,7 @@ export function MigrationToolWizard({ source }: { source: ToolSource }) {
       <div className="space-y-5">
         <div>
           <Link href="/admin/migration" className="text-sm text-[var(--brand-500)]">{tr('← Import from other tools')}</Link>
-          <h1 className="text-heading-1 text-[var(--text-primary)]">{copy.title}</h1>
+          <h1 className="text-heading-1 text-[var(--text-primary)]">{tr(copy.title)}</h1>
           <p className="text-[var(--text-secondary)]">{copy.blurb} {!isFile && 'The token is used only for this import and is not stored.'}</p>
         </div>
 
@@ -226,7 +227,7 @@ export function MigrationToolWizard({ source }: { source: ToolSource }) {
                 <div className="rounded border border-[var(--brand-500)] p-4 flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <div className="font-medium">{tr('Ready to import everything')}</div>
-                    <div className="text-sm text-[var(--text-secondary)]">{selected.size} of {containers.length} projects{total > 0 ? ` · about ${total.toLocaleString()} issues` : ''}. Preview first to see counts and warnings without changing anything.</div>
+                    <div className="text-sm text-[var(--text-secondary)]">{selected.size} of {containers.length} projects{total > 0 ? ` · about ${total.toLocaleString(getIntlLocale())} issues` : ''}. Preview first to see counts and warnings without changing anything.</div>
                   </div>
                   <div className="flex gap-2">
                     <button className="veqsio-btn-secondary" disabled={!canStart} onClick={() => start(true)}>{tr('Preview (dry run)')}</button>
@@ -242,7 +243,7 @@ export function MigrationToolWizard({ source }: { source: ToolSource }) {
                 <div className="max-h-80 overflow-y-auto divide-y divide-[var(--surface-3)]">
                   {containers.map((c) => (
                     <div key={c.id} className="flex flex-wrap items-center gap-3 py-2">
-                      <input type="checkbox" aria-label={`Import ${c.name}`} checked={selected.has(c.id)} onChange={(e) => {
+                      <input type="checkbox" aria-label={tr('Import {name}', { name: c.name })} checked={selected.has(c.id)} onChange={(e) => {
                         const next = new Set(selected); e.target.checked ? next.add(c.id) : next.delete(c.id); setSelected(next)
                       }} />
                       <span className="flex-1 min-w-[10rem]">{c.name}{c.group && <span className="text-xs text-[var(--text-tertiary)]"> · {c.group}</span>}</span>

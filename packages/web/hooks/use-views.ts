@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ApiIssue } from '@/hooks/use-issues'
 import type { ViewConfig, ViewGroup, GroupField } from '@/lib/views'
 import type { Share } from '@/components/share-dialog'
+import { trNow } from '@/lib/tr'
 
 async function api<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, { ...options, credentials: 'include', headers: { 'Content-Type': 'application/json', ...(options?.headers ?? {}) } })
@@ -152,5 +153,5 @@ export async function downloadExport(config: ViewConfig, format: 'csv' | 'xlsx' 
   a.click()
   a.remove()
   URL.revokeObjectURL(url)
-  if (truncated) throw new Error('The export was cut off at the row limit; narrow the query to get everything.')
+  if (truncated) throw new Error(trNow('The export was cut off at the row limit; narrow the query to get everything.'))
 }

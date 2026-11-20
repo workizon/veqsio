@@ -51,7 +51,7 @@ export function FieldConfigurationEditor() {
       setCreateOpen(false)
       e.currentTarget.reset()
     } catch (err: any) {
-      toast(err.message || 'Failed to create configuration', 'error')
+      toast(err.message || tr('Failed to create configuration'), 'error')
     }
   }
 
@@ -61,7 +61,7 @@ export function FieldConfigurationEditor() {
       await deleteConfig.mutateAsync(id)
       toast(tr('Configuration deleted'), 'success')
     } catch (err: any) {
-      toast(err.message || 'Failed to delete configuration', 'error')
+      toast(err.message || tr('Failed to delete configuration'), 'error')
     }
   }
 
@@ -154,7 +154,7 @@ export function FieldConfigurationEditor() {
         </form>
       </Modal>
 
-      <Modal isOpen={!!editingConfig} onClose={() => setEditingConfig(null)} title={editingConfig?.name || 'Edit Configuration'} size="lg">
+      <Modal isOpen={!!editingConfig} onClose={() => setEditingConfig(null)} title={editingConfig?.name || tr('Edit Configuration')} size="lg">
         {editingConfig && <ConfigEditPanel config={editingConfig} onClose={() => setEditingConfig(null)} />}
       </Modal>
     </div>
@@ -191,7 +191,7 @@ function ConfigEditPanel({ config, onClose }: { config: FieldConfiguration; onCl
       toast(tr('Configuration updated'), 'success')
       onClose()
     } catch (err: any) {
-      toast(err.message || 'Failed to update configuration', 'error')
+      toast(err.message || tr('Failed to update configuration'), 'error')
     }
   }
 

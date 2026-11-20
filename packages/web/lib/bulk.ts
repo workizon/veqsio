@@ -2,6 +2,7 @@
  * Pure logic of the "Bulk change" dialog: operations, parameter building, result summaries, retry and undo.
  * No React or DOM here (unit tested in tests/bulk.test.ts); the dialog is components/bulk-change-dialog.tsx.
  */
+import { trNow } from './tr'
 
 export type BulkOperation =
   | 'transition' | 'edit' | 'move' | 'delete' | 'watch' | 'unwatch' | 'label' | 'assign' | 'priority' | 'sprint' | 'fixVersion' | 'component'
@@ -145,13 +146,13 @@ export function summarizeResult(r: BulkResult): ResultSummary {
   let tone: ResultSummary['tone'] = bad === 0 ? 'success' : ok === 0 ? 'error' : 'warning'
   let headline: string
   if (r.preview) {
-    if (bad === 0) headline = `All ${plural(total)} can be changed.`
-    else if (ok === 0) headline = `None of the ${plural(total)} can be changed.`
-    else headline = `${ok} of ${plural(total)} can be changed; ${bad} would fail.`
-  } else if (bad === 0) headline = `${plural(ok)} ${def.done}.`
-  else if (ok === 0) headline = `No issues were ${def.done}; ${bad} failed.`
-  else headline = `${ok} of ${plural(total)} ${def.done}; ${bad} failed.`
-  if (total === 0) { headline = 'Nothing to do.'; tone = 'warning' }
+    if (bad === 0) headline = trNow('All {issues} can be changed.', { issues: plural(total) })
+    else if (ok === 0) headline = trNow('None of the {issues} can be changed.', { issues: plural(total) })
+    else headline = trNow('{ok} of {issues} can be changed; {bad} would fail.', { ok, issues: plural(total), bad })
+  } else if (bad === 0) headline = trNow('{issues} {done}.', { issues: plural(ok), done: trNow(def.done) })
+  else if (ok === 0) headline = trNow('No issues were {done}; {bad} failed.', { done: trNow(def.done), bad })
+  else headline = trNow('{ok} of {issues} {done}; {bad} failed.', { ok, issues: plural(total), done: trNow(def.done), bad })
+  if (total === 0) { headline = trNow('Nothing to do.'); tone = 'warning' }
   return {
     tone, headline, succeeded: ok, failed: bad, failedKeys: r.failed.map((f) => f.key),
     groups: r.failureGroups?.length ? r.failureGroups : groupFailures(r.failed),

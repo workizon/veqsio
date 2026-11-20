@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from '
 import { useQueryClient, type QueryKey } from '@tanstack/react-query'
 import { getRealtimeClient, type ChannelHandler, type PresenceUser, type RealtimeEventPayload, type RealtimeStatus, type ServerMessage } from '@/lib/realtime'
 import { toast } from '@/components/toast'
+import { useI18n } from '@/hooks/use-i18n'
+import { identityTr, type Tr } from '@/lib/tr'
 
 /** Subscribe to one or more channels; `handler` always sees the latest closure. */
 export function useRealtimeChannel(channel: string | string[] | null | undefined, handler: ChannelHandler) {
@@ -44,6 +46,7 @@ interface LiveOptions {
  */
 export function useLiveInvalidation(channel: string | string[] | null | undefined, opts: LiveOptions) {
   const qc = useQueryClient()
+  const { tr } = useI18n()
   const optsRef = useRef(opts)
   optsRef.current = opts
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -62,9 +65,9 @@ export function useLiveInvalidation(channel: string | string[] | null | undefine
     if (o.filter && !o.filter(e)) return
     if (o.toastOthers && Date.now() - lastToast.current > 5000 && e.type !== 'comment.added') {
       lastToast.current = Date.now()
-      const who = (e.actorId !== null && client.names.get(e.actorId)) || 'Someone'
-      const what = e.type.startsWith('issue.') ? e.key : e.type === 'sprint.updated' ? 'a sprint' : 'the board'
-      toast(`${what} updated by ${who}`, 'info')
+      const who = (e.actorId !== null && client.names.get(e.actorId)) || tr('Someone')
+      const what = e.type.startsWith('issue.') ? e.key : e.type === 'sprint.updated' ? tr('a sprint') : tr('the board')
+      toast(tr('{what} updated by {who}', { what, who }), 'info')
     }
     if (timer.current) clearTimeout(timer.current)
     timer.current = setTimeout(() => {
@@ -103,9 +106,9 @@ export function useTyping(channel: string | null | undefined) {
   return { typers, notifyTyping }
 }
 
-export function typingLabel(typers: Array<{ displayName: string }>): string {
+export function typingLabel(typers: Array<{ displayName: string }>, tr: Tr = identityTr): string {
   if (typers.length === 0) return ''
-  if (typers.length === 1) return `${typers[0].displayName} is typing…`
-  if (typers.length === 2) return `${typers[0].displayName} and ${typers[1].displayName} are typing…`
-  return `${typers[0].displayName} and ${typers.length - 1} others are typing…`
+  if (typers.length === 1) return tr('{name} is typing…', { name: typers[0].displayName })
+  if (typers.length === 2) return tr('{a} and {b} are typing…', { a: typers[0].displayName, b: typers[1].displayName })
+  return tr('{name} and {n} others are typing…', { name: typers[0].displayName, n: typers.length - 1 })
 }

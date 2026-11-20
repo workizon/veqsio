@@ -1,4 +1,5 @@
 /** Pure helpers for project status updates (On track / At risk / Off track). */
+import { trNow } from './tr'
 
 export type UpdateState = 'on_track' | 'at_risk' | 'off_track'
 
@@ -24,8 +25,8 @@ export function updateBadge(state: string): { label: string; color: string } {
 
 /** Why a draft cannot be posted yet (null when it can). The body is optional, the state is not. */
 export function validateDraft(state: string | null, body: string): string | null {
-  if (!UPDATE_OPTIONS.some((o) => o.value === state)) return 'Choose a state'
-  if (body.length > 10_000) return 'The text is limited to 10,000 characters'
+  if (!UPDATE_OPTIONS.some((o) => o.value === state)) return trNow('Choose a state')
+  if (body.length > 10_000) return trNow('The text is limited to 10,000 characters')
   return null
 }
 

@@ -2,6 +2,7 @@
  * Pure helpers for the backlog / sprint planning page. No React and no network so the rules
  * (totals, optimistic moves, filters, completion split, form validation) are unit-testable.
  */
+import { getIntlLocale } from '@/lib/i18n'
 
 export type IssueKind = 'bug' | 'task' | 'story' | 'epic' | 'sub-task'
 export type StatusCategory = 'todo' | 'in_progress' | 'done'
@@ -296,7 +297,7 @@ export function addDays(dateInput: string, days: number): string {
 }
 
 export function formatSprintDates(start?: string, end?: string): string {
-  const f = (iso?: string) => (iso ? new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : null)
+  const f = (iso?: string) => (iso ? new Date(iso).toLocaleDateString(getIntlLocale(), { day: 'numeric', month: 'short' }) : null)
   const a = f(start)
   const b = f(end)
   if (a && b) return `${a} – ${b}`

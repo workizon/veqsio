@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { AppLayout } from '@/components/app-layout'
 import { Spinner } from '@/components/spinner'
@@ -378,7 +379,7 @@ export default function AutomationCreatePage() {
               tabs={[
                 {
                   id: 'triggers',
-                  label: `Triggers (${triggers.length})`,
+                  label: tr('Triggers ({n})', { n: triggers.length }),
                   content: (
                     <BuilderSection
                       items={triggers}
@@ -402,7 +403,7 @@ export default function AutomationCreatePage() {
                 },
                 {
                   id: 'conditions',
-                  label: `Conditions (${conditions.length})`,
+                  label: tr('Conditions ({n})', { n: conditions.length }),
                   content: (
                     <BuilderSection
                       items={conditions}
@@ -430,7 +431,7 @@ export default function AutomationCreatePage() {
                 },
                 {
                   id: 'actions',
-                  label: `Actions (${actions.length})`,
+                  label: tr('Actions ({n})', { n: actions.length }),
                   content: (
                     <BuilderSection
                       items={actions}
@@ -1102,7 +1103,7 @@ function ExecutionHistoryModal({
                     {ex.triggerIssueKey ? ` · ${ex.triggerIssueKey}` : ''}
                   </div>
                   <div className="text-caption text-[var(--text-tertiary)]">
-                    {new Date(ex.startedAt).toLocaleString()}
+                    {new Date(ex.startedAt).toLocaleString(getIntlLocale())}
                   </div>
                   {ex.errorMessage && (
                     <div className="text-caption text-[var(--error)] mt-1">{ex.errorMessage}</div>

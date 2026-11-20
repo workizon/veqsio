@@ -131,7 +131,7 @@ export default function QueuesSettingsPage() {
           <QueueEditor
             key={`${q.id}:${q.jql ?? ''}`} q={q} canEdit={isAdmin} first={i === 0} last={i === list.length - 1}
             onMove={(dir) => swap(q, list[i + dir])}
-            onDelete={async () => { if ((await confirmDialog(`Delete queue ${q.name}?`))) del.mutate(q.id, { onError: onErr }) }}
+            onDelete={async () => { if ((await confirmDialog(tr('Delete queue {name}?', { name: q.name })))) del.mutate(q.id, { onError: onErr }) }}
             saveQueue={(v) => save.mutateAsync({ qid: q.id, ...v })}
           />
         ))}

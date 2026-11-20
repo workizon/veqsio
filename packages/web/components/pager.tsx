@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -20,7 +21,7 @@ export function Pager({ startAt, pageSize, total, shown, onPage, className = '' 
   if (total <= pageSize && startAt === 0) return null
   const from = shown === 0 ? 0 : startAt + 1
   const to = startAt + shown
-  const fmt = (n: number) => n.toLocaleString()
+  const fmt = (n: number) => n.toLocaleString(getIntlLocale())
   return (
     <div className={`flex items-center justify-between gap-3 text-sm text-[var(--text-secondary)] ${className}`}>
       <span aria-live="polite">{fmt(from)}–{fmt(to)} {tr('of')} {fmt(total)}</span>

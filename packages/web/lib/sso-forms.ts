@@ -1,4 +1,5 @@
 /** Pure helpers for the SAML and LDAP administration forms and the sign-in page. No React, no network. */
+import { trNow } from './tr'
 
 /** Splits a free-text list (commas, spaces, semicolons or new lines) into unique, trimmed entries. */
 export function splitList(text: string, opts: { lower?: boolean } = {}): string[] {
@@ -85,21 +86,21 @@ export function samlPayload(f: SamlForm): Record<string, unknown> {
 
 /** First problem that would make the server refuse the form, or null. Server validation stays authoritative. */
 export function samlProblem(f: SamlForm): string | null {
-  if (!f.name.trim()) return 'Display name is required'
-  if (!f.id && !/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(f.slug.trim())) return 'Slug: 3-40 lowercase letters, digits or dashes'
-  if (!f.idpEntityId.trim()) return 'IdP entity ID is required'
-  if (!/^https?:\/\/\S+$/.test(f.idpSsoUrl.trim())) return 'IdP SSO URL must be a URL'
-  if (!/-----BEGIN CERTIFICATE-----/.test(f.idpCertificates)) return 'Paste the IdP signing certificate (PEM)'
-  if (f.signRequests && !f.hasSigningKey && !(f.spSigningKey.trim() && f.spSigningCertificate.trim())) return 'Signing requests needs a private key and its certificate'
+  if (!f.name.trim()) return trNow('Display name is required')
+  if (!f.id && !/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(f.slug.trim())) return trNow('Slug: 3-40 lowercase letters, digits or dashes')
+  if (!f.idpEntityId.trim()) return trNow('IdP entity ID is required')
+  if (!/^https?:\/\/\S+$/.test(f.idpSsoUrl.trim())) return trNow('IdP SSO URL must be a URL')
+  if (!/-----BEGIN CERTIFICATE-----/.test(f.idpCertificates)) return trNow('Paste the IdP signing certificate (PEM)')
+  if (f.signRequests && !f.hasSigningKey && !(f.spSigningKey.trim() && f.spSigningCertificate.trim())) return trNow('Signing requests needs a private key and its certificate')
   return null
 }
 
 export function certificateStatus(c: { validTo: string; expired: boolean } | null | undefined, now = Date.now()): { tone: 'ok' | 'warn' | 'bad'; label: string } {
-  if (!c) return { tone: 'bad', label: 'Not a certificate' }
+  if (!c) return { tone: 'bad', label: trNow('Not a certificate') }
   const days = Math.floor((new Date(c.validTo).getTime() - now) / 86_400_000)
-  if (c.expired || days < 0) return { tone: 'bad', label: `Expired ${new Date(c.validTo).toISOString().slice(0, 10)}` }
-  if (days <= 30) return { tone: 'warn', label: `Expires in ${days} day${days === 1 ? '' : 's'}` }
-  return { tone: 'ok', label: `Valid until ${new Date(c.validTo).toISOString().slice(0, 10)}` }
+  if (c.expired || days < 0) return { tone: 'bad', label: trNow('Expired {date}', { date: new Date(c.validTo).toISOString().slice(0, 10) }) }
+  if (days <= 30) return { tone: 'warn', label: days === 1 ? trNow('Expires in {n} day', { n: days }) : trNow('Expires in {n} days', { n: days }) }
+  return { tone: 'ok', label: trNow('Valid until {date}', { date: new Date(c.validTo).toISOString().slice(0, 10) }) }
 }
 
 export interface LdapForm {
@@ -164,15 +165,15 @@ export function ldapPayload(f: LdapForm): Record<string, unknown> {
 }
 
 export function ldapProblem(f: LdapForm): string | null {
-  if (!f.name.trim()) return 'Name is required'
-  if (!/^ldaps?:\/\/[^/\s@]+$/i.test(f.url.trim())) return 'URL must look like ldaps://host:636'
-  if (/^ldaps:/i.test(f.url.trim()) && f.startTls) return 'StartTLS cannot be combined with ldaps://'
-  if (!f.bindDn.trim() || !f.baseDn.trim()) return 'Bind DN and base DN are required'
-  if (!f.id && !f.bindPassword) return 'Bind password is required'
+  if (!f.name.trim()) return trNow('Name is required')
+  if (!/^ldaps?:\/\/[^/\s@]+$/i.test(f.url.trim())) return trNow('URL must look like ldaps://host:636')
+  if (/^ldaps:/i.test(f.url.trim()) && f.startTls) return trNow('StartTLS cannot be combined with ldaps://')
+  if (!f.bindDn.trim() || !f.baseDn.trim()) return trNow('Bind DN and base DN are required')
+  if (!f.id && !f.bindPassword) return trNow('Bind password is required')
   for (const [label, v] of [['User filter', f.userFilter], ['Group filter', f.groupFilter]] as const) {
     if (!/^\(.*\)$/.test(v.trim())) return `${label} must be wrapped in parentheses`
   }
-  if (!(f.syncIntervalMinutes >= 5 && f.syncIntervalMinutes <= 10080)) return 'Sync interval must be between 5 and 10080 minutes'
+  if (!(f.syncIntervalMinutes >= 5 && f.syncIntervalMinutes <= 10080)) return trNow('Sync interval must be between 5 and 10080 minutes')
   return null
 }
 
@@ -197,7 +198,7 @@ const SKIP_REASONS: Record<string, string> = {
   no_email: 'no email address', duplicate_email: 'email shared with another directory user', email_in_use: 'email belongs to another account',
   deactivated_manually: 'deactivated by an administrator', not_provisioned: 'creating users is switched off', seat_limit: 'seat limit reached',
 }
-export const skipReason = (code: string): string => SKIP_REASONS[code] ?? code
+export const skipReason = (code: string): string => trNow(SKIP_REASONS[code] ?? code)
 
 const SSO_ERRORS: Record<string, string> = {
   invalid_state: 'Your sign-in session expired. Please try again.',
@@ -227,5 +228,5 @@ const SSO_ERRORS: Record<string, string> = {
 
 /** Message for ?sso_error=<code> on the sign-in page. Unknown SAML codes stay generic and never echo the input. */
 export function ssoErrorMessage(code: string): string {
-  return SSO_ERRORS[code] ?? (code.startsWith('saml_') ? 'The SAML sign-in response was not accepted.' : 'Single sign-on failed')
+  return trNow(SSO_ERRORS[code] ?? (code.startsWith('saml_') ? 'The SAML sign-in response was not accepted.' : 'Single sign-on failed'))
 }

@@ -33,7 +33,7 @@ function QuotaCell({ row }: { row: Row }) {
   return (
     <div className="flex items-center gap-2">
       <label className="sr-only" htmlFor={`q-${row.key}`}>{tr('Limit for')} {row.name} {tr('in MB')}</label>
-      <input id={`q-${row.key}`} className="veqsio-input w-28 !py-1" inputMode="numeric" value={value} placeholder={row.quotaMb > 0 ? `${row.quotaMb} (default)` : 'no limit'} onChange={(e) => setValue(e.target.value)} aria-invalid={invalid} />
+      <input id={`q-${row.key}`} className="veqsio-input w-28 !py-1" inputMode="numeric" value={value} placeholder={row.quotaMb > 0 ? `${row.quotaMb} (default)` : tr('no limit')} onChange={(e) => setValue(e.target.value)} aria-invalid={invalid} />
       <button type="button" className="veqsio-btn-secondary !py-1" disabled={save.isPending || invalid} onClick={() => save.mutate(parsed)}>{tr('Save')}</button>
     </div>
   )
@@ -52,7 +52,7 @@ export default function StoragePage() {
   })
   return (
     <AppLayout>
-      <PageHeader title={tr('Storage')} breadcrumb={[{ label: 'Administration', href: '/admin' }, { label: 'Storage' }]} description={tr('How much attachment data each project holds, and a limit per project. An upload that would go over its limit is refused.')} />
+      <PageHeader title={tr('Storage')} breadcrumb={[{ label: tr('Administration'), href: '/admin' }, { label: tr('Storage') }]} description={tr('How much attachment data each project holds, and a limit per project. An upload that would go over its limit is refused.')} />
       <div className="space-y-4 max-w-4xl">
         {isLoading && <Spinner />}
         {error && <p role="alert" className="text-sm text-[var(--error)]">{(error as Error).message}</p>}

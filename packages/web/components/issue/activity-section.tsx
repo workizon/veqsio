@@ -136,7 +136,7 @@ export const ActivitySection = forwardRef<ActivityHandle, {
       setReplyingTo(null)
       setComposerOpen(false)
     } catch (err: any) {
-      toast(err?.message || 'Failed to add comment', 'error')
+      toast(err?.message || tr('Failed to add comment'), 'error')
     }
   }
 
@@ -154,7 +154,7 @@ export const ActivitySection = forwardRef<ActivityHandle, {
       setEditId(null)
       setEditBody('')
     } catch (err: any) {
-      toast(err?.message || 'Failed to update comment', 'error')
+      toast(err?.message || tr('Failed to update comment'), 'error')
     }
   }
 
@@ -163,7 +163,7 @@ export const ActivitySection = forwardRef<ActivityHandle, {
       await deleteComment.mutateAsync({ key: issueKey, commentId })
       toast(tr('Comment deleted'), 'success')
     } catch (err: any) {
-      toast(err?.message || 'Failed to delete comment', 'error')
+      toast(err?.message || tr('Failed to delete comment'), 'error')
     }
   }
 
@@ -309,7 +309,7 @@ export const ActivitySection = forwardRef<ActivityHandle, {
             }}
             className={`px-3 py-2 text-sm font-medium relative whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand-500)] ${tab === t.id ? 'text-[var(--brand-500)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
           >
-            {t.label}
+            {tr(t.label)}
             {tab === t.id && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--brand-500)] rounded-t-full" />}
           </button>
         ))}
@@ -366,7 +366,7 @@ export const ActivitySection = forwardRef<ActivityHandle, {
                           />
                         ) : undefined}
                       />
-                      <p className="text-caption text-[var(--text-tertiary)] min-h-[1.25rem]" aria-live="polite">{typingLabel(typers)}</p>
+                      <p className="text-caption text-[var(--text-tertiary)] min-h-[1.25rem]" aria-live="polite">{typingLabel(typers, tr)}</p>
                       {!text.trim() && (
                         <div className="flex flex-wrap gap-1.5" aria-label={tr('Quick replies')}>
                           {QUICK_REPLIES.map((q) => (
@@ -416,8 +416,8 @@ export const ActivitySection = forwardRef<ActivityHandle, {
             ) : feed.length === 0 ? (
               <EmptyState
                 icon={tab === 'history' ? History : MessageSquare}
-                title={tab === 'history' ? 'No history yet' : tab === 'comments' ? 'No comments yet' : 'No activity yet'}
-                description={tab === 'history' ? 'Changes to this issue will be listed here.' : 'Be the first to comment, or press M.'}
+                title={tab === 'history' ? tr('No history yet') : tab === 'comments' ? tr('No comments yet') : tr('No activity yet')}
+                description={tab === 'history' ? tr('Changes to this issue will be listed here.') : tr('Be the first to comment, or press M.')}
               />
             ) : (
               <ul className="space-y-4">

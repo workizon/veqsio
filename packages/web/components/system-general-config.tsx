@@ -43,7 +43,7 @@ export function SystemGeneralConfig() {
       })
       toast(tr('Configuration saved successfully'), 'success')
     } catch (err: any) {
-      toast(err.message || 'Failed to save configuration', 'error')
+      toast(err.message || tr('Failed to save configuration'), 'error')
     }
   }
 

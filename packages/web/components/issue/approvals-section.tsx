@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { Modal } from '@/components/modal'
@@ -41,7 +42,7 @@ export function ApprovalsSection({ issueKey, projectKey }: { issueKey: string; p
               <strong>{a.name}</strong>
               <StatusChip status={a.status} />
               <span className="text-xs text-[var(--text-tertiary)]">{ruleLabel(a.rule, a.ruleThreshold)}</span>
-              {a.expires && a.status === 'pending' && <span className="text-xs text-[var(--text-tertiary)]">expires {new Date(a.expires).toLocaleString()}</span>}
+              {a.expires && a.status === 'pending' && <span className="text-xs text-[var(--text-tertiary)]">expires {new Date(a.expires).toLocaleString(getIntlLocale())}</span>}
               {a.status === 'pending' && a.createdBy === me.data?.id && (
                 <button type="button" className="ml-auto text-xs underline text-[var(--text-secondary)]" disabled={cancel.isPending}
                   onClick={() => cancel.mutate(a.id, { onError: (e) => toast(e.message, 'error') })}>{tr('Cancel approval')}</button>
@@ -56,7 +57,7 @@ export function ApprovalsSection({ issueKey, projectKey }: { issueKey: string; p
               <ul className="text-sm space-y-1" aria-label={`Decision history for ${a.name}`}>
                 {a.decisions.map((d, i) => (
                   <li key={i}>
-                    <span className="font-medium">{d.approver ?? 'Approver'}</span> {d.decision} · <time dateTime={d.decided}>{new Date(d.decided).toLocaleString()}</time>
+                    <span className="font-medium">{d.approver ?? 'Approver'}</span> {d.decision} · <time dateTime={d.decided}>{new Date(d.decided).toLocaleString(getIntlLocale())}</time>
                     {d.comment && <span className="block text-[var(--text-secondary)] whitespace-pre-wrap">{d.comment}</span>}
                   </li>
                 ))}
@@ -69,7 +70,7 @@ export function ApprovalsSection({ issueKey, projectKey }: { issueKey: string; p
                 onDecide={(decision, comment) => {
                   setDecideError((e) => ({ ...e, [a.id]: '' }))
                   decide.mutate({ id: a.id, decision, comment }, {
-                    onSuccess: () => toast(decision === 'approved' ? 'Approved' : 'Declined', 'success'),
+                    onSuccess: () => toast(decision === 'approved' ? tr('Approved') : tr('Declined'), 'success'),
                     onError: (e) => setDecideError((er) => ({ ...er, [a.id]: e.message })),
                   })
                 }}

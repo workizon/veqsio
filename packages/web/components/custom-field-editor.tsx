@@ -344,7 +344,7 @@ function FieldEditPanel({ field, onClose }: { field: AdminCustomField; onClose: 
               className="veqsio-input"
             >
               <option value="">{tr('Select context...')}</option>
-              {(field.isGlobal ? [{ id: 0, label: 'Global' }] : field.contexts).map(ctx => (
+              {(field.isGlobal ? [{ id: 0, label: tr('Global') }] : field.contexts).map(ctx => (
                 <option key={ctx.id} value={ctx.id}>
                   {ctx.id === 0 ? tr('Global') : tr('Context {id}', { id: ctx.id })}
                 </option>

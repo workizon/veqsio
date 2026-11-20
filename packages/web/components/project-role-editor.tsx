@@ -158,7 +158,7 @@ export function ProjectRoleEditor() {
         {editingRole && <RoleEditPanel role={editingRole} onClose={() => setEditingRole(null)} />}
       </Modal>
 
-      <Modal isOpen={!!manageRole} onClose={() => setManageRole(null)} title={`Manage Actors: ${manageRole?.name}`} size="lg">
+      <Modal isOpen={!!manageRole} onClose={() => setManageRole(null)} title={tr('Manage Actors: {name}', { name: manageRole?.name })} size="lg">
         {manageRole && <ManageActorsPanel role={manageRole} onClose={() => setManageRole(null)} />}
       </Modal>
     </div>
@@ -311,7 +311,7 @@ function ManageActorsPanel({ role, onClose }: { role: AdminProjectRole; onClose:
               role.actors.map(actor => (
                 <tr key={actor.id} className="veqsio-table-row">
                   <td className="px-4 py-2">
-                    {projects.find(p => p.id === actor.projectId)?.name || `Project ${actor.projectId}`}
+                    {projects.find(p => p.id === actor.projectId)?.name || tr('Project {id}', { id: actor.projectId })}
                   </td>
                   <td className="px-4 py-2">
                     {actor.type === 'user' ? actor.user?.displayName || tr('Unknown') : actor.group?.name || tr('Unknown')}

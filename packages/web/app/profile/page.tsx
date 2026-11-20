@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import Link from 'next/link'
@@ -180,7 +181,7 @@ export default function ProfilePage() {
                       </Link>
                     </p>
                     <p className="text-caption text-[var(--text-tertiary)] mt-1">
-                      {new Date(item.timestamp).toLocaleDateString()}
+                      {new Date(item.timestamp).toLocaleDateString(getIntlLocale())}
                     </p>
                   </div>
                 ))}

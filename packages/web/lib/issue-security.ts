@@ -1,4 +1,5 @@
 /** Pure helpers of the issue security UI (admin page, issue field, project settings). */
+import { trNow } from './tr'
 
 export const MEMBER_TYPES = ['user', 'group', 'role', 'reporter', 'assignee', 'project_lead', 'any_user'] as const
 export type MemberType = (typeof MEMBER_TYPES)[number]
@@ -22,8 +23,8 @@ export interface SecurityScheme { id: number; name: string; description: string 
 
 /** Short "who sees it" summary of a level, e.g. "Alice, Group dev, Reporter +1". */
 export function summarizeMembers(members: LevelMember[], max = 3): string {
-  if (members.length === 0) return 'Nobody (the level hides issues from everyone)'
-  const shown = members.slice(0, max).map((m) => (m.type === 'group' ? `Group ${m.label}` : m.type === 'role' ? `Role ${m.label}` : m.label))
+  if (members.length === 0) return trNow('Nobody (the level hides issues from everyone)')
+  const shown = members.slice(0, max).map((m) => (m.type === 'group' ? trNow('Group {name}', { name: m.label }) : m.type === 'role' ? trNow('Role {name}', { name: m.label }) : m.label))
   return shown.join(', ') + (members.length > max ? ` +${members.length - max}` : '')
 }
 

@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -42,7 +43,7 @@ function LogLevelCard({ data }: { data: LogsResult }) {
       <h2 id="lvl-h" className="text-heading-3">{tr('Log level')}</h2>
       <p className="text-sm text-[var(--text-secondary)]">
         {tr('Now:')} <strong>{data.level.effective}</strong> {tr('(from the environment:')} {data.level.fromEnvironment}).
-        {data.level.temporary && <> {tr('Set temporarily, until')} {new Date(data.level.temporary.expiresAt).toLocaleTimeString()}.</>}
+        {data.level.temporary && <> {tr('Set temporarily, until')} {new Date(data.level.temporary.expiresAt).toLocaleTimeString(getIntlLocale())}.</>}
         {' '}{tr('A level set here applies to this node only and ends by itself, because verbose logging left on fills the disk.')} </p>
       <div className="flex flex-wrap items-end gap-2">
         <label className="text-xs text-[var(--text-secondary)]">{tr('For')} <select className="veqsio-input block mt-1" value={minutes} onChange={(e) => setMinutes(Number(e.target.value))}>
@@ -93,7 +94,7 @@ function Logs() {
                 const { ts, level: lv, msg, ...rest } = r
                 return (
                   <div key={`${ts}-${i}`} className="border-b border-[var(--surface-3)] px-3 py-1 last:border-b-0">
-                    <span className="text-[var(--text-tertiary)]">{new Date(ts).toLocaleTimeString()}</span>{' '}
+                    <span className="text-[var(--text-tertiary)]">{new Date(ts).toLocaleTimeString(getIntlLocale())}</span>{' '}
                     <span className={LEVEL_CLS[lv]}>{lv.toUpperCase()}</span>{' '}
                     <span className="break-all">{msg}</span>
                     {Object.keys(rest).length > 0 && <span className="text-[var(--text-tertiary)] break-all"> {JSON.stringify(rest)}</span>}

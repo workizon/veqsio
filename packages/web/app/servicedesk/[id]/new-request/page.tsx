@@ -80,7 +80,7 @@ export default function NewRequestOnBehalfPage() {
         description: type.descriptionField ? undefined : description || undefined, fieldValues: submittableValues(type.fields, values),
       },
       {
-        onSuccess: (r) => { toast(`Request ${r.key} raised on behalf of the customer`, 'success'); router.push(`/issues/${r.key}`) },
+        onSuccess: (r) => { toast(tr('Request {key} raised on behalf of the customer', { key: r.key }), 'success'); router.push(`/issues/${r.key}`) },
       },
     )
   }

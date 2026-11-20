@@ -53,7 +53,7 @@ export default function CannedResponsesPage() {
                     <button
                       className="veqsio-btn-secondary text-sm"
                       disabled={del.isPending}
-                      onClick={async () => { if ((await confirmDialog(`Delete "${c.title}"?`))) del.mutate(c.id) }}
+                      onClick={async () => { if ((await confirmDialog(tr('Delete "{name}"?', { name: c.title })))) del.mutate(c.id) }}
                     >
                       {tr('Delete')}<span className="sr-only"> {c.title}</span>
                     </button>

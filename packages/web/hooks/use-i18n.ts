@@ -1,6 +1,9 @@
 import { useCallback, useSyncExternalStore } from 'react'
 import { usePublicSettings } from '@/hooks/use-instance-settings'
-import { resolveLocale, translate, fill, type I18nVars, type LocaleId } from '@/lib/i18n'
+import { setActiveTr } from '@/lib/tr'
+import { resolveLocale, translate, fill, setActiveLocale, type I18nVars, type LocaleId } from '@/lib/i18n'
+
+export type { Tr } from '@/lib/tr'
 
 const KEY = 'veqsio.locale'
 const listeners = new Set<() => void>()
@@ -30,6 +33,8 @@ export function useI18n() {
   const instance = useInstanceLanguage()
   const browser = typeof navigator === 'undefined' ? null : navigator.language
   const locale = resolveLocale(stored, instance, browser)
+  setActiveLocale(locale)
   const tr = useCallback((text: string, vars?: I18nVars) => fill(translate(locale, text), vars), [locale])
+  setActiveTr(tr)
   return { locale, tr, stored }
 }

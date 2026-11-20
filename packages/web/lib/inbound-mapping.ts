@@ -1,5 +1,6 @@
 /** Form <-> API conversion for inbound webhook mappings, plus the ready-made presets. Pure, unit tested. */
 import type { InboundMapping } from '@/hooks/use-integrations'
+import { trNow } from './tr'
 
 export interface MappingForm {
   summary: string
@@ -43,7 +44,7 @@ export function formToMapping(f: MappingForm): { mapping: InboundMapping } | { e
   const pm: Record<string, string> = {}
   for (const line of f.priorityMap.split('\n').map((l) => l.trim()).filter(Boolean)) {
     const i = line.indexOf('=')
-    if (i < 1 || i === line.length - 1) return { error: `Priority map line "${line}" must look like severity=Priority name` }
+    if (i < 1 || i === line.length - 1) return { error: trNow('Priority map line "{line}" must look like severity=Priority name', { line }) }
     pm[line.slice(0, i).trim().toLowerCase()] = line.slice(i + 1).trim()
   }
   if (Object.keys(pm).length) m.priorityMap = pm
@@ -51,7 +52,7 @@ export function formToMapping(f: MappingForm): { mapping: InboundMapping } | { e
   if (labels.length) m.labels = labels
   const eq = f.resolvedEquals.split(',').map((v) => v.trim()).filter(Boolean)
   if (f.resolvedPath.trim() || eq.length) {
-    if (!f.resolvedPath.trim() || !eq.length) return { error: 'Resolved detection needs both a path and at least one value' }
+    if (!f.resolvedPath.trim() || !eq.length) return { error: trNow('Resolved detection needs both a path and at least one value') }
     m.resolvedWhen = { path: f.resolvedPath.trim(), equals: eq.length === 1 ? eq[0] : eq }
   }
   return { mapping: m }

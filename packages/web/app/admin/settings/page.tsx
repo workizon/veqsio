@@ -66,7 +66,7 @@ function ConfigAsCode() {
         <div role="status" className="space-y-1 text-body-sm">
           {report.errors.map((x) => <p key={x} className="text-[var(--error)]">{x}</p>)}
           {report.warnings.map((x) => <p key={x} className="text-[var(--warning)]">{x}</p>)}
-          {report.errors.length === 0 && <p>{report.applied ? 'Applied.' : report.changes.length ? `Preview: ${report.changes.length} change(s)` : 'Nothing to change.'}</p>}
+          {report.errors.length === 0 && <p>{report.applied ? tr('Applied.') : report.changes.length ? tr('Preview: {n} change(s)', { n: report.changes.length }) : tr('Nothing to change.')}</p>}
           {!report.applied && <ul className="list-disc pl-5">{report.changes.slice(0, 50).map((x) => <li key={x}>{x}</li>)}</ul>}
           {!report.applied && report.errors.length === 0 && report.changes.length > 0 && (
             <button type="button" className="veqsio-btn-primary text-sm" disabled={busy} onClick={() => void run(doc, false)}>{tr('Apply these changes')}</button>

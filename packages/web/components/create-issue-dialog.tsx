@@ -199,7 +199,7 @@ export function CreateIssueDialog({ isOpen, onClose }: { isOpen: boolean; onClos
         const up = await fetch(`/rest/api/2/issue/${encodeURIComponent(result.key)}/attachments`, { method: 'POST', body: form, credentials: 'include' })
         if (!up.ok) toast(tr('The issue was created, but the attachments could not be uploaded'), 'error')
       }
-      toast(t(`Issue ${result.key} created`), 'success')
+      toast(t('Issue {key} created').replace('{key}', () => result.key), 'success')
       draft.clear()
       reset()
       if (createAnother) return

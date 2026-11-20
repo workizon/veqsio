@@ -1,6 +1,6 @@
 {
   "name": "@veqsio/mcp",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Model Context Protocol server for Veqsio: lets AI assistants work with an instance through its public REST API and a personal access token",
   "license": "AGPL-3.0-or-later",
   "type": "module",

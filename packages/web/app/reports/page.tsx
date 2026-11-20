@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useTerm } from '@/hooks/use-term'
 import { TimeInStatusReportView } from '@/components/time-in-status-report'
@@ -233,7 +234,7 @@ function ReportView({ report, data, unit }: { report: Report; data: any; unit: U
             <Stat label={tr('Average cycle (days)')} value={fmt(data.averageCycleDays)} /><Stat label={tr('Median')} value={fmt(data.medianCycleDays)} /><Stat label={tr('85th percentile')} value={fmt(data.p85CycleDays)} />
           </div>
           <table className="w-full text-sm"><thead><tr className="text-left"><th>{tr('Issue')}</th><th>{tr('Done')}</th><th>{tr('Cycle (d)')}</th><th>{tr('Lead (d)')}</th></tr></thead>
-            <tbody>{data.points.slice(-50).map((p: any) => <tr key={p.key}><td>{p.key}</td><td>{new Date(p.doneAt).toLocaleDateString()}</td><td>{fmt(p.cycleDays)}</td><td>{fmt(p.leadDays)}</td></tr>)}</tbody></table>
+            <tbody>{data.points.slice(-50).map((p: any) => <tr key={p.key}><td>{p.key}</td><td>{new Date(p.doneAt).toLocaleDateString(getIntlLocale())}</td><td>{fmt(p.cycleDays)}</td><td>{fmt(p.leadDays)}</td></tr>)}</tbody></table>
         </div>
       )
     case 'epics':

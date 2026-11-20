@@ -1,4 +1,5 @@
 /** Pure helpers that turn the burnup / release burndown / version report API payloads into chart rows and text. */
+import { trNow } from './tr'
 
 export type ReportUnit = 'issues' | 'hours' | 'points'
 
@@ -38,8 +39,8 @@ export const unitNoun = (unit: ReportUnit) => (unit === 'points' ? 'story points
 
 /** Pace line: "0.5 points per day over the last 14 days". */
 export function formatVelocity(perDay: number, unit: ReportUnit, lookbackDays: number): string {
-  if (!(perDay > 0)) return `No work completed in the last ${lookbackDays} days`
-  return `${formatQty(perDay, unit)} per day over the last ${lookbackDays} days`
+  if (!(perDay > 0)) return trNow('No work completed in the last {days} days', { days: lookbackDays })
+  return trNow('{qty} per day over the last {days} days', { qty: formatQty(perDay, unit), days: lookbackDays })
 }
 
 export interface Projection { projectedDate: string | null; releaseDate: string | null; onTrack: boolean | null; daysLate: number | null }
@@ -61,7 +62,7 @@ export const percentDone = (completed: number, total: number) => (total > 0 ? Ma
 export function scopeChangeSummary(changes: Array<{ kind: 'added' | 'removed'; size: number }>, unit: ReportUnit): string {
   const added = changes.filter((c) => c.kind === 'added')
   const removed = changes.filter((c) => c.kind === 'removed')
-  if (!changes.length) return 'No scope changes'
+  if (!changes.length) return trNow('No scope changes')
   const sum = (l: typeof changes) => l.reduce((a, c) => a + c.size, 0)
-  return `+${formatQty(sum(added), unit)} added (${added.length}), -${formatQty(sum(removed), unit)} removed (${removed.length})`
+  return trNow('+{added} added ({addedCount}), -{removed} removed ({removedCount})', { added: formatQty(sum(added), unit), addedCount: added.length, removed: formatQty(sum(removed), unit), removedCount: removed.length })
 }

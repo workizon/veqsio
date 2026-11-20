@@ -175,7 +175,7 @@ export function GadgetContainer({ gadget, onRemove, onUpdateConfig, editable = t
       <Modal
         isOpen={configOpen}
         onClose={() => setConfigOpen(false)}
-        title={`Configure ${gadget.title}`}
+        title={tr('Configure {name}', { name: gadget.title })}
         size="sm"
       >
         <div className="space-y-4">

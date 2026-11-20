@@ -11,6 +11,7 @@ import { useUndoableAction } from '@/hooks/use-undoable'
 import { toast } from '@/components/toast'
 import { browserLocalStorage } from '@/lib/palette'
 import { type BulkResult } from '@/lib/bulk'
+import { trNow } from '@/lib/tr'
 import {
   emptyContext, lastCommand, pushCommandHistory, resolveInput, summarizeRun, type CommentOutcome, type ResolveContext, type Resolution,
 } from '@/lib/command-line'
@@ -111,13 +112,13 @@ export function useRunCommand() {
     if (summary.canUndo && summary.tone !== 'error') {
       const groups = summary.undo
       undoableAction({
-        message: summary.headline + (res.undoable ? '' : ' Some changes cannot be undone.'),
+        message: summary.headline + (res.undoable ? '' : ' ' + trNow('Some changes cannot be undone.')),
         undo: async () => {
           const undone: BulkResult[] = []
           for (const g of groups) undone.push(await runBulk(g.issueKeys, g.operation, g.params))
           const restored = new Set(undone.flatMap((r) => r.succeeded)).size
           const failed = new Set(undone.flatMap((r) => r.failed.map((f) => f.key))).size
-          toast(failed ? `Restored ${restored} issues; ${failed} could not be restored` : `Restored ${restored} ${restored === 1 ? 'issue' : 'issues'}`, failed ? 'warning' : 'success')
+          toast(failed ? trNow('Restored {restored} issues; {failed} could not be restored', { restored, failed }) : restored === 1 ? trNow('Restored {n} issue', { n: restored }) : trNow('Restored {n} issues', { n: restored }), failed ? 'warning' : 'success')
           void qc.invalidateQueries({ queryKey: ['issues', 'search'] })
           for (const k of keys) void qc.invalidateQueries({ queryKey: ['issue', k] })
         },

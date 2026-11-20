@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { TypeDef, Lookups } from '@/lib/workflow-graph'
+import { trNow } from '@/lib/tr'
 
 async function api<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, {
@@ -9,7 +10,7 @@ async function api<T>(url: string, options?: RequestInit): Promise<T> {
   })
   if (!res.ok) {
     const data = await res.json().catch(() => ({}))
-    throw new Error(data.errorMessages?.join(' ') || (res.status === 403 ? 'System administrator rights are required' : `HTTP ${res.status}`))
+    throw new Error(data.errorMessages?.join(' ') || (res.status === 403 ? trNow('System administrator rights are required') : `HTTP ${res.status}`))
   }
   return res.json()
 }

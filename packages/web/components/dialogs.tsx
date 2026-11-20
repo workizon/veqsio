@@ -102,9 +102,9 @@ function ConfirmView({ r, done }: { r: Extract<Request, { kind: 'confirm' }>; do
   useEffect(() => { cancel.current?.focus() }, [])
   return (
     <Shell tone={tone} title={shownTitle} onCancel={() => answer(false)} labelledBy="dialog-title">
-      <div className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{r.opts.message}</div>
+      <div className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{typeof r.opts.message === 'string' ? tr(r.opts.message) : r.opts.message}</div>
       <div className="mt-6 flex justify-end gap-2">
-        <button ref={cancel} type="button" className="veqsio-btn-secondary" onClick={() => answer(false)}>{r.opts.cancelLabel ?? tr('Cancel')}</button>
+        <button ref={cancel} type="button" className="veqsio-btn-secondary" onClick={() => answer(false)}>{r.opts.cancelLabel ? tr(r.opts.cancelLabel) : tr('Cancel')}</button>
         <button type="button" className={tone === 'danger' ? btnDanger : btnPrimary} onClick={() => answer(true)} autoFocus={tone !== 'danger'}>{tr(label)}</button>
       </div>
     </Shell>
@@ -119,13 +119,13 @@ function PromptView({ r, done }: { r: Extract<Request, { kind: 'prompt' }>; done
   const ok = r.opts.required === false || value.trim().length > 0
   const submit = () => { if (ok) answer(value.trim()) }
   return (
-    <Shell tone="primary" title={r.opts.title ?? r.label} onCancel={() => answer(null)} labelledBy="dialog-title">
+    <Shell tone="primary" title={tr(r.opts.title ?? r.label)} onCancel={() => answer(null)} labelledBy="dialog-title">
       <form className="mt-2" onSubmit={(e) => { e.preventDefault(); submit() }}>
-        {r.opts.message ? <p className="mb-3 text-sm text-[var(--text-secondary)]">{r.opts.message}</p> : r.opts.title ? <p className="mb-3 text-sm text-[var(--text-secondary)]">{r.label}</p> : null}
-        <input autoFocus aria-label={r.label} className="veqsio-input w-full" value={value} placeholder={r.opts.placeholder} onChange={(e) => setValue(e.target.value)} onFocus={(e) => e.currentTarget.select()} />
+        {r.opts.message ? <p className="mb-3 text-sm text-[var(--text-secondary)]">{typeof r.opts.message === 'string' ? tr(r.opts.message) : r.opts.message}</p> : r.opts.title ? <p className="mb-3 text-sm text-[var(--text-secondary)]">{tr(r.label)}</p> : null}
+        <input autoFocus aria-label={tr(r.label)} className="veqsio-input w-full" value={value} placeholder={r.opts.placeholder ? tr(r.opts.placeholder) : undefined} onChange={(e) => setValue(e.target.value)} onFocus={(e) => e.currentTarget.select()} />
         <div className="mt-6 flex justify-end gap-2">
           <button type="button" className="veqsio-btn-secondary" onClick={() => answer(null)}>{tr('Cancel')}</button>
-          <button type="submit" className={`${btnPrimary} disabled:opacity-50`} disabled={!ok}>{r.opts.confirmLabel ?? 'OK'}</button>
+          <button type="submit" className={`${btnPrimary} disabled:opacity-50`} disabled={!ok}>{r.opts.confirmLabel ? tr(r.opts.confirmLabel) : tr('OK')}</button>
         </div>
       </form>
     </Shell>
@@ -137,9 +137,9 @@ function AlertView({ r, done }: { r: Extract<Request, { kind: 'alert' }>; done: 
   const tone = r.opts.tone ?? 'info'
   const close = () => { r.resolve(); done() }
   return (
-    <Shell tone={tone} title={r.opts.title ?? (tone === 'danger' ? tr('Something went wrong') : tr('Notice'))} onCancel={close} labelledBy="dialog-title">
-      <div className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{r.message}</div>
-      <div className="mt-6 flex justify-end"><button type="button" className={btnPrimary} autoFocus onClick={close}>{r.opts.okLabel ?? tr('OK')}</button></div>
+    <Shell tone={tone} title={r.opts.title ? tr(r.opts.title) : (tone === 'danger' ? tr('Something went wrong') : tr('Notice'))} onCancel={close} labelledBy="dialog-title">
+      <div className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{typeof r.message === 'string' ? tr(r.message) : r.message}</div>
+      <div className="mt-6 flex justify-end"><button type="button" className={btnPrimary} autoFocus onClick={close}>{r.opts.okLabel ? tr(r.opts.okLabel) : tr('OK')}</button></div>
     </Shell>
   )
 }

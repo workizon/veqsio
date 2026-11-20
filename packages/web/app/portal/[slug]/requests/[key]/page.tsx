@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
@@ -127,7 +128,7 @@ export default function PortalRequestPage() {
                 <div className={`flex items-baseline gap-2 text-caption text-[var(--text-tertiary)] ${c.mine ? 'justify-end' : ''}`}>
                   <span className="font-medium text-[var(--text-primary)]">{who}</span>
                   {!c.mine && <span className="rounded-full bg-[var(--surface-2)] px-1.5 text-caption-sm text-[var(--text-secondary)]">{tr('Support')}</span>}
-                  <time dateTime={c.created} title={new Date(c.created).toLocaleString()}>{timeAgo(c.created)}</time>
+                  <time dateTime={c.created} title={new Date(c.created).toLocaleString(getIntlLocale())}>{timeAgo(c.created)}</time>
                 </div>
                 <div className={`mt-1 rounded-2xl border px-4 py-3 text-body ${c.mine ? 'rounded-tr-sm border-[var(--brand-100)] bg-[var(--brand-50)]' : 'rounded-tl-sm border-[var(--surface-3)] bg-[var(--surface-0)] shadow-[var(--shadow-sm)]'}`}>
                   <RichText value={c.body} />
@@ -160,8 +161,8 @@ export default function PortalRequestPage() {
                   <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 text-body-sm">
                     <dt className="text-[var(--text-tertiary)]">{tr('Status')}</dt><dd className="justify-self-end"><StatusBadge status={data.status} category={data.resolved ? 'done' : undefined} /></dd>
                     <dt className="text-[var(--text-tertiary)]">{tr('Reference')}</dt><dd className="justify-self-end font-mono text-[var(--text-primary)]">{data.key}</dd>
-                    <dt className="text-[var(--text-tertiary)]">{tr('Created')}</dt><dd className="justify-self-end text-right text-[var(--text-primary)]" title={new Date(data.created).toLocaleString()}>{timeAgo(data.created)}</dd>
-                    {data.resolved && <><dt className="text-[var(--text-tertiary)]">{tr('Resolved')}</dt><dd className="justify-self-end text-right text-[var(--text-primary)]" title={new Date(data.resolved).toLocaleString()}>{timeAgo(data.resolved)}</dd></>}
+                    <dt className="text-[var(--text-tertiary)]">{tr('Created')}</dt><dd className="justify-self-end text-right text-[var(--text-primary)]" title={new Date(data.created).toLocaleString(getIntlLocale())}>{timeAgo(data.created)}</dd>
+                    {data.resolved && <><dt className="text-[var(--text-tertiary)]">{tr('Resolved')}</dt><dd className="justify-self-end text-right text-[var(--text-primary)]" title={new Date(data.resolved).toLocaleString(getIntlLocale())}>{timeAgo(data.resolved)}</dd></>}
                     <dt className="text-[var(--text-tertiary)]">{tr('Replies')}</dt><dd className="justify-self-end text-[var(--text-primary)]">{data.comments.length}</dd>
                   </dl>
                 </section>

@@ -3,6 +3,7 @@
  * The component (components/command-palette.tsx) only renders what this returns.
  */
 import { fuzzyMatch } from './fuzzy'
+import { identityTr, type Tr } from './tr'
 import { allPages } from './routes'
 import { ADMIN_KEYWORDS } from './admin-helper'
 import type { StorageLike } from './issue-nav'
@@ -62,41 +63,41 @@ export function issueItem(key: string, summary?: string, status?: string): Palet
   return { id: `issue:${key}`, group: 'issues', title: summary || key, subtitle: key, href: `/issues/${key}`, badge: status }
 }
 
-export function keyJumpItem(query: string): PaletteItem | null {
+export function keyJumpItem(query: string, tr: Tr = identityTr): PaletteItem | null {
   const q = query.trim()
   if (!looksLikeIssueKey(q)) return null
   const key = q.toUpperCase()
-  return { id: `issue:${key}`, group: 'issues', title: `Go to ${key}`, subtitle: key, href: `/issues/${key}` }
+  return { id: `issue:${key}`, group: 'issues', title: tr('Go to {key}', { key }), subtitle: key, href: `/issues/${key}` }
 }
 
 export function projectItem(p: { key: string; name: string }): PaletteItem {
   return { id: `project:${p.key}`, group: 'projects', title: p.name, subtitle: p.key, href: `/projects/${p.key}/settings`, keywords: 'project' }
 }
 
-export function boardItem(b: { id: string | number; name: string; type?: string }): PaletteItem {
-  return { id: `board:${b.id}`, group: 'boards', title: b.name, subtitle: b.type ? `${b.type} board` : 'Board', href: `/boards?board=${encodeURIComponent(String(b.id))}` }
+export function boardItem(b: { id: string | number; name: string; type?: string }, tr: Tr = identityTr): PaletteItem {
+  return { id: `board:${b.id}`, group: 'boards', title: b.name, subtitle: b.type ? tr('{type} board', { type: b.type }) : tr('Board'), href: `/boards?board=${encodeURIComponent(String(b.id))}` }
 }
 
 /** A wiki page found by the server-side page search. */
-export function pageResultItem(p: { id: number; title: string; projectKey: string | null }): PaletteItem {
-  return { id: `page:/pages/${p.id}`, group: 'pages', title: p.title, subtitle: p.projectKey ?? 'Workspace page', href: `/pages/${p.id}` }
+export function pageResultItem(p: { id: number; title: string; projectKey: string | null }, tr: Tr = identityTr): PaletteItem {
+  return { id: `page:/pages/${p.id}`, group: 'pages', title: p.title, subtitle: p.projectKey ?? tr('Workspace page'), href: `/pages/${p.id}` }
 }
 
-export function userItem(u: { id: number | string; displayName: string; email?: string }): PaletteItem {
+export function userItem(u: { id: number | string; displayName: string; email?: string }, tr: Tr = identityTr): PaletteItem {
   return {
     id: `user:${u.id}`,
     group: 'people',
     title: u.displayName,
-    subtitle: u.email || 'Issues assigned to this person',
+    subtitle: u.email || tr('Issues assigned to this person'),
     href: `/issues?jql=${encodeURIComponent(`assignee = "${u.displayName.replace(/"/g, '')}"`)}`,
   }
 }
 
-export function pageItems(): PaletteItem[] {
+export function pageItems(tr: Tr = identityTr): PaletteItem[] {
   return allPages()
     // "Create issue" is offered as an action (opens the dialog), not as a second page entry.
     .filter((p) => p.href !== '/issues/create')
-    .map((p) => ({ id: `page:${p.href}`, group: 'pages' as const, title: p.label, subtitle: p.section === p.label ? p.hint : p.section, href: p.href, keywords: [p.hint, ...(ADMIN_KEYWORDS[p.href] ?? [])].filter(Boolean).join(' ') || undefined }))
+    .map((p) => ({ id: `page:${p.href}`, group: 'pages' as const, title: tr(p.label), subtitle: p.section === p.label ? (p.hint ? tr(p.hint) : p.hint) : tr(p.section), href: p.href, keywords: [p.hint, ...(ADMIN_KEYWORDS[p.href] ?? [])].filter(Boolean).join(' ') || undefined }))
 }
 
 export interface ActionContext {
@@ -104,18 +105,18 @@ export interface ActionContext {
   issueKey?: string | null
 }
 
-export function actionItems(ctx: ActionContext = {}): PaletteItem[] {
+export function actionItems(ctx: ActionContext = {}, tr: Tr = identityTr): PaletteItem[] {
   const out: PaletteItem[] = [
-    { id: 'action:create', group: 'actions', title: 'Create issue', action: 'create', shortcut: 'c', keywords: 'new add ticket' },
+    { id: 'action:create', group: 'actions', title: tr('Create issue'), action: 'create', shortcut: 'c', keywords: 'new add ticket' },
   ]
   if (ctx.issueKey) {
-    out.push({ id: 'action:assignToMe', group: 'actions', title: `Assign ${ctx.issueKey} to me`, action: 'assignToMe', shortcut: 'i', keywords: 'assignee take' })
+    out.push({ id: 'action:assignToMe', group: 'actions', title: tr('Assign {key} to me', { key: ctx.issueKey }), action: 'assignToMe', shortcut: 'i', keywords: 'assignee take' })
   }
   out.push(
-    { id: 'action:myIssues', group: 'actions', title: 'Go to my issues', action: 'myIssues', keywords: 'assigned mine' },
-    { id: 'action:toggleTheme', group: 'actions', title: 'Toggle dark mode', action: 'toggleTheme', keywords: 'theme light dark appearance' },
-    { id: 'action:help', group: 'actions', title: 'Open shortcut help', action: 'help', shortcut: 'mod+/', keywords: 'keyboard keys hotkeys' },
-    { id: 'action:signOut', group: 'actions', title: 'Sign out', action: 'signOut', keywords: 'logout log out' },
+    { id: 'action:myIssues', group: 'actions', title: tr('Go to my issues'), action: 'myIssues', keywords: 'assigned mine' },
+    { id: 'action:toggleTheme', group: 'actions', title: tr('Toggle dark mode'), action: 'toggleTheme', keywords: 'theme light dark appearance' },
+    { id: 'action:help', group: 'actions', title: tr('Open shortcut help'), action: 'help', shortcut: 'mod+/', keywords: 'keyboard keys hotkeys' },
+    { id: 'action:signOut', group: 'actions', title: tr('Sign out'), action: 'signOut', keywords: 'logout log out' },
   )
   return out
 }
@@ -134,6 +135,8 @@ export interface RankInput {
   /** Max rows per group while typing / with an empty query. */
   limit?: number
   emptyLimit?: number
+  /** Translates the "Go to KEY" jump entry (default: English). */
+  tr?: Tr
 }
 
 /** Recent items are remembered under their original group; this keeps them out of the way of fresh results. */
@@ -179,7 +182,7 @@ export function buildGroups(input: RankInput): RankedGroup[] {
   const byId = new Map<string, PaletteItem>()
   for (const i of [...recents, ...input.local]) byId.set(i.id, i)
   for (const i of input.remote ?? []) byId.set(i.id, i)
-  const jump = keyJumpItem(q)
+  const jump = keyJumpItem(q, input.tr)
 
   const ranked = new Map<PaletteGroup, RankedItem[]>()
   for (const item of byId.values()) {

@@ -45,7 +45,7 @@ export function ItemListEditor({ label, hint, defs, lookups, items, onChange }: 
               <div className="flex items-start gap-2">
                 {def ? (
                   <TypeSelect
-                    label={`${label} ${i + 1} type`}
+                    label={tr('{label} {n} type', { label, n: i + 1 })}
                     value={item.type}
                     defs={defs}
                     onChange={(t) => { const d = defs.find((x) => x.type === t); if (d) update(i, newItem(d) as Item) }}

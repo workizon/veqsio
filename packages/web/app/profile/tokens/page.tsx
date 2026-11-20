@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useState } from 'react'
 import { PageHeader } from '@/components/page-header'
@@ -187,13 +188,13 @@ export default function TokensPage() {
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-caption text-[var(--text-tertiary)]">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      {tr('Created')} {new Date(token.createdAt).toLocaleDateString()}
+                      {tr('Created')} {new Date(token.createdAt).toLocaleDateString(getIntlLocale())}
                     </span>
                     {token.lastUsedAt && (
-                      <span>{tr('Last used')} {new Date(token.lastUsedAt).toLocaleDateString()}</span>
+                      <span>{tr('Last used')} {new Date(token.lastUsedAt).toLocaleDateString(getIntlLocale())}</span>
                     )}
                     {token.expiresAt && (
-                      <span>{tr('Expires')} {new Date(token.expiresAt).toLocaleDateString()}</span>
+                      <span>{tr('Expires')} {new Date(token.expiresAt).toLocaleDateString(getIntlLocale())}</span>
                     )}
                     <span className="text-[var(--brand-500)]">{token.scopes?.join(', ')}</span>
                   </div>

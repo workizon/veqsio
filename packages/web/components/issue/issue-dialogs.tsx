@@ -30,7 +30,7 @@ function CloneDialog({ issue, isOpen, onClose }: { issue: ApiIssue; isOpen: bool
   const router = useRouter()
   const clone = useCloneIssue()
   const [summary, setSummary] = useState('')
-  useEffect(() => { if (isOpen) setSummary(`Clone of ${issue.fields.summary}`) }, [isOpen, issue.fields.summary])
+  useEffect(() => { if (isOpen) setSummary(tr('Clone of {summary}', { summary: issue.fields.summary })) }, [isOpen, issue.fields.summary])
   const submit = () => {
     clone.mutate(
       { key: issue.key, data: { summary } },

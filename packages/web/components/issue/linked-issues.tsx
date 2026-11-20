@@ -54,7 +54,7 @@ export const LinkedIssues = forwardRef<LinkedIssuesHandle, { issue: ApiIssue }>(
     try {
       const target = await fetch(`/rest/api/2/issue/${encodeURIComponent(k)}`, { credentials: 'include' }).then((r) => (r.ok ? r.json() : null))
       if (!target) {
-        toast(`Issue ${k} not found`, 'error')
+        toast(tr('Issue {key} not found', { key: k }), 'error')
         return
       }
       await link.mutateAsync({ ...linkRequest(issue.id, target.id, selected.direction), typeId: selected.typeId })

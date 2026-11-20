@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { useMutation } from '@tanstack/react-query'
 import { RefreshCw } from 'lucide-react'
@@ -13,10 +14,10 @@ export function ProjectMaintenancePanel({ projectKey }: { projectKey: string }) 
   const run = useMutation({
     mutationFn: async () => {
       const r = await fetch(`/rest/api/2/project/${encodeURIComponent(projectKey)}/reindex`, { method: 'POST', credentials: 'include' })
-      if (!r.ok) throw new Error((await r.json().catch(() => ({}))).errorMessages?.[0] || 'The refresh failed')
+      if (!r.ok) throw new Error((await r.json().catch(() => ({}))).errorMessages?.[0] || tr('The refresh failed'))
       return (await r.json()) as { issues: number; tookMs: number }
     },
-    onSuccess: (d) => toast(`Refreshed ${d.issues.toLocaleString()} issue${d.issues === 1 ? '' : 's'} in ${d.tookMs} ms`, 'success'),
+    onSuccess: (d) => toast(tr(d.issues === 1 ? 'Refreshed {n} issue in {ms} ms' : 'Refreshed {n} issues in {ms} ms', { n: d.issues.toLocaleString(getIntlLocale()), ms: d.tookMs }), 'success'),
     onError: (e: Error) => toast(e.message, 'error'),
   })
   return (

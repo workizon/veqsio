@@ -67,7 +67,7 @@ export default function NotificationHelperPage() {
           <div>
             <label htmlFor="nh-event" className="block text-caption font-medium text-[var(--text-secondary)] mb-1">{tr('Event')}</label>
             <select id="nh-event" className="veqsio-input w-full" value={event} onChange={(e) => setEvent(e.target.value)}>
-              {(events ?? [{ id: 'issue.updated', label: 'Issue updated' }]).map((ev) => <option key={ev.id} value={ev.id}>{tr(ev.label)}</option>)}
+              {(events ?? [{ id: 'issue.updated', label: tr('Issue updated') }]).map((ev) => <option key={ev.id} value={ev.id}>{tr(ev.label)}</option>)}
             </select>
           </div>
           <UserPicker label={tr('Recipient')} value={user} onChange={setUser} />

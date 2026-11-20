@@ -184,7 +184,7 @@ export default function CreateIssuePage() {
 
       if (res.ok) {
         const data = await res.json()
-        toast(t(`Issue ${data.key} created`), 'success')
+        toast(t('Issue {key} created').replace('{key}', () => data.key), 'success')
         draft.clear()
         if (createAnother) {
           setSummary('')

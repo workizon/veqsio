@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { usePathname } from 'next/navigation'
 import { AppLayout } from '@/components/app-layout'
@@ -226,7 +227,7 @@ function LdapAdminPageBody() {
                         {d.syncRunning && <span className="ml-2 text-caption text-amber-600 dark:text-amber-400">{tr('sync running')}</span>}
                       </div>
                       <div className="text-caption text-[var(--text-secondary)] truncate">{d.url} · {d.baseDn}</div>
-                      <div className="text-caption text-[var(--text-tertiary)]">{d.lastSyncAt ? tr('Last sync {date}', { date: new Date(d.lastSyncAt).toLocaleString() }) : tr('Never synced')}</div>
+                      <div className="text-caption text-[var(--text-tertiary)]">{d.lastSyncAt ? tr('Last sync {date}', { date: new Date(d.lastSyncAt).toLocaleString(getIntlLocale()) }) : tr('Never synced')}</div>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <button className="veqsio-btn-secondary text-body-sm flex items-center gap-1.5" onClick={() => onTest(d)}><TestTube className="w-4 h-4" /> {tr('Test connection')}</button>
@@ -236,7 +237,7 @@ function LdapAdminPageBody() {
                       <button className="p-1 text-[var(--text-tertiary)] hover:text-red-500" title={tr('Delete')} aria-label={tr('Delete')} onClick={() => onDelete(d)}><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </div>
-                  {shown && <SyncPanel result={shown} title={shown.dryRun ? tr('Preview (nothing was changed)') : tr('Last sync result, {date}', { date: new Date(shown.at).toLocaleString() })} />}
+                  {shown && <SyncPanel result={shown} title={shown.dryRun ? tr('Preview (nothing was changed)') : tr('Last sync result, {date}', { date: new Date(shown.at).toLocaleString(getIntlLocale()) })} />}
                   {shown && !shown.ok && !shown.dryRun && shown.error?.includes('force') && (
                     <button className="veqsio-btn-secondary text-body-sm" onClick={() => run(d, false, true)}>{tr('Run anyway (force)')}</button>
                   )}

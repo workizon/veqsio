@@ -142,21 +142,21 @@ export function RichTextEditor({
 
   /* ---------------- toolbar ---------------- */
   const tools: Array<{ label: string; icon: React.ReactNode; run: () => void; shortcut?: string }> = [
-    { label: 'Bold', shortcut: 'Ctrl+B', icon: <Bold className="w-4 h-4" />, run: () => apply(wrapSelection(state(), '**')) },
-    { label: 'Italic', shortcut: 'Ctrl+I', icon: <Italic className="w-4 h-4" />, run: () => apply(wrapSelection(state(), '*')) },
-    { label: 'Strikethrough', icon: <Strikethrough className="w-4 h-4" />, run: () => apply(wrapSelection(state(), '~~')) },
-    { label: 'Heading', icon: <Heading2 className="w-4 h-4" />, run: () => apply(prefixLines(state(), 'heading')) },
-    { label: 'Inline code', icon: <Code className="w-4 h-4" />, run: () => apply(wrapSelection(state(), '`', '`', 'code')) },
-    { label: 'Code block', icon: <FileCode className="w-4 h-4" />, run: () => apply(insertCodeBlock(state())) },
-    { label: 'Link', shortcut: 'Ctrl+K', icon: <Link2 className="w-4 h-4" />, run: () => apply(insertLink(state())) },
-    { label: 'Bulleted list', icon: <List className="w-4 h-4" />, run: () => apply(prefixLines(state(), 'bullet')) },
-    { label: 'Numbered list', icon: <ListOrdered className="w-4 h-4" />, run: () => apply(prefixLines(state(), 'number')) },
-    { label: 'Task list', icon: <ListChecks className="w-4 h-4" />, run: () => apply(prefixLines(state(), 'task')) },
-    { label: 'Quote', icon: <Quote className="w-4 h-4" />, run: () => apply(prefixLines(state(), 'quote')) },
+    { label: tr('Bold'), shortcut: 'Ctrl+B', icon: <Bold className="w-4 h-4" />, run: () => apply(wrapSelection(state(), '**')) },
+    { label: tr('Italic'), shortcut: 'Ctrl+I', icon: <Italic className="w-4 h-4" />, run: () => apply(wrapSelection(state(), '*')) },
+    { label: tr('Strikethrough'), icon: <Strikethrough className="w-4 h-4" />, run: () => apply(wrapSelection(state(), '~~')) },
+    { label: tr('Heading'), icon: <Heading2 className="w-4 h-4" />, run: () => apply(prefixLines(state(), 'heading')) },
+    { label: tr('Inline code'), icon: <Code className="w-4 h-4" />, run: () => apply(wrapSelection(state(), '`', '`', 'code')) },
+    { label: tr('Code block'), icon: <FileCode className="w-4 h-4" />, run: () => apply(insertCodeBlock(state())) },
+    { label: tr('Link'), shortcut: 'Ctrl+K', icon: <Link2 className="w-4 h-4" />, run: () => apply(insertLink(state())) },
+    { label: tr('Bulleted list'), icon: <List className="w-4 h-4" />, run: () => apply(prefixLines(state(), 'bullet')) },
+    { label: tr('Numbered list'), icon: <ListOrdered className="w-4 h-4" />, run: () => apply(prefixLines(state(), 'number')) },
+    { label: tr('Task list'), icon: <ListChecks className="w-4 h-4" />, run: () => apply(prefixLines(state(), 'task')) },
+    { label: tr('Quote'), icon: <Quote className="w-4 h-4" />, run: () => apply(prefixLines(state(), 'quote')) },
   ]
   if (mentions) {
     tools.push({
-      label: 'Mention a user', icon: <AtSign className="w-4 h-4" />,
+      label: tr('Mention a user'), icon: <AtSign className="w-4 h-4" />,
       run: () => {
         const s = state()
         const needsSpace = s.start > 0 && !/\s/.test(value[s.start - 1])

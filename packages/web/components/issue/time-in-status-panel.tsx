@@ -1,6 +1,7 @@
 'use client'
 
 
+import { getIntlLocale } from '@/lib/i18n'
 import { useI18n } from '@/hooks/use-i18n'
 import { Clock } from 'lucide-react'
 import { EmptyState } from '@/components/empty-state'
@@ -8,7 +9,7 @@ import { Spinner } from '@/components/spinner'
 import { useTimeInStatus } from '@/hooks/use-issue-history'
 import { barShares, categoryColor, categoryLabel, formatDuration } from '@/lib/time-in-status'
 
-const fmt = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+const fmt = (iso: string) => new Date(iso).toLocaleString(getIntlLocale(), { dateStyle: 'medium', timeStyle: 'short' })
 
 /** "Transitions" tab of the activity section: a bar of the time per stay and a table of every stay. */
 export function TimeInStatusPanel({ issueKey }: { issueKey: string }) {

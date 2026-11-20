@@ -78,7 +78,7 @@ export default function PermissionHelperPage() {
           {scope !== 'global' && (
             <div>
               <label htmlFor="ph-target" className="block text-caption font-medium text-[var(--text-secondary)] mb-1">{scope === 'issue' ? tr('Issue key') : tr('Project key')}</label>
-              <input id="ph-target" className="veqsio-input w-full" value={target} onChange={(e) => setTarget(e.target.value)} placeholder={scope === 'issue' ? 'DEMO-1' : 'DEMO'} autoComplete="off" />
+              <input id="ph-target" className="veqsio-input w-full" value={target} onChange={(e) => setTarget(e.target.value)} placeholder={scope === 'issue' ? tr('DEMO-1') : tr('DEMO')} autoComplete="off" />
             </div>
           )}
           <div>
