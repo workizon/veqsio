@@ -5,11 +5,56 @@
   </picture>
 </p>
 
-Open-source work management for teams: a self-hosted alternative to Jira Software and Jira Service Management, with first-class migration from existing Jira instances.
+<p align="center">
+  <b>Open-source work management for teams.</b><br>
+  A self-hosted alternative to Jira Software and Jira Service Management, with first-class migration from existing Jira instances.
+</p>
 
-Veqsio is developed and maintained by [Workizon Ltd](https://workizon.ltd) together with the open-source community.
+<p align="center">
+  <a href="LICENSE"><img alt="License: AGPL-3.0" src="https://img.shields.io/badge/license-AGPL--3.0-blue"></a>
+  <a href="https://github.com/workizon/veqsio/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/workizon/veqsio?label=release"></a>
+  <a href="https://github.com/workizon/veqsio/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/workizon/veqsio/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://demo.veqsio.com"><img alt="Live demo" src="https://img.shields.io/badge/demo-demo.veqsio.com-2F6BFF"></a>
+  <a href="https://veqsio.com/docs/"><img alt="Documentation" src="https://img.shields.io/badge/docs-veqsio.com-38BDF8"></a>
+</p>
 
-> Status: active development.
+<p align="center">
+  <a href="https://demo.veqsio.com"><b>Live demo</b></a> &middot;
+  <a href="https://veqsio.com/docs/">Documentation</a> &middot;
+  <a href="#install-on-a-server-one-command">Install</a> &middot;
+  <a href="docs/jira-parity.md">Compared with Jira</a> &middot;
+  <a href="https://veqsio.com/pricing">Pricing</a>
+</p>
+
+<p align="center">
+  <a href="https://demo.veqsio.com">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/board-dark.png">
+      <img src="docs/screenshots/board.png" alt="Veqsio Scrum board with To Do, In Progress and Done columns" width="900">
+    </picture>
+  </a>
+</p>
+
+## Why Veqsio
+
+- **Your data, your server.** Install it on a clean Linux server with one command; PostgreSQL and Valkey stay private and your issues never leave your infrastructure.
+- **Familiar if you come from Jira.** JQL search, workflows, boards, sprints, a Jira-compatible REST API (v2 endpoints) and a live import from Jira Cloud, Server and Data Center that keeps your issue keys.
+- **Service desk included.** Customer portal, request types, queues and SLAs are part of the community edition.
+- **A free core.** AGPL-3.0 with no limit on users, projects or issues. Paid modules (Timesheets, Plans, ITSM, Assets/CMDB) and the Enterprise identity features (SAML, OpenID Connect, SCIM, LDAP) are licensed separately, and open-source projects get all of them free ([Veqsio for Open Source](#veqsio-for-open-source)).
+- **Eight interface languages:** English, Deutsch, Espa&ntilde;ol, Fran&ccedil;ais, Portugu&ecirc;s (Brasil), &#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;, &#31616;&#20307;&#20013;&#25991; and &#26085;&#26412;&#35486;.
+
+## Try it
+
+- **Online:** [demo.veqsio.com](https://demo.veqsio.com) is open to everyone (the sign-in page shows the demo account) and is reset every hour.
+- **On your own server** (clean Ubuntu, Debian or Rocky Linux, about 2 GB RAM):
+
+  ```bash
+  curl -fsSL https://raw.githubusercontent.com/workizon/veqsio/main/install.sh | sudo bash
+  ```
+
+  The installer sends a once-a-day anonymous usage count; switch it off with `--no-telemetry` ([what is sent](docs/telemetry.md)). All options and tested platforms: [Install on a server](#install-on-a-server-one-command).
+
+Veqsio is developed and maintained by [Workizon Ltd](https://workizon.ltd) together with the open-source community. Status: active development.
 
 ## Features
 
@@ -276,7 +321,7 @@ Which features are free and which need a licence: [docs/editions-and-switches.md
 
 ## Veqsio for Open Source
 
-Open-source projects get every paid feature, including the Enterprise modules, free for the project's own work (up to 50 users, renewed yearly). Conditions and how to apply: [`docs/open-source-program.md`](docs/open-source-program.md) and https://veqsio.com/docs/open-source-program.
+Open-source projects get every paid feature, including the Enterprise modules, free for the project's own work (unlimited users, renewed yearly). Conditions and how to apply: [`docs/open-source-program.md`](docs/open-source-program.md) and https://veqsio.com/docs/open-source-program.
 
 ## Contributing
 

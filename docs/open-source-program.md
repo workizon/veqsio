@@ -11,7 +11,7 @@ Open-source projects get the paid Veqsio features at no charge. If you maintain 
 ## What you get
 
 - A licence key for a self-hosted Veqsio with **every paid feature**: the Team and Enterprise features (SAML, OpenID Connect, SCIM, LDAP, issue security levels, audit export) and the modules Timesheets, Plans, ITSM, and Assets and CMDB.
-- Up to **50 users** (ask if your project is larger), valid for **12 months**, renewed by confirming that the project is still active.
+- **Unlimited users**, valid for **12 months**, renewed by confirming that the project is still active.
 - The same releases and updates as paying customers.
 
 ## What is not included
