@@ -498,7 +498,11 @@ app.get('/rest/api/2/serverInfo', async (c) => {
   };
   // What somebody who is not signed in learns: the product, its version and the title. Uptime, the database state and how many
   // issues, projects and people there are belong to people who work here (they tell an attacker what to try and how big the prize is).
-  if (!signedIn) return c.json({ baseUrl: base.baseUrl, version: base.version, versionNumbers: base.versionNumbers, deploymentType: base.deploymentType, serverTime: base.serverTime, serverTitle: base.serverTitle });
+  // SERVERINFO_HIDE_VERSION=1 (public demo) also withholds the version from people who are not signed in.
+  if (!signedIn) {
+    const hideVersion = process.env.SERVERINFO_HIDE_VERSION === '1';
+    return c.json({ baseUrl: base.baseUrl, ...(hideVersion ? {} : { version: base.version, versionNumbers: base.versionNumbers }), deploymentType: base.deploymentType, serverTime: base.serverTime, serverTitle: base.serverTitle });
+  }
   return c.json({
     ...base,
     uptime: process.uptime(),

@@ -1,5 +1,5 @@
 import app from './app';
-import { configureConnectionPool, client } from './db';
+import { configureConnectionPool, client, jobLockClient } from './db';
 import { assertSchemaUpToDate } from './db/schema-guard';
 import { initLicense } from './license';
 import { syncModules, startModuleJobs } from './modules/host';
@@ -63,7 +63,7 @@ for (const sig of ['SIGTERM', 'SIGINT'] as const) {
       stopListening: () => { void server.stop(); },
       forceClose: () => server.stop(true),
       stopJobs,
-      closeDb: async () => { await shutdownTracing(); await client.end({ timeout: 5 }); },
+      closeDb: async () => { await shutdownTracing(); await Promise.all([client.end({ timeout: 5 }), jobLockClient.end({ timeout: 5 })]); },
       inFlight: () => httpInFlight.get(),
       exit: (code) => process.exit(code),
     });

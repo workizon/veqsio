@@ -8,11 +8,12 @@
  * Exclusion: each run executes inside a transaction that first calls `pg_try_advisory_xact_lock(key)`. If another
  * node holds it the run is skipped (counted as `skipped_locked`). The lock is released when the transaction ends,
  * even if the node dies, so no lease can get stuck. Jobs that are already idempotent per slot (recurring issues,
- * IMAP leases) still go through it; the cost is one idle connection while the job runs.
+ * IMAP leases) still go through it; the cost is one idle connection while the job runs, taken from a separate
+ * pool (`jobLockClient`) so that it can never starve the pool the job itself and the requests use.
  */
 import { createHash } from 'node:crypto';
 import { hostname } from 'node:os';
-import { client } from '../db';
+import { jobLockClient } from '../db';
 import { redis } from '../services/cache';
 import { jobLastDuration, jobLastRun, jobLastSuccess, jobRuns } from './metrics';
 import { logger } from './logger';
@@ -96,7 +97,8 @@ async function runJobOnceUntraced<R>(job: JobDef<R>): Promise<JobResult> {
     if (job.perNode) {
       await exec();
     } else {
-      await client.begin(async (tx) => {
+      // The lock transaction lives on its own pool (see db.ts): job.run() draws on the main pool and must never wait for it.
+      await jobLockClient.begin(async (tx) => {
         const [row] = await tx`select pg_try_advisory_xact_lock(${lockKey(job.name).toString()}::bigint) as ok`;
         if (!row?.ok) { result = 'skipped_locked'; return; }
         await exec();
