@@ -6,7 +6,7 @@ This document describes how Veqsio protects data and what it assumes. To report 
 
 Three ways to prove who you are, all resolved by `sessionMiddleware` (`packages/api/src/auth/middleware.ts`) into one `user` on the request:
 
-- **Sessions.** Username and password create a server-side session; the browser holds an opaque `session` cookie (`HttpOnly`, `SameSite=Lax`). Passwords are stored as bcrypt hashes.
+- **Sessions.** Username and password create a server-side session; the browser holds an opaque `session` cookie (`HttpOnly`, `SameSite=Lax`, and `Secure` whenever `WEB_URL` is `https`; an installation served over plain `http` must leave it off or the browser drops the cookie; `COOKIE_SECURE=true|false` overrides). Passwords are stored as bcrypt hashes.
 - **Personal access tokens (PATs).** Sent as `Authorization: Bearer <token>`. Only a SHA-256 hash of the token is stored; every token expires (default 90 days, at most 365) and carries scopes (see [Token scopes](#token-scopes)).
 - **SSO.** Microsoft Entra ID sign-in (`routes/sso.ts`) and generic OpenID Connect providers (`routes/oidc.ts`, see [Enterprise identity](#enterprise-identity)) end in the same session cookie.
 - **SCIM bearer tokens** authenticate only the `/scim/v2` provisioning API and nothing else.
@@ -205,7 +205,7 @@ Severity is the author's judgement for a typical self-hosted deployment. "Confir
 | 18 | Info | Notification emails for created/updated/commented issues were never sent: the routes passed the API response shape where the sender expected a database row, every lookup threw `Undefined values are not allowed`, and the exception was swallowed. Found because the failing queries dominated the load-test log. | Fixed (`asIssueRow`). Not a vulnerability, but it means email header injection and escaping could only now be tested end to end: both hold. |
 | 19 | Info | `ADD_COMMENTS` was missing from the seeded default permission scheme, so ordinary users of a fresh installation could not comment. | Fixed in `packages/db/seed.ts` (existing installations: add the entry to the scheme). |
 
-**CSRF posture (documented decision).** Cookies are `HttpOnly; SameSite=Lax` (`Secure` in production). On top of that `csrfGuard` refuses cookie-authenticated `POST/PUT/PATCH/DELETE` requests when `Sec-Fetch-Site` is `cross-site`, when an `Origin` header is present that is neither `WEB_URL` (or one of `CORS_ORIGINS`) nor the request's own host, or when the body is not JSON (multipart only on upload endpoints). Requests without those headers (curl, scripts) and bearer-token requests are unaffected. This makes `WEB_URL` mandatory in production, which the deployment guide already requires. CORS allows only `WEB_URL` with credentials.
+**CSRF posture (documented decision).** Cookies are `HttpOnly; SameSite=Lax` (`Secure` in production over HTTPS). On top of that `csrfGuard` refuses cookie-authenticated `POST/PUT/PATCH/DELETE` requests when `Sec-Fetch-Site` is `cross-site`, when an `Origin` header is present that is neither `WEB_URL` (or one of `CORS_ORIGINS`) nor the request's own host, or when the body is not JSON (multipart only on upload endpoints). Requests without those headers (curl, scripts) and bearer-token requests are unaffected. This makes `WEB_URL` mandatory in production, which the deployment guide already requires. CORS allows only `WEB_URL` with credentials.
 
 ### What the suite does not cover (honest limits)
 

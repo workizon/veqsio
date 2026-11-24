@@ -4,6 +4,20 @@ All notable changes to Veqsio (community edition). The format follows [Keep a Ch
 version numbers follow [Semantic Versioning](https://semver.org/). Every `## [x.y.z]` section is published as the notes of the GitHub
 release `vx.y.z` (see `scripts/release.sh`). The enterprise edition (`veqsio-ee`) uses the same version numbers.
 
+## [1.3.1] - 2026-11-24
+
+[security]
+
+### Security
+- Session and single sign-on cookies are marked `Secure` again on HTTPS installations. The API bundle had fixed `NODE_ENV` at build time, which also switched off the production checks for SAML (browser binding of the login), LDAP (no plain-text bind) and the OIDC/SAML redirect addresses. The build now keeps it a runtime setting and fails if it does not. Installations served over plain `http://` keep working without the flag; `COOKIE_SECURE=true|false` overrides the choice.
+- Portal-only customers can no longer list or look up the users of the organisation (`/rest/api/2/user`, `/rest/api/2/user/search`, which returned names and e-mail addresses) or read the internal wiki (`/rest/api/2/pages`). They still see their own profile.
+- The web app no longer sends the `X-Powered-By` header.
+
+### Fixed
+- Background jobs could exhaust the database connection pool and stall every request (each job held one connection for its lock and waited for a second one). Job locks now use their own small pool (`DB_JOB_LOCK_POOL_MAX`, default 16).
+- `SERVERINFO_HIDE_VERSION=1` leaves the version out of the public `serverInfo` response.
+- Integration tests: hooks get the same 30 s timeout as tests (random failures on slow CI runners).
+
 ## [1.3.0] - 2026-11-20
 
 ### Added

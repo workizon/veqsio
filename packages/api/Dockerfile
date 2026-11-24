@@ -19,7 +19,9 @@ COPY packages/db ./packages/db
 COPY packages/shared ./packages/shared
 COPY packages/sdk ./packages/sdk
 WORKDIR /app/packages/api
-RUN bun build src/index.ts --outdir dist --target bun
+# --define keeps NODE_ENV a runtime read: without it bun inlines "development" and Secure cookies, SAML/LDAP/OIDC production checks are off.
+RUN bun build src/index.ts --outdir dist --target bun --define process.env.NODE_ENV=process.env.NODE_ENV \
+ && grep -q "process.env.NODE_ENV" dist/index.js
 
 # Production stage — minimal image with only the bundled artifact
 FROM oven/bun:1-alpine

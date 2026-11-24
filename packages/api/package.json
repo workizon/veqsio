@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun --watch src/index.ts",
-    "build": "bun build src/index.ts --outdir dist --target bun",
+    "build": "bun build src/index.ts --outdir dist --target bun --define process.env.NODE_ENV=process.env.NODE_ENV",
     "start": "bun dist/index.js",
     "lint": "eslint src/",
     "test": "bun test src/**/*.test.ts tests/integration/all.test.ts",

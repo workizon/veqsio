@@ -7,6 +7,7 @@ import { loginRetryAfter, recordLoginFailure, clearLoginFailures } from '../auth
 import { setCookie, deleteCookie, getCookie } from 'hono/cookie';
 import { deleteSession } from '../auth/session';
 import type { AppContext } from '../auth/middleware';
+import { secureCookies } from '../lib/cookie-security';
 
 const app = new Hono<AppContext>();
 
@@ -33,7 +34,7 @@ app.post('/rest/auth/1/session', async (c) => {
   await clearLoginFailures(ip, body.username);
   setCookie(c, 'session', result.sessionId, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: secureCookies(),
     sameSite: 'Lax',
     path: '/',
     maxAge: 30 * 24 * 60 * 60,

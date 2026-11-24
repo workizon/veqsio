@@ -20,6 +20,7 @@ import {
 import { buildAuthnRequestUrl, describeCertificate } from '../auth/saml-validator';
 import { spConfigFor } from '../auth/saml-service';
 import { MAX_SAML_RESPONSE_B64, splitPemCertificates } from '../auth/saml-xml';
+import { secureCookies } from '../lib/cookie-security';
 
 const app = new Hono<AppContext>();
 
@@ -87,7 +88,7 @@ app.get('/rest/auth/1/saml/:slug/login', async (c) => {
     const { url, bindToken } = await startLogin(provider, { requestOrigin: new URL(c.req.url).origin, next: c.req.query('next') });
     // The ACS request is a cross-site POST from the IdP, so the binding cookie must be SameSite=None there (HTTPS only).
     setCookie(c, SAML_BIND_COOKIE, bindToken, {
-      httpOnly: true, secure: isProd(), sameSite: isProd() ? 'None' : 'Lax', path: COOKIE_PATH, maxAge: 600,
+      httpOnly: true, secure: secureCookies(), sameSite: secureCookies() ? 'None' : 'Lax', path: COOKIE_PATH, maxAge: 600,
     });
     c.header('Cache-Control', 'no-store');
     return c.redirect(url, 302);
@@ -122,7 +123,7 @@ app.post('/rest/auth/1/saml/:slug/acs', async (c) => {
 
   try {
     const result = await finishLogin(provider, { samlResponse, relayState, bindToken, requestOrigin: new URL(c.req.url).origin });
-    setCookie(c, 'session', result.sessionId, { httpOnly: true, secure: isProd(), sameSite: 'Lax', path: '/', maxAge: 30 * 24 * 60 * 60 });
+    setCookie(c, 'session', result.sessionId, { httpOnly: true, secure: secureCookies(), sameSite: 'Lax', path: '/', maxAge: 30 * 24 * 60 * 60 });
     void audit('SAML_LOGIN', { actorId: result.userId, actorName: result.username });
     return c.redirect(safeRedirectPath(result.next), 303);
   } catch (err) {

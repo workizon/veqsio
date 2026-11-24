@@ -211,3 +211,26 @@ export function requireIssueAccess(permission: string = 'BROWSE_PROJECTS') {
     await next();
   });
 }
+
+/**
+ * False for a portal-only customer: someone enrolled as a customer of a service desk who holds neither BROWSE_USERS nor
+ * ADMINISTER and may browse no project. Portal customers sign in to the same app but must not see the people directory or
+ * the internal wiki. Everybody else (including a new member who has no project yet) counts as internal.
+ */
+export async function isInternalUser(user: typeof schema.users.$inferSelect): Promise<boolean> {
+  const [customer] = await db.select({ id: schema.serviceDeskCustomers.userId }).from(schema.serviceDeskCustomers)
+    .where(eq(schema.serviceDeskCustomers.userId, user.id)).limit(1);
+  if (!customer) return true;
+  if (await checkGlobalPermission(user, 'BROWSE_USERS')) return true;
+  if (await checkGlobalPermission(user, 'ADMINISTER')) return true;
+  const projects = await db.select({ id: schema.projects.id }).from(schema.projects);
+  for (const p of projects) if (await checkProjectPermission(user, p.id, 'BROWSE_PROJECTS')) return true;
+  return false;
+}
+
+/** 404 (not 403, so nothing is confirmed to exist) for portal-only customers; use after sessionMiddleware. */
+export const requireInternalUser = createMiddleware<AppContext>(async (c, next) => {
+  const user = c.get('user');
+  if (user && !(await isInternalUser(user))) return c.json({ errorMessages: ['Resource not found'] }, 404);
+  await next();
+});

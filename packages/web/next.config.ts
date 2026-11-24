@@ -7,6 +7,7 @@ const rootPkg = JSON.parse(readFileSync(join(__dirname, '../../package.json'), '
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  poweredByHeader: false, // do not advertise the framework in every response
   env: {
     NEXT_PUBLIC_VEQSIO_VERSION: rootPkg.version,
     NEXT_PUBLIC_VEQSIO_BUILD: (process.env.VEQSIO_BUILD || 'dev').slice(0, 64),

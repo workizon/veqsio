@@ -199,4 +199,28 @@ describe('Portal hardening: limits, attachments, IDOR', () => {
     expect(res.headers.get('x-frame-options')).toBe('DENY');
     expect(res.headers.get('referrer-policy')).toBe('strict-origin-when-cross-origin');
   });
+
+  test('a portal-only customer cannot read the people directory or the internal wiki (2026-11-24 audit)', async () => {
+    // carol browses no project and holds no global permission: she only exists as a customer of the desk.
+    let res = await call(carol, 'GET', '/rest/api/2/user/search?query=');
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual([]);
+    res = await call(carol, 'GET', '/rest/api/2/user');
+    expect((await res.json()).values).toEqual([]);
+    expect((await call(carol, 'GET', '/rest/api/2/user?username=admin')).status).toBe(404);
+    res = await call(carol, 'GET', '/rest/api/2/user?username=carol');
+    expect(res.status).toBe(200);
+    expect((await res.json()).emailAddress).toBe('carol@example.com');
+
+    res = await call(admin, 'POST', '/rest/api/2/pages', { title: 'Internal handbook', body: 'staff only' });
+    expect(res.status).toBe(201);
+    const pageId = (await res.json()).id;
+    for (const [m, u] of [['GET', '/rest/api/2/pages'], ['GET', `/rest/api/2/pages/${pageId}`], ['GET', '/rest/api/2/pages/search?q=handbook'], ['PUT', `/rest/api/2/pages/${pageId}`], ['POST', '/rest/api/2/pages']] as const)
+      expect((await call(carol, m, u, m === 'GET' ? undefined : { title: 'x', body: 'y' })).status).toBe(404);
+
+    // staff keep both
+    expect(((await (await call(admin, 'GET', '/rest/api/2/user/search?query=carol')).json()) as unknown[]).length).toBe(1);
+    expect((await call(admin, 'GET', `/rest/api/2/pages/${pageId}`)).status).toBe(200);
+  });
+
 });

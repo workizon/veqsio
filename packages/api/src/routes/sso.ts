@@ -9,6 +9,7 @@ import { db } from '../db';
 import * as schema from '@veqsio/db';
 import { eq } from 'drizzle-orm';
 import type { AppContext } from '../auth/middleware';
+import { secureCookies } from '../lib/cookie-security';
 
 const app = new Hono<AppContext>();
 
@@ -50,7 +51,7 @@ app.get('/rest/auth/1/sso/microsoft/callback', async (c) => {
     const result = await handleSSOCallback(code, state, settings);
     setCookie(c, 'session', result.sessionId, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: secureCookies(),
       sameSite: 'Lax',
       path: '/',
       maxAge: 30 * 24 * 60 * 60,

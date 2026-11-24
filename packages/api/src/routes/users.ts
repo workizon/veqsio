@@ -9,6 +9,7 @@ import { parseOrderBy, orderByClauses } from '../lib/order-by';
 import type { AppContext } from '../auth/middleware';
 
 import { db } from '../db';
+import { isInternalUser as canReadUserDirectory } from '../middleware/permissions';
 
 const app = new Hono<AppContext>();
 app.use('/rest/api/2/user*', sessionMiddleware);
@@ -17,6 +18,11 @@ app.use('/rest/api/2/myself', sessionMiddleware);
 
 app.get('/rest/api/2/user', requireAuth, async (c) => {
   const username = c.req.query('username');
+  const directory = await canReadUserDirectory(c.get('user')!);
+  if (!directory && username !== c.get('user')!.username) {
+    if (username) return c.json({ errorMessages: ['User not found'] }, 404);
+    return c.json({ startAt: 0, maxResults: 0, total: 0, isLast: true, values: [] });
+  }
   if (username) {
     const users = await db.select().from(schema.users).where(eq(schema.users.username, username)).limit(1);
     if (users.length === 0) return c.json({ errorMessages: ['User not found'] }, 404);
@@ -68,6 +74,7 @@ app.get('/rest/api/2/user', requireAuth, async (c) => {
 });
 
 app.get('/rest/api/2/user/search', requireAuth, async (c) => {
+  if (!(await canReadUserDirectory(c.get('user')!))) return c.json([]);
   const query = c.req.query('query') || '';
   const users = await db
     .select()

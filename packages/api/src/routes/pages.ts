@@ -1,8 +1,9 @@
 /**
  * Wiki / Pages (feature switch `pages`). See docs/pages.md.
  *
- * Visibility: a workspace page (no project) is visible to every signed-in user; a project page needs BROWSE_PROJECTS on
- * its project. Anything the caller may not see answers 404, never 403. Editing rules live in pages/rules.ts.
+ * Visibility: a workspace page (no project) is visible to every signed-in member of the organisation (not to portal-only
+ * customers); a project page needs BROWSE_PROJECTS on its project. Anything the caller may not see answers 404, never 403.
+ * Editing rules live in pages/rules.ts.
  */
 import { Hono } from 'hono';
 import { z } from 'zod';
@@ -11,7 +12,7 @@ import * as schema from '@veqsio/db';
 import { db } from '../db';
 import { sessionMiddleware, requireAuth } from '../auth/middleware';
 import type { AppContext } from '../auth/middleware';
-import { checkProjectPermission } from '../middleware/permissions';
+import { checkProjectPermission, requireInternalUser } from '../middleware/permissions';
 import { getBrowsableProjectIds, isAdminUser } from '../services/browse';
 import { issueVisibleSql } from '../security/issue-security';
 import { createIssue } from '../issues/service';
@@ -28,6 +29,9 @@ type PageRow = typeof schema.pages.$inferSelect;
 const app = new Hono<AppContext>();
 app.use('/rest/api/2/pages', sessionMiddleware);
 app.use('/rest/api/2/pages/*', sessionMiddleware);
+// The wiki is internal: portal-only customers get 404 for every page route.
+app.use('/rest/api/2/pages', requireInternalUser);
+app.use('/rest/api/2/pages/*', requireInternalUser);
 
 const MAX_BODY = 200_000;
 const notFound = (what = 'Page') => ({ errorMessages: [`${what} not found`] });

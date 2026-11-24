@@ -11,6 +11,7 @@ import { featureRefusal, hasFeature, requireFeature } from '../license';
 import { encryptSecret, SecretsConfigError } from '../auth/secrets';
 import { oidcClient, OidcError, safeRedirectPath } from '../auth/oidc-client';
 import { finishLogin, getEnabledProviderBySlug, OIDC_BIND_COOKIE, OidcLoginError, startLogin, type OidcProviderRow } from '../auth/oidc-service';
+import { secureCookies } from '../lib/cookie-security';
 
 const app = new Hono<AppContext>();
 
@@ -45,7 +46,7 @@ app.get('/rest/auth/1/oidc/:slug/login', async (c) => {
       next: c.req.query('next'),
     });
     setCookie(c, OIDC_BIND_COOKIE, bindToken, {
-      httpOnly: true, secure: isProd(), sameSite: 'Lax', path: COOKIE_PATH, maxAge: 600,
+      httpOnly: true, secure: secureCookies(), sameSite: 'Lax', path: COOKIE_PATH, maxAge: 600,
     });
     c.header('Cache-Control', 'no-store');
     return c.redirect(url, 302);
@@ -71,7 +72,7 @@ app.get('/rest/auth/1/oidc/:slug/callback', async (c) => {
   try {
     const result = await finishLogin(provider, { code, state, bindToken, requestOrigin: new URL(c.req.url).origin });
     setCookie(c, 'session', result.sessionId, {
-      httpOnly: true, secure: isProd(), sameSite: 'Lax', path: '/', maxAge: 30 * 24 * 60 * 60,
+      httpOnly: true, secure: secureCookies(), sameSite: 'Lax', path: '/', maxAge: 30 * 24 * 60 * 60,
     });
     return c.redirect(safeRedirectPath(result.next), 302);
   } catch (err) {
