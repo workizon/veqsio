@@ -1,3 +1,7 @@
+import { setDefaultTimeout } from 'bun:test';
+// bunfig.toml's [test] timeout covers tests but not beforeAll/afterAll hooks, which keep Bun's 5 s default. Several suites seed or
+// truncate a lot of data in their hooks; on a slow CI runner that took over 5 s and failed ten suites at random (2026-11-23).
+setDefaultTimeout(30000);
 process.env.DATABASE_URL = process.env.TEST_DATABASE_URL || 'postgresql://veqsio:veqsio@localhost:5460/veqsio_test';
 process.env.STORAGE_TYPE = 'mock';
 // One long suite shares a handful of users; the production default (100/min) would make unrelated tests flaky.
